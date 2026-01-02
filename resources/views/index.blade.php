@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AceMate | 專業網球約打媒合與球員卡社群</title>
+    <title>AceMate | 專業網球約打媒合與球友卡社群</title>
     <!-- SEO Meta Tags -->
-    <meta name="description" content="AceMate 是全台最專業的網球約打平台，提供職業級球員卡製作、透明約打費用與安全站內信媒合系統。">
+    <meta name="description" content="AceMate 是全台最專業的網球約打平台，提供職業級球友卡製作、透明約打費用與安全站內信媒合系統。">
+    <style>[v-cloak] { display: none !important; }</style>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <script src="https://daybrush.com/moveable/release/latest/dist/moveable.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Noto+Sans+TC:wght@400;700;900&display=swap');
-        
         body { 
             font-family: 'Noto Sans TC', 'Inter', sans-serif; 
             font-size: 16px;
@@ -19,8 +20,6 @@
             -moz-osx-font-smoothing: grayscale;
             text-rendering: optimizeLegibility;
         }
-        
-        [v-cloak] { display: none; }
         
         .card-shadow {
             box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
@@ -52,6 +51,24 @@
         /* 隱藏捲軸但保留滾動功能 */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Step Transitions */
+        .step-enter-active, .step-leave-active {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .step-enter-from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        .step-leave-to {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+
+        /* Moveable Customization */
+        .moveable-control.moveable-origin { display: none !important; }
+        .moveable-line { background: #3b82f6 !important; opacity: 0.5; }
+        .moveable-control { border: 2px solid #3b82f6 !important; background: #fff !important; width: 12px !important; height: 12px !important; margin-top: -6px !important; margin-left: -6px !important; border-radius: 50% !important; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 leading-normal">
@@ -62,18 +79,25 @@
 </script>
 
 <script type="text/x-template" id="signature-pad-template">
-    <div v-if="active" class="absolute inset-0 z-[100] bg-black/20 backdrop-blur-[2px] cursor-crosshair overflow-hidden rounded-2xl">
+    <div v-if="active" class="absolute inset-0 z-[100] bg-black/40 backdrop-blur-[4px] cursor-crosshair overflow-hidden rounded-2xl animate__animated animate__fadeIn animate__faster">
         <canvas ref="canvas" @mousedown="start" @mousemove="draw" @mouseup="stop" @mouseleave="stop" @touchstart="startTouch" @touchmove="moveTouch" @touchend="stop" class="w-full h-full touch-none"></canvas>
-        <div class="absolute top-4 right-4 flex gap-2">
-            <button @click.stop="clear" class="p-2 bg-white/90 hover:bg-red-50 text-slate-900 rounded-full shadow-xl transition-all">
-                <app-icon name="eraser" class-name="w-4 h-4"></app-icon>
+        
+        <!-- Controls -->
+        <div class="absolute top-4 right-4 flex flex-col gap-3">
+            <button @click.stop="$emit('close')" class="p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md border border-white/20 transition-all shadow-xl" title="取消">
+                <app-icon name="x" class-name="w-5 h-5"></app-icon>
             </button>
-            <button @click.stop="$emit('close')" class="p-2 bg-slate-900 text-white rounded-full shadow-xl transition-all">
-                <app-icon name="check-circle" class-name="w-4 h-4"></app-icon>
+            <button @click.stop="clear" class="p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md border border-white/20 transition-all shadow-xl" title="清除">
+                <app-icon name="eraser" class-name="w-5 h-5"></app-icon>
             </button>
         </div>
-        <div class="absolute bottom-10 left-0 right-0 text-center pointer-events-none">
-            <span class="bg-black/60 text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest italic">請在此處手寫簽名</span>
+        
+        <!-- Bottom Hint and Confirm -->
+        <div class="absolute bottom-6 left-0 right-0 flex flex-col items-center gap-4 pointer-events-none">
+            <span class="bg-black/60 text-white text-[10px] font-black px-5 py-2 rounded-full uppercase tracking-[0.2em] italic border border-white/10">請在此處手寫簽名</span>
+            <button @click.stop="confirm" class="pointer-events-auto bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl transition-all hover:scale-105">
+                確認簽名並保存
+            </button>
         </div>
     </div>
 </script>
@@ -83,11 +107,8 @@
         <div :class="['absolute -inset-1 bg-gradient-to-br rounded-[24px] blur-[2px] group-hover:blur-[6px] transition-all duration-700', themeStyle.border]"></div>
         <div :class="['relative h-full rounded-2xl overflow-hidden card-shadow flex flex-col border border-white/20', themeStyle.bg]">
             
-            <signature-pad :active="isSigning" @save="sig => $emit('update-signature', sig)" @close="$emit('close-signing')" />
             
             <!-- 簽名顯示 (覆蓋全卡以達成 1:1) -->
-            <img v-if="player.signature" :src="player.signature" class="absolute inset-0 w-full h-full opacity-90 filter brightness-200 pointer-events-none object-contain z-30">
-
             <div class="absolute top-4 left-4 right-4 z-20 flex justify-end items-center">
                 <!-- Logo Watermark -->
                 <div class="flex items-center gap-2 filter drop-shadow-lg transition-all duration-500">
@@ -99,14 +120,36 @@
             </div>
 
             <div class="h-[80%] relative overflow-hidden">
-                <img :src="player.photo || 'https://images.unsplash.com/photo-1614743758466-e569f4791116?q=80&w=650&auto=format&fit=crop'" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000">
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-90"></div>
+                <img :src="player.photo || 'https://images.unsplash.com/photo-1614743758466-e569f4791116?q=80&w=650&auto=format&fit=crop'" 
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
+                    :style="{ transform: `translate3d(${player.photoX || 0}px, ${player.photoY || 0}px, 0) scale(${player.photoScale || 1})` }">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-90 pointer-events-none"></div>
                 
-                <!-- 自介浮層 (支援多行) -->
-                <div v-if="player.intro" class="absolute top-16 left-4 right-4 bg-black/50 backdrop-blur-lg p-5 rounded-2xl border border-white/10 transform -rotate-1 shadow-2xl z-20">
-                    <p class="text-[15px] text-white font-bold leading-relaxed italic whitespace-pre-line">「@{{ player.intro }}」</p>
+                <signature-pad :active="isSigning" @save="sig => $emit('update-signature', sig)" @close="$emit('close-signing')" />
+                
+                <!-- 簽名顯示 (Moveable.js 整合) -->
+                <div v-if="player.signature" 
+                    :class="['absolute inset-x-0 top-0 h-1/2 z-40 flex items-center justify-center touch-none', isSigning ? 'pointer-events-none' : '']">
+                    <div class="relative group/sig">
+                        <img :src="player.signature" 
+                            ref="sigImage"
+                            id="target-signature"
+                            class="max-w-[120px] max-h-full opacity-90 filter brightness-200 object-contain transition-opacity duration-300"
+                            :style="{ transform: `translate3d(${player.sigX || 0}px, ${player.sigY || 0}px, 0) scale(${player.sigScale || 1}) rotate(${player.sigRotate || 0}deg)` }"
+                            @load="$emit('sig-ready', $event.target)">
+                        
+                        <!-- Floating Controls for Signature (Shown on hover) -->
+                        <div v-if="!isSigning" class="absolute -top-12 left-1/2 -translate-x-1/2 flex gap-2 opacity-0 group-hover/sig:opacity-100 transition-opacity pointer-events-auto">
+                            <button type="button" @click.stop="$emit('update-signature', null)" class="p-2 bg-red-500 text-white rounded-full shadow-lg hover:scale-110 transition-all">
+                                <app-icon name="trash" class-name="w-4 h-4"></app-icon>
+                            </button>
+                            <button type="button" @click.stop="$emit('edit-signature')" class="p-2 bg-blue-600 text-white rounded-full shadow-lg hover:scale-110 transition-all">
+                                <app-icon name="edit-3" class-name="w-4 h-4"></app-icon>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-
+                
                 <div class="absolute bottom-4 left-4 flex flex-col items-start gap-2">
                     <div :class="['flex items-center gap-2 p-0.5 rounded-xl shadow-2xl transform -rotate-2', themeStyle.border]">
                        <div class="bg-slate-900 px-3 py-1.5 rounded-[10px] flex items-center gap-2">
@@ -115,7 +158,7 @@
                        </div>
                     </div>
                     <div class="bg-white/10 backdrop-blur-md px-3.5 py-2 rounded-lg border border-white/10 max-w-[200px]">
-                        <p class="text-[11px] font-bold text-white uppercase tracking-widest italic leading-tight">@{{ getLevelDesc(player.level) }}</p>
+                        <p class="text-[11px] font-bold text-white uppercase tracking-widest italic leading-tight">@{{ getLevelTag(player.level) }}</p>
                     </div>
                 </div>
             </div>
@@ -136,14 +179,14 @@
 <div id="app" v-cloak>
     <!-- Navigation -->
     <nav class="bg-white/90 backdrop-blur-xl border-b sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
-            <div class="flex items-center gap-3 cursor-pointer" @click="view = 'home'">
-                <div class="bg-blue-600 p-2 rounded-xl shadow-lg">
-                    <app-icon name="trophy" class-name="text-white w-6 h-6"></app-icon>
+        <div class="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 sm:gap-3 cursor-pointer shrink-0" @click="view = 'home'">
+                <div class="bg-blue-600 p-1.5 sm:p-2 rounded-xl shadow-lg">
+                    <app-icon name="trophy" class-name="text-white w-5 h-5 sm:w-6 h-6"></app-icon>
                 </div>
                 <div class="flex flex-col leading-none">
-                    <span class="font-black text-2xl tracking-tighter italic uppercase text-slate-900">Ace<span class="text-blue-600">Mate</span></span>
-                    <span class="text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase">愛思拍檔</span>
+                    <span class="font-black text-lg sm:text-2xl tracking-tighter italic uppercase text-slate-900">Ace<span class="text-blue-600">Mate</span></span>
+                    <span class="text-[8px] sm:text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase">愛思拍檔</span>
                 </div>
             </div>
             
@@ -155,10 +198,12 @@
                 </button>
             </div>
 
-            <div class="flex items-center gap-4">
-                <button v-if="!isLoggedIn" @click="view = 'auth'" class="text-slate-400 hover:text-slate-900 text-xs font-black uppercase tracking-widest transition-all">登入 / 註冊</button>
-                <button @click="view = 'create'" class="bg-slate-950 text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-blue-600 transition-all flex items-center gap-2 shadow-xl">
-                    <app-icon name="plus" class-name="w-5 h-5"></app-icon> 製作球員卡
+            <div class="flex items-center gap-2 sm:gap-4 shrink-0">
+                <button v-if="!isLoggedIn" @click="view = 'auth'" class="hidden sm:block text-slate-400 hover:text-slate-900 text-xs font-black uppercase tracking-widest transition-all">登入 / 註冊</button>
+                <button @click="view = 'create'" class="bg-slate-950 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-blue-600 transition-all flex items-center gap-2 shadow-xl">
+                    <app-icon name="plus" class-name="w-4 h-4 sm:w-5 h-5"></app-icon>
+                    <span class="hidden sm:inline">製作球友卡</span>
+                    <span class="sm:hidden">製作</span>
                 </button>
             </div>
         </div>
@@ -217,11 +262,11 @@
                         找球友，<span class="text-blue-600">就上 AceMate</span>
                     </h1>
                     <p class="text-slate-400 max-w-2xl mx-auto text-lg sm:text-xl font-medium leading-relaxed">
-                        全台最專業的網球約打媒合平台。製作專屬球員卡，在社群大廳獲得曝光，完全免費刊登。
+                        全台最專業的網球約打媒合平台。製作專屬球友卡，在社群大廳獲得曝光，完全免費刊登。
                     </p>
                     <div class="flex flex-col sm:flex-row gap-5 justify-center pt-8 px-4">
-                        <button @click="view = 'create'" class="bg-blue-600 text-white px-12 py-5 rounded-3xl font-black text-xl hover:scale-105 transition-all shadow-2xl shadow-blue-500/40">製作球員卡</button>
-                        <button @click="view = 'list'" class="bg-white/5 text-white border border-white/10 px-12 py-5 rounded-3xl font-black text-xl hover:bg-white/10 transition-all backdrop-blur-md">瀏覽球員大廳</button>
+                        <button @click="view = 'create'" class="bg-blue-600 text-white px-12 py-5 rounded-3xl font-black text-xl hover:scale-105 transition-all shadow-2xl shadow-blue-500/40">製作球友卡</button>
+                        <button @click="view = 'list'" class="bg-white/5 text-white border border-white/10 px-12 py-5 rounded-3xl font-black text-xl hover:bg-white/10 transition-all backdrop-blur-md">瀏覽球友大廳</button>
                     </div>
                 </div>
             </div>
@@ -259,7 +304,7 @@
                             專業網球社交<br><span class="text-blue-600">從這裡開始</span>
                         </h2>
                         <p class="text-slate-500 text-lg font-medium leading-relaxed">
-                            AceMate 不僅僅是一個約球網站，我們致力於建立一個高品質、誠信且專業的網球社群。透過數位球員卡，您可以更直觀地展示實力，並找到志同道合的夥伴。
+                            AceMate 不僅僅是一個約球網站，我們致力於建立一個高品質、誠信且專業的網球社群。透過數位球友卡，您可以更直觀地展示實力，並找到志同道合的夥伴。
                         </p>
                         <div class="space-y-6">
                             <div class="flex items-start gap-4">
@@ -304,195 +349,242 @@
             </div>
         </div>
 
-        <!-- Create View -->
-        <div v-if="view === 'create'" class="max-w-6xl mx-auto animate__animated animate__fadeInUp">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                <!-- Mobile Preview (Sticky) -->
-                <div class="lg:hidden sticky top-20 z-40 bg-slate-50/90 backdrop-blur-md py-3 -mx-4 px-4 border-b border-slate-200 shadow-sm">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-lg">
-                                <app-icon name="zap" class-name="w-4 h-4"></app-icon>
-                            </div>
-                            <div>
-                                <h3 class="text-xs font-black italic uppercase tracking-tight">Live Preview</h3>
-                            </div>
-                        </div>
-                        <button @click="scrollToSubmit" class="bg-slate-950 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg">發佈卡片</button>
-                    </div>
+        <!-- Create View (Refactored Wizard) -->
+        <div v-if="view === 'create'" class="max-w-4xl mx-auto animate__animated animate__fadeInUp">
+            <!-- Progress Bar -->
+            <div class="mb-10 px-4">
+                <div class="flex justify-between mb-4">
+                    <span v-for="s in 4" :key="s" :class="['text-[10px] font-black uppercase tracking-widest transition-colors duration-500', currentStep >= s ? 'text-blue-600' : 'text-slate-300']">
+                        Step @{{s}}
+                    </span>
                 </div>
-
-                <div class="lg:col-span-7 space-y-6">
-                    <div class="bg-white p-6 sm:p-12 rounded-[40px] shadow-2xl border border-slate-100">
-                        <div class="flex items-center justify-between mb-8">
-                            <h2 class="text-3xl font-black italic uppercase tracking-tighter">球員卡編輯器</h2>
-                            <span class="px-4 py-1.5 bg-blue-50 text-blue-600 text-[10px] font-black rounded-full uppercase tracking-widest italic">Professional Mode</span>
-                        </div>
-                        
-                        <form class="space-y-8" @submit.prevent="saveCard" id="create-form">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div class="space-y-4">
-                                    <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">1. 上傳形象照</label>
-                                    <div @click="triggerUpload" class="w-full aspect-[4/5] rounded-[32px] bg-slate-50 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:bg-blue-50 hover:border-blue-200 transition-all overflow-hidden shadow-inner group">
-                                        <img v-if="form.photo" :src="form.photo" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
-                                        <div v-else class="text-center p-6">
-                                            <div class="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                                                <app-icon name="upload" class-name="text-blue-600 w-8 h-8"></app-icon>
-                                            </div>
-                                            <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Upload Image</span>
-                                        </div>
-                                    </div>
-                                    <input id="photo-input" type="file" class="hidden" accept="image/*" @change="handleFileUpload">
-                                </div>
-                                <div class="space-y-6">
-                                    <div>
-                                        <label class="block text-[12px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3">球員姓名</label>
-                                        <input type="text" v-model="form.name" required class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-blue-500 outline-none font-bold text-lg shadow-inner" placeholder="例如: Roger Chen">
-                                    </div>
-                                    <div class="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label class="block text-[12px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3">主要地區</label>
-                                            <select v-model="form.region" class="w-full px-4 py-4 bg-slate-50 rounded-2xl font-bold text-base outline-none shadow-inner">
-                                                <option v-for="r in regions" :key="r" :value="r">@{{r}}</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label class="flex items-center justify-between text-[12px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3">
-                                                NTRP 程度
-                                                <button type="button" @click="showNtrpGuide = true" class="text-blue-600 hover:scale-110 transition-transform">
-                                                    <app-icon name="help" class-name="w-4 h-4"></app-icon>
-                                                </button>
-                                            </label>
-                                            <select v-model="form.level" class="w-full px-4 py-4 bg-slate-50 rounded-2xl font-bold text-base outline-none shadow-inner">
-                                                <option v-for="l in levels" :key="l" :value="l">@{{l}}</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="block text-[12px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3">個人簡介 / 約打宣告</label>
-                                        <textarea v-model="form.intro" class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-blue-500 outline-none font-bold text-base shadow-inner h-40" placeholder="例如: 
-擅長底線抽球，希望能找球友練習。
-平日晚上或週末下午皆可約！"></textarea>
-                                    </div>
-                                    <div class="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">持拍手</label>
-                                            <select v-model="form.handed" class="w-full px-4 py-4 bg-slate-50 rounded-2xl font-bold text-base outline-none shadow-inner">
-                                                <option value="右手">右手</option><option value="左手">左手</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">反手類型</label>
-                                            <select v-model="form.backhand" class="w-full px-4 py-4 bg-slate-50 rounded-2xl font-bold text-base outline-none shadow-inner">
-                                                <option value="單手反拍">單手反拍</option><option value="雙手反拍">雙手反拍</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">約打費用</label>
-                                        <select v-model="form.fee" class="w-full px-4 py-4 bg-blue-50 text-blue-900 border-2 border-blue-100 rounded-2xl font-black text-base outline-none">
-                                            <option value="免費 (交流為主)">免費 (交流為主)</option>
-                                            <option value="500 元 / hr (分攤場租)">500 元 / hr (分攤場租)</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="space-y-4">
-                                <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">3. 卡面風格與認證</label>
-                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                                    <button v-for="(t, key) in cardThemes" :key="key" type="button" @click="form.theme = key" 
-                                        :class="['p-4 rounded-2xl border-2 transition-all text-left relative overflow-hidden', form.theme === key ? 'border-blue-600 bg-blue-50' : 'border-slate-100 bg-white hover:border-slate-200']">
-                                        <div class="text-[10px] font-black uppercase tracking-widest mb-1">@{{ t.label.split(' ')[0] }}</div>
-                                        <div class="w-full h-1 rounded-full bg-gradient-to-r" :class="t.border"></div>
-                                        <div v-if="form.theme === key" class="absolute top-2 right-2 text-blue-600">
-                                            <app-icon name="check-circle" class-name="w-4 h-4"></app-icon>
-                                        </div>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="bg-slate-900 p-6 rounded-[32px] text-white space-y-4">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
-                                        <app-icon name="eraser" class-name="w-5 h-5 text-blue-400"></app-icon>
-                                        <h4 class="font-black italic uppercase tracking-tight">手寫認證簽名</h4>
-                                    </div>
-                                    <button type="button" @click="isSigning = true" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
-                                        @{{ form.signature ? '重新簽名' : '點擊開始簽名' }}
-                                    </button>
-                                </div>
-                                <p class="text-[10px] text-slate-400 font-medium italic">點擊按鈕後，請直接在右側（或下方）的卡片預覽區進行手寫簽名。</p>
-                            </div>
-
-                            <button type="submit" class="w-full bg-slate-950 text-white py-6 rounded-[28px] font-black text-xl hover:bg-blue-600 transition-all shadow-2xl flex items-center justify-center gap-4 group">
-                                <app-icon name="check-circle" class-name="w-6 h-6 group-hover:scale-110 transition-transform"></app-icon> 完成並發佈卡片
-                            </button>
-                        </form>
-                    </div>
-                </div>
-                
-                <div class="lg:col-span-5 lg:sticky lg:top-28 flex flex-col items-center">
-                    <div class="hidden lg:block mb-8 text-center">
-                        <h3 class="text-[10px] font-black uppercase tracking-[0.4em] text-blue-600 mb-2">Live Preview</h3>
-                        <p class="text-xs text-slate-400 font-bold italic">即時預覽您的職業球員卡</p>
-                    </div>
-                    <player-card :player="form" :is-signing="isSigning" @update-signature="sig => form.signature = sig" @close-signing="isSigning = false" />
-                    <div v-if="isSigning" class="mt-6 lg:hidden animate__animated animate__pulse animate__infinite">
-                        <span class="bg-blue-600 text-white text-[10px] font-black px-6 py-2 rounded-full uppercase tracking-widest italic shadow-xl">請直接在上方卡片簽名</span>
-                    </div>
+                <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                    <div class="h-full bg-blue-600 rounded-full transition-all duration-700 ease-out" :style="{ width: (currentStep / 4) * 100 + '%' }"></div>
                 </div>
             </div>
 
-            <!-- NTRP Guide Modal (Full Screen Panorama) -->
-            <transition name="modal">
-                <div v-if="showNtrpGuide" class="fixed inset-0 z-[600] bg-slate-950 flex flex-col modal-content" @click.self="showNtrpGuide = false">
-                    <!-- Header -->
-                    <div class="px-8 py-8 flex items-center justify-between border-b border-white/10 shrink-0">
-                        <div class="flex items-center gap-6">
-                            <div class="bg-blue-600 p-4 rounded-3xl shadow-2xl shadow-blue-600/20">
-                                <app-icon name="help" class-name="w-8 h-8 text-white"></app-icon>
-                            </div>
-                            <div>
-                                <h3 class="text-3xl font-black italic uppercase tracking-[0.2em] text-white">NTRP 等級對照表</h3>
-                                <p class="text-slate-500 font-bold text-sm mt-1 uppercase tracking-widest">National Tennis Rating Program Guide</p>
-                            </div>
-                        </div>
-                        <button @click="showNtrpGuide = false" class="group flex items-center gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-white/10">
-                            <span class="text-xs font-black uppercase tracking-widest text-white/50 group-hover:text-white">關閉說明</span>
-                            <app-icon name="x" class-name="w-6 h-6 text-white/50 group-hover:text-white"></app-icon>
-                        </button>
-                    </div>
-
-                    <!-- Content Grid -->
-                    <div class="flex-1 overflow-y-auto p-8 sm:p-12 no-scrollbar">
-                        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            <div v-for="(desc, lvl) in levelDescs" :key="lvl" class="bg-white/5 border border-white/10 p-8 rounded-[32px] hover:bg-blue-600/10 hover:border-blue-500/50 transition-all duration-500 group relative overflow-hidden">
-                                <div class="absolute -top-4 -right-4 w-24 h-24 bg-blue-600/5 rounded-full blur-3xl group-hover:bg-blue-600/20 transition-all"></div>
-                                <div class="flex items-center justify-between mb-6">
-                                    <div class="bg-white text-slate-950 w-16 h-12 rounded-2xl flex items-center justify-center font-black italic text-2xl shadow-xl">@{{lvl}}</div>
-                                    <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse opacity-0 group-hover:opacity-100"></div>
-                                </div>
-                                <p class="text-slate-300 font-bold text-base leading-relaxed">@{{desc}}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Footer -->
-                    <div class="p-8 border-t border-white/10 bg-slate-950/80 backdrop-blur-xl flex justify-center shrink-0">
-                        <button @click="showNtrpGuide = false" class="w-full max-w-md bg-blue-600 text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] hover:bg-blue-500 transition-all shadow-[0_20px_50px_rgba(37,99,235,0.3)] text-lg">
-                            了解，返回編輯
-                        </button>
+            <div class="bg-white p-6 sm:p-12 rounded-[40px] shadow-2xl border border-slate-100 relative min-h-[600px] flex flex-col">
+                <div class="flex items-center justify-between mb-10">
+                    <div>
+                        <h2 class="text-3xl font-black italic uppercase tracking-tighter text-slate-900">
+                            <span v-if="currentStep === 1">1. 形象與姓名</span>
+                            <span v-if="currentStep === 2">2. 技巧與分級</span>
+                            <span v-if="currentStep === 3">3. 地區與資訊</span>
+                            <span v-if="currentStep === 4">4. 預覽與發佈</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 font-bold mt-1 uppercase tracking-widest">@{{ stepTitles[currentStep-1] }}</p>
                     </div>
                 </div>
-            </transition>
+
+                <form @submit.prevent="saveCard" class="flex-1 flex flex-col">
+                    <transition name="step" mode="out-in">
+                        <div :key="currentStep" class="flex-1">
+                            <!-- Step 1: Photo & Name -->
+                            <div v-if="currentStep === 1" class="space-y-8">
+                                <!-- Photo Layout Mode (Inside Step 1 when uploaded) -->
+                                <div v-if="form.photo && isAdjustingPhoto" class="space-y-6 animate__animated animate__fadeIn">
+                                    <div class="flex items-center justify-between">
+                                        <h4 class="text-sm font-black uppercase tracking-widest text-slate-900">調整相片版面</h4>
+                                        <button type="button" @click="isAdjustingPhoto = false" class="text-blue-600 text-[10px] font-black uppercase tracking-widest">完成調整</button>
+                                    </div>
+                                    
+                                    <!-- Mini Adjustment Preview -->
+                                    <div class="relative w-full max-w-[240px] mx-auto aspect-[2.5/3.5] rounded-2xl overflow-hidden shadow-2xl border-4 border-white cursor-move touch-none"
+                                        @mousedown="startDrag($event, 'photo')" @touchstart="startDrag($event, 'photo')">
+                                        <img :src="form.photo" 
+                                            class="absolute w-full h-full object-cover pointer-events-none"
+                                            :style="{ transform: `translate3d(${form.photoX}px, ${form.photoY}px, 0) scale(${form.photoScale})` }">
+                                        <div class="absolute inset-0 border-2 border-blue-500/50 pointer-events-none"></div>
+                                        <div class="absolute bottom-2 left-0 right-0 text-center">
+                                            <span class="bg-blue-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest">拖動此處調整位置</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Zoom Slider -->
+                                    <div class="space-y-3 px-4">
+                                        <div class="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                            <span>縮放大小</span>
+                                            <span class="text-blue-600">@{{ Math.round(form.photoScale * 100) }}%</span>
+                                        </div>
+                                        <input type="range" v-model.number="form.photoScale" min="0.5" max="3" step="0.01" class="w-full h-1.5 bg-slate-100 rounded-full appearance-none cursor-pointer accent-blue-600">
+                                    </div>
+                                </div>
+
+                                <!-- Normal Upload Mode -->
+                                <div v-if="!isAdjustingPhoto" class="space-y-6 animate__animated animate__fadeIn">
+                                    <div class="flex flex-col items-center gap-6">
+                                        <div v-if="form.photo" class="relative group">
+                                            <div class="w-48 h-48 rounded-[32px] overflow-hidden border-4 border-white shadow-2xl relative">
+                                                <img :src="form.photo" class="w-full h-full object-cover" :style="{ transform: `translate3d(${form.photoX/2}px, ${form.photoY/2}px, 0) scale(${form.photoScale})` }">
+                                                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-2">
+                                                    <button type="button" @click="triggerUpload" class="p-3 bg-white text-slate-900 rounded-2xl shadow-xl hover:scale-110 transition-all">
+                                                        <app-icon name="upload" class-name="w-6 h-6"></app-icon>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+                                                <button type="button" @click="isAdjustingPhoto = true" class="bg-slate-900 text-white px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl whitespace-nowrap">調整版面</button>
+                                                <button type="button" @click="triggerUpload" class="bg-white text-slate-900 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl border border-slate-100 whitespace-nowrap">更換照片</button>
+                                            </div>
+                                        </div>
+                                        
+                                        <div v-else @click="triggerUpload" class="w-full h-64 border-4 border-dashed border-slate-100 rounded-[48px] flex flex-col items-center justify-center gap-6 cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 transition-all group">
+                                            <div class="w-20 h-20 bg-blue-50 rounded-[28px] flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform duration-500 shadow-inner">
+                                                <app-icon name="upload" class-name="w-10 h-10"></app-icon>
+                                            </div>
+                                            <div class="text-center space-y-2">
+                                                <p class="text-xl font-black italic uppercase tracking-tighter">點擊上傳形象照</p>
+                                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">建議尺寸：1200 x 1600 px (3:4)</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="file" id="photo-upload" class="hidden" @change="handleFileUpload" accept="image/*">
+                                    
+                                    <div class="space-y-4">
+                                        <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">您的選手姓名</label>
+                                        <input type="text" v-model="form.name" placeholder="請輸入姓名 (英文為佳)" class="w-full px-8 py-5 bg-slate-50 border-2 border-transparent rounded-[24px] focus:border-blue-500 outline-none font-black italic text-xl transition-all">
+                                    </div>
+                                    <div class="space-y-4">
+                                        <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">生理性別</label>
+                                        <div class="grid grid-cols-2 gap-3">
+                                            <button v-for="g in genders" :key="g" type="button" @click="form.gender = g" 
+                                                :class="['py-4 rounded-2xl font-black text-sm transition-all border-2', form.gender === g ? 'bg-slate-900 text-white border-slate-900 shadow-xl' : 'bg-slate-50 text-slate-400 border-transparent hover:border-slate-200']">
+                                                @{{ g }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 2: Stats -->
+                            <div v-if="currentStep === 2" class="space-y-8">
+                                <div class="space-y-4">
+                                    <label class="flex items-center justify-between text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                                        NTRP 程度
+                                        <button type="button" @click="showNtrpGuide = true" class="text-blue-600 hover:scale-110 transition-transform flex items-center gap-1">
+                                            <app-icon name="help" class-name="w-3.5 h-3.5"></app-icon>
+                                            程度列表
+                                        </button>
+                                    </label>
+                                    <div class="grid grid-cols-4 gap-3">
+                                        <button v-for="l in levels" :key="l" type="button" @click="form.level = l"
+                                            :class="['py-3 rounded-2xl font-black text-sm transition-all', form.level === l ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-50 text-slate-400 hover:bg-slate-100']">
+                                            @{{l}}
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-6">
+                                    <div class="space-y-4">
+                                        <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">持拍手</label>
+                                        <div class="flex gap-2">
+                                            <button type="button" v-for="h in ['右手', '左手']" :key="h" @click="form.handed = h"
+                                                :class="['flex-1 py-4 rounded-2xl font-black text-sm transition-all', form.handed === h ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-400']">
+                                                @{{h}}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-4">
+                                        <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">反手類型</label>
+                                        <div class="flex gap-2">
+                                            <button type="button" v-for="b in ['單反', '雙反']" :key="b" @click="form.backhand = b"
+                                                :class="['flex-1 py-4 rounded-2xl font-black text-sm transition-all', form.backhand === b ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-400']">
+                                                @{{b}}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 3: Location & Intro -->
+                            <div v-if="currentStep === 3" class="space-y-8">
+                                <div class="space-y-4">
+                                    <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">主要活動地區</label>
+                                    <div class="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-[220px] overflow-y-auto no-scrollbar p-1">
+                                        <button v-for="r in regions" :key="r" type="button" @click="form.region = r"
+                                            :class="['py-3 px-2 rounded-xl font-bold text-xs transition-all border-2', form.region === r ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-slate-50 text-slate-400 border-transparent hover:border-slate-200']">
+                                            @{{r}}
+                                        </button>
+                                    </div>
+                                    <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest italic text-center">上下滑動查看更多地區</p>
+                                </div>
+                                <div class="space-y-4">
+                                    <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">約打宣告 / 個人特色</label>
+                                    <textarea v-model="form.intro" class="w-full px-6 py-5 bg-slate-50 border-2 border-transparent rounded-[24px] focus:border-blue-500 outline-none font-bold text-base shadow-inner h-40 resize-none" placeholder="分享一下您的打法特色，或想找什麼樣的球友..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Step 4: Final Preview, Theme & Signature -->
+                            <div v-if="currentStep === 4" class="space-y-10 flex flex-col items-center animate__animated animate__fadeIn">
+                                <!-- Theme Pill Selector (Clean & Compact) -->
+                                <div class="w-full flex overflow-x-auto no-scrollbar gap-2 pb-2 justify-start sm:justify-center">
+                                    <button v-for="(t, key) in cardThemes" :key="key" type="button" @click="form.theme = key"
+                                        :class="['px-4 py-2 rounded-full whitespace-nowrap text-[10px] font-black uppercase tracking-widest transition-all border-2', form.theme === key ? 'bg-slate-900 text-white border-slate-900 shadow-lg' : 'bg-slate-50 text-slate-400 border-transparent hover:border-slate-200']">
+                                        @{{ t.label.split(' ')[0] }}
+                                    </button>
+                                </div>
+
+                                <div class="w-full max-w-[300px] transform hover:scale-[1.02] transition-all duration-500 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] rounded-2xl relative">
+                                    <player-card :player="form" :is-signing="isSigning" 
+                                        @update-signature="sig => form.signature = sig" 
+                                        @edit-signature="isSigning = true"
+                                        @close-signing="isSigning = false" 
+                                        @drag-start="startDrag"
+                                        @sig-ready="initMoveable" />
+                                </div>
+                                
+                                <div class="w-full space-y-3">
+                                    <button type="button" @click="isSigning = true" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-slate-800 transition-all shadow-xl">
+                                        <app-icon name="eraser" class-name="w-5 h-5 text-blue-400"></app-icon>
+                                        @{{ form.signature ? '重新手寫簽名' : '在卡片上簽名 (推薦)' }}
+                                    </button>
+                                    <p class="text-[9px] text-slate-400 font-bold italic text-center uppercase tracking-widest">確認內容無誤後，即可點擊發佈</p>
+                                </div>
+                            </div>
+                        </div>
+                    </transition>
+
+                    <!-- Navigation Buttons -->
+                    <div class="mt-12 flex gap-4">
+                        <button v-if="currentStep > 1" type="button" @click="currentStep--" class="flex-1 py-5 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-all border border-slate-100">
+                            上一步
+                        </button>
+                        <button v-if="currentStep < 4" type="button" @click="currentStep++" class="flex-[2] bg-slate-950 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 transition-all shadow-xl">
+                            下一步
+                        </button>
+                        <button v-if="currentStep === 4" type="submit" class="flex-[2] bg-blue-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20">
+                            發佈球友卡
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
+
+        <!-- Full Screen Preview Card (Refactored) -->
+        <transition name="modal">
+            <div v-if="showPreview" class="fixed inset-0 z-[600] bg-slate-950/95 backdrop-blur-2xl flex items-center justify-center p-6" @click.self="showPreview = false">
+                <div class="w-full max-w-[340px] animate__animated animate__zoomIn animate__faster">
+                    <div class="flex justify-center mb-8">
+                        <span class="bg-blue-600 text-white text-[10px] font-black px-6 py-2 rounded-full uppercase tracking-widest italic shadow-xl shadow-blue-600/40">Premium Card Preview</span>
+                    </div>
+                    
+                    <player-card :player="form" :is-signing="isSigning" @update-signature="sig => form.signature = sig" @close-signing="isSigning = false" />
+                    
+                    <button @click="showPreview = false" class="w-full mt-10 bg-white/10 text-white border border-white/10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/20 transition-all backdrop-blur-md">
+                        返回編輯
+                    </button>
+                </div>
+            </div>
+        </transition>
+
+
+
+            <ntrp-guide-modal v-model:open="showNtrpGuide" :descs="levelDescs" />
 
         <!-- List View -->
         <div v-if="view === 'list'" class="space-y-16 pb-24">
             <div class="flex flex-col md:flex-row justify-between items-end gap-10">
                 <div>
-                    <h2 class="text-5xl font-black italic uppercase tracking-tighter leading-tight">球員大廳</h2>
+                    <h2 class="text-5xl font-black italic uppercase tracking-tighter leading-tight">球友大廳</h2>
                     <p class="text-slate-400 font-bold text-base uppercase tracking-[0.2em] mt-2">Find your matching AceMate</p>
                 </div>
                 <div class="relative w-full md:w-80">
@@ -545,87 +637,8 @@
         </div>
     </main>
 
-    <!-- Player Detail Overlay -->
-    <transition name="modal">
-        <div v-if="detailPlayer" class="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-10 premium-blur modal-content" @click.self="detailPlayer = null">
-            <div class="bg-white w-full max-w-5xl h-full sm:h-auto max-h-[92vh] rounded-[32px] sm:rounded-[48px] overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.5)] flex flex-col md:flex-row relative">
-                <button @click="detailPlayer = null" class="absolute top-6 right-6 z-50 p-2 bg-white/80 backdrop-blur-md hover:bg-red-50 hover:text-red-500 rounded-full shadow-lg transition-all">
-                    <app-icon name="x" class-name="w-5 h-5"></app-icon>
-                </button>
-
-                <!-- Left: Card Display -->
-                <div class="w-full md:w-1/2 p-6 sm:p-10 flex items-center justify-center bg-slate-50 border-r border-slate-100 shrink-0">
-                    <div class="w-full max-w-[280px] sm:max-w-[340px] transform hover:scale-105 transition-transform duration-500">
-                        <player-card :player="detailPlayer" />
-                    </div>
-                </div>
-
-                <!-- Right: Detailed Stats -->
-                <div class="w-full md:w-1/2 p-8 sm:p-14 overflow-y-auto bg-white flex flex-col no-scrollbar">
-                    <div class="mb-8">
-                        <h3 class="text-5xl font-black italic uppercase tracking-tighter text-slate-900 mb-2 leading-tight">@{{detailPlayer.name}}</h3>
-                        <div class="flex items-center gap-3">
-                            <span class="px-4 py-1.5 bg-blue-600 text-white text-[10px] font-black rounded-lg uppercase tracking-widest italic">Verified Player</span>
-                            <span class="text-sm font-bold text-slate-400 flex items-center gap-1"><app-icon name="map-pin" class-name="w-4 h-4"></app-icon> @{{detailPlayer.region}}</span>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-6 mb-10">
-                        <div v-for="s in getDetailStats(detailPlayer)" :key="s.label" class="p-6 bg-slate-50 rounded-3xl border border-slate-100 shadow-inner">
-                            <div class="flex items-center gap-2 opacity-50 mb-1">
-                                <app-icon :name="s.icon" class-name="w-4 h-4"></app-icon>
-                                <span class="text-[10px] font-black uppercase tracking-widest">@{{s.label}}</span>
-                            </div>
-                            <div class="text-xl font-black text-slate-900">@{{s.value}}</div>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-900 p-8 rounded-[32px] text-white relative overflow-hidden mb-10 shadow-2xl">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/20 blur-[60px] rounded-full"></div>
-                        <span class="text-[10px] font-black uppercase tracking-widest text-blue-400 mb-2 block italic underline">Scouting Report</span>
-                        <p class="text-lg text-slate-300 leading-relaxed italic">
-                            「擅長底線抽球，擊球頻率穩定。目前主要在@{{detailPlayer.region}}區域活動，希望能找到實力 NTRP @{{detailPlayer.level}} 左右的球友進行約打與練習。」
-                        </p>
-                    </div>
-
-                    <div class="mt-auto flex flex-col sm:flex-row gap-4 pt-6 border-t border-slate-100">
-                        <button @click="openMatchModal(detailPlayer)" class="flex-1 bg-blue-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-base shadow-xl hover:bg-blue-500 transition-all flex items-center justify-center gap-3">
-                            <app-icon name="message-circle" class-name="w-6 h-6"></app-icon> 立即發送約打信
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </transition>
-
-    <!-- Match Modal -->
-    <transition name="modal">
-        <div v-if="matchModal.open" class="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md modal-content">
-            <div class="bg-white w-full max-w-md rounded-[40px] overflow-hidden shadow-2xl">
-            <div class="bg-slate-900 p-8 text-white flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <img :src="matchModal.player.photo" class="w-12 h-12 rounded-full border-2 border-blue-500 object-cover shadow-lg">
-                    <div>
-                        <h3 class="font-black italic uppercase text-xl italic tracking-tight">約打邀約信</h3>
-                        <p class="text-[9px] font-bold text-blue-400 tracking-widest uppercase">To: @{{matchModal.player.name}}</p>
-                    </div>
-                </div>
-                <button @click="matchModal.open = false"><app-icon name="x" class-name="w-6 h-6 opacity-50"></app-icon></button>
-            </div>
-            <div class="p-8 space-y-6">
-                <div class="bg-blue-50 p-5 rounded-2xl border border-blue-100 flex gap-4 text-xs text-blue-800 font-bold uppercase leading-normal">
-                    <app-icon name="shield-check" class-name="w-6 h-6 text-blue-600 shrink-0"></app-icon>
-                    安全提示：AceMate 建議在公開且有監視設備的球場會面，祝您球技進步。
-                </div>
-                <textarea v-model="matchModal.text" class="w-full h-40 p-5 bg-slate-50 border-2 border-transparent rounded-[28px] focus:border-blue-500 outline-none font-bold text-base leading-relaxed" 
-                    :placeholder="'Hi ' + matchModal.player.name + '，看到你的 AceMate 檔案後非常想跟你交流，請問... '"></textarea>
-                <button @click="sendMatchRequest" class="w-full bg-slate-950 text-white py-5 rounded-3xl font-black uppercase tracking-[0.2em] hover:bg-blue-600 shadow-2xl transition-all text-lg">
-                    發送站內訊息
-                </button>
-            </div>
-        </div>
-    </div>
-</transition>
+    <player-detail-modal :player="detailPlayer" :stats="getDetailStats(detailPlayer)" @close="detailPlayer = null" @open-match="p => { detailPlayer = null; openMatchModal(p); }" />
+    <match-modal v-model:open="matchModal.open" :player="matchModal.player" @submit="text => { matchModal.text = text; sendMatchRequest(); }" />
 
     <!-- Mobile Navigation Dock -->
     <div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-md bg-slate-950/95 backdrop-blur-3xl border border-white/10 rounded-[32px] p-2 flex justify-between items-center shadow-[0_20px_50px_rgba(0,0,0,0.6)] z-[150]">
@@ -657,17 +670,145 @@
     </div>
 </div>
 
+<script type="text/x-template" id="player-detail-modal-template">
+    <transition name="modal">
+        <div v-if="player" class="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-10 premium-blur modal-content" @click.self="$emit('close')">
+            <div class="bg-white w-full max-w-5xl h-full sm:h-auto max-h-[92vh] rounded-[32px] sm:rounded-[48px] overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.5)] flex flex-col md:flex-row relative">
+                <button @click="$emit('close')" class="absolute top-6 right-6 z-50 p-2 bg-white/80 backdrop-blur-md hover:bg-red-50 hover:text-red-500 rounded-full shadow-lg transition-all">
+                    <app-icon name="x" class-name="w-5 h-5"></app-icon>
+                </button>
+
+                <!-- Left: Card Display -->
+                <div class="w-full md:w-1/2 p-6 sm:p-10 flex items-center justify-center bg-slate-50 border-r border-slate-100 shrink-0">
+                    <div class="w-full max-w-[280px] sm:max-w-[340px] transform hover:scale-105 transition-transform duration-500">
+                        <player-card :player="player" />
+                    </div>
+                </div>
+
+                <!-- Right: Detailed Stats -->
+                <div class="w-full md:w-1/2 p-8 sm:p-14 overflow-y-auto bg-white flex flex-col no-scrollbar">
+                    <div class="mb-8">
+                        <h3 class="text-5xl font-black italic uppercase tracking-tighter text-slate-900 mb-2 leading-tight">@{{player.name}}</h3>
+                        <div class="flex items-center gap-3">
+                            <span class="px-4 py-1.5 bg-blue-600 text-white text-[10px] font-black rounded-lg uppercase tracking-widest italic">Verified Player</span>
+                            <span class="text-sm font-bold text-slate-400 flex items-center gap-1"><app-icon name="map-pin" class-name="w-4 h-4"></app-icon> @{{player.region}}</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-6 mb-10">
+                        <div v-for="s in stats" :key="s.label" class="p-6 bg-slate-50 rounded-3xl border border-slate-100 shadow-inner">
+                            <div class="flex items-center gap-2 opacity-50 mb-1">
+                                <app-icon :name="s.icon" class-name="w-4 h-4"></app-icon>
+                                <span class="text-[10px] font-black uppercase tracking-widest">@{{s.label}}</span>
+                            </div>
+                            <div class="text-xl font-black text-slate-900">@{{s.value}}</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 p-8 rounded-[32px] text-white relative overflow-hidden mb-10 shadow-2xl">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/20 blur-[60px] rounded-full"></div>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-blue-400 mb-2 block italic underline">約打宣告 / 個人特色</span>
+                        <p class="text-lg text-slate-300 leading-relaxed italic whitespace-pre-line">
+                            「@{{player.intro || '這位球友很懶，什麼都沒留下... 希望能找到實力相當的球友進行約打與練習。'}}」
+                        </p>
+                    </div>
+
+                    <div class="mt-auto flex flex-col sm:flex-row gap-4 pt-6 border-t border-slate-100">
+                        <button @click="$emit('open-match', player)" class="flex-1 bg-blue-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-base shadow-xl hover:bg-blue-500 transition-all flex items-center justify-center gap-3">
+                            <app-icon name="message-circle" class-name="w-6 h-6"></app-icon> 立即發送約打信
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </transition>
+</script>
+
+<script type="text/x-template" id="match-modal-template">
+    <transition name="modal">
+        <div v-if="open && player" class="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md modal-content" @click.self="$emit('update:open', false)">
+            <div class="bg-white w-full max-w-md rounded-[40px] overflow-hidden shadow-2xl">
+                <div class="bg-slate-900 p-8 text-white flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <img v-if="player.photo" :src="player.photo" class="w-12 h-12 rounded-full border-2 border-blue-500 object-cover shadow-lg">
+                        <div v-else class="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center border-2 border-slate-700">
+                            <app-icon name="user" class-name="w-6 h-6 text-slate-500"></app-icon>
+                        </div>
+                        <div>
+                            <h3 class="font-black italic uppercase text-xl italic tracking-tight">約打邀約信</h3>
+                            <p class="text-[9px] font-bold text-blue-400 tracking-widest uppercase">To: @{{player.name}}</p>
+                        </div>
+                    </div>
+                    <button @click="$emit('update:open', false)"><app-icon name="x" class-name="w-6 h-6 opacity-50"></app-icon></button>
+                </div>
+                <div class="p-8 space-y-6">
+                    <div class="bg-blue-50 p-5 rounded-2xl border border-blue-100 flex gap-4 text-xs text-blue-800 font-bold uppercase leading-normal">
+                        <app-icon name="shield-check" class-name="w-6 h-6 text-blue-600 shrink-0"></app-icon>
+                        安全提示：AceMate 建議在公開且有監視設備的球場會面，祝您球技進步。
+                    </div>
+                    <textarea v-model="textModel" class="w-full h-40 p-5 bg-slate-50 border-2 border-transparent rounded-[28px] focus:border-blue-500 outline-none font-bold text-base leading-relaxed" 
+                        :placeholder="'Hi ' + (player.name || '') + '，看到你的 AceMate 檔案後非常想跟你交流，請問... '"></textarea>
+                    <button @click="$emit('submit', textModel)" class="w-full bg-slate-950 text-white py-5 rounded-3xl font-black uppercase tracking-[0.2em] hover:bg-blue-600 shadow-2xl transition-all text-lg">
+                        發送站內訊息
+                    </button>
+                </div>
+            </div>
+        </div>
+    </transition>
+</script>
+
+<script type="text/x-template" id="ntrp-guide-modal-template">
+    <transition name="modal">
+        <div v-if="open" class="fixed inset-0 z-[600] flex items-center justify-center p-4 sm:p-6 bg-slate-900/80 backdrop-blur-md modal-content" @click.self="$emit('update:open', false)">
+            <div class="bg-slate-950 w-full max-w-2xl max-h-[85vh] rounded-[32px] overflow-hidden shadow-2xl border border-white/10 flex flex-col animate__animated animate__zoomIn animate__faster">
+                <div class="px-6 py-5 flex items-center justify-between border-b border-white/10 shrink-0">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-blue-600 p-2 rounded-xl shadow-lg shadow-blue-600/20">
+                            <app-icon name="help" class-name="w-5 h-5 text-white"></app-icon>
+                        </div>
+                        <h3 class="text-lg font-black italic uppercase tracking-wider text-white">NTRP 等級說明</h3>
+                    </div>
+                    <button @click="$emit('update:open', false)" class="p-2 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/10">
+                        <app-icon name="x" class-name="w-5 h-5 text-white/50"></app-icon>
+                    </button>
+                </div>
+                <div class="flex-1 overflow-y-auto p-4 sm:p-6 no-scrollbar grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div v-for="(desc, lvl) in descs" :key="lvl" class="bg-white/5 border border-white/5 p-4 rounded-2xl hover:bg-blue-600/5 transition-colors group">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="bg-white text-slate-950 px-2 py-0.5 rounded-lg font-black italic text-sm">@{{lvl}}</span>
+                            <div class="h-px flex-1 bg-white/10"></div>
+                        </div>
+                        <p class="text-slate-400 font-bold text-xs leading-relaxed">@{{desc}}</p>
+                    </div>
+                </div>
+                <div class="p-5 border-t border-white/10 bg-slate-950/50 flex justify-center shrink-0">
+                    <button @click="$emit('update:open', false)" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-500 transition-all shadow-lg text-sm">
+                        了解並返回
+                    </button>
+                </div>
+            </div>
+        </div>
+    </transition>
+</script>
+
 <script>
 // --- Constants ---
-const REGIONS = ['台北市', '新北市', '桃園市', '台中市', '台南市', '高雄市', '新竹縣市'];
+const REGIONS = [
+    '台北市', '新北市', '基隆市', '桃園市', '新竹市', '新竹縣', '苗栗縣', 
+    '台中市', '彰化縣', '南投縣', '雲林縣', '嘉義市', '嘉義縣', '台南市', 
+    '高雄市', '屏東縣', '宜蘭縣', '花蓮縣', '台東縣', '澎湖縣', '金門縣', '連江縣'
+];
 const LEVELS = ['1.0', '1.5', '2.0', '2.5', '3.0', '3.5', '4.0', '4.5', '5.0', '5.5', '6.0', '7.0'];
 const INITIAL_PLAYERS = [
-  { id: '1', name: 'Novak Djokovic', region: '台北市', level: '7.0', handed: '右手', fee: '免費 (交流為主)', photo: 'https://images.unsplash.com/photo-1622279457486-62dcc4a4bd13?q=80&w=400&auto=format&fit=crop', theme: 'gold' },
-  { id: '2', name: 'Roger Federer', region: '台北市', level: '7.0', handed: '右手', fee: '免費 (交流為主)', photo: 'https://images.unsplash.com/photo-1595435063510-482208034433?q=80&w=400&auto=format&fit=crop', theme: 'holographic' },
-  { id: '3', name: 'Rafael Nadal', region: '新北市', level: '7.0', handed: '左手', fee: '免費 (交流為主)', photo: 'https://images.unsplash.com/photo-1531315630201-bb15bbeb1663?q=80&w=400&auto=format&fit=crop', theme: 'onyx' }
+  { id: '1', name: 'Novak Djokovic', region: '台北市', level: '7.0', handed: '右手', gender: '男', fee: '免費 (交流為主)', photo: 'https://images.unsplash.com/photo-1622279457486-62dcc4a4bd13?q=80&w=400&auto=format&fit=crop', theme: 'gold' },
+  { id: '2', name: 'Roger Federer', region: '台北市', level: '7.0', handed: '右手', gender: '男', fee: '免費 (交流為主)', photo: 'https://images.unsplash.com/photo-1595435063510-482208034433?q=80&w=400&auto=format&fit=crop', theme: 'holographic' },
+  { id: '3', name: 'Rafael Nadal', region: '新北市', level: '7.0', handed: '左手', gender: '男', fee: '免費 (交流為主)', photo: 'https://images.unsplash.com/photo-1531315630201-bb15bbeb1663?q=80&w=400&auto=format&fit=crop', theme: 'onyx' }
 ];
 
 const SVG_ICONS = {
+  gender: '<circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/>',
+  mars: '<circle cx="10" cy="14" r="5"/><path d="m19 5-5.4 5.4"/><path d="M15 5h4v4"/>',
+  venus: '<circle cx="12" cy="9" r="5"/><path d="M12 14v7"/><path d="M9 18h6"/>',
   trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55.45 1 1 1h2c.55 0 1-.45 1-1v-2.34M12 2v12.66" /><path d="M6 4v7a6 6 0 0 0 12 0V4H6Z" />',
   plus: '<path d="M5 12h14M12 5v14" />',
   search: '<circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />',
@@ -687,7 +828,9 @@ const SVG_ICONS = {
   'dollar-sign': '<line x1="12" x2="12" y1="2" y2="22" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />',
   'map-pin': '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" />',
   clock: '<circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />',
-  help: '<circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" x2="12.01" y1="17" y2="17" />'
+  help: '<circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" x2="12.01" y1="17" y2="17" />',
+  trash: '<path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" />',
+  'edit-3': '<path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />'
 };
 
 const LEVEL_DESCS = {
@@ -700,12 +843,18 @@ const LEVEL_DESCS = {
     '4.0': '擊球有明顯威力與深度，能應對各種球路。',
     '4.5': '具備強力的發球與底線，能進行高強度比賽。',
     '5.0': '具備職業水準技術，能應對各種戰術變化。',
-    '5.5': '職業球員或資深教練。',
-    '6.0': '頂尖職業球員 (ATP/WTA 排名)。',
-    '7.0': '世界頂尖職業球員。'
+    '5.5': '職業球友或資深教練。',
+    '6.0': '頂尖職業球友 (ATP/WTA 排名)。',
+    '7.0': '世界頂尖職業球友。'
 };
 
 const { createApp, ref, reactive, computed, onMounted, watch, nextTick } = Vue;
+
+const LEVEL_TAGS = {
+    '1.0': '網球初學者', '1.5': '基礎擊球員', '2.0': '入門球友', '2.5': '進階入門', 
+    '3.0': '中級程度', '3.5': '中高級員', '4.0': '高級球員', '4.5': '高強度球友', 
+    '5.0': '專家級員', '5.5': '資深教練', '6.0': '職業水準', '7.0': '世界級球星'
+};
 
 const AppIcon = {
   props: ['name', 'className'],
@@ -746,11 +895,12 @@ const SignaturePad = {
         };
         const start = (e) => { if (!ctx) return; isDrawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); };
         const draw = (e) => { if (!isDrawing || !ctx) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
-        const stop = () => { if (isDrawing) { isDrawing = false; emit('save', canvas.value.toDataURL()); } };
+        const stop = () => { isDrawing = false; };
         const startTouch = (e) => { e.preventDefault(); start(e); };
         const moveTouch = (e) => { e.preventDefault(); draw(e); };
         const clear = () => { if (ctx) ctx.clearRect(0, 0, canvas.value.width, canvas.value.height); emit('save', null); };
-        return { canvas, start, draw, stop, startTouch, moveTouch, clear };
+        const confirm = () => { if (canvas.value) { emit('save', canvas.value.toDataURL()); emit('close'); } };
+        return { canvas, start, draw, stop, startTouch, moveTouch, clear, confirm };
     }
 };
 
@@ -786,13 +936,38 @@ const PlayerCard = {
             }
         };
         const themeStyle = computed(() => themes[props.player.theme || 'standard']);
-        const getLevelDesc = (lvl) => LEVEL_DESCS[lvl] || '網球愛好者';
-        return { themeStyle, getLevelDesc };
+        const getLevelTag = (lvl) => LEVEL_TAGS[lvl] || '網球愛好者';
+        return { themeStyle, getLevelTag };
     }
 };
 
+const PlayerDetailModal = {
+    props: ['player', 'stats'],
+    components: { AppIcon, PlayerCard },
+    template: '#player-detail-modal-template',
+    emits: ['close', 'open-match']
+};
+
+const MatchModal = {
+    props: ['open', 'player'],
+    components: { AppIcon },
+    template: '#match-modal-template',
+    emits: ['update:open', 'submit'],
+    setup(props) {
+        const textModel = ref('');
+        return { textModel };
+    }
+};
+
+const NtrpGuideModal = {
+    props: ['open', 'descs'],
+    components: { AppIcon },
+    template: '#ntrp-guide-modal-template',
+    emits: ['update:open']
+};
+
 createApp({
-    components: { SignaturePad, PlayerCard, AppIcon },
+    components: { SignaturePad, PlayerCard, AppIcon, PlayerDetailModal, MatchModal, NtrpGuideModal },
     setup() {
         const view = ref('home');
         const isLoggedIn = ref(false);
@@ -802,17 +977,128 @@ createApp({
         const players = ref(INITIAL_PLAYERS);
         const messages = ref([
             { id: 1, from: 'Roger Chen', content: '哈囉！看到你在台北市出沒，這週末下午要約打球嗎？', date: '2023-10-24', unread: true },
-            { id: 2, from: '系統', content: '歡迎來到 AceMate！開始建立您的球員檔案。', date: '2023-10-23', unread: false }
+            { id: 2, from: '系統', content: '歡迎來到 AceMate！開始建立您的球友檔案。', date: '2023-10-23', unread: false }
         ]);
         const features = [
             { icon: 'zap', title: '快速約球陪打', desc: '精準媒合 NTRP 等級，輕鬆找到實力相當的球友或專業陪打夥伴。' },
-            { icon: 'shield-check', title: '製作專屬球員卡', desc: '建立專業視覺風格的數位球員卡，在社群大廳展現您的網球實力與風格。' },
+            { icon: 'shield-check', title: '製作專屬球友卡', desc: '建立專業視覺風格的數位球友卡，在社群大廳展現您的網球實力與風格。' },
             { icon: 'dollar-sign', title: '刊登完全免費', desc: '建立檔案、刊登曝光、發送約打訊息完全不收費，讓網球社交更簡單。' }
         ];
         const form = reactive({
-            name: '', region: '台北市', level: '3.5', handed: '右手', backhand: '雙手反拍',
-            intro: '', fee: '免費 (交流為主)', photo: null, signature: null, theme: 'standard'
+            name: '', region: '台北市', level: '3.5', handed: '右手', backhand: '雙反', gender: '男',
+            intro: '', fee: '免費 (交流為主)', photo: null, signature: null, theme: 'standard',
+            photoX: 0, photoY: 0, photoScale: 1, 
+            sigX: 0, sigY: 0, sigScale: 1, sigRotate: 0
         });
+        const currentStep = ref(1);
+        const showPreview = ref(false);
+        const isAdjustingPhoto = ref(false);
+        
+        // Dragging State
+        const dragInfo = reactive({
+            active: false,
+            target: null, // 'photo' or 'sig'
+            startX: 0,
+            startY: 0,
+            initialX: 0,
+            initialY: 0
+        });
+
+        const startDrag = (e, target) => {
+            dragInfo.active = true;
+            dragInfo.target = target;
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            dragInfo.startX = clientX;
+            dragInfo.startY = clientY;
+            
+            if (target === 'photo') {
+                dragInfo.initialX = form.photoX;
+                dragInfo.initialY = form.photoY;
+            } else if (target === 'sig') {
+                dragInfo.initialX = form.sigX;
+                dragInfo.initialY = form.sigY;
+            }
+
+            window.addEventListener('mousemove', handleDrag);
+            window.addEventListener('mouseup', stopDrag);
+            window.addEventListener('touchmove', handleDrag, { passive: false });
+            window.addEventListener('touchend', stopDrag);
+        };
+
+        const handleDrag = (e) => {
+            if (!dragInfo.active) return;
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            const dx = clientX - dragInfo.startX;
+            const dy = clientY - dragInfo.startY;
+
+            if (dragInfo.target === 'photo') {
+                form.photoX = dragInfo.initialX + dx;
+                form.photoY = dragInfo.initialY + dy;
+            } else if (dragInfo.target === 'sig') {
+                form.sigX = dragInfo.initialX + dx;
+                form.sigY = dragInfo.initialY + dy;
+            }
+        };
+
+        const stopDrag = () => {
+            dragInfo.active = false;
+            window.removeEventListener('mousemove', handleDrag);
+            window.removeEventListener('mouseup', stopDrag);
+            window.removeEventListener('touchmove', handleDrag);
+            window.removeEventListener('touchend', stopDrag);
+        };
+
+        // Moveable Integration
+        let moveableInstance = null;
+        const initMoveable = (target) => {
+            if (moveableInstance) moveableInstance.destroy();
+            if (!target) return;
+
+            moveableInstance = new Moveable(target.parentElement.parentElement, {
+                target: target,
+                draggable: true,
+                resizable: false,
+                scalable: true,
+                rotatable: true,
+                warpable: false,
+                pinchable: true,
+                origin: false,
+                keepRatio: true,
+                throttleDrag: 0,
+                throttleScale: 0,
+                throttleRotate: 0,
+            }).on("drag", ({ target, transform, left, top, dist, delta, clientX, clientY }) => {
+                const translate = delta;
+                form.sigX += translate[0];
+                form.sigY += translate[1];
+            }).on("scale", ({ target, scale, dist, delta, transform }) => {
+                form.sigScale *= delta[0];
+            }).on("rotate", ({ target, beforeRotate, rotate, dist, delta, transform }) => {
+                form.sigRotate += delta;
+            });
+        };
+
+        watch(() => form.signature, (val) => {
+            if (!val && moveableInstance) {
+                moveableInstance.destroy();
+                moveableInstance = null;
+            }
+        });
+
+        watch(currentStep, (val) => {
+            if (val !== 4 && moveableInstance) {
+                moveableInstance.destroy();
+                moveableInstance = null;
+            }
+        });
+        const stepTitles = [
+            '上傳您的專業形象照並填寫姓名',
+            '設定您的 NTRP 分級與擊球技術',
+            '選擇活動地區並撰寫約打宣告',
+            '切換視覺主題並完成手寫簽名'
+        ];
         const isSigning = ref(false);
         const showNtrpGuide = ref(false);
         const levelDescs = LEVEL_DESCS;
@@ -832,18 +1118,24 @@ createApp({
         const detailPlayer = ref(null);
 
         const login = () => { isLoggedIn.value = true; view.value = 'home'; };
-        const triggerUpload = () => document.getElementById('photo-input').click();
+        const triggerUpload = () => document.getElementById('photo-upload').click();
         const handleFileUpload = (e) => {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = (u) => form.photo = u.target.result;
+                reader.onload = (u) => {
+                    form.photo = u.target.result;
+                    form.photoX = 0;
+                    form.photoY = 0;
+                    form.photoScale = 1;
+                    isAdjustingPhoto.value = true;
+                };
                 reader.readAsDataURL(file);
             }
         };
         const saveCard = () => { 
             if (!isLoggedIn.value) {
-                alert('卡片製作成功！請先登入或註冊以正式發佈您的球員卡。');
+                alert('卡片製作成功！請先登入或註冊以正式發佈您的球友卡。');
                 view.value = 'auth';
                 return;
             }
@@ -857,16 +1149,21 @@ createApp({
             matchModal.open = false;
         };
         const showDetail = (p) => { detailPlayer.value = p; };
-        const getDetailStats = (p) => [
-            { label: '程度 (NTRP)', value: p.level || '3.5', icon: 'zap' },
-            { label: '慣用手', value: p.handed || '右手', icon: 'target' },
-            { label: '約打費用', value: p.fee || '免費', icon: 'dollar-sign' },
-            { label: '主要地區', value: p.region || '全台', icon: 'map-pin' }
-        ];
+        const getDetailStats = (p) => {
+            if (!p) return [];
+            return [
+                { label: '程度 (NTRP)', value: p.level || '3.5', icon: 'zap' },
+                { label: '性別', value: p.gender || '男', icon: 'gender' },
+                { label: '慣用手', value: p.handed || '右手', icon: 'target' },
+                { label: '主要地區', value: p.region || '全台', icon: 'map-pin' }
+            ];
+        };
 
         return { 
             view, isLoggedIn, isLoginMode, hasUnread, regions, levels, players, messages, features, form, 
-            matchModal, detailPlayer, isSigning, showNtrpGuide, levelDescs, cardThemes, login, triggerUpload, handleFileUpload, saveCard, getPlayersByRegion, 
+            matchModal, detailPlayer, isSigning, showNtrpGuide, levelDescs, cardThemes, currentStep, showPreview, stepTitles,
+            isAdjustingPhoto, dragInfo, startDrag, handleDrag, stopDrag,
+            login, triggerUpload, handleFileUpload, saveCard, getPlayersByRegion, 
             openMatchModal, sendMatchRequest, showDetail, getDetailStats, scrollToSubmit 
         };
     }

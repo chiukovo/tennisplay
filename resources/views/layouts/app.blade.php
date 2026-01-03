@@ -11,45 +11,22 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <script src="https://daybrush.com/moveable/release/latest/dist/moveable.min.js"></script>
+    
     @include('partials.styles')
 </head>
 <body class="bg-slate-50 text-slate-900 leading-normal">
 
-{{-- Vue Component Templates --}}
 @include('components.vue-templates')
-@include('components.modals')
 
 <div id="app" v-cloak>
-    {{-- Navigation --}}
     @include('partials.navigation')
 
-    {{-- Main Content --}}
-    <main class="max-w-6xl mx-auto px-4 pt-6 sm:pt-10 min-h-screen pb-48 sm:pb-32">
-        {{-- Auth View --}}
-        @include('pages.auth')
-        
-        {{-- Home View --}}
-        @include('pages.home')
-        
-        {{-- Create View --}}
-        @include('pages.create')
-        
-        {{-- List View --}}
-        @include('pages.list')
-        
-        {{-- Messages View --}}
-        @include('pages.messages')
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 py-10">
+        @yield('content')
     </main>
-
-    {{-- Modal Components --}}
-    <player-detail-modal :player="detailPlayer" :stats="getDetailStats(detailPlayer)" @close="detailPlayer = null" @open-match="p => { detailPlayer = null; openMatchModal(p); }" />
-    <match-modal v-model:open="matchModal.open" :player="matchModal.player" @submit="text => { matchModal.text = text; sendMatchRequest(); }" />
-
-    {{-- Mobile Navigation Dock --}}
-    @include('partials.mobile-nav')
 </div>
 
-{{-- Vue Scripts --}}
 @include('partials.vue-scripts')
 
 </body>

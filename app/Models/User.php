@@ -41,4 +41,36 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * Get the player cards owned by the user.
+     */
+    public function players()
+    {
+        return $this->hasMany(Player::class);
+    }
+
+    /**
+     * Get the messages received by the user.
+     */
+    public function receivedMessages()
+    {
+        return $this->hasMany(Message::class, 'to_user_id');
+    }
+
+    /**
+     * Get the messages sent by the user.
+     */
+    public function sentMessages()
+    {
+        return $this->hasMany(Message::class, 'from_user_id');
+    }
+
+    /**
+     * Get unread message count.
+     */
+    public function getUnreadCountAttribute()
+    {
+        return $this->receivedMessages()->whereNull('read_at')->count();
+    }
 }

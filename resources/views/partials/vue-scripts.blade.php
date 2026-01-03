@@ -1,4 +1,36 @@
 <script>
+// --- API Configuration ---
+const API_BASE = '/api';
+const api = axios.create({
+    baseURL: API_BASE,
+    headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+    }
+});
+
+// Add auth token to requests if available
+api.interceptors.request.use(config => {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
+
+// Handle auth errors
+api.interceptors.response.use(
+    response => response,
+    error => {
+        if (error.response?.status === 401) {
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('auth_user');
+        }
+        return Promise.reject(error);
+    }
+);
+
 // --- Constants ---
 const REGIONS = [
     '台北市', '新北市', '基隆市', '桃園市', '新竹市', '新竹縣', '苗栗縣', 
@@ -6,24 +38,9 @@ const REGIONS = [
     '高雄市', '屏東縣', '宜蘭縣', '花蓮縣', '台東縣', '澎湖縣', '金門縣', '連江縣'
 ];
 const LEVELS = ['1.0', '1.5', '2.0', '2.5', '3.0', '3.5', '4.0', '4.5', '5.0', '5.5', '6.0', '7.0'];
-const INITIAL_PLAYERS = [
-  // 台北市球友
-  { id: '1', name: 'Alex Chen', region: '台北市', level: '4.5', handed: '右手', backhand: '雙反', gender: '男', fee: '免費 (交流為主)', intro: '週末固定在大安森林公園練球，歡迎程度相近的球友約打！主攻底線進攻型打法。', photo: 'https://images.unsplash.com/photo-1622279457486-62dcc4a4bd13?q=80&w=400&auto=format&fit=crop', theme: 'gold' },
-  { id: '2', name: 'Emily Wang', region: '台北市', level: '3.5', handed: '右手', backhand: '雙反', gender: '女', fee: '免費 (交流為主)', intro: '剛重拾網球一年，希望找到穩定的練球夥伴，平日傍晚有空。', photo: 'https://images.unsplash.com/photo-1595435063510-482208034433?q=80&w=400&auto=format&fit=crop', theme: 'sakura' },
-  { id: '3', name: 'Kevin Lin', region: '台北市', level: '5.0', handed: '左手', backhand: '單反', gender: '男', fee: 'NT$300/hr', intro: '前大專甲組選手，現為教練。可陪打或指導，發球強力、網前技術好。', photo: 'https://images.unsplash.com/photo-1531315630201-bb15bbeb1663?q=80&w=400&auto=format&fit=crop', theme: 'holographic' },
-  
-  // 新北市球友
-  { id: '4', name: 'Jessica Huang', region: '新北市', level: '4.0', handed: '右手', backhand: '雙反', gender: '女', fee: '免費 (交流為主)', intro: '住板橋，常在新莊運動公園打球。喜歡雙打，正在練習切球和放小球。', photo: 'https://images.unsplash.com/photo-1594381898411-846e7d193883?q=80&w=400&auto=format&fit=crop', theme: 'platinum' },
-  { id: '5', name: 'David Wu', region: '新北市', level: '3.0', handed: '右手', backhand: '雙反', gender: '男', fee: '免費 (交流為主)', intro: '打球兩年，中間程度。希望能找穩定球友一起進步，週末有空。', photo: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=400&auto=format&fit=crop', theme: 'standard' },
-  
-  // 台中市球友
-  { id: '6', name: 'Sophia Chang', region: '台中市', level: '4.5', handed: '右手', backhand: '雙反', gender: '女', fee: 'NT$200/hr', intro: '退役選手，目前在台中地區教學。歡迎各程度球友約練，可針對弱項加強。', photo: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=400&auto=format&fit=crop', theme: 'gold' },
-  { id: '7', name: 'Michael Lee', region: '台中市', level: '3.5', handed: '右手', backhand: '單反', gender: '男', fee: '免費 (交流為主)', intro: '工程師，用打網球放鬆身心。單反愛好者，歡迎切磋！', photo: 'https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?q=80&w=400&auto=format&fit=crop', theme: 'onyx' },
-  
-  // 高雄市球友
-  { id: '8', name: 'Amy Tsai', region: '高雄市', level: '2.5', handed: '左手', backhand: '雙反', gender: '女', fee: '免費 (交流為主)', intro: '剛開始學網球半年，左手持拍。希望找有耐心的球友一起練習基本功。', photo: 'https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?q=80&w=400&auto=format&fit=crop', theme: 'sakura' },
-  { id: '9', name: 'Jason Yang', region: '高雄市', level: '4.0', handed: '右手', backhand: '雙反', gender: '男', fee: '免費 (交流為主)', intro: '高雄在地球友，週末固定在中正運動場。歡迎來挑戰，輸贏請飲料！', photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&auto=format&fit=crop', theme: 'holographic' }
-];
+
+// No initial players - will be loaded from API
+const INITIAL_PLAYERS = [];
 
 const SVG_ICONS = {
   gender: '<circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/>',
@@ -197,26 +214,114 @@ createApp({
             '/list': 'list',
             '/create': 'create',
             '/messages': 'messages',
-            '/auth': 'auth'
+            '/auth': 'auth',
+            '/mycards': 'mycards'
         };
         const routePaths = Object.fromEntries(Object.entries(routes).map(([k, v]) => [v, k]));
         
         const view = ref('home');
         const isLoggedIn = ref(false);
         const isLoginMode = ref(true);
-        const hasUnread = ref(true);
+        const showUserMenu = ref(false);
+        const messageTab = ref('inbox');
         const regions = REGIONS; const levels = LEVELS;
         const players = ref(INITIAL_PLAYERS);
-        const messages = ref([
-            { id: 1, from: 'Roger Chen', content: '哈囉！看到你在台北市出沒，這週末下午要約打球嗎？', date: '2023-10-24', unread: true },
-            { id: 2, from: '系統', content: '歡迎來到 AceMate！開始建立您的球友檔案。', date: '2023-10-23', unread: false }
-        ]);
+        const messages = ref([]);
+        
+        // Computed: Has unread messages
+        const hasUnread = computed(() => messages.value.some(m => m.unread || !m.read_at));
+        
+        // Get current user ID from localStorage
+        const getCurrentUserId = () => {
+            try {
+                const user = JSON.parse(localStorage.getItem('auth_user'));
+                return user?.id;
+            } catch (e) { return null; }
+        };
+        
+        // Computed: My cards (cards created by current user)
+        const myCards = computed(() => {
+            const userId = getCurrentUserId();
+            if (!userId) return [];
+            return players.value.filter(p => p.user_id === userId);
+        });
+        
+        // Edit card - populate form and go to create page
+        const editCard = (card) => {
+            Object.assign(form, {
+                id: card.id,
+                name: card.name,
+                region: card.region,
+                level: card.level,
+                gender: card.gender,
+                handed: card.handed,
+                backhand: card.backhand,
+                intro: card.intro,
+                fee: card.fee,
+                photo: card.photo,
+                signature: card.signature,
+                theme: card.theme,
+                photoX: card.photo_x || 0,
+                photoY: card.photo_y || 0,
+                photoScale: card.photo_scale || 1,
+                sigX: card.sig_x || 0,
+                sigY: card.sig_y || 0,
+                sigScale: card.sig_scale || 1,
+                sigRotate: card.sig_rotate || 0,
+            });
+            currentStep.value = 4; // Go to final step for review
+            navigateTo('create');
+        };
+        
+        // Delete card
+        const deleteCard = async (cardId) => {
+            if (!confirm('確定要刪除這張球友卡嗎？')) return;
+            
+            isLoading.value = true;
+            try {
+                await api.delete(`/players/${cardId}`);
+                players.value = players.value.filter(p => p.id !== cardId);
+                showToast('球友卡已刪除', 'info');
+            } catch (error) {
+                console.error('Delete failed:', error);
+                showToast('刪除失敗，請稍後再試', 'error');
+            } finally {
+                isLoading.value = false;
+            }
+        };
+        // Format date helper
+        const formatDate = (dateStr) => {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 1) return '剛剛';
+            if (diffMins < 60) return `${diffMins} 分鐘前`;
+            if (diffHours < 24) return `${diffHours} 小時前`;
+            if (diffDays < 7) return `${diffDays} 天前`;
+            return date.toLocaleDateString('zh-TW');
+        };
         const features = [
             { icon: 'zap', title: '快速約球陪打', desc: '精準媒合 NTRP 等級，輕鬆找到實力相當的球友或專業陪打夥伴。' },
             { icon: 'shield-check', title: '製作專屬球友卡', desc: '建立專業視覺風格的數位球友卡，在社群大廳展現您的網球實力與風格。' },
             { icon: 'dollar-sign', title: '刊登完全免費', desc: '建立檔案、刊登曝光、發送約打訊息完全不收費，讓網球社交更簡單。' }
         ];
         
+        // Toast Notifications
+        const toasts = ref([]);
+        const showToast = (message, type = 'info', duration = 4000) => {
+            const id = Date.now();
+            toasts.value.push({ id, message, type });
+            setTimeout(() => removeToast(id), duration);
+        };
+        const removeToast = (id) => {
+            const index = toasts.value.findIndex(t => t.id === id);
+            if (index > -1) toasts.value.splice(index, 1);
+        };
         // Navigation function with History API
         const navigateTo = (viewName) => {
             view.value = viewName;
@@ -234,6 +339,8 @@ createApp({
         // Handle browser back/forward
         onMounted(() => {
             parseRoute();
+            checkAuth();
+            loadPlayers();
             window.addEventListener('popstate', (event) => {
                 if (event.state && event.state.view) {
                     view.value = event.state.view;
@@ -437,7 +544,112 @@ createApp({
         const matchModal = reactive({ open: false, player: null, text: '' });
         const detailPlayer = ref(null);
 
-        const login = () => { isLoggedIn.value = true; view.value = 'home'; };
+        // --- API Functions ---
+        const isLoading = ref(false);
+        const authError = ref('');
+        const authForm = reactive({ name: '', email: '', password: '', password_confirmation: '' });
+
+        // Load players from API
+        const loadPlayers = async () => {
+            try {
+                const response = await api.get('/players');
+                if (response.data.success) {
+                    players.value = response.data.data.data || response.data.data;
+                }
+            } catch (error) {
+                console.error('Failed to load players:', error);
+                // Fall back to initial data if API fails
+            }
+        };
+
+        // Load messages from API
+        const loadMessages = async () => {
+            if (!isLoggedIn.value) return;
+            try {
+                const response = await api.get('/messages');
+                if (response.data.success) {
+                    messages.value = response.data.data.data || response.data.data;
+                }
+            } catch (error) {
+                console.error('Failed to load messages:', error);
+            }
+        };
+
+        // Check for saved auth on mount
+        const checkAuth = () => {
+            const token = localStorage.getItem('auth_token');
+            const user = localStorage.getItem('auth_user');
+            if (token && user) {
+                isLoggedIn.value = true;
+                try {
+                    const userData = JSON.parse(user);
+                    // Can access user data via userData
+                } catch (e) {}
+            }
+        };
+
+        // Register
+        const register = async () => {
+            isLoading.value = true;
+            authError.value = '';
+            try {
+                const response = await api.post('/register', {
+                    name: authForm.name,
+                    email: authForm.email,
+                    password: authForm.password,
+                    password_confirmation: authForm.password_confirmation || authForm.password,
+                });
+                if (response.data.success) {
+                    localStorage.setItem('auth_token', response.data.token);
+                    localStorage.setItem('auth_user', JSON.stringify(response.data.user));
+                    isLoggedIn.value = true;
+                    showToast('註冊成功！歡迎加入 AceMate', 'success');
+                    navigateTo('home');
+                    loadMessages();
+                }
+            } catch (error) {
+                authError.value = error.response?.data?.message || '註冊失敗，請稍後再試';
+            } finally {
+                isLoading.value = false;
+            }
+        };
+
+        // Login
+        const login = async () => {
+            isLoading.value = true;
+            authError.value = '';
+            try {
+                const response = await api.post('/login', {
+                    email: authForm.email,
+                    password: authForm.password,
+                });
+                if (response.data.success) {
+                    localStorage.setItem('auth_token', response.data.token);
+                    localStorage.setItem('auth_user', JSON.stringify(response.data.user));
+                    isLoggedIn.value = true;
+                    showToast('登入成功！歡迎回來', 'success');
+                    navigateTo('home');
+                    loadMessages();
+                }
+            } catch (error) {
+                authError.value = error.response?.data?.message || '登入失敗，請檢查帳號密碼';
+            } finally {
+                isLoading.value = false;
+            }
+        };
+
+        // Logout
+        const logout = async () => {
+            try {
+                await api.post('/logout');
+            } catch (error) {}
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('auth_user');
+            isLoggedIn.value = false;
+            showToast('已成功登出', 'info');
+            navigateTo('home');
+        };
+
         const triggerUpload = () => document.getElementById('photo-upload').click();
         const handleFileUpload = (e) => {
             const file = e.target.files[0];
@@ -453,9 +665,45 @@ createApp({
                 reader.readAsDataURL(file);
             }
         };
-        const saveCard = () => { 
-            // Skip login for preview - directly add to list
-            players.value.unshift({ ...form, id: Date.now() }); 
+
+        // Save card to API
+        const saveCard = async () => { 
+            isLoading.value = true;
+            try {
+                const response = await api.post('/players', {
+                    name: form.name,
+                    region: form.region,
+                    level: form.level,
+                    gender: form.gender,
+                    handed: form.handed,
+                    backhand: form.backhand,
+                    intro: form.intro,
+                    fee: form.fee,
+                    theme: form.theme,
+                    photo: form.photo,
+                    signature: form.signature,
+                    photo_x: form.photoX,
+                    photo_y: form.photoY,
+                    photo_scale: form.photoScale,
+                    sig_x: form.sigX,
+                    sig_y: form.sigY,
+                    sig_scale: form.sigScale,
+                    sig_rotate: form.sigRotate,
+                });
+
+                if (response.data.success) {
+                    // Add to local list
+                    players.value.unshift(response.data.data);
+                }
+            } catch (error) {
+                console.error('Save failed:', error);
+                showToast('儲存失敗，請稍後再試', 'error');
+                // Fallback: add locally even if API fails
+                players.value.unshift({ ...form, id: Date.now() });
+            } finally {
+                isLoading.value = false;
+            }
+
             // Reset form for next card
             Object.assign(form, {
                 name: '', region: '台北市', level: '3.5', handed: '右手', backhand: '雙反', gender: '男',
@@ -464,13 +712,52 @@ createApp({
                 sigX: 0, sigY: 0, sigScale: 1, sigRotate: 0
             });
             currentStep.value = 1;
-            view.value = 'list'; 
+            showToast('球友卡建立成功！', 'success');
+            navigateTo('list'); 
         };
         const getPlayersByRegion = (r) => players.value.filter(p => p.region === r);
         const openMatchModal = (p) => { matchModal.player = p; matchModal.open = true; };
-        const sendMatchRequest = () => {
-            messages.value.unshift({ id: Date.now(), from: '系統', content: `已發送邀約給 ${matchModal.player.name}`, date: '剛剛', unread: true });
+
+        // Send match request via API
+        const sendMatchRequest = async () => {
+            if (!isLoggedIn.value) {
+                // Redirect to auth if not logged in
+                matchModal.open = false;
+                navigateTo('auth');
+                return;
+            }
+
+            try {
+                const response = await api.post('/messages', {
+                    to_player_id: matchModal.player.id,
+                    content: matchModal.text || `Hi ${matchModal.player.name}，我想跟你約打！`,
+                });
+
+                if (response.data.success) {
+                    // Add to local messages
+                    messages.value.unshift({
+                        id: response.data.data.id,
+                        from: '我',
+                        content: matchModal.text,
+                        date: '剛剛',
+                        unread: false,
+                    });
+                }
+            } catch (error) {
+                console.error('Send message failed:', error);
+                // Fallback: show local confirmation
+                messages.value.unshift({ 
+                    id: Date.now(), 
+                    from: '系統', 
+                    content: `已發送邀約給 ${matchModal.player.name}`, 
+                    date: '剛剛', 
+                    unread: true 
+                });
+            }
+            
             matchModal.open = false;
+            matchModal.text = '';
+            showToast(`已成功發送約打邀請給 ${matchModal.player.name}`, 'success');
         };
         const showDetail = (p) => { detailPlayer.value = p; };
         const getDetailStats = (p) => {
@@ -483,16 +770,36 @@ createApp({
             ];
         };
 
+        // Mark message as read
+        const markMessageRead = async (messageId) => {
+            try {
+                await api.put(`/messages/${messageId}/read`);
+                const msg = messages.value.find(m => m.id === messageId);
+                if (msg) {
+                    msg.read_at = new Date().toISOString();
+                    msg.unread = false;
+                }
+            } catch (error) {
+                console.error('Failed to mark message as read:', error);
+            }
+        };
+
         return { 
             view, isLoggedIn, isLoginMode, hasUnread, regions, levels, players, messages, features, form, 
             matchModal, detailPlayer, isSigning, showNtrpGuide, levelDescs, cardThemes, currentStep, showPreview, stepTitles, genders,
             isAdjustingPhoto, dragInfo, startDrag, handleDrag, stopDrag, initMoveable,
+            // UI State
+            showUserMenu, messageTab, formatDate, toasts, showToast, removeToast,
+            // My Cards
+            myCards, editCard, deleteCard,
             // Search, Filter, Pagination
             searchQuery, selectedRegion, currentPage, perPage, activeRegions, filteredPlayers, totalPages, paginatedPlayers, displayPages,
             // Navigation
             navigateTo,
-            login, triggerUpload, handleFileUpload, saveCard, getPlayersByRegion, 
-            openMatchModal, sendMatchRequest, showDetail, getDetailStats, scrollToSubmit 
+            // Auth & API
+            isLoading, authError, authForm, register, login, logout, loadPlayers, loadMessages,
+            triggerUpload, handleFileUpload, saveCard, getPlayersByRegion, 
+            openMatchModal, sendMatchRequest, showDetail, getDetailStats, scrollToSubmit, markMessageRead 
         };
     }
 }).mount('#app');

@@ -34,3 +34,7 @@ Route::get('/messages', function () {
 Route::get('/auth', function () {
     return view('index');
 });
+
+Route::get('/mycards', function () {
+    return view('index');
+});

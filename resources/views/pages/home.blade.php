@@ -26,10 +26,25 @@
             <h2 class="text-3xl font-black italic uppercase tracking-tighter flex items-center gap-4">
                 <div class="w-1.5 h-10 bg-blue-600 rounded-full"></div> 推薦戰友
             </h2>
-            <a href="/list" @click.prevent="navigateTo('list')" class="text-blue-600 text-sm font-black uppercase tracking-widest border-b-2 border-blue-600/10 pb-1">顯示更多</a>
+            <a v-if="players.length > 0" href="/list" @click.prevent="navigateTo('list')" class="text-blue-600 text-sm font-black uppercase tracking-widest border-b-2 border-blue-600/10 pb-1">顯示更多</a>
         </div>
-        <div class="flex overflow-x-auto no-scrollbar snap-x snap-mandatory gap-8 pb-8 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-12">
+        
+        {{-- Has Players --}}
+        <div v-if="players.length > 0" class="flex overflow-x-auto no-scrollbar snap-x snap-mandatory gap-8 pb-8 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-12">
             <player-card v-for="p in players.slice(0, 3)" :key="p.id" :player="p" @click="showDetail(p)" class="min-w-[280px] sm:min-w-0 snap-center" />
+        </div>
+        
+        {{-- Empty State --}}
+        <div v-else class="bg-gradient-to-br from-slate-50 to-white rounded-[48px] border-2 border-dashed border-slate-200 p-12 text-center">
+            <div class="bg-blue-50 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                <app-icon name="user" class-name="w-10 h-10 text-blue-300"></app-icon>
+            </div>
+            <h3 class="text-xl font-black italic uppercase tracking-tight mb-3">成為第一位球友！</h3>
+            <p class="text-slate-400 font-medium mb-6 max-w-md mx-auto">目前還沒有球友加入，立即建立您的專業球友卡，開始您的網球社交之旅！</p>
+            <a href="/create" @click.prevent="navigateTo('create')" class="inline-flex items-center gap-3 bg-blue-600 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl">
+                <app-icon name="plus" class-name="w-5 h-5"></app-icon>
+                建立球友卡
+            </a>
         </div>
     </section>
 

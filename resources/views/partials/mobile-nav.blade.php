@@ -1,5 +1,5 @@
 {{-- Mobile Navigation Dock --}}
-<div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-md bg-slate-950/95 backdrop-blur-3xl border border-white/10 rounded-[32px] p-2 flex justify-between items-center shadow-[0_20px_50px_rgba(0,0,0,0.6)] z-[150]">
+<div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-md bg-slate-950/95 backdrop-blur-3xl border border-white/10 rounded-[32px] p-2 flex justify-between items-center shadow-[0_20px_50px_rgba(0,0,0,0.6)] z-[150] md:hidden">
     <a href="/" @click.prevent="navigateTo('home')" class="flex-1 flex flex-col items-center gap-1 py-3 rounded-2xl transition-all" :class="view === 'home' ? 'text-blue-400 bg-white/5' : 'text-slate-500'">
         <app-icon name="home" class-name="w-5.5 h-5.5"></app-icon>
         <span class="text-[10px] font-black uppercase tracking-widest">Home</span>
@@ -21,8 +21,19 @@
         </div>
         <span class="text-[10px] font-black uppercase tracking-widest">Mail</span>
     </a>
-    <a :href="isLoggedIn ? '/profile' : '/auth'" @click.prevent="navigateTo(isLoggedIn ? 'profile' : 'auth')" class="flex-1 flex flex-col items-center gap-1 py-3 text-slate-500">
-        <app-icon name="user" class-name="w-5.5 h-5.5"></app-icon>
-        <span class="text-[10px] font-black uppercase tracking-widest">Me</span>
-    </a>
+    {{-- Profile / Login / Logout --}}
+    <template v-if="isLoggedIn">
+        <button @click="logout()" class="flex-1 flex flex-col items-center gap-1 py-3 text-slate-500 hover:text-red-400 transition-colors">
+            <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+            </svg>
+            <span class="text-[10px] font-black uppercase tracking-widest">登出</span>
+        </button>
+    </template>
+    <template v-else>
+        <a href="/auth" @click.prevent="navigateTo('auth')" class="flex-1 flex flex-col items-center gap-1 py-3 text-slate-500" :class="view === 'auth' ? 'text-blue-400 bg-white/5' : ''">
+            <app-icon name="user" class-name="w-5.5 h-5.5"></app-icon>
+            <span class="text-[10px] font-black uppercase tracking-widest">登入</span>
+        </a>
+    </template>
 </div>

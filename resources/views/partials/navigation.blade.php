@@ -20,7 +20,51 @@
         </div>
 
         <div class="flex items-center gap-2 sm:gap-4 shrink-0">
+            {{-- Not Logged In --}}
             <a v-if="!isLoggedIn" href="/auth" @click.prevent="navigateTo('auth')" class="hidden sm:block text-slate-400 hover:text-slate-900 text-xs font-black uppercase tracking-widest transition-all">登入 / 註冊</a>
+            
+            {{-- Logged In: User Dropdown --}}
+            <div v-if="isLoggedIn" class="relative hidden sm:block group">
+                <button @click="showUserMenu = !showUserMenu" class="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors">
+                    <div class="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center">
+                        <app-icon name="user" class-name="w-5 h-5 text-blue-600"></app-icon>
+                    </div>
+                    <span class="text-xs font-black uppercase tracking-widest">帳號</span>
+                    <svg class="w-4 h-4 transition-transform" :class="showUserMenu ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                {{-- Dropdown Menu - Click to toggle, click outside to close --}}
+                <div v-show="showUserMenu" @click.stop class="absolute right-0 top-full pt-2 w-48 z-50">
+                    <div class="bg-white rounded-2xl shadow-2xl border border-slate-100 py-2">
+                    <a href="/messages" @click.prevent="navigateTo('messages'); showUserMenu = false" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors">
+                        <app-icon name="mail" class-name="w-5 h-5"></app-icon>
+                        <span>我的訊息</span>
+                        <div v-if="hasUnread" class="ml-auto w-2 h-2 bg-red-500 rounded-full"></div>
+                    </a>
+                    <a href="/create" @click.prevent="navigateTo('create'); showUserMenu = false" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors">
+                        <app-icon name="plus" class-name="w-5 h-5"></app-icon>
+                        <span>建立球友卡</span>
+                    </a>
+                    <a href="/mycards" @click.prevent="navigateTo('mycards'); showUserMenu = false" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                        <span>我的球友卡</span>
+                    </a>
+                    <div class="border-t border-slate-100 my-2"></div>
+                    <button @click="logout(); showUserMenu = false" class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                        <span>登出</span>
+                    </button>
+                    </div>
+                </div>
+                {{-- Click outside to close --}}
+                <div v-if="showUserMenu" @click="showUserMenu = false" class="fixed inset-0 z-40"></div>
+            </div>
+            
             <a href="/create" @click.prevent="navigateTo('create')" class="bg-slate-950 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-blue-600 transition-all flex items-center gap-2 shadow-xl">
                 <app-icon name="plus" class-name="w-4 h-4 sm:w-5 h-5"></app-icon>
                 <span class="hidden sm:inline">製作球友卡</span>

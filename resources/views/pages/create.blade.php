@@ -228,5 +228,3 @@
         </div>
     </div>
 </transition>
-
-<ntrp-guide-modal v-model:open="showNtrpGuide" :descs="levelDescs" />

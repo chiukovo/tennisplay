@@ -14,8 +14,8 @@
                 全台最專業的網球約打媒合平台。製作專屬球友卡，在社群大廳獲得曝光，完全免費刊登。
             </p>
             <div class="flex flex-col sm:flex-row gap-5 justify-center pt-8 px-4">
-                <button @click="view = 'create'" class="bg-blue-600 text-white px-12 py-5 rounded-3xl font-black text-xl hover:scale-105 transition-all shadow-2xl shadow-blue-500/40">製作球友卡</button>
-                <button @click="view = 'list'" class="bg-white/5 text-white border border-white/10 px-12 py-5 rounded-3xl font-black text-xl hover:bg-white/10 transition-all backdrop-blur-md">瀏覽球友大廳</button>
+                <a href="/create" @click.prevent="navigateTo('create')" class="bg-blue-600 text-white px-12 py-5 rounded-3xl font-black text-xl hover:scale-105 transition-all shadow-2xl shadow-blue-500/40 text-center">製作球友卡</a>
+                <a href="/list" @click.prevent="navigateTo('list')" class="bg-white/5 text-white border border-white/10 px-12 py-5 rounded-3xl font-black text-xl hover:bg-white/10 transition-all backdrop-blur-md text-center">瀏覽球友大廳</a>
             </div>
         </div>
     </div>
@@ -26,7 +26,7 @@
             <h2 class="text-3xl font-black italic uppercase tracking-tighter flex items-center gap-4">
                 <div class="w-1.5 h-10 bg-blue-600 rounded-full"></div> 推薦戰友
             </h2>
-            <button @click="view = 'list'" class="text-blue-600 text-sm font-black uppercase tracking-widest border-b-2 border-blue-600/10 pb-1">顯示更多</button>
+            <a href="/list" @click.prevent="navigateTo('list')" class="text-blue-600 text-sm font-black uppercase tracking-widest border-b-2 border-blue-600/10 pb-1">顯示更多</a>
         </div>
         <div class="flex overflow-x-auto no-scrollbar snap-x snap-mandatory gap-8 pb-8 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-12">
             <player-card v-for="p in players.slice(0, 3)" :key="p.id" :player="p" @click="showDetail(p)" class="min-w-[280px] sm:min-w-0 snap-center" />

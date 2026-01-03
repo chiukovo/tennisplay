@@ -16,3 +16,21 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('index');
 });
+
+// SPA Routes - all frontend routes return the same view
+// The Vue app handles routing via History API
+Route::get('/list', function () {
+    return view('index');
+});
+
+Route::get('/create', function () {
+    return view('index');
+});
+
+Route::get('/messages', function () {
+    return view('index');
+});
+
+Route::get('/auth', function () {
+    return view('index');
+});

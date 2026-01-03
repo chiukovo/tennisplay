@@ -7,9 +7,22 @@ const REGIONS = [
 ];
 const LEVELS = ['1.0', '1.5', '2.0', '2.5', '3.0', '3.5', '4.0', '4.5', '5.0', '5.5', '6.0', '7.0'];
 const INITIAL_PLAYERS = [
-  { id: '1', name: 'Novak Djokovic', region: '台北市', level: '7.0', handed: '右手', gender: '男', fee: '免費 (交流為主)', photo: 'https://images.unsplash.com/photo-1622279457486-62dcc4a4bd13?q=80&w=400&auto=format&fit=crop', theme: 'gold' },
-  { id: '2', name: 'Roger Federer', region: '台北市', level: '7.0', handed: '右手', gender: '男', fee: '免費 (交流為主)', photo: 'https://images.unsplash.com/photo-1595435063510-482208034433?q=80&w=400&auto=format&fit=crop', theme: 'holographic' },
-  { id: '3', name: 'Rafael Nadal', region: '新北市', level: '7.0', handed: '左手', gender: '男', fee: '免費 (交流為主)', photo: 'https://images.unsplash.com/photo-1531315630201-bb15bbeb1663?q=80&w=400&auto=format&fit=crop', theme: 'onyx' }
+  // 台北市球友
+  { id: '1', name: 'Alex Chen', region: '台北市', level: '4.5', handed: '右手', backhand: '雙反', gender: '男', fee: '免費 (交流為主)', intro: '週末固定在大安森林公園練球，歡迎程度相近的球友約打！主攻底線進攻型打法。', photo: 'https://images.unsplash.com/photo-1622279457486-62dcc4a4bd13?q=80&w=400&auto=format&fit=crop', theme: 'gold' },
+  { id: '2', name: 'Emily Wang', region: '台北市', level: '3.5', handed: '右手', backhand: '雙反', gender: '女', fee: '免費 (交流為主)', intro: '剛重拾網球一年，希望找到穩定的練球夥伴，平日傍晚有空。', photo: 'https://images.unsplash.com/photo-1595435063510-482208034433?q=80&w=400&auto=format&fit=crop', theme: 'sakura' },
+  { id: '3', name: 'Kevin Lin', region: '台北市', level: '5.0', handed: '左手', backhand: '單反', gender: '男', fee: 'NT$300/hr', intro: '前大專甲組選手，現為教練。可陪打或指導，發球強力、網前技術好。', photo: 'https://images.unsplash.com/photo-1531315630201-bb15bbeb1663?q=80&w=400&auto=format&fit=crop', theme: 'holographic' },
+  
+  // 新北市球友
+  { id: '4', name: 'Jessica Huang', region: '新北市', level: '4.0', handed: '右手', backhand: '雙反', gender: '女', fee: '免費 (交流為主)', intro: '住板橋，常在新莊運動公園打球。喜歡雙打，正在練習切球和放小球。', photo: 'https://images.unsplash.com/photo-1594381898411-846e7d193883?q=80&w=400&auto=format&fit=crop', theme: 'platinum' },
+  { id: '5', name: 'David Wu', region: '新北市', level: '3.0', handed: '右手', backhand: '雙反', gender: '男', fee: '免費 (交流為主)', intro: '打球兩年，中間程度。希望能找穩定球友一起進步，週末有空。', photo: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=400&auto=format&fit=crop', theme: 'standard' },
+  
+  // 台中市球友
+  { id: '6', name: 'Sophia Chang', region: '台中市', level: '4.5', handed: '右手', backhand: '雙反', gender: '女', fee: 'NT$200/hr', intro: '退役選手，目前在台中地區教學。歡迎各程度球友約練，可針對弱項加強。', photo: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=400&auto=format&fit=crop', theme: 'gold' },
+  { id: '7', name: 'Michael Lee', region: '台中市', level: '3.5', handed: '右手', backhand: '單反', gender: '男', fee: '免費 (交流為主)', intro: '工程師，用打網球放鬆身心。單反愛好者，歡迎切磋！', photo: 'https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?q=80&w=400&auto=format&fit=crop', theme: 'onyx' },
+  
+  // 高雄市球友
+  { id: '8', name: 'Amy Tsai', region: '高雄市', level: '2.5', handed: '左手', backhand: '雙反', gender: '女', fee: '免費 (交流為主)', intro: '剛開始學網球半年，左手持拍。希望找有耐心的球友一起練習基本功。', photo: 'https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?q=80&w=400&auto=format&fit=crop', theme: 'sakura' },
+  { id: '9', name: 'Jason Yang', region: '高雄市', level: '4.0', handed: '右手', backhand: '雙反', gender: '男', fee: '免費 (交流為主)', intro: '高雄在地球友，週末固定在中正運動場。歡迎來挑戰，輸贏請飲料！', photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&auto=format&fit=crop', theme: 'holographic' }
 ];
 
 const SVG_ICONS = {
@@ -178,6 +191,16 @@ const NtrpGuideModal = {
 createApp({
     components: { SignaturePad, PlayerCard, AppIcon, PlayerDetailModal, MatchModal, NtrpGuideModal },
     setup() {
+        // Route Configuration
+        const routes = {
+            '/': 'home',
+            '/list': 'list',
+            '/create': 'create',
+            '/messages': 'messages',
+            '/auth': 'auth'
+        };
+        const routePaths = Object.fromEntries(Object.entries(routes).map(([k, v]) => [v, k]));
+        
         const view = ref('home');
         const isLoggedIn = ref(false);
         const isLoginMode = ref(true);
@@ -193,6 +216,33 @@ createApp({
             { icon: 'shield-check', title: '製作專屬球友卡', desc: '建立專業視覺風格的數位球友卡，在社群大廳展現您的網球實力與風格。' },
             { icon: 'dollar-sign', title: '刊登完全免費', desc: '建立檔案、刊登曝光、發送約打訊息完全不收費，讓網球社交更簡單。' }
         ];
+        
+        // Navigation function with History API
+        const navigateTo = (viewName) => {
+            view.value = viewName;
+            const path = routePaths[viewName] || '/';
+            window.history.pushState({ view: viewName }, '', path);
+        };
+        
+        // Parse current URL on mount
+        const parseRoute = () => {
+            const path = window.location.pathname;
+            const viewName = routes[path] || 'home';
+            view.value = viewName;
+        };
+        
+        // Handle browser back/forward
+        onMounted(() => {
+            parseRoute();
+            window.addEventListener('popstate', (event) => {
+                if (event.state && event.state.view) {
+                    view.value = event.state.view;
+                } else {
+                    parseRoute();
+                }
+            });
+        });
+        
         const form = reactive({
             name: '', region: '台北市', level: '3.5', handed: '右手', backhand: '雙反', gender: '男',
             intro: '', fee: '免費 (交流為主)', photo: null, signature: null, theme: 'standard',
@@ -203,6 +253,66 @@ createApp({
         const showPreview = ref(false);
         const isAdjustingPhoto = ref(false);
         
+        // Search, Filter, Pagination State
+        const searchQuery = ref('');
+        const selectedRegion = ref('全部');
+        const currentPage = ref(1);
+        const perPage = 8;
+        
+        // Computed: Active regions (regions that have players)
+        const activeRegions = computed(() => {
+            const regionsWithPlayers = new Set(players.value.map(p => p.region));
+            return REGIONS.filter(r => regionsWithPlayers.has(r));
+        });
+        
+        // Computed: Filtered players based on search and region
+        const filteredPlayers = computed(() => {
+            let result = players.value;
+            
+            // Filter by region
+            if (selectedRegion.value !== '全部') {
+                result = result.filter(p => p.region === selectedRegion.value);
+            }
+            
+            // Filter by search query
+            if (searchQuery.value.trim()) {
+                const query = searchQuery.value.toLowerCase();
+                result = result.filter(p => 
+                    p.name.toLowerCase().includes(query) ||
+                    p.region.toLowerCase().includes(query) ||
+                    p.level.includes(query) ||
+                    (p.intro && p.intro.toLowerCase().includes(query))
+                );
+            }
+            
+            return result;
+        });
+        
+        // Computed: Total pages
+        const totalPages = computed(() => Math.ceil(filteredPlayers.value.length / perPage));
+        
+        // Computed: Paginated players
+        const paginatedPlayers = computed(() => {
+            const start = (currentPage.value - 1) * perPage;
+            return filteredPlayers.value.slice(start, start + perPage);
+        });
+        
+        // Computed: Display pages for pagination
+        const displayPages = computed(() => {
+            const total = totalPages.value;
+            const current = currentPage.value;
+            if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1);
+            
+            if (current <= 3) return [1, 2, 3, 4, '...', total];
+            if (current >= total - 2) return [1, '...', total - 3, total - 2, total - 1, total];
+            return [1, '...', current - 1, current, current + 1, '...', total];
+        });
+        
+        // Reset page when filter changes
+        watch([searchQuery, selectedRegion], () => {
+            currentPage.value = 1;
+        });
+
         // Dragging State
         const dragInfo = reactive({
             active: false,
@@ -377,6 +487,10 @@ createApp({
             view, isLoggedIn, isLoginMode, hasUnread, regions, levels, players, messages, features, form, 
             matchModal, detailPlayer, isSigning, showNtrpGuide, levelDescs, cardThemes, currentStep, showPreview, stepTitles, genders,
             isAdjustingPhoto, dragInfo, startDrag, handleDrag, stopDrag, initMoveable,
+            // Search, Filter, Pagination
+            searchQuery, selectedRegion, currentPage, perPage, activeRegions, filteredPlayers, totalPages, paginatedPlayers, displayPages,
+            // Navigation
+            navigateTo,
             login, triggerUpload, handleFileUpload, saveCard, getPlayersByRegion, 
             openMatchModal, sendMatchRequest, showDetail, getDetailStats, scrollToSubmit 
         };

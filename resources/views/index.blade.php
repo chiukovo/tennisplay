@@ -27,35 +27,18 @@
 
     {{-- Main Content --}}
     <main class="max-w-6xl mx-auto px-4 pt-6 sm:pt-10 min-h-screen pb-48 sm:pb-32">
-        {{-- DEBUG --}}
-        <div style="background: red; color: white; padding: 20px; font-size: 24px; margin-bottom: 20px;">
-            DEBUG: Current view = "@{{ view }}"
-        </div>
-        
-        <div style="background: orange; padding: 5px;">BEFORE AUTH</div>
         @include('pages.auth')
-        <div style="background: orange; padding: 5px;">AFTER AUTH / BEFORE HOME</div>
-        
         @include('pages.home')
-        <div style="background: orange; padding: 5px;">AFTER HOME / BEFORE CREATE</div>
-        
         @include('pages.create')
-        <div style="background: orange; padding: 5px;">AFTER CREATE / BEFORE LIST</div>
-        
         @include('pages.list')
-        <div style="background: orange; padding: 5px;">AFTER LIST / BEFORE MESSAGES</div>
-        
         @include('pages.messages')
-        <div style="background: orange; padding: 5px;">AFTER MESSAGES / BEFORE MYCARDS</div>
-        
         @include('pages.mycards')
-        <div style="background: orange; padding: 5px;">AFTER MYCARDS</div>
     </main>
 
     {{-- Modal Components --}}
-    <player-detail-modal :player="detailPlayer" :stats="getDetailStats(detailPlayer)" @close="detailPlayer = null" @open-match="p => { detailPlayer = null; openMatchModal(p); }" />
-    <match-modal v-model:open="matchModal.open" :player="matchModal.player" @submit="text => { matchModal.text = text; sendMatchRequest(); }" />
-    <ntrp-guide-modal v-model:open="showNtrpGuide" :descs="levelDescs" />
+    <player-detail-modal :player="detailPlayer" :stats="getDetailStats(detailPlayer)" @close="detailPlayer = null" @open-match="p => { detailPlayer = null; openMatchModal(p); }"></player-detail-modal>
+    <match-modal v-model:open="matchModal.open" :player="matchModal.player" @submit="text => { matchModal.text = text; sendMatchRequest(); }"></match-modal>
+    <ntrp-guide-modal v-model:open="showNtrpGuide" :descs="levelDescs"></ntrp-guide-modal>
 
     {{-- Global Loading Overlay --}}
     <div v-if="isLoading" class="fixed inset-0 bg-slate-950/50 backdrop-blur-sm z-[200] flex items-center justify-center">

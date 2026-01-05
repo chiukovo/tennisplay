@@ -1,5 +1,5 @@
 {{-- Create View (Refactored Wizard) --}}
-<div v-if="view === 'create'" class="max-w-4xl mx-auto animate__animated animate__fadeInUp">
+<div v-if="view === 'create'" class="max-w-4xl mx-auto">
     {{-- Clickable Progress Bar --}}
     <div class="mb-10 px-4">
         <div class="flex justify-between mb-4">
@@ -182,7 +182,7 @@
                                 @edit-signature="isSigning = true"
                                 @close-signing="isSigning = false" 
                                 @drag-start="startDrag"
-                                @sig-ready="initMoveable" />
+                                @sig-ready="initMoveable"></player-card>
                         </div>
                         
                         <div class="w-full space-y-3">
@@ -231,7 +231,7 @@
                 <span class="bg-blue-600 text-white text-[10px] font-black px-6 py-2 rounded-full uppercase tracking-widest italic shadow-xl shadow-blue-600/40">Premium Card Preview</span>
             </div>
             
-            <player-card :player="form" :is-signing="isSigning" @update-signature="handleSignatureUpdate" @close-signing="isSigning = false" />
+            <player-card :player="form" :is-signing="isSigning" @update-signature="handleSignatureUpdate" @close-signing="isSigning = false"></player-card>
             
             <button type="button" @click="showPreview = false" class="w-full mt-10 bg-white/10 text-white border border-white/10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/20 transition-all backdrop-blur-md">
                 返回編輯
@@ -241,4 +241,4 @@
 {{-- </transition> --}}
 
 {{-- Quick Edit Modal --}}
-<quick-edit-modal v-model:open="showQuickEditModal" :form="form" :levels="levels" :regions="regions" />
+<quick-edit-modal v-model:open="showQuickEditModal" :form="form" :levels="levels" :regions="regions"></quick-edit-modal>

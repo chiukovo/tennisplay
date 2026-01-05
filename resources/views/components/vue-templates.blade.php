@@ -38,7 +38,7 @@
             
             {{-- Logo Watermark --}}
             <div class="absolute top-4 left-4 right-4 z-20 flex justify-end items-center">
-                <div class="flex items-center gap-2 filter drop-shadow-lg transition-all duration-500">
+                <div class="flex items-center gap-2 transition-all duration-500 opacity-60">
                     <div :class="['backdrop-blur-md p-1.5 rounded-xl border transition-all duration-500', themeStyle.logoBg, themeStyle.logoBorder]">
                         <app-icon name="trophy" :class-name="['w-4 h-4 transition-all duration-500', themeStyle.logoIcon]"></app-icon>
                     </div>
@@ -65,7 +65,7 @@
                 </div>
             </div>
 
-            <signature-pad :active="isSigning" @save="sig => $emit('update-signature', sig)" @close="$emit('close-signing')" />
+            <signature-pad :active="isSigning" @save="sig => $emit('update-signature', sig)" @close="$emit('close-signing')"></signature-pad>
             
             {{-- Signature Display with Moveable.js --}}
             <div v-if="player.signature" 

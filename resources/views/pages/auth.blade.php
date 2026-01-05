@@ -1,5 +1,5 @@
 {{-- Auth View --}}
-<div v-if="view === 'auth'" class="flex items-center justify-center py-10 animate__animated animate__fadeIn">
+<div v-if="view === 'auth'" class="flex items-center justify-center py-10">
     <div class="w-full max-w-md bg-white rounded-[40px] shadow-2xl p-10 border border-slate-100">
         <div class="text-center mb-10">
             <div class="inline-block bg-blue-50 p-4 rounded-3xl mb-4">

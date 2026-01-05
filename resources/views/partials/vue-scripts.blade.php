@@ -1,8 +1,18 @@
 <script>
 // --- API Configuration ---
-const API_BASE = '/api';
+const API_BASE = '/api'; // Keep as /api, but we'll handle relative base if needed
+// Detect base path for API
+const getApiBase = () => {
+    const path = window.location.pathname;
+    if (path.includes('/public/')) {
+        return path.split('/public/')[0] + '/public/api';
+    }
+    // Fallback or root deployment
+    return '/api';
+};
+
 const api = axios.create({
-    baseURL: API_BASE,
+    baseURL: getApiBase(),
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -157,27 +167,27 @@ const PlayerCard = {
         const themes = {
             gold: { 
                 border: 'from-yellow-600 via-yellow-200 to-yellow-700', accent: 'text-yellow-500', bg: 'bg-slate-900',
-                logoBg: 'bg-yellow-500/20', logoBorder: 'border-yellow-500/30', logoIcon: 'text-yellow-400', logoText: 'text-yellow-200/80'
+                logoBg: 'bg-yellow-500/10', logoBorder: 'border-yellow-500/10', logoIcon: 'text-yellow-400/40', logoText: 'text-yellow-200/30'
             },
             platinum: { 
                 border: 'from-slate-400 via-white to-slate-500', accent: 'text-blue-400', bg: 'bg-slate-900',
-                logoBg: 'bg-white/20', logoBorder: 'border-white/30', logoIcon: 'text-white', logoText: 'text-white/80'
+                logoBg: 'bg-white/10', logoBorder: 'border-white/10', logoIcon: 'text-white/40', logoText: 'text-white/30'
             },
             holographic: { 
                 border: 'from-pink-500 via-cyan-300 via-yellow-200 to-purple-600', accent: 'text-cyan-400', bg: 'bg-slate-900',
-                logoBg: 'bg-cyan-500/20', logoBorder: 'border-cyan-500/30', logoIcon: 'text-cyan-300', logoText: 'text-cyan-100/80'
+                logoBg: 'bg-cyan-500/10', logoBorder: 'border-cyan-500/10', logoIcon: 'text-cyan-300/40', logoText: 'text-cyan-100/30'
             },
             onyx: { 
                 border: 'from-slate-900 via-slate-600 to-black', accent: 'text-slate-400', bg: 'bg-black',
-                logoBg: 'bg-white/10', logoBorder: 'border-white/10', logoIcon: 'text-slate-400', logoText: 'text-slate-500'
+                logoBg: 'bg-white/5', logoBorder: 'border-white/5', logoIcon: 'text-slate-400/30', logoText: 'text-slate-500/20'
             },
             sakura: { 
                 border: 'from-pink-400 via-pink-100 to-pink-500', accent: 'text-pink-400', bg: 'bg-slate-900',
-                logoBg: 'bg-pink-500/20', logoBorder: 'border-pink-500/30', logoIcon: 'text-pink-300', logoText: 'text-pink-100/80'
+                logoBg: 'bg-pink-500/10', logoBorder: 'border-pink-500/10', logoIcon: 'text-pink-300/40', logoText: 'text-pink-100/30'
             },
             standard: { 
                 border: 'from-blue-600 via-indigo-400 to-blue-800', accent: 'text-blue-500', bg: 'bg-slate-900',
-                logoBg: 'bg-blue-500/20', logoBorder: 'border-blue-500/30', logoIcon: 'text-blue-400', logoText: 'text-blue-200/80'
+                logoBg: 'bg-blue-500/10', logoBorder: 'border-blue-500/10', logoIcon: 'text-blue-400/40', logoText: 'text-blue-200/30'
             }
         };
         const themeStyle = computed(() => themes[props.player.theme || 'standard']);
@@ -390,12 +400,29 @@ createApp({
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
         
-        // Parse current URL on mount
+        // Parse current URL on mount - Improved to handle subdirectories
         const parseRoute = () => {
             const path = window.location.pathname;
-            const viewName = routes[path] || 'home';
+            console.log('Parsing path:', path);
+            
+            // Priority 1: Exact match in routes
+            let viewName = routes[path];
+            
+            // Priority 2: Match by suffix (for subdirectories)
+            if (!viewName) {
+                const matchedKey = Object.keys(routes).find(r => r !== '/' && path.endsWith(r));
+                if (matchedKey) viewName = routes[matchedKey];
+            }
+            
+            // Priority 3: Default to home if at root of project
+            if (!viewName) viewName = 'home';
+            
             view.value = viewName;
+            console.log('Final view decided:', viewName);
+            return viewName;
         };
+        
+        watch(view, (newV) => console.log('View dynamically changed to:', newV));
         
         
         const form = reactive({
@@ -425,25 +452,31 @@ createApp({
         
         // Computed: Filtered players based on search and region
         const filteredPlayers = computed(() => {
-            let result = Array.isArray(players.value) ? players.value : [];
-            
-            // Filter by region
-            if (selectedRegion.value !== '全部') {
-                result = result.filter(p => p.region === selectedRegion.value);
+            try {
+                let result = Array.isArray(players.value) ? players.value : [];
+                
+                // Filter by region
+                if (selectedRegion.value !== '全部') {
+                    result = result.filter(p => p && p.region === selectedRegion.value);
+                }
+                
+                // Filter by search query
+                const query = (searchQuery.value || '').trim().toLowerCase();
+                if (query) {
+                    result = result.filter(p => {
+                        if (!p) return false;
+                        return (String(p.name || '').toLowerCase().includes(query)) ||
+                               (String(p.region || '').toLowerCase().includes(query)) ||
+                               (String(p.level || '').includes(query)) ||
+                               (String(p.intro || '').toLowerCase().includes(query));
+                    });
+                }
+                
+                return result;
+            } catch (e) {
+                console.error('Error in filteredPlayers computed:', e);
+                return [];
             }
-            
-            // Filter by search query
-            if (searchQuery.value.trim()) {
-                const query = searchQuery.value.toLowerCase();
-                result = result.filter(p => 
-                    (p.name && p.name.toLowerCase().includes(query)) ||
-                    (p.region && p.region.toLowerCase().includes(query)) ||
-                    (p.level && p.level.includes(query)) ||
-                    (p.intro && p.intro.toLowerCase().includes(query))
-                );
-            }
-            
-            return result;
         });
         
         // Computed: Total pages
@@ -459,15 +492,15 @@ createApp({
             return filteredPlayers.value.slice(start, start + perPage);
         });
         
-        // Computed: Display pages for pagination
+        // Computed: Display pages for pagination - Fixed for duplicate keys
         const displayPages = computed(() => {
             const total = totalPages.value;
             const current = currentPage.value;
             if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1);
             
-            if (current <= 3) return [1, 2, 3, 4, '...', total];
-            if (current >= total - 2) return [1, '...', total - 3, total - 2, total - 1, total];
-            return [1, '...', current - 1, current, current + 1, '...', total];
+            if (current <= 3) return [1, 2, 3, 4, { type: 'dot', id: 'dot1' }, total];
+            if (current >= total - 2) return [1, { type: 'dot', id: 'dot1' }, total - 3, total - 2, total - 1, total];
+            return [1, { type: 'dot', id: 'dot1' }, current - 1, current, current + 1, { type: 'dot', id: 'dot2' }, total];
         });
         
         // Reset page when filter changes

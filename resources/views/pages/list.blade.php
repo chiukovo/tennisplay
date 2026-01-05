@@ -1,5 +1,5 @@
 {{-- List View --}}
-<div v-if="view === 'list'" class="space-y-6 pb-24 animate__animated animate__fadeIn">
+<div v-if="view === 'list'" class="space-y-6 pb-24">
     {{-- Header --}}
     <div class="flex flex-col gap-4">
         <div class="flex items-center justify-between">
@@ -118,8 +118,8 @@
         </button>
         
         {{-- Page Numbers --}}
-        <div v-for="page in displayPages" :key="page" class="inline-flex">
-            <span v-if="page === '...'" class="w-10 h-10 flex items-center justify-center text-slate-400">...</span>
+        <div v-for="(page, idx) in displayPages" :key="page.id || 'p-' + page" class="inline-flex">
+            <span v-if="typeof page === 'object' && page.type === 'dot'" class="w-10 h-10 flex items-center justify-center text-slate-400">...</span>
             <button v-else type="button" @click="currentPage = page"
                 :class="['w-10 h-10 rounded-xl font-black text-sm transition-all', currentPage === page ? 'bg-blue-600 text-white shadow-lg' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50']">
                 @{{ page }}

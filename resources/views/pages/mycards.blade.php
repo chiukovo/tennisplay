@@ -27,7 +27,7 @@
     {{-- Cards List --}}
     <div v-else-if="myCards.length > 0" class="grid grid-cols-1 sm:grid-cols-2 gap-8">
         <div v-for="card in myCards" :key="card.id" class="relative group">
-            <player-card :player="card" @click="showDetail(card)" />
+            <player-card :player="card" @click="showDetail(card)"></player-card>
             {{-- Action Overlay --}}
             <div class="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-[32px] flex items-center justify-center gap-4">
                 <button @click.stop="editCard(card)" class="bg-white text-slate-900 px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-blue-100 transition-colors shadow-xl">

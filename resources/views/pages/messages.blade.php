@@ -28,10 +28,10 @@
     <div v-else-if="messages.length > 0" class="bg-white rounded-[48px] shadow-2xl border border-slate-100 overflow-hidden">
         {{-- Tabs --}}
         <div class="flex border-b border-slate-100">
-            <button @click="messageTab = 'inbox'" :class="['flex-1 py-5 text-sm font-black uppercase tracking-widest transition-all', messageTab === 'inbox' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/30' : 'text-slate-400 hover:text-slate-600']">
+            <button type="button" @click="messageTab = 'inbox'" :class="['flex-1 py-5 text-sm font-black uppercase tracking-widest transition-all', messageTab === 'inbox' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/30' : 'text-slate-400 hover:text-slate-600']">
                 收件匣 (@{{ messages.filter(m => m.to_user_id || !m.from_user_id).length }})
             </button>
-            <button @click="messageTab = 'sent'" :class="['flex-1 py-5 text-sm font-black uppercase tracking-widest transition-all', messageTab === 'sent' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/30' : 'text-slate-400 hover:text-slate-600']">
+            <button type="button" @click="messageTab = 'sent'" :class="['flex-1 py-5 text-sm font-black uppercase tracking-widest transition-all', messageTab === 'sent' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/30' : 'text-slate-400 hover:text-slate-600']">
                 已發送 (@{{ messages.filter(m => m.from_user_id).length }})
             </button>
         </div>
@@ -53,10 +53,10 @@
                 </div>
                 <p class="text-base font-medium text-slate-600 leading-relaxed mb-6 line-clamp-2">@{{ m.content }}</p>
                 <div class="flex gap-3">
-                    <button class="px-5 py-2.5 bg-slate-950 text-white text-xs font-black uppercase tracking-widest rounded-xl shadow-lg hover:bg-blue-600 transition-all">
+                    <button type="button" class="px-5 py-2.5 bg-slate-950 text-white text-xs font-black uppercase tracking-widest rounded-xl shadow-lg hover:bg-blue-600 transition-all">
                         回覆
                     </button>
-                    <button v-if="m.unread || !m.read_at" @click.stop="markMessageRead(m.id)" class="px-5 py-2.5 bg-slate-100 text-slate-600 text-xs font-black uppercase tracking-widest rounded-xl hover:bg-slate-200 transition-all">
+                    <button type="button" v-if="m.unread || !m.read_at" @click.stop="markMessageRead(m.id)" class="px-5 py-2.5 bg-slate-100 text-slate-600 text-xs font-black uppercase tracking-widest rounded-xl hover:bg-slate-200 transition-all">
                         標為已讀
                     </button>
                 </div>

@@ -22,12 +22,12 @@
 
     {{-- Region Filter Tabs (Scrollable on Mobile) --}}
     <div class="flex overflow-x-auto no-scrollbar gap-2 pb-2 -mx-4 px-4">
-        <button @click="selectedRegion = '全部'" 
+        <button type="button" @click="selectedRegion = '全部'" 
             :class="['px-4 py-2.5 rounded-full font-black text-xs uppercase tracking-widest whitespace-nowrap transition-all border-2', 
             selectedRegion === '全部' ? 'bg-slate-900 text-white border-slate-900 shadow-lg' : 'bg-white text-slate-400 border-slate-200 hover:border-slate-300']">
             全部 <span class="ml-1 opacity-60">(@{{ players.length }})</span>
         </button>
-        <button v-for="r in activeRegions" :key="r" @click="selectedRegion = r" 
+        <button type="button" v-for="r in activeRegions" :key="r" @click="selectedRegion = r" 
             :class="['px-4 py-2.5 rounded-full font-black text-xs uppercase tracking-widest whitespace-nowrap transition-all border-2', 
             selectedRegion === r ? 'bg-blue-600 text-white border-blue-600 shadow-lg' : 'bg-white text-slate-400 border-slate-200 hover:border-slate-300']">
             @{{ r }} <span class="ml-1 opacity-60">(@{{ getPlayersByRegion(r).length }})</span>
@@ -38,7 +38,7 @@
     <div v-if="searchQuery || selectedRegion !== '全部'" class="flex items-center gap-3 text-sm">
         <span class="text-slate-400">搜尋結果:</span>
         <span class="font-black text-slate-900">@{{ filteredPlayers.length }} 位球友</span>
-        <button v-if="searchQuery || selectedRegion !== '全部'" @click="searchQuery = ''; selectedRegion = '全部'" class="text-blue-600 text-xs font-bold underline">清除篩選</button>
+        <button type="button" v-if="searchQuery || selectedRegion !== '全部'" @click="searchQuery = ''; selectedRegion = '全部'" class="text-blue-600 text-xs font-bold underline">清除篩選</button>
     </div>
 
     {{-- Skeleton Loading --}}
@@ -90,10 +90,10 @@
             </div>
             {{-- Actions --}}
             <div class="flex gap-2 mt-4">
-                <button @click="showDetail(player)" class="flex-1 py-3 bg-slate-100 text-slate-700 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center justify-center gap-2">
+                <button type="button" @click="showDetail(player)" class="flex-1 py-3 bg-slate-100 text-slate-700 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center justify-center gap-2">
                     <app-icon name="user" class-name="w-4 h-4"></app-icon> 詳細
                 </button>
-                <button @click="openMatchModal(player)" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg flex items-center justify-center gap-2">
+                <button type="button" @click="openMatchModal(player)" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg flex items-center justify-center gap-2">
                     <app-icon name="message-circle" class-name="w-4 h-4"></app-icon> 約打
                 </button>
             </div>
@@ -111,18 +111,23 @@
 
     {{-- Pagination --}}
     <div v-if="totalPages > 1" class="flex items-center justify-center gap-2 pt-8">
-        <button @click="currentPage = Math.max(1, currentPage - 1)" :disabled="currentPage === 1"
+        {{-- Previous Button --}}
+        <button type="button" @click="currentPage = Math.max(1, currentPage - 1)" :disabled="currentPage === 1"
             :class="['w-10 h-10 rounded-xl font-black text-sm transition-all', currentPage === 1 ? 'bg-slate-100 text-slate-300 cursor-not-allowed' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50']">
             ←
         </button>
-        <template v-for="page in displayPages" :key="page">
+        
+        {{-- Page Numbers --}}
+        <div v-for="page in displayPages" :key="page" class="inline-flex">
             <span v-if="page === '...'" class="w-10 h-10 flex items-center justify-center text-slate-400">...</span>
-            <button v-else @click="currentPage = page"
+            <button v-else type="button" @click="currentPage = page"
                 :class="['w-10 h-10 rounded-xl font-black text-sm transition-all', currentPage === page ? 'bg-blue-600 text-white shadow-lg' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50']">
                 @{{ page }}
             </button>
-        </template>
-        <button @click="currentPage = Math.min(totalPages, currentPage + 1)" :disabled="currentPage === totalPages"
+        </div>
+        
+        {{-- Next Button --}}
+        <button type="button" @click="currentPage = Math.min(totalPages, currentPage + 1)" :disabled="currentPage === totalPages"
             :class="['w-10 h-10 rounded-xl font-black text-sm transition-all', currentPage === totalPages ? 'bg-slate-100 text-slate-300 cursor-not-allowed' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50']">
             →
         </button>

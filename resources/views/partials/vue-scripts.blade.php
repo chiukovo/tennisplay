@@ -67,7 +67,14 @@ const SVG_ICONS = {
   clock: '<circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />',
   help: '<circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" x2="12.01" y1="17" y2="17" />',
   trash: '<path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" />',
-  'edit-3': '<path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />'
+  'edit-3': '<path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />',
+  move: '<path d="m5 9-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20" />',
+  check: '<polyline points="20 6 9 17 4 12" />',
+  users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  filter: '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>',
+  'chevron-left': '<polyline points="15 18 9 12 15 6"/>',
+  'chevron-right': '<polyline points="9 18 15 12 9 6"/>',
+  star: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'
 };
 
 const LEVEL_DESCS = {
@@ -143,7 +150,7 @@ const SignaturePad = {
 };
 
 const PlayerCard = {
-    props: ['player', 'size', 'isSigning'],
+    props: ['player', 'size', 'isSigning', 'isAdjustingSig'],
     components: { AppIcon, SignaturePad },
     template: '#player-card-template',
     setup(props) {
@@ -204,9 +211,16 @@ const NtrpGuideModal = {
     emits: ['update:open']
 };
 
+const QuickEditModal = {
+    props: ['open', 'form', 'levels', 'regions'],
+    components: { AppIcon },
+    template: '#quick-edit-modal-template',
+    emits: ['update:open']
+};
+
 // --- Main App ---
 createApp({
-    components: { SignaturePad, PlayerCard, AppIcon, PlayerDetailModal, MatchModal, NtrpGuideModal },
+    components: { SignaturePad, PlayerCard, AppIcon, PlayerDetailModal, MatchModal, NtrpGuideModal, QuickEditModal },
     setup() {
         // Route Configuration
         const routes = {
@@ -228,6 +242,7 @@ createApp({
         const players = ref(INITIAL_PLAYERS);
         const messages = ref([]);
         const isPlayersLoading = ref(false);
+        const isPlayersError = ref(false);
         
         // Confirm Dialog State
         const confirmDialog = reactive({
@@ -263,7 +278,10 @@ createApp({
         };
         
         // Computed: Has unread messages
-        const hasUnread = computed(() => messages.value.some(m => m.unread || !m.read_at));
+        const hasUnread = computed(() => {
+            if (!Array.isArray(messages.value)) return false;
+            return messages.value.some(m => m.unread || !m.read_at);
+        });
         
         // Get current user ID from localStorage
         const getCurrentUserId = () => {
@@ -276,7 +294,7 @@ createApp({
         // Computed: My cards (cards created by current user)
         const myCards = computed(() => {
             const userId = getCurrentUserId();
-            if (!userId) return [];
+            if (!userId || !Array.isArray(players.value)) return [];
             return players.value.filter(p => p.user_id === userId);
         });
         
@@ -379,19 +397,6 @@ createApp({
             view.value = viewName;
         };
         
-        // Handle browser back/forward
-        onMounted(() => {
-            parseRoute();
-            checkAuth();
-            loadPlayers();
-            window.addEventListener('popstate', (event) => {
-                if (event.state && event.state.view) {
-                    view.value = event.state.view;
-                } else {
-                    parseRoute();
-                }
-            });
-        });
         
         const form = reactive({
             name: '', region: '台北市', level: '3.5', handed: '右手', backhand: '雙反', gender: '男',
@@ -401,7 +406,9 @@ createApp({
         });
         const currentStep = ref(1);
         const showPreview = ref(false);
+        const showQuickEditModal = ref(false);
         const isAdjustingPhoto = ref(false);
+        const isAdjustingSig = ref(false);
         
         // Search, Filter, Pagination State
         const searchQuery = ref('');
@@ -411,13 +418,14 @@ createApp({
         
         // Computed: Active regions (regions that have players)
         const activeRegions = computed(() => {
-            const regionsWithPlayers = new Set(players.value.map(p => p.region));
+            if (!Array.isArray(players.value)) return [];
+            const regionsWithPlayers = new Set(players.value.map(p => p?.region).filter(Boolean));
             return REGIONS.filter(r => regionsWithPlayers.has(r));
         });
         
         // Computed: Filtered players based on search and region
         const filteredPlayers = computed(() => {
-            let result = players.value;
+            let result = Array.isArray(players.value) ? players.value : [];
             
             // Filter by region
             if (selectedRegion.value !== '全部') {
@@ -428,9 +436,9 @@ createApp({
             if (searchQuery.value.trim()) {
                 const query = searchQuery.value.toLowerCase();
                 result = result.filter(p => 
-                    p.name.toLowerCase().includes(query) ||
-                    p.region.toLowerCase().includes(query) ||
-                    p.level.includes(query) ||
+                    (p.name && p.name.toLowerCase().includes(query)) ||
+                    (p.region && p.region.toLowerCase().includes(query)) ||
+                    (p.level && p.level.includes(query)) ||
                     (p.intro && p.intro.toLowerCase().includes(query))
                 );
             }
@@ -439,10 +447,14 @@ createApp({
         });
         
         // Computed: Total pages
-        const totalPages = computed(() => Math.ceil(filteredPlayers.value.length / perPage));
+        const totalPages = computed(() => {
+            const count = Array.isArray(filteredPlayers.value) ? filteredPlayers.value.length : 0;
+            return Math.ceil(count / perPage);
+        });
         
         // Computed: Paginated players
         const paginatedPlayers = computed(() => {
+            if (!Array.isArray(filteredPlayers.value)) return [];
             const start = (currentPage.value - 1) * perPage;
             return filteredPlayers.value.slice(start, start + perPage);
         });
@@ -523,7 +535,7 @@ createApp({
         let moveableInstance = null;
         const initMoveable = (target) => {
             if (moveableInstance) moveableInstance.destroy();
-            if (!target) return;
+            if (!target || !isAdjustingSig.value) return;
 
             moveableInstance = new Moveable(target.parentElement.parentElement, {
                 target: target,
@@ -561,7 +573,44 @@ createApp({
                 moveableInstance.destroy();
                 moveableInstance = null;
             }
+            isAdjustingSig.value = false;
         });
+
+        watch(showPreview, (val) => {
+            if (val && moveableInstance) {
+                moveableInstance.destroy();
+                moveableInstance = null;
+            }
+            if (val) isAdjustingSig.value = false;
+        });
+
+        const toggleAdjustSig = () => {
+            isAdjustingSig.value = !isAdjustingSig.value;
+            if (!isAdjustingSig.value && moveableInstance) {
+                moveableInstance.destroy();
+                moveableInstance = null;
+            } else if (isAdjustingSig.value) {
+                // Wait for next tick to ensure target is rendered and ref is available
+                nextTick(() => {
+                    const target = document.getElementById('target-signature');
+                    if (target) initMoveable(target);
+                });
+            }
+        };
+
+        const handleSignatureUpdate = (sig) => {
+            form.signature = sig;
+            if (sig) {
+                isAdjustingSig.value = true;
+                // initMoveable will be called by @sig-ready event in template
+            } else {
+                isAdjustingSig.value = false;
+                if (moveableInstance) {
+                    moveableInstance.destroy();
+                    moveableInstance = null;
+                }
+            }
+        };
         const stepTitles = [
             '上傳您的專業形象照並填寫姓名',
             '設定您的 NTRP 分級與擊球技術',
@@ -595,14 +644,21 @@ createApp({
         // Load players from API
         const loadPlayers = async () => {
             isPlayersLoading.value = true;
+            console.log('Fetching players...');
             try {
                 const response = await api.get('/players');
+                console.log('Players response:', response.data);
                 if (response.data.success) {
-                    players.value = response.data.data.data || response.data.data;
+                    const data = response.data.data;
+                    if (data) {
+                        players.value = Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []);
+                    } else {
+                        players.value = [];
+                    }
+                    console.log('Players loaded:', players.value.length);
                 }
             } catch (error) {
                 console.error('Failed to load players:', error);
-                // Fall back to initial data if API fails
             } finally {
                 isPlayersLoading.value = false;
             }
@@ -611,10 +667,18 @@ createApp({
         // Load messages from API
         const loadMessages = async () => {
             if (!isLoggedIn.value) return;
+            console.log('Fetching messages...');
             try {
                 const response = await api.get('/messages');
+                console.log('Messages response:', response.data);
                 if (response.data.success) {
-                    messages.value = response.data.data.data || response.data.data;
+                    const data = response.data.data;
+                    if (data) {
+                        messages.value = Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []);
+                    } else {
+                        messages.value = [];
+                    }
+                    console.log('Messages loaded:', messages.value.length);
                 }
             } catch (error) {
                 console.error('Failed to load messages:', error);
@@ -627,9 +691,9 @@ createApp({
             const user = localStorage.getItem('auth_user');
             if (token && user) {
                 isLoggedIn.value = true;
+                loadMessages();
                 try {
                     const userData = JSON.parse(user);
-                    // Can access user data via userData
                 } catch (e) {}
             }
         };
@@ -830,10 +894,25 @@ createApp({
             }
         };
 
+        // Handle browser back/forward
+        onMounted(() => {
+            parseRoute();
+            console.log('onMounted - view.value after parseRoute:', view.value);
+            checkAuth();
+            loadPlayers();
+            window.addEventListener('popstate', (event) => {
+                if (event.state && event.state.view) {
+                    view.value = event.state.view;
+                } else {
+                    parseRoute();
+                }
+            });
+        });
+
         return { 
             view, isLoggedIn, isLoginMode, hasUnread, regions, levels, players, messages, features, form, 
-            matchModal, detailPlayer, isSigning, showNtrpGuide, levelDescs, cardThemes, currentStep, showPreview, stepTitles, genders,
-            isAdjustingPhoto, dragInfo, startDrag, handleDrag, stopDrag, initMoveable,
+            matchModal, detailPlayer, isSigning, showNtrpGuide, levelDescs, cardThemes, currentStep, showPreview, showQuickEditModal, stepTitles, genders,
+            isAdjustingPhoto, isAdjustingSig, toggleAdjustSig, handleSignatureUpdate, dragInfo, startDrag, handleDrag, stopDrag, initMoveable,
             // UI State
             showUserMenu, messageTab, formatDate, toasts, showToast, removeToast,
             // Confirm Dialog

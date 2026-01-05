@@ -27,23 +27,29 @@
 
     {{-- Main Content --}}
     <main class="max-w-6xl mx-auto px-4 pt-6 sm:pt-10 min-h-screen pb-48 sm:pb-32">
-        {{-- Auth View --}}
+        {{-- DEBUG --}}
+        <div style="background: red; color: white; padding: 20px; font-size: 24px; margin-bottom: 20px;">
+            DEBUG: Current view = "@{{ view }}"
+        </div>
+        
+        <div style="background: orange; padding: 5px;">BEFORE AUTH</div>
         @include('pages.auth')
+        <div style="background: orange; padding: 5px;">AFTER AUTH / BEFORE HOME</div>
         
-        {{-- Home View --}}
         @include('pages.home')
+        <div style="background: orange; padding: 5px;">AFTER HOME / BEFORE CREATE</div>
         
-        {{-- Create View --}}
         @include('pages.create')
+        <div style="background: orange; padding: 5px;">AFTER CREATE / BEFORE LIST</div>
         
-        {{-- List View --}}
         @include('pages.list')
+        <div style="background: orange; padding: 5px;">AFTER LIST / BEFORE MESSAGES</div>
         
-        {{-- Messages View --}}
         @include('pages.messages')
+        <div style="background: orange; padding: 5px;">AFTER MESSAGES / BEFORE MYCARDS</div>
         
-        {{-- My Cards View --}}
         @include('pages.mycards')
+        <div style="background: orange; padding: 5px;">AFTER MYCARDS</div>
     </main>
 
     {{-- Modal Components --}}

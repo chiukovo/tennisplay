@@ -30,7 +30,7 @@
         </div>
 
         <form @submit.prevent="saveCard" class="flex-1 flex flex-col">
-            <transition name="step" mode="out-in">
+            {{-- <transition name="step" mode="out-in"> --}}
                 <div :key="currentStep" class="flex-1">
                     {{-- Step 1: Photo & Name --}}
                     <div v-if="currentStep === 1" class="space-y-8">
@@ -178,7 +178,7 @@
 
                         <div class="w-full max-w-[300px] transform hover:scale-[1.02] transition-all duration-500 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] rounded-2xl relative">
                             <player-card :player="form" :is-signing="isSigning" 
-                                @update-signature="sig => form.signature = sig" 
+                                @update-signature="handleSignatureUpdate" 
                                 @edit-signature="isSigning = true"
                                 @close-signing="isSigning = false" 
                                 @drag-start="startDrag"
@@ -186,6 +186,17 @@
                         </div>
                         
                         <div class="w-full space-y-3">
+                            <button v-if="form.signature" type="button" @click="toggleAdjustSig" 
+                                :class="['w-full py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all shadow-xl', isAdjustingSig ? 'bg-blue-600 text-white hover:bg-blue-500' : 'bg-white text-slate-900 border border-slate-100 hover:bg-slate-50']">
+                                <app-icon :name="isAdjustingSig ? 'check' : 'move'" class-name="w-5 h-5"></app-icon>
+                                @{{ isAdjustingSig ? '✓ 完成調整' : '調整簽名位置' }}
+                            </button>
+
+                            <button type="button" @click="showQuickEditModal = true" class="w-full bg-white text-slate-900 border border-slate-100 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-slate-50 transition-all shadow-xl">
+                                <app-icon name="edit-3" class-name="w-5 h-5 text-blue-600"></app-icon>
+                                快速修改資料
+                            </button>
+
                             <button type="button" @click="isSigning = true" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-slate-800 transition-all shadow-xl">
                                 <app-icon name="eraser" class-name="w-5 h-5 text-blue-400"></app-icon>
                                 @{{ form.signature ? '重新手寫簽名' : '在卡片上簽名 (推薦)' }}
@@ -194,7 +205,7 @@
                         </div>
                     </div>
                 </div>
-            </transition>
+            {{-- </transition> --}}
 
             {{-- Navigation Buttons --}}
             <div class="mt-12 flex gap-4">
@@ -213,18 +224,21 @@
 </div>
 
 {{-- Full Screen Preview Card (Refactored) --}}
-<transition name="modal">
+{{-- <transition name="modal"> --}}
     <div v-if="showPreview" class="fixed inset-0 z-[600] bg-slate-950/95 backdrop-blur-2xl flex items-center justify-center p-6" @click.self="showPreview = false">
         <div class="w-full max-w-[340px] animate__animated animate__zoomIn animate__faster">
             <div class="flex justify-center mb-8">
                 <span class="bg-blue-600 text-white text-[10px] font-black px-6 py-2 rounded-full uppercase tracking-widest italic shadow-xl shadow-blue-600/40">Premium Card Preview</span>
             </div>
             
-            <player-card :player="form" :is-signing="isSigning" @update-signature="sig => form.signature = sig" @close-signing="isSigning = false" />
+            <player-card :player="form" :is-signing="isSigning" @update-signature="handleSignatureUpdate" @close-signing="isSigning = false" />
             
-            <button @click="showPreview = false" class="w-full mt-10 bg-white/10 text-white border border-white/10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/20 transition-all backdrop-blur-md">
+            <button type="button" @click="showPreview = false" class="w-full mt-10 bg-white/10 text-white border border-white/10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/20 transition-all backdrop-blur-md">
                 返回編輯
             </button>
         </div>
     </div>
-</transition>
+{{-- </transition> --}}
+
+{{-- Quick Edit Modal --}}
+<quick-edit-modal v-model:open="showQuickEditModal" :form="form" :levels="levels" :regions="regions" />

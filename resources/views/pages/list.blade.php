@@ -41,9 +41,30 @@
         <button v-if="searchQuery || selectedRegion !== '全部'" @click="searchQuery = ''; selectedRegion = '全部'" class="text-blue-600 text-xs font-bold underline">清除篩選</button>
     </div>
 
+    {{-- Skeleton Loading --}}
+    <div v-if="isPlayersLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div v-for="i in 8" :key="i" class="bg-white rounded-3xl p-4 shadow-lg border border-slate-100">
+            <div class="flex gap-4">
+                <div class="w-20 h-24 rounded-2xl skeleton-shimmer shrink-0"></div>
+                <div class="flex-1 space-y-3">
+                    <div class="h-5 w-24 skeleton-shimmer rounded-lg"></div>
+                    <div class="flex gap-2">
+                        <div class="h-5 w-16 skeleton-shimmer rounded-lg"></div>
+                        <div class="h-5 w-12 skeleton-shimmer rounded-lg"></div>
+                    </div>
+                    <div class="h-4 w-full skeleton-shimmer rounded-lg"></div>
+                </div>
+            </div>
+            <div class="flex gap-2 mt-4">
+                <div class="flex-1 h-10 skeleton-shimmer rounded-xl"></div>
+                <div class="flex-1 h-10 skeleton-shimmer rounded-xl"></div>
+            </div>
+        </div>
+    </div>
+
     {{-- Player Cards Grid (Mobile Optimized) --}}
-    <div v-if="paginatedPlayers.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <div v-for="player in paginatedPlayers" :key="player.id" class="bg-white rounded-3xl p-4 shadow-lg border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all">
+    <div v-else-if="paginatedPlayers.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div v-for="player in paginatedPlayers" :key="player.id" class="bg-white rounded-3xl p-4 shadow-lg border border-slate-100 card-3d">
             {{-- Mobile Compact Card --}}
             <div class="flex gap-4">
                 {{-- Photo --}}

@@ -227,6 +227,40 @@ createApp({
         const regions = REGIONS; const levels = LEVELS;
         const players = ref(INITIAL_PLAYERS);
         const messages = ref([]);
+        const isPlayersLoading = ref(false);
+        
+        // Confirm Dialog State
+        const confirmDialog = reactive({
+            open: false,
+            title: '',
+            message: '',
+            confirmText: '確認',
+            cancelText: '取消',
+            onConfirm: null,
+            type: 'danger' // 'danger' | 'warning' | 'info'
+        });
+        
+        const showConfirm = (options) => {
+            Object.assign(confirmDialog, {
+                open: true,
+                title: options.title || '確認操作',
+                message: options.message || '確定要執行此操作嗎？',
+                confirmText: options.confirmText || '確認',
+                cancelText: options.cancelText || '取消',
+                type: options.type || 'danger',
+                onConfirm: options.onConfirm
+            });
+        };
+        
+        const hideConfirm = () => {
+            confirmDialog.open = false;
+            confirmDialog.onConfirm = null;
+        };
+        
+        const executeConfirm = () => {
+            if (confirmDialog.onConfirm) confirmDialog.onConfirm();
+            hideConfirm();
+        };
         
         // Computed: Has unread messages
         const hasUnread = computed(() => messages.value.some(m => m.unread || !m.read_at));
@@ -273,21 +307,28 @@ createApp({
             navigateTo('create');
         };
         
-        // Delete card
-        const deleteCard = async (cardId) => {
-            if (!confirm('確定要刪除這張球友卡嗎？')) return;
-            
-            isLoading.value = true;
-            try {
-                await api.delete(`/players/${cardId}`);
-                players.value = players.value.filter(p => p.id !== cardId);
-                showToast('球友卡已刪除', 'info');
-            } catch (error) {
-                console.error('Delete failed:', error);
-                showToast('刪除失敗，請稍後再試', 'error');
-            } finally {
-                isLoading.value = false;
-            }
+        // Delete card with custom confirm dialog
+        const deleteCard = (cardId) => {
+            showConfirm({
+                title: '刪除球友卡',
+                message: '確定要刪除這張球友卡嗎？此操作無法復原。',
+                confirmText: '確認刪除',
+                cancelText: '取消',
+                type: 'danger',
+                onConfirm: async () => {
+                    isLoading.value = true;
+                    try {
+                        await api.delete(`/players/${cardId}`);
+                        players.value = players.value.filter(p => p.id !== cardId);
+                        showToast('球友卡已刪除', 'info');
+                    } catch (error) {
+                        console.error('Delete failed:', error);
+                        showToast('刪除失敗，請稍後再試', 'error');
+                    } finally {
+                        isLoading.value = false;
+                    }
+                }
+            });
         };
         // Format date helper
         const formatDate = (dateStr) => {
@@ -327,6 +368,8 @@ createApp({
             view.value = viewName;
             const path = routePaths[viewName] || '/';
             window.history.pushState({ view: viewName }, '', path);
+            // Scroll to top smoothly
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         };
         
         // Parse current URL on mount
@@ -551,6 +594,7 @@ createApp({
 
         // Load players from API
         const loadPlayers = async () => {
+            isPlayersLoading.value = true;
             try {
                 const response = await api.get('/players');
                 if (response.data.success) {
@@ -559,6 +603,8 @@ createApp({
             } catch (error) {
                 console.error('Failed to load players:', error);
                 // Fall back to initial data if API fails
+            } finally {
+                isPlayersLoading.value = false;
             }
         };
 
@@ -790,6 +836,8 @@ createApp({
             isAdjustingPhoto, dragInfo, startDrag, handleDrag, stopDrag, initMoveable,
             // UI State
             showUserMenu, messageTab, formatDate, toasts, showToast, removeToast,
+            // Confirm Dialog
+            confirmDialog, showConfirm, hideConfirm, executeConfirm,
             // My Cards
             myCards, editCard, deleteCard,
             // Search, Filter, Pagination
@@ -797,7 +845,7 @@ createApp({
             // Navigation
             navigateTo,
             // Auth & API
-            isLoading, authError, authForm, register, login, logout, loadPlayers, loadMessages,
+            isLoading, isPlayersLoading, authError, authForm, register, login, logout, loadPlayers, loadMessages,
             triggerUpload, handleFileUpload, saveCard, getPlayersByRegion, 
             openMatchModal, sendMatchRequest, showDetail, getDetailStats, scrollToSubmit, markMessageRead 
         };

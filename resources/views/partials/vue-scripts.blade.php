@@ -190,7 +190,10 @@ const PlayerCard = {
                 logoBg: 'bg-blue-500/10', logoBorder: 'border-blue-500/10', logoIcon: 'text-blue-400/40', logoText: 'text-blue-200/30'
             }
         };
-        const themeStyle = computed(() => themes[props.player.theme || 'standard']);
+        const themeStyle = computed(() => {
+            if (!props.player) return themes.standard;
+            return themes[props.player.theme || 'standard'] || themes.standard;
+        });
         const getLevelTag = (lvl) => LEVEL_TAGS[lvl] || '網球愛好者';
         return { themeStyle, getLevelTag };
     }
@@ -382,8 +385,19 @@ createApp({
         
         // Toast Notifications
         const toasts = ref([]);
+        let lastToastMessage = '';
+        let lastToastTime = 0;
+        
         const showToast = (message, type = 'info', duration = 4000) => {
-            const id = Date.now();
+            // Prevent duplicate toasts within 500ms
+            const now = Date.now();
+            if (message === lastToastMessage && now - lastToastTime < 500) {
+                return;
+            }
+            lastToastMessage = message;
+            lastToastTime = now;
+            
+            const id = now;
             toasts.value.push({ id, message, type });
             setTimeout(() => removeToast(id), duration);
         };
@@ -403,8 +417,7 @@ createApp({
         // Parse current URL on mount - Improved to handle subdirectories
         const parseRoute = () => {
             const path = window.location.pathname;
-            console.log('Parsing path:', path);
-            
+
             // Priority 1: Exact match in routes
             let viewName = routes[path];
             
@@ -418,19 +431,10 @@ createApp({
             if (!viewName) viewName = 'home';
             
             view.value = viewName;
-            console.log('Final view decided:', viewName);
             return viewName;
         };
-        
-        watch(view, (newV) => console.log('View dynamically changed to:', newV));
-        
-        
-        const form = reactive({
-            name: '', region: '台北市', level: '3.5', handed: '右手', backhand: '雙反', gender: '男',
-            intro: '', fee: '免費 (交流為主)', photo: null, signature: null, theme: 'standard',
-            photoX: 0, photoY: 0, photoScale: 1, 
-            sigX: 0, sigY: 0, sigScale: 1, sigRotate: 0
-        });
+
+        const form = reactive();
         const currentStep = ref(1);
         const showPreview = ref(false);
         const showQuickEditModal = ref(false);
@@ -507,6 +511,77 @@ createApp({
         watch([searchQuery, selectedRegion], () => {
             currentPage.value = 1;
         });
+        
+        // Step Validation - Check if each step requirements are met
+        const canProceedStep1 = computed(() => {
+            return form.photo && form.name && form.name.trim().length > 0;
+        });
+        
+        const canProceedStep2 = computed(() => {
+            return form.level && form.handed && form.backhand;
+        });
+        
+        const canProceedStep3 = computed(() => {
+            return form.region && form.region.trim().length > 0;
+        });
+        
+        // Check if user can go to a specific step (for step indicator clicks)
+        const canGoToStep = (targetStep) => {
+            // Can always go back to previous steps
+            if (targetStep < currentStep.value) return true;
+            // Can stay on current step
+            if (targetStep === currentStep.value) return true;
+            // Can only go forward if all previous steps are completed
+            if (targetStep === 2) return canProceedStep1.value;
+            if (targetStep === 3) return canProceedStep1.value && canProceedStep2.value;
+            if (targetStep === 4) return canProceedStep1.value && canProceedStep2.value && canProceedStep3.value;
+            return false;
+        };
+        
+        // Try to go to next step with validation
+        const stepAttempted = reactive({ 1: false, 2: false, 3: false, 4: false });
+        let isValidating = false;
+        
+        const tryNextStep = () => {
+            // Prevent double-click or rapid clicks
+            if (isValidating) return;
+            isValidating = true;
+            setTimeout(() => { isValidating = false; }, 500);
+            
+            stepAttempted[currentStep.value] = true;
+            
+            if (currentStep.value === 1 && !canProceedStep1.value) {
+                showToast('請上傳照片並填寫姓名', 'error');
+                return;
+            }
+            if (currentStep.value === 2 && !canProceedStep2.value) {
+                showToast('請選擇 NTRP 等級和技術設定', 'error');
+                return;
+            }
+            if (currentStep.value === 3 && !canProceedStep3.value) {
+                showToast('請選擇您的活動地區', 'error');
+                return;
+            }
+            // Reset attempted state for next step
+            stepAttempted[currentStep.value + 1] = false;
+            currentStep.value++;
+        };
+        
+        // Try to go to a specific step (for step indicator clicks)
+        const tryGoToStep = (targetStep) => {
+            if (canGoToStep(targetStep)) {
+                currentStep.value = targetStep;
+            } else {
+                // Show appropriate error message
+                if (targetStep >= 2 && !canProceedStep1.value) {
+                    showToast('請先完成第一步：上傳照片與填寫姓名', 'error');
+                } else if (targetStep >= 3 && !canProceedStep2.value) {
+                    showToast('請先完成第二步：選擇 NTRP 等級', 'error');
+                } else if (targetStep >= 4 && !canProceedStep3.value) {
+                    showToast('請先完成第三步：選擇活動地區', 'error');
+                }
+            }
+        };
 
         // Dragging State
         const dragInfo = reactive({
@@ -677,18 +752,18 @@ createApp({
         // Load players from API
         const loadPlayers = async () => {
             isPlayersLoading.value = true;
-            console.log('Fetching players...');
+
             try {
                 const response = await api.get('/players');
-                console.log('Players response:', response.data);
                 if (response.data.success) {
                     const data = response.data.data;
                     if (data) {
-                        players.value = Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []);
+                        const rawPlayers = Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []);
+                        // Filter out any null/undefined players
+                        players.value = rawPlayers.filter(p => p && p.id);
                     } else {
                         players.value = [];
                     }
-                    console.log('Players loaded:', players.value.length);
                 }
             } catch (error) {
                 console.error('Failed to load players:', error);
@@ -810,7 +885,20 @@ createApp({
         };
 
         // Save card to API
-        const saveCard = async () => { 
+        const saveCard = async () => {
+            // Check if user is logged in
+            if (!isLoggedIn.value) {
+                showToast('請先登入才能製作球友卡', 'error');
+                navigateTo('auth');
+                return;
+            }
+            
+            // Final validation before saving
+            if (!canProceedStep1.value || !canProceedStep2.value || !canProceedStep3.value) {
+                showToast('請確認所有必填欄位都已填寫', 'error');
+                return;
+            }
+            
             isLoading.value = true;
             try {
                 const response = await api.post('/players', {
@@ -930,7 +1018,6 @@ createApp({
         // Handle browser back/forward
         onMounted(() => {
             parseRoute();
-            console.log('onMounted - view.value after parseRoute:', view.value);
             checkAuth();
             loadPlayers();
             window.addEventListener('popstate', (event) => {
@@ -954,6 +1041,8 @@ createApp({
             myCards, editCard, deleteCard,
             // Search, Filter, Pagination
             searchQuery, selectedRegion, currentPage, perPage, activeRegions, filteredPlayers, totalPages, paginatedPlayers, displayPages,
+            // Step Validation
+            canProceedStep1, canProceedStep2, canProceedStep3, canGoToStep, tryNextStep, tryGoToStep, stepAttempted,
             // Navigation
             navigateTo,
             // Auth & API

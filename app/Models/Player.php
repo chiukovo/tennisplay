@@ -45,6 +45,8 @@ class Player extends Model
         'is_verified' => 'boolean',
     ];
 
+    protected $appends = ['photo_url', 'signature_url'];
+
     /**
      * Get the user that owns the player card.
      */
@@ -116,5 +118,16 @@ class Player extends Model
             return asset('storage/' . $this->photo);
         }
         return $this->photo;
+    }
+
+    /**
+     * Get signature URL attribute.
+     */
+    public function getSignatureUrlAttribute()
+    {
+        if ($this->signature && !str_starts_with($this->signature, 'http') && !str_starts_with($this->signature, 'data:')) {
+            return asset('storage/' . $this->signature);
+        }
+        return $this->signature;
     }
 }

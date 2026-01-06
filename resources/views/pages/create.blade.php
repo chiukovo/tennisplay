@@ -3,11 +3,12 @@
     {{-- Clickable Progress Bar --}}
     <div class="mb-10 px-4">
         <div class="flex justify-between mb-4">
-            <button v-for="s in 4" :key="s" type="button" @click="currentStep = s"
+            <button v-for="s in 4" :key="s" type="button" @click="tryGoToStep(s)"
                 :class="['text-[10px] font-black uppercase tracking-widest transition-all duration-300 px-3 py-1.5 rounded-full border-2', 
                 currentStep === s ? 'bg-blue-600 text-white border-blue-600 shadow-lg' : 
                 currentStep > s ? 'text-blue-600 border-blue-200 bg-blue-50 hover:bg-blue-100' : 
-                'text-slate-300 border-transparent hover:text-slate-400']">
+                canGoToStep(s) ? 'text-slate-400 border-slate-200 hover:text-slate-500 hover:border-slate-300' :
+                'text-slate-300 border-transparent cursor-not-allowed opacity-60']">
                 Step @{{s}}
             </button>
         </div>
@@ -77,15 +78,17 @@
                                     </div>
                                 </div>
                             </div>
-                            
                             {{-- Upload Placeholder --}}
-                            <div v-else @click="triggerUpload" class="w-full h-56 border-4 border-dashed border-slate-200 rounded-[40px] flex flex-col items-center justify-center gap-4 cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 transition-all group">
+                            <div v-else @click="triggerUpload" 
+                                :class="['w-full h-56 border-4 border-dashed rounded-[40px] flex flex-col items-center justify-center gap-4 cursor-pointer hover:bg-blue-50/50 transition-all group',
+                                stepAttempted[1] && !form.photo ? 'border-red-300 hover:border-red-400' : 'border-slate-200 hover:border-blue-400']">
                                 <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform duration-500 shadow-inner">
                                     <app-icon name="upload" class-name="w-8 h-8"></app-icon>
                                 </div>
                                 <div class="text-center space-y-1">
-                                    <p class="text-lg font-black italic uppercase tracking-tighter">點擊上傳形象照</p>
+                                    <p class="text-lg font-black italic uppercase tracking-tighter">點擊上傳形象照 <span class="text-red-500">*</span></p>
                                     <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">建議直式照片 (會自動適應)</p>
+                                    <p v-if="stepAttempted[1] && !form.photo" class="text-red-500 text-xs font-bold">請上傳您的形象照</p>
                                 </div>
                             </div>
                             <input type="file" id="photo-upload" class="hidden" @change="handleFileUpload" accept="image/*">
@@ -94,8 +97,11 @@
                         {{-- Name & Gender (always visible) --}}
                         <div class="space-y-6">
                             <div class="space-y-3">
-                                <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">您的選手姓名</label>
-                                <input type="text" v-model="form.name" placeholder="請輸入姓名 (英文為佳)" class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-blue-500 outline-none font-black italic text-lg transition-all">
+                                <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">您的選手姓名 <span class="text-red-500">*</span></label>
+                                <input type="text" v-model="form.name" placeholder="請輸入姓名 (英文為佳)" 
+                                    :class="['w-full px-6 py-4 bg-slate-50 border-2 rounded-2xl outline-none font-black italic text-lg transition-all',
+                                    stepAttempted[1] && !form.name ? 'border-red-300 focus:border-red-500' : 'border-transparent focus:border-blue-500']">
+                                <p v-if="stepAttempted[1] && !form.name" class="text-red-500 text-xs font-bold mt-1">請填寫您的姓名</p>
                             </div>
                             <div class="space-y-3">
                                 <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">生理性別</label>
@@ -212,7 +218,10 @@
                 <button v-if="currentStep > 1" type="button" @click="currentStep--" class="flex-1 py-5 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-all border border-slate-100">
                     上一步
                 </button>
-                <button v-if="currentStep < 4" type="button" @click="currentStep++" class="flex-[2] bg-slate-950 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 transition-all shadow-xl">
+                <button v-if="currentStep < 4" type="button" @click="tryNextStep" 
+                    :class="['flex-[2] py-5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl',
+                    (currentStep === 1 && canProceedStep1) || (currentStep === 2 && canProceedStep2) || (currentStep === 3 && canProceedStep3) 
+                    ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-slate-950 text-white hover:bg-slate-800']">
                     下一步
                 </button>
                 <button v-if="currentStep === 4" type="submit" class="flex-[2] bg-blue-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20">

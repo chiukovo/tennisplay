@@ -32,7 +32,7 @@
 
 {{-- Player Card Template --}}
 <script type="text/x-template" id="player-card-template">
-    <div :class="['relative group cursor-pointer transition-all duration-500 hover:scale-[1.02]', size === 'sm' ? 'w-full aspect-[2.5/3.5]' : 'w-full max-w-[320px] aspect-[2.5/3.5]']">
+    <div v-if="player" :class="['relative group cursor-pointer transition-all duration-500 hover:scale-[1.02]', size === 'sm' ? 'w-full aspect-[2.5/3.5]' : 'w-full max-w-[320px] aspect-[2.5/3.5]']">
         <div :class="['absolute -inset-1 bg-gradient-to-br rounded-[24px] blur-[2px] group-hover:blur-[6px] transition-all duration-700', themeStyle.border]"></div>
         <div :class="['relative h-full rounded-2xl overflow-hidden card-shadow flex flex-col border border-white/20', themeStyle.bg]">
             

@@ -43,57 +43,38 @@
 
     {{-- Skeleton Loading --}}
     <div v-if="isPlayersLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <div v-for="i in 8" :key="i" class="bg-white rounded-3xl p-4 shadow-lg border border-slate-100">
-            <div class="flex gap-4">
-                <div class="w-20 h-24 rounded-2xl skeleton-shimmer shrink-0"></div>
-                <div class="flex-1 space-y-3">
-                    <div class="h-5 w-24 skeleton-shimmer rounded-lg"></div>
-                    <div class="flex gap-2">
-                        <div class="h-5 w-16 skeleton-shimmer rounded-lg"></div>
-                        <div class="h-5 w-12 skeleton-shimmer rounded-lg"></div>
-                    </div>
-                    <div class="h-4 w-full skeleton-shimmer rounded-lg"></div>
-                </div>
-            </div>
-            <div class="flex gap-2 mt-4">
-                <div class="flex-1 h-10 skeleton-shimmer rounded-xl"></div>
-                <div class="flex-1 h-10 skeleton-shimmer rounded-xl"></div>
-            </div>
+        <div v-for="i in 8" :key="i" class="relative">
+            <div class="aspect-[2.5/3.5] rounded-2xl skeleton-shimmer"></div>
         </div>
     </div>
 
-    {{-- Player Cards Grid (Mobile Optimized) --}}
+    {{-- Player Cards Grid (Using PlayerCard Component) --}}
     <div v-else-if="paginatedPlayers.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <div v-for="player in paginatedPlayers" :key="player.id" class="bg-white rounded-3xl p-4 shadow-lg border border-slate-100 card-3d">
-            {{-- Mobile Compact Card --}}
-            <div class="flex gap-4">
-                {{-- Photo --}}
-                <div class="w-20 h-24 rounded-2xl overflow-hidden shrink-0 bg-slate-100 cursor-pointer" @click="showDetail(player)">
-                    <img :src="player.photo || 'https://images.unsplash.com/photo-1614743758466-e569f4791116?q=80&w=200&auto=format&fit=crop'" class="w-full h-full object-cover">
-                </div>
-                {{-- Info --}}
-                <div class="flex-1 min-w-0">
-                    <h3 class="font-black text-lg uppercase italic tracking-tight truncate cursor-pointer hover:text-blue-600 transition-colors" @click="showDetail(player)">@{{ player.name }}</h3>
-                    <div class="flex flex-wrap items-center gap-2 mt-1">
-                        <span class="bg-blue-600 text-white text-[10px] font-black px-2 py-0.5 rounded-lg">NTRP @{{ player.level }}</span>
-                        <span class="text-slate-400 text-xs font-bold">@{{ player.region }}</span>
-                    </div>
-                    <div class="flex items-center gap-3 mt-2 text-[11px] text-slate-500 font-bold">
-                        <span>@{{ player.gender }}</span>
-                        <span>•</span>
-                        <span>@{{ player.handed }}</span>
-                        <span v-if="player.backhand">•</span>
-                        <span v-if="player.backhand">@{{ player.backhand }}</span>
-                    </div>
-                    <p v-if="player.intro" class="text-xs text-slate-400 mt-2 line-clamp-2">@{{ player.intro }}</p>
-                </div>
+        <div v-for="player in paginatedPlayers" :key="player.id" v-if="player" class="relative group">
+            {{-- Player Card Component with proper positioning data --}}
+            <div @click="showDetail(player)" class="cursor-pointer">
+                <player-card 
+                    :player="{
+                        ...player,
+                        photo: player.photo_url || player.photo || null,
+                        signature: player.signature_url || player.signature || null,
+                        photoX: player.photo_x || 0,
+                        photoY: player.photo_y || 0,
+                        photoScale: player.photo_scale || 1,
+                        sigX: player.sig_x || 0,
+                        sigY: player.sig_y || 0,
+                        sigScale: player.sig_scale || 1,
+                        sigRotate: player.sig_rotate || 0
+                    }" 
+                    size="sm">
+                </player-card>
             </div>
-            {{-- Actions --}}
-            <div class="flex gap-2 mt-4">
-                <button type="button" @click="showDetail(player)" class="flex-1 py-3 bg-slate-100 text-slate-700 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center justify-center gap-2">
+            {{-- Action Buttons Overlay --}}
+            <div class="absolute bottom-4 left-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 z-30">
+                <button type="button" @click.stop="showDetail(player)" class="flex-1 py-3 bg-white/90 backdrop-blur-md text-slate-700 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white transition-all flex items-center justify-center gap-2 shadow-lg">
                     <app-icon name="user" class-name="w-4 h-4"></app-icon> 詳細
                 </button>
-                <button type="button" @click="openMatchModal(player)" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg flex items-center justify-center gap-2">
+                <button type="button" @click.stop="openMatchModal(player)" class="flex-1 py-3 bg-blue-600/90 backdrop-blur-md text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 transition-all flex items-center justify-center gap-2 shadow-lg">
                     <app-icon name="message-circle" class-name="w-4 h-4"></app-icon> 約打
                 </button>
             </div>

@@ -34,6 +34,21 @@ class PlayerController extends Controller
     }
 
     /**
+     * Display a listing of players belonging to the authenticated user.
+     */
+    public function myCards(Request $request)
+    {
+        $players = Player::where('user_id', $request->user()->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $players,
+        ]);
+    }
+
+    /**
      * Store a newly created player.
      */
     public function store(Request $request)
@@ -75,10 +90,22 @@ class PlayerController extends Controller
 
         $player = Player::create($data);
 
+        // Merge signature into photo if both exist
+        if ($player->photo && $player->signature) {
+            $mergedPath = $this->mergeSignature($player);
+            if ($mergedPath) {
+                $player->update([
+                    'photo' => $mergedPath,
+                    // We keep the signature in DB so user can still edit/adjust it later
+                    // The frontend will handle not showing the layer if it's already in the photo
+                ]);
+            }
+        }
+
         return response()->json([
             'success' => true,
             'message' => '球友卡建立成功！',
-            'data' => $player,
+            'data' => $player->fresh(),
         ], 201);
     }
 
@@ -135,11 +162,114 @@ class PlayerController extends Controller
 
         $player->update($data);
 
+        // Merge signature into photo if both exist (or if signature was updated)
+        if ($player->photo && $player->signature) {
+            $mergedPath = $this->mergeSignature($player);
+            if ($mergedPath) {
+                $player->update([
+                    'photo' => $mergedPath,
+                    'signature' => null
+                ]);
+            }
+        }
+
         return response()->json([
             'success' => true,
             'message' => '球友卡已更新',
             'data' => $player->fresh(),
         ]);
+    }
+
+    /**
+     * Merge signature into photo using GD.
+     */
+    private function mergeSignature($player)
+    {
+        try {
+            $photoPath = storage_path('app/public/' . $player->photo);
+            $sigPath = storage_path('app/public/' . $player->signature);
+
+            if (!file_exists($photoPath) || !file_exists($sigPath)) return null;
+
+            $photo = imagecreatefromstring(file_get_contents($photoPath));
+            $sig = imagecreatefromstring(file_get_contents($sigPath));
+
+            if (!$photo || !$sig) return null;
+
+            // Get dimensions
+            $pw = imagesx($photo);
+            $ph = imagesy($photo);
+            $sw = imagesx($sig);
+            $sh = imagesy($sig);
+
+            // Enable alpha blending
+            imagealphablending($photo, true);
+            imagesavealpha($photo, true);
+
+            // Standard Card Aspect Ratio (2.5 / 3.8)
+            $cardAspect = 2.5 / 3.8;
+            
+            // Calculate Virtual Card Dimensions based on Photo Width
+            // Since photo is 'w-full' on the card, CardWidth = PhotoWidth
+            $vcw = $pw;
+            $vch = $vcw / $cardAspect;
+
+            // Signature positioning (percentages of the card)
+            $sigXPercent = ($player->sig_x ?? 50) / 100;
+            $sigYPercent = ($player->sig_y ?? 50) / 100;
+
+            // Map card percentages to photo pixels
+            $targetX = $vcw * $sigXPercent;
+            $targetY = $vch * $sigYPercent;
+
+            // Scale signature
+            // The signature image from frontend is card-sized (2.5:3.8)
+            // We scale it to match the virtual card size, then apply user's scale
+            $scale = $player->sig_scale ?? 1;
+            $targetSW = $vcw * $scale;
+            $targetSH = $vch * $scale;
+
+            // Resize signature
+            $resizedSig = imagecreatetruecolor($targetSW, $targetSH);
+            imagealphablending($resizedSig, false);
+            imagesavealpha($resizedSig, true);
+            $transparent = imagecolorallocatealpha($resizedSig, 0, 0, 0, 127);
+            imagefill($resizedSig, 0, 0, $transparent);
+            imagecopyresampled($resizedSig, $sig, 0, 0, 0, 0, $targetSW, $targetSH, $sw, $sh);
+
+            // Rotate signature (GD rotates counter-clockwise)
+            $rotate = -($player->sig_rotate ?? 0);
+            $rotatedSig = imagerotate($resizedSig, $rotate, imagecolorallocatealpha($resizedSig, 0, 0, 0, 127));
+            
+            $rsw = imagesx($rotatedSig);
+            $rsh = imagesy($rotatedSig);
+
+            // Draw onto photo
+            // Center the rotated signature at (targetX, targetY)
+            imagecopy($photo, $rotatedSig, $targetX - ($rsw / 2), $targetY - ($rsh / 2), 0, 0, $rsw, $rsh);
+
+            // Save merged image
+            // We save it as a new file to avoid overwriting the original photo if possible
+            $filename = 'players/merged/' . Str::uuid() . '.png';
+            $savePath = storage_path('app/public/' . $filename);
+            
+            if (!is_dir(dirname($savePath))) {
+                mkdir(dirname($savePath), 0755, true);
+            }
+
+            imagepng($photo, $savePath);
+
+            // Cleanup
+            imagedestroy($photo);
+            imagedestroy($sig);
+            imagedestroy($resizedSig);
+            imagedestroy($rotatedSig);
+
+            return $filename;
+        } catch (\Exception $e) {
+            \Log::error('Signature merge failed: ' . $e->getMessage());
+            return null;
+        }
     }
 
     /**

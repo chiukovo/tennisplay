@@ -6,7 +6,7 @@
             <h2 class="text-4xl sm:text-5xl font-black italic uppercase tracking-tighter">我的球友卡</h2>
             <p class="text-slate-400 font-bold text-sm uppercase tracking-[0.2em] mt-2">My Cards</p>
         </div>
-        <a href="/create" @click.prevent="navigateTo('create')" class="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-blue-700 transition-all shadow-xl">
+        <a href="/create" @click.prevent="resetForm(); navigateTo('create')" class="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-blue-700 transition-all shadow-xl">
             <app-icon name="plus" class-name="w-5 h-5"></app-icon>
             新增
         </a>

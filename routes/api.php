@@ -25,9 +25,6 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/players', [PlayerController::class, 'index']);
 Route::get('/players/{id}', [PlayerController::class, 'show']);
 
-// Guest can create player card (will be associated with user if logged in)
-Route::post('/players', [PlayerController::class, 'store']);
-
 // Protected Routes
 Route::middleware('auth:sanctum')->group(function () {
     // Auth
@@ -35,6 +32,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
     
     // Player Management (authenticated)
+    Route::post('/players', [PlayerController::class, 'store']);
+    Route::get('/my-cards', [PlayerController::class, 'myCards']);
     Route::put('/players/{id}', [PlayerController::class, 'update']);
     Route::delete('/players/{id}', [PlayerController::class, 'destroy']);
     Route::post('/players/{id}/photo', [PlayerController::class, 'uploadPhoto']);

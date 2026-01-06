@@ -8,7 +8,7 @@
         <app-icon name="search" class-name="w-5 h-5"></app-icon>
         <span class="text-[9px] font-black uppercase tracking-widest">Hall</span>
     </a>
-    <a href="/create" @click.prevent="navigateTo('create')" class="relative -mt-6 group px-2">
+    <a href="/create" @click.prevent="resetForm(); navigateTo('create')" class="relative -mt-6 group px-2">
         <div class="absolute inset-0 bg-blue-600 rounded-full blur-2xl opacity-40 group-hover:opacity-100 transition-opacity"></div>
         <div class="relative bg-blue-600 text-white w-12 h-12 rounded-xl flex items-center justify-center border-4 border-slate-950 shadow-2xl transition-all hover:scale-110">
             <app-icon name="plus" class-name="w-7 h-7"></app-icon>

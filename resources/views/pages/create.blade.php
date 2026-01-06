@@ -97,8 +97,8 @@
                         {{-- Name & Gender (always visible) --}}
                         <div class="space-y-6">
                             <div class="space-y-3">
-                                <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">您的選手姓名 <span class="text-red-500">*</span></label>
-                                <input type="text" v-model="form.name" placeholder="請輸入姓名 (英文為佳)" 
+                                <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">您的姓名 <span class="text-red-500">*</span></label>
+                                <input type="text" v-model="form.name" placeholder="請輸入姓名或暱稱" 
                                     :class="['w-full px-6 py-4 bg-slate-50 border-2 rounded-2xl outline-none font-black italic text-lg transition-all',
                                     stepAttempted[1] && !form.name ? 'border-red-300 focus:border-red-500' : 'border-transparent focus:border-blue-500']">
                                 <p v-if="stepAttempted[1] && !form.name" class="text-red-500 text-xs font-bold mt-1">請填寫您的姓名</p>

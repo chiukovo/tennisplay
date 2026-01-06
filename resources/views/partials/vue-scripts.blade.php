@@ -325,13 +325,45 @@ createApp({
         
         // Computed: My cards (cards created by current user)
         const myCards = computed(() => {
+            if (Array.isArray(myPlayers.value) && myPlayers.value.length > 0) {
+                return myPlayers.value;
+            }
             const userId = getCurrentUserId();
             if (!userId || !Array.isArray(players.value)) return [];
             return players.value.filter(p => p.user_id === userId);
         });
+
+        // Load my cards from API
+        const loadMyCards = async () => {
+            if (!isLoggedIn.value) return;
+            try {
+                const response = await api.get('/my-cards');
+                if (response.data.success) {
+                    myPlayers.value = response.data.data;
+                }
+            } catch (error) {
+                console.error('Load my cards failed:', error);
+            }
+        };
         
+        // Reset form to default values
+        const resetForm = () => {
+            Object.assign(form, {
+                id: null,
+                name: '', region: '台北市', level: '3.5', handed: '右手', backhand: '雙反', gender: '男',
+                intro: '', fee: '免費 (交流為主)', photo: null, signature: null, theme: 'standard',
+                photoX: 0, photoY: 0, photoScale: 1, 
+                sigX: 50, sigY: 50, sigScale: 1, sigRotate: 0
+            });
+            currentStep.value = 1;
+            stepAttempted.value = {};
+            isAdjustingPhoto.value = false;
+            isAdjustingSig.value = false;
+        };
+
         // Edit card - populate form and go to create page
         const editCard = (card) => {
+            resetForm(); // Clear first
             Object.assign(form, {
                 id: card.id,
                 name: card.name,
@@ -342,9 +374,9 @@ createApp({
                 backhand: card.backhand,
                 intro: card.intro,
                 fee: card.fee,
-                photo: card.photo,
-                signature: card.signature,
-                theme: card.theme,
+                photo: card.photo_url || card.photo,
+                signature: card.signature_url || card.signature,
+                theme: card.theme || 'standard',
                 photoX: card.photo_x || 0,
                 photoY: card.photo_y || 0,
                 photoScale: card.photo_scale || 1,
@@ -484,6 +516,7 @@ createApp({
         const showQuickEditModal = ref(false);
         const isAdjustingPhoto = ref(false);
         const isAdjustingSig = ref(false);
+        const myPlayers = ref([]);
         
         // Search, Filter, Pagination State
         const searchQuery = ref('');
@@ -689,71 +722,62 @@ createApp({
             if (moveableInstance) moveableInstance.destroy();
             if (!target || !isAdjustingSig.value) return;
 
-            moveableInstance = new Moveable(target.parentElement.parentElement, {
+            moveableInstance = new Moveable(document.body, {
                 target: target,
                 draggable: true,
-                resizable: false,
                 scalable: true,
                 rotatable: true,
-                warpable: false,
-                pinchable: true,
-                origin: false,
-                keepRatio: true,
                 throttleDrag: 0,
                 throttleScale: 0,
                 throttleRotate: 0,
+                origin: false,
+                edge: true,
+                keepRatio: true,
             }).on("drag", ({ target, delta }) => {
-                const container = target.parentElement;
-                if (!container) return;
+                const parent = target.parentElement;
+                if (!parent) return;
                 
-                const rect = container.getBoundingClientRect();
+                const rect = parent.getBoundingClientRect();
                 if (rect.width > 0 && rect.height > 0) {
-                    // Convert pixel delta to percentage of container
                     form.sigX += (delta[0] / rect.width) * 100;
                     form.sigY += (delta[1] / rect.height) * 100;
                 }
-            }).on("scale", ({ target, delta }) => {
+            }).on("scale", ({ delta }) => {
                 form.sigScale *= delta[0];
-            }).on("rotate", ({ target, beforeRotate, rotate, dist, delta, transform }) => {
+            }).on("rotate", ({ delta }) => {
                 form.sigRotate += delta;
             });
         };
 
-        watch(() => form.signature, (val) => {
-            if (!val && moveableInstance) {
-                moveableInstance.destroy();
-                moveableInstance = null;
+        // Watch for adjustment mode toggle
+        watch(isAdjustingSig, (val) => {
+            if (val) {
+                nextTick(() => {
+                    const target = document.getElementById('target-signature');
+                    if (target) initMoveable(target);
+                });
+            } else {
+                if (moveableInstance) {
+                    moveableInstance.destroy();
+                    moveableInstance = null;
+                }
             }
+        });
+
+        watch(() => form.signature, (val) => {
+            if (!val) isAdjustingSig.value = false;
         });
 
         watch(currentStep, (val) => {
-            if (val !== 4 && moveableInstance) {
-                moveableInstance.destroy();
-                moveableInstance = null;
-            }
-            isAdjustingSig.value = false;
+            if (val !== 4) isAdjustingSig.value = false;
         });
 
         watch(showPreview, (val) => {
-            if (val && moveableInstance) {
-                moveableInstance.destroy();
-                moveableInstance = null;
-            }
             if (val) isAdjustingSig.value = false;
         });
 
         const toggleAdjustSig = () => {
             isAdjustingSig.value = !isAdjustingSig.value;
-            if (!isAdjustingSig.value && moveableInstance) {
-                moveableInstance.destroy();
-                moveableInstance = null;
-            } else if (isAdjustingSig.value) {
-                // Wait for next tick to ensure target is rendered and ref is available
-                nextTick(() => {
-                    const target = document.getElementById('target-signature');
-                    if (target) initMoveable(target);
-                });
-            }
         };
 
         const handleSignatureUpdate = (sig) => {
@@ -828,6 +852,7 @@ createApp({
             if (token && user) {
                 isLoggedIn.value = true;
                 loadMessages();
+                loadMyCards();
                 try {
                     const userData = JSON.parse(user);
                 } catch (e) {}
@@ -929,7 +954,7 @@ createApp({
             
             isLoading.value = true;
             try {
-                const response = await api.post('/players', {
+                const payload = {
                     name: form.name,
                     region: form.region,
                     level: form.level,
@@ -948,31 +973,32 @@ createApp({
                     sig_y: form.sigY,
                     sig_scale: form.sigScale,
                     sig_rotate: form.sigRotate,
-                });
+                };
+
+                let response;
+                if (form.id) {
+                    response = await api.put(`/players/${form.id}`, payload);
+                } else {
+                    response = await api.post('/players', payload);
+                }
 
                 if (response.data.success) {
-                    // Add to local list
-                    players.value.unshift(response.data.data);
+                    showToast(form.id ? '球友卡已更新' : '球友卡建立成功！', 'success');
+                    
+                    // Refresh lists
+                    await loadPlayers();
+                    await loadMyCards();
+                    
+                    // Reset and navigate
+                    resetForm();
+                    navigateTo('mycards');
                 }
             } catch (error) {
                 console.error('Save failed:', error);
                 showToast('儲存失敗，請稍後再試', 'error');
-                // Fallback: add locally even if API fails
-                players.value.unshift({ ...form, id: Date.now() });
             } finally {
                 isLoading.value = false;
             }
-
-            // Reset form for next card
-            Object.assign(form, {
-                name: '', region: '台北市', level: '3.5', handed: '右手', backhand: '雙反', gender: '男',
-                intro: '', fee: '免費 (交流為主)', photo: null, signature: null, theme: 'standard',
-                photoX: 0, photoY: 0, photoScale: 1, 
-                sigX: 0, sigY: 0, sigScale: 1, sigRotate: 0
-            });
-            currentStep.value = 1;
-            showToast('球友卡建立成功！', 'success');
-            navigateTo('list'); 
         };
         const getPlayersByRegion = (r) => players.value.filter(p => p.region === r);
         const openMatchModal = (p) => { matchModal.player = p; matchModal.open = true; };
@@ -1074,8 +1100,8 @@ createApp({
             // Navigation
             navigateTo,
             // Auth & API
-            isLoading, isPlayersLoading, authError, authForm, register, login, logout, loadPlayers, loadMessages,
-            triggerUpload, handleFileUpload, saveCard, getPlayersByRegion, 
+            isLoading, isPlayersLoading, authError, authForm, register, login, logout, loadPlayers, loadMessages, loadMyCards,
+            triggerUpload, handleFileUpload, saveCard, resetForm, getPlayersByRegion, 
             openMatchModal, sendMatchRequest, showDetail, getDetailStats, scrollToSubmit, markMessageRead 
         };
     }

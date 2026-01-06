@@ -68,11 +68,12 @@
             <signature-pad :active="isSigning" @save="sig => $emit('update-signature', sig)" @close="$emit('close-signing')"></signature-pad>
             
             {{-- Signature Display with Percentage Positioning --}}
-            <div v-if="p.signature" class="absolute inset-0 z-30 pointer-events-none group/sig">
+            <div v-if="p.signature && (isAdjustingSig || !p.photo.includes('merged'))" class="absolute inset-0 z-30 pointer-events-none group/sig">
                 <div class="relative w-full h-full">
                     <img :src="p.signature" 
                         id="target-signature"
-                        class="absolute max-w-none origin-center"
+                        draggable="false"
+                        :class="['absolute max-w-none origin-center', isAdjustingSig ? 'pointer-events-auto cursor-move' : 'pointer-events-none']"
                         :style="{ 
                             left: `${p.sigX ?? 50}%`, 
                             top: `${p.sigY ?? 50}%`,

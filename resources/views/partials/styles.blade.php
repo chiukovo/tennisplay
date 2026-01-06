@@ -55,7 +55,43 @@
     /* Moveable Customization */
     .moveable-control.moveable-origin { display: none !important; }
     .moveable-line { background: #3b82f6 !important; opacity: 0.5; }
-    .moveable-control { border: 2px solid #3b82f6 !important; background: #fff !important; width: 12px !important; height: 12px !important; margin-top: -6px !important; margin-left: -6px !important; border-radius: 50% !important; }
+    .moveable-control { border: 2px solid #3b82f6 !important; background: #fff !important; width: 16px !important; height: 16px !important; margin-top: -8px !important; margin-left: -8px !important; border-radius: 50% !important; cursor: pointer !important; }
+
+    /* 3D Flip Card Styles */
+    .flip-card {
+        perspective: 1500px;
+        background-color: transparent;
+    }
+    .flip-card-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-style: preserve-3d;
+    }
+    .flip-card.is-flipped .flip-card-inner {
+        transform: rotateY(180deg);
+    }
+    .flip-card-front, .flip-card-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        border-radius: 24px;
+    }
+    .flip-card-back {
+        transform: rotateY(180deg);
+    }
+
+    /* Prevent mobile scroll during adjustment */
+    .touch-none {
+        touch-action: none !important;
+        overscroll-behavior: none !important;
+        user-select: none !important;
+        -webkit-user-select: none !important;
+    }
 
     /* Skeleton Loading Animation */
     @keyframes skeleton-pulse {

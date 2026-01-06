@@ -132,8 +132,16 @@ const SignaturePad = {
             await nextTick();
             if (canvas.value) {
                 ctx = canvas.value.getContext('2d');
-                canvas.value.width = canvas.value.offsetWidth;
-                canvas.value.height = canvas.value.offsetHeight;
+                const ratio = window.devicePixelRatio || 1;
+                const width = canvas.value.offsetWidth;
+                const height = canvas.value.offsetHeight;
+                
+                canvas.value.width = width * ratio;
+                canvas.value.height = height * ratio;
+                canvas.value.style.width = `${width}px`;
+                canvas.value.style.height = `${height}px`;
+                
+                ctx.scale(ratio, ratio);
                 ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3; ctx.lineCap = 'round';
                 ctx.shadowBlur = 2; ctx.shadowColor = 'rgba(0,0,0,0.5)';
             }
@@ -146,6 +154,7 @@ const SignaturePad = {
             const rect = canvas.value.getBoundingClientRect();
             const clientX = e.clientX || (e.touches && e.touches[0].clientX);
             const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            // rect.left/top are in CSS pixels, which matches getPos's return expectations
             return { x: clientX - rect.left, y: clientY - rect.top };
         };
         const start = (e) => { if (!ctx) return; isDrawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); };
@@ -164,6 +173,7 @@ const PlayerCard = {
     components: { AppIcon, SignaturePad },
     template: '#player-card-template',
     setup(props) {
+        const cardContainer = ref(null);
         const themes = {
             gold: { 
                 border: 'from-yellow-600 via-yellow-200 to-yellow-700', accent: 'text-yellow-500', bg: 'bg-slate-900',
@@ -199,6 +209,7 @@ const PlayerCard = {
                 ...raw,
                 photo: raw.photo_url || raw.photo || null,
                 signature: raw.signature_url || raw.signature || null,
+                merged_photo: raw.merged_photo_url || raw.merged_photo || null,
                 photoX: raw.photoX ?? raw.photo_x ?? 0,
                 photoY: raw.photoY ?? raw.photo_y ?? 0,
                 photoScale: raw.photoScale ?? raw.photo_scale ?? 1,
@@ -213,8 +224,8 @@ const PlayerCard = {
             if (!p.value) return themes.standard;
             return themes[p.value.theme || 'standard'] || themes.standard;
         });
-        const getLevelTag = (lvl) => LEVEL_TAGS[lvl] || '網球愛好者';
-        return { p, themeStyle, getLevelTag };
+        const getLevelTag = (lvl) => LEVEL_TAGS[lvl] || '網球愛愛好者';
+        return { cardContainer, p, themeStyle, getLevelTag };
     }
 };
 
@@ -222,7 +233,45 @@ const PlayerDetailModal = {
     props: ['player', 'stats'],
     components: { AppIcon, PlayerCard },
     template: '#player-detail-modal-template',
-    emits: ['close', 'open-match']
+    emits: ['close', 'open-match'],
+    setup(props) {
+        const isFlipped = ref(false);
+        
+        // Reset flip state when player changes
+        watch(() => props.player, () => {
+            isFlipped.value = false;
+        });
+
+        const backStats = computed(() => {
+            const p = props.player;
+            if (!p) return [];
+            return [
+                { label: '程度 (NTRP)', value: p.level || '3.5', icon: 'zap' },
+                { label: '性別', value: p.gender || '男', icon: 'gender' },
+                { label: '慣用手', value: p.handed || '右手', icon: 'target' },
+                { label: '主要地區', value: p.region || '全台', icon: 'map-pin' }
+            ];
+        });
+
+        const getThemeStyle = (theme) => {
+            const themes = {
+                gold: { bg: 'bg-slate-900', logoBg: 'bg-yellow-500/10' },
+                platinum: { bg: 'bg-slate-900', logoBg: 'bg-white/10' },
+                holographic: { bg: 'bg-slate-900', logoBg: 'bg-cyan-500/10' },
+                onyx: { bg: 'bg-black', logoBg: 'bg-white/5' },
+                sakura: { bg: 'bg-slate-900', logoBg: 'bg-pink-500/10' },
+                standard: { bg: 'bg-slate-900', logoBg: 'bg-blue-500/10' }
+            };
+            return themes[theme] || themes.standard;
+        };
+
+        const formatDate = (date) => {
+            if (!date) return '2026/01/01';
+            return new Date(date).toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        };
+
+        return { isFlipped, backStats, getThemeStyle, formatDate };
+    }
 };
 
 const MatchModal = {
@@ -352,6 +401,7 @@ createApp({
                 id: null,
                 name: '', region: '台北市', level: '3.5', handed: '右手', backhand: '雙反', gender: '男',
                 intro: '', fee: '免費 (交流為主)', photo: null, signature: null, theme: 'standard',
+                merged_photo: null,
                 photoX: 0, photoY: 0, photoScale: 1, 
                 sigX: 50, sigY: 50, sigScale: 1, sigRotate: 0
             });
@@ -376,6 +426,7 @@ createApp({
                 fee: card.fee,
                 photo: card.photo_url || card.photo,
                 signature: card.signature_url || card.signature,
+                merged_photo: card.merged_photo_url || card.merged_photo || null,
                 theme: card.theme || 'standard',
                 photoX: card.photo_x || 0,
                 photoY: card.photo_y || 0,
@@ -488,6 +539,7 @@ createApp({
         const form = reactive({
             name: '', region: '台北市', level: '3.5', handed: '右手', backhand: '雙反', gender: '男',
             intro: '', fee: '免費 (交流為主)', photo: null, signature: null, theme: 'standard',
+            merged_photo: null,
             photoX: 0, photoY: 0, photoScale: 1, 
             sigX: 50, sigY: 50, sigScale: 1, sigRotate: 0
         });
@@ -618,7 +670,7 @@ createApp({
         // Try to go to next step with validation
         const stepAttempted = reactive({ 1: false, 2: false, 3: false, 4: false });
         let isValidating = false;
-        
+
         const tryNextStep = () => {
             // Prevent double-click or rapid clicks
             if (isValidating) return;
@@ -727,25 +779,32 @@ createApp({
                 draggable: true,
                 scalable: true,
                 rotatable: true,
+                pinchable: true, // Support pinch zoom on mobile
+                pinchOutside: true,
+                controlSize: 14, // Slightly larger for fingers
                 throttleDrag: 0,
                 throttleScale: 0,
                 throttleRotate: 0,
                 origin: false,
                 edge: true,
                 keepRatio: true,
-            }).on("drag", ({ target, delta }) => {
+            }).on("drag", ({ target, beforeDelta }) => {
                 const parent = target.parentElement;
                 if (!parent) return;
                 
                 const rect = parent.getBoundingClientRect();
                 if (rect.width > 0 && rect.height > 0) {
-                    form.sigX += (delta[0] / rect.width) * 100;
-                    form.sigY += (delta[1] / rect.height) * 100;
+                    // Update state using percentage relative to parent
+                    form.sigX += (beforeDelta[0] / rect.width) * 100;
+                    form.sigY += (beforeDelta[1] / rect.height) * 100;
                 }
             }).on("scale", ({ delta }) => {
                 form.sigScale *= delta[0];
             }).on("rotate", ({ delta }) => {
                 form.sigRotate += delta;
+            }).on("pinch", ({ delta }) => {
+                // Handle pinch zoom (scaling)
+                form.sigScale *= delta[0];
             });
         };
 
@@ -937,6 +996,81 @@ createApp({
             }
         };
 
+        // Capture static card image
+        const captureCardImage = async () => {
+             const cardEl = document.querySelector('.capture-target') || document.querySelector('[ref="cardContainer"]');
+             if (!cardEl) return null;
+             
+             // 0. Ensure we're not in adjustment mode
+             if (typeof isAdjustingSig !== 'undefined') isAdjustingSig.value = false;
+
+             // 1. Store original styles and identify layers
+             const originalStyle = cardEl.getAttribute('style') || '';
+             const originalClassName = cardEl.className;
+             const mergedLayer = cardEl.querySelector('.merged-photo-layer');
+             const originalMergedDisplay = mergedLayer ? mergedLayer.style.display : '';
+             
+             try {
+                 // 2. Ensure all images are loaded
+                 const images = cardEl.querySelectorAll('img');
+                 await Promise.all(Array.from(images).map(img => {
+                     if (img.complete) return Promise.resolve();
+                     return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
+                 }));
+
+                 // 3. Hide merged layer to capture raw content
+                 if (mergedLayer) mergedLayer.style.display = 'none';
+
+                 // 4. Force static size and disable animations for capture
+                 const targetWidth = 320;
+                 const targetHeight = (targetWidth / 2.5) * 3.8;
+                 
+                 cardEl.style.width = `${targetWidth}px`;
+                 cardEl.style.height = `${targetHeight}px`;
+                 cardEl.style.maxWidth = 'none';
+                 cardEl.style.transform = 'none';
+                 cardEl.style.transition = 'none';
+                 cardEl.style.position = 'fixed';
+                 cardEl.style.top = '0';
+                 cardEl.style.left = '0';
+                 cardEl.style.zIndex = '9999';
+                 cardEl.style.pointerEvents = 'none';
+
+                 // 5. Wait for layout settling
+                 await new Promise(resolve => setTimeout(resolve, 100));
+
+                 // 6. Perform capture
+                 const canvas = await html2canvas(cardEl, {
+                     useCORS: true,
+                     allowTaint: true,
+                     backgroundColor: null,
+                     scale: 2,
+                     width: targetWidth,
+                     height: targetHeight,
+                     logging: false,
+                     onclone: (clonedDoc) => {
+                         const clonedCard = clonedDoc.querySelector('.capture-target');
+                         if (clonedCard) {
+                             clonedCard.style.transform = 'none';
+                             clonedCard.style.transition = 'none';
+                             const clonedMerged = clonedCard.querySelector('.merged-photo-layer');
+                             if (clonedMerged) clonedMerged.style.display = 'none';
+                         }
+                     }
+                 });
+
+                 return canvas.toDataURL('image/png');
+             } catch (e) {
+                 console.error('Capture failed:', e);
+                 return null;
+             } finally {
+                 // 7. Restore original state
+                 cardEl.setAttribute('style', originalStyle);
+                 cardEl.className = originalClassName;
+                 if (mergedLayer) mergedLayer.style.display = originalMergedDisplay;
+             }
+        };
+
         // Save card to API
         const saveCard = async () => {
             // Check if user is logged in
@@ -954,6 +1088,12 @@ createApp({
             
             isLoading.value = true;
             try {
+                // Capture the card as a single PNG
+                const mergedImage = await captureCardImage();
+                if (mergedImage) {
+                    form.merged_photo = mergedImage;
+                }
+
                 const payload = {
                     name: form.name,
                     region: form.region,
@@ -966,6 +1106,7 @@ createApp({
                     theme: form.theme,
                     photo: form.photo,
                     signature: form.signature,
+                    merged_photo: form.merged_photo,
                     photo_x: form.photoX,
                     photo_y: form.photoY,
                     photo_scale: form.photoScale,

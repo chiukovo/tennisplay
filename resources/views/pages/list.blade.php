@@ -42,14 +42,14 @@
     </div>
 
     {{-- Skeleton Loading --}}
-    <div v-if="isPlayersLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <div v-for="i in 8" :key="i" class="relative">
-            <div class="aspect-[2.5/3.5] rounded-2xl skeleton-shimmer"></div>
+    <div v-if="isPlayersLoading" class="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-6">
+        <div v-for="i in 12" :key="i" class="relative">
+            <div class="aspect-[2.5/3.8] rounded-2xl skeleton-shimmer"></div>
         </div>
     </div>
 
     {{-- Player Cards Grid (Using PlayerCard Component) --}}
-    <div v-else-if="paginatedPlayers.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div v-else-if="paginatedPlayers.length > 0" class="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-6">
         <template v-for="player in paginatedPlayers" :key="player?.id || Math.random()">
             <div v-if="player && player.id" class="relative group">
                 {{-- Player Card Component with proper positioning data --}}
@@ -60,7 +60,7 @@
                     </player-card>
                 </div>
             {{-- Action Buttons Overlay --}}
-            <div class="absolute bottom-4 left-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 z-30">
+            <div class="absolute bottom-4 left-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-300 z-30">
                 <button type="button" @click.stop="showDetail(player)" class="flex-1 py-3 bg-white/90 backdrop-blur-md text-slate-700 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white transition-all flex items-center justify-center gap-2 shadow-lg">
                     <app-icon name="user" class-name="w-4 h-4"></app-icon> 詳細
                 </button>

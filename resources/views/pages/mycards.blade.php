@@ -3,42 +3,40 @@
     {{-- Header --}}
     <div class="flex items-center justify-between">
         <div>
-            <h2 class="text-4xl sm:text-5xl font-black italic uppercase tracking-tighter">我的球友卡</h2>
-            <p class="text-slate-400 font-bold text-sm uppercase tracking-[0.2em] mt-2">My Cards</p>
+            <h2 class="text-3xl sm:text-5xl font-black italic uppercase tracking-tighter leading-tight">我的球友卡</h2>
+            <p class="text-slate-400 font-bold text-xs sm:text-base uppercase tracking-[0.2em] mt-1">My Cards</p>
         </div>
-        <a href="/create" @click.prevent="resetForm(); navigateTo('create')" class="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-blue-700 transition-all shadow-xl">
-            <app-icon name="plus" class-name="w-5 h-5"></app-icon>
+        <a href="/create" @click.prevent="resetForm(); navigateTo('create')" class="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-blue-700 transition-all shadow-xl">
+            <app-icon name="plus" class-name="w-4 h-4"></app-icon>
             新增
         </a>
     </div>
 
     {{-- Login Required --}}
-    <div v-if="!isLoggedIn" class="bg-white rounded-[48px] shadow-2xl border border-slate-100 p-16 text-center">
-        <div class="bg-slate-100 w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-8">
-            <app-icon name="user" class-name="w-12 h-12 text-slate-300"></app-icon>
+    <div v-if="!isLoggedIn" class="bg-white rounded-[40px] shadow-2xl border border-slate-100 p-12 text-center">
+        <div class="bg-slate-100 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6">
+            <app-icon name="user" class-name="w-10 h-10 text-slate-300"></app-icon>
         </div>
-        <h3 class="text-2xl font-black italic uppercase tracking-tight mb-4">登入以查看您的球友卡</h3>
-        <p class="text-slate-400 font-medium mb-8">登入後即可管理您建立的所有球友卡</p>
-        <a href="/auth" @click.prevent="navigateTo('auth')" class="inline-block bg-blue-600 text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl">
+        <h3 class="text-xl font-black italic uppercase tracking-tight mb-2">登入以查看您的球友卡</h3>
+        <p class="text-slate-400 font-bold text-sm mb-6">登入後即可管理您建立的所有球友卡</p>
+        <a href="/auth" @click.prevent="navigateTo('auth')" class="inline-block bg-blue-600 text-white px-8 py-3.5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-blue-700 transition-all shadow-xl">
             立即登入
         </a>
     </div>
 
     {{-- Cards List --}}
-    <div v-else-if="myCards.length > 0" class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+    <div v-else-if="myCards.length > 0" class="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-6">
         <div v-for="card in myCards" :key="card.id" class="relative group">
-            <player-card :player="card" @click="showDetail(card)"></player-card>
+            <div @click="showDetail(card)" class="cursor-pointer">
+                <player-card :player="card" size="sm"></player-card>
+            </div>
             {{-- Action Overlay --}}
-            <div class="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-[32px] flex items-center justify-center gap-4">
-                <button @click.stop="editCard(card)" class="bg-white text-slate-900 px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-blue-100 transition-colors shadow-xl">
-                    <app-icon name="edit" class-name="w-5 h-5 inline-block mr-2"></app-icon>
-                    編輯
+            <div class="absolute bottom-4 left-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-300 z-30">
+                <button @click.stop="editCard(card)" class="w-full py-2.5 bg-white/90 backdrop-blur-md text-slate-700 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-white transition-all flex items-center justify-center gap-2 shadow-lg">
+                    <app-icon name="edit-3" class-name="w-3.5 h-3.5"></app-icon> 編輯
                 </button>
-                <button @click.stop="deleteCard(card.id)" class="bg-red-500 text-white px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-red-600 transition-colors shadow-xl">
-                    <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                    </svg>
-                    刪除
+                <button @click.stop="deleteCard(card.id)" class="w-full py-2.5 bg-red-500/90 backdrop-blur-md text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-600 transition-all flex items-center justify-center gap-2 shadow-lg">
+                    <app-icon name="trash" class-name="w-3.5 h-3.5"></app-icon> 刪除
                 </button>
             </div>
         </div>

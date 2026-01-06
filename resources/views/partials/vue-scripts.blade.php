@@ -426,7 +426,7 @@ createApp({
                 fee: card.fee,
                 photo: card.photo_url || card.photo,
                 signature: card.signature_url || card.signature,
-                merged_photo: card.merged_photo_url || card.merged_photo || null,
+                merged_photo: null, // Clear merged_photo to show dynamic edit preview
                 theme: card.theme || 'standard',
                 photoX: card.photo_x || 0,
                 photoY: card.photo_y || 0,

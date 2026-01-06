@@ -93,7 +93,8 @@
                         :class="['absolute origin-center', isAdjustingSig ? 'pointer-events-auto cursor-move' : 'pointer-events-none']"
                         :style="{ 
                             width: '100%',
-                            height: 'auto',
+                            height: '100%',
+                            objectFit: 'contain',
                             left: `${p.sigX ?? 50}%`, 
                             top: `${p.sigY ?? 50}%`,
                             transform: `translate3d(-50%, -50%, 0) scale(${p.sigScale || 1}) rotate(${p.sigRotate || 0}deg)` 

@@ -190,12 +190,31 @@ const PlayerCard = {
                 logoBg: 'bg-blue-500/10', logoBorder: 'border-blue-500/10', logoIcon: 'text-blue-400/40', logoText: 'text-blue-200/30'
             }
         };
+        
+        // Normalize player data (snake_case to camelCase)
+        const p = computed(() => {
+            const raw = props.player;
+            if (!raw) return null;
+            return {
+                ...raw,
+                photo: raw.photo_url || raw.photo || null,
+                signature: raw.signature_url || raw.signature || null,
+                photoX: raw.photoX ?? raw.photo_x ?? 0,
+                photoY: raw.photoY ?? raw.photo_y ?? 0,
+                photoScale: raw.photoScale ?? raw.photo_scale ?? 1,
+                sigX: raw.sigX ?? raw.sig_x ?? 50,
+                sigY: raw.sigY ?? raw.sig_y ?? 50,
+                sigScale: raw.sigScale ?? raw.sig_scale ?? 1,
+                sigRotate: raw.sigRotate ?? raw.sig_rotate ?? 0,
+            };
+        });
+        
         const themeStyle = computed(() => {
-            if (!props.player) return themes.standard;
-            return themes[props.player.theme || 'standard'] || themes.standard;
+            if (!p.value) return themes.standard;
+            return themes[p.value.theme || 'standard'] || themes.standard;
         });
         const getLevelTag = (lvl) => LEVEL_TAGS[lvl] || '網球愛好者';
-        return { themeStyle, getLevelTag };
+        return { p, themeStyle, getLevelTag };
     }
 };
 
@@ -329,8 +348,8 @@ createApp({
                 photoX: card.photo_x || 0,
                 photoY: card.photo_y || 0,
                 photoScale: card.photo_scale || 1,
-                sigX: card.sig_x || 0,
-                sigY: card.sig_y || 0,
+                sigX: card.sig_x ?? 50,
+                sigY: card.sig_y ?? 50,
                 sigScale: card.sig_scale || 1,
                 sigRotate: card.sig_rotate || 0,
             });
@@ -434,7 +453,32 @@ createApp({
             return viewName;
         };
 
-        const form = reactive();
+        const form = reactive({
+            name: '', region: '台北市', level: '3.5', handed: '右手', backhand: '雙反', gender: '男',
+            intro: '', fee: '免費 (交流為主)', photo: null, signature: null, theme: 'standard',
+            photoX: 0, photoY: 0, photoScale: 1, 
+            sigX: 50, sigY: 50, sigScale: 1, sigRotate: 0
+        });
+        const matchModal = reactive({ open: false, player: null, text: '' });
+        const detailPlayer = ref(null);
+        const isSigning = ref(false);
+        const showNtrpGuide = ref(false);
+        const levelDescs = LEVEL_DESCS;
+        const cardThemes = {
+            gold: { border: 'from-yellow-600 via-yellow-200 to-yellow-700', accent: 'text-yellow-500', bg: 'bg-slate-900', label: 'GOLD EDITION' },
+            platinum: { border: 'from-slate-400 via-white to-slate-500', accent: 'text-blue-400', bg: 'bg-slate-900', label: 'PLATINUM RARE' },
+            holographic: { border: 'from-pink-500 via-cyan-300 via-yellow-200 to-purple-600', accent: 'text-cyan-400', bg: 'bg-slate-900', label: 'HOLO FOIL' },
+            onyx: { border: 'from-slate-900 via-slate-600 to-black', accent: 'text-slate-400', bg: 'bg-black', label: 'ONYX BLACK' },
+            sakura: { border: 'from-pink-400 via-pink-100 to-pink-500', accent: 'text-pink-400', bg: 'bg-slate-900', label: 'SAKURA BLOOM' },
+            standard: { border: 'from-blue-600 via-indigo-400 to-blue-800', accent: 'text-blue-500', bg: 'bg-slate-900', label: 'PRO CARD' }
+        };
+        const stepTitles = [
+            '上傳您的專業形象照並填寫姓名',
+            '設定您的 NTRP 分級與擊球技術',
+            '選擇活動地區並撰寫約打宣告',
+            '切換視覺主題並完成手寫簽名'
+        ];
+        const genders = ['男', '女'];
         const currentStep = ref(1);
         const showPreview = ref(false);
         const showQuickEditModal = ref(false);
@@ -658,11 +702,17 @@ createApp({
                 throttleDrag: 0,
                 throttleScale: 0,
                 throttleRotate: 0,
-            }).on("drag", ({ target, transform, left, top, dist, delta, clientX, clientY }) => {
-                const translate = delta;
-                form.sigX += translate[0];
-                form.sigY += translate[1];
-            }).on("scale", ({ target, scale, dist, delta, transform }) => {
+            }).on("drag", ({ target, delta }) => {
+                const container = target.parentElement;
+                if (!container) return;
+                
+                const rect = container.getBoundingClientRect();
+                if (rect.width > 0 && rect.height > 0) {
+                    // Convert pixel delta to percentage of container
+                    form.sigX += (delta[0] / rect.width) * 100;
+                    form.sigY += (delta[1] / rect.height) * 100;
+                }
+            }).on("scale", ({ target, delta }) => {
                 form.sigScale *= delta[0];
             }).on("rotate", ({ target, beforeRotate, rotate, dist, delta, transform }) => {
                 form.sigRotate += delta;
@@ -719,31 +769,9 @@ createApp({
                 }
             }
         };
-        const stepTitles = [
-            '上傳您的專業形象照並填寫姓名',
-            '設定您的 NTRP 分級與擊球技術',
-            '選擇活動地區並撰寫約打宣告',
-            '切換視覺主題並完成手寫簽名'
-        ];
-        const genders = ['男', '女'];
-        const isSigning = ref(false);
-        const showNtrpGuide = ref(false);
-        const levelDescs = LEVEL_DESCS;
-        const cardThemes = {
-            gold: { border: 'from-yellow-600 via-yellow-200 to-yellow-700', accent: 'text-yellow-500', bg: 'bg-slate-900', label: 'GOLD EDITION' },
-            platinum: { border: 'from-slate-400 via-white to-slate-500', accent: 'text-blue-400', bg: 'bg-slate-900', label: 'PLATINUM RARE' },
-            holographic: { border: 'from-pink-500 via-cyan-300 via-yellow-200 to-purple-600', accent: 'text-cyan-400', bg: 'bg-slate-900', label: 'HOLO FOIL' },
-            onyx: { border: 'from-slate-900 via-slate-600 to-black', accent: 'text-slate-400', bg: 'bg-black', label: 'ONYX BLACK' },
-            sakura: { border: 'from-pink-400 via-pink-100 to-pink-500', accent: 'text-pink-400', bg: 'bg-slate-900', label: 'SAKURA BLOOM' },
-            standard: { border: 'from-blue-600 via-indigo-400 to-blue-800', accent: 'text-blue-500', bg: 'bg-slate-900', label: 'PRO CARD' }
-        };
-
         const scrollToSubmit = () => {
             document.getElementById('create-form').scrollIntoView({ behavior: 'smooth', block: 'end' });
         };
-        const matchModal = reactive({ open: false, player: null, text: '' });
-        const detailPlayer = ref(null);
-
         // --- API Functions ---
         const isLoading = ref(false);
         const authError = ref('');

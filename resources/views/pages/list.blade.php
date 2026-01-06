@@ -50,25 +50,15 @@
 
     {{-- Player Cards Grid (Using PlayerCard Component) --}}
     <div v-else-if="paginatedPlayers.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <div v-for="player in paginatedPlayers" :key="player.id" v-if="player" class="relative group">
-            {{-- Player Card Component with proper positioning data --}}
-            <div @click="showDetail(player)" class="cursor-pointer">
-                <player-card 
-                    :player="{
-                        ...player,
-                        photo: player.photo_url || player.photo || null,
-                        signature: player.signature_url || player.signature || null,
-                        photoX: player.photo_x || 0,
-                        photoY: player.photo_y || 0,
-                        photoScale: player.photo_scale || 1,
-                        sigX: player.sig_x || 0,
-                        sigY: player.sig_y || 0,
-                        sigScale: player.sig_scale || 1,
-                        sigRotate: player.sig_rotate || 0
-                    }" 
-                    size="sm">
-                </player-card>
-            </div>
+        <template v-for="player in paginatedPlayers" :key="player?.id || Math.random()">
+            <div v-if="player && player.id" class="relative group">
+                {{-- Player Card Component with proper positioning data --}}
+                <div @click="showDetail(player)" class="cursor-pointer">
+                    <player-card 
+                        :player="player" 
+                        size="sm">
+                    </player-card>
+                </div>
             {{-- Action Buttons Overlay --}}
             <div class="absolute bottom-4 left-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 z-30">
                 <button type="button" @click.stop="showDetail(player)" class="flex-1 py-3 bg-white/90 backdrop-blur-md text-slate-700 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white transition-all flex items-center justify-center gap-2 shadow-lg">
@@ -79,6 +69,7 @@
                 </button>
             </div>
         </div>
+        </template>
     </div>
 
     {{-- Empty State --}}

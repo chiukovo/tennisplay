@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -62,6 +63,17 @@ class User extends Authenticatable
     public function getUnreadCountAttribute()
     {
         return $this->receivedMessages()->whereNull('read_at')->count();
+    }
+
+    /**
+     * Get LINE picture URL attribute.
+     */
+    public function getLinePictureUrlAttribute($value)
+    {
+        if ($value && Str::startsWith($value, '/storage/')) {
+            return asset($value);
+        }
+        return $value;
     }
 }
 

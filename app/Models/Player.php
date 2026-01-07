@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Player extends Model
 {
@@ -118,7 +119,7 @@ class Player extends Model
      */
     public function getPhotoUrlAttribute()
     {
-        if ($this->photo && !str_starts_with($this->photo, 'http') && !str_starts_with($this->photo, 'data:')) {
+        if ($this->photo && !Str::startsWith($this->photo, 'http') && !Str::startsWith($this->photo, 'data:')) {
             return asset('storage/' . $this->photo);
         }
         return $this->photo;
@@ -129,7 +130,7 @@ class Player extends Model
      */
     public function getSignatureUrlAttribute()
     {
-        if ($this->signature && !str_starts_with($this->signature, 'http') && !str_starts_with($this->signature, 'data:')) {
+        if ($this->signature && !Str::startsWith($this->signature, 'http') && !Str::startsWith($this->signature, 'data:')) {
             return asset('storage/' . $this->signature);
         }
         return $this->signature;

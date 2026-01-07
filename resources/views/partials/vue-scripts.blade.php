@@ -382,6 +382,7 @@ createApp({
         
         const view = ref('home');
         const isLoggedIn = ref(false);
+        const currentUser = ref(null);
         const isLoginMode = ref(true);
         const showUserMenu = ref(false);
         const messageTab = ref('inbox');
@@ -463,10 +464,14 @@ createApp({
         
         // Reset form to default values
         const resetForm = () => {
+            const user = currentUser.value;
             Object.assign(form, {
                 id: null,
-                name: '', region: '台北市', level: '3.5', handed: '右手', backhand: '雙反', gender: '男',
-                intro: '', fee: '免費 (交流為主)', photo: null, signature: null, theme: 'standard',
+                name: user?.name || '', 
+                region: '台北市', level: '3.5', handed: '右手', backhand: '雙反', gender: '男',
+                intro: '', fee: '免費 (交流為主)', 
+                photo: null, // User requested NOT to pre-fill photo
+                signature: null, theme: 'standard',
                 merged_photo: null,
                 photoX: 0, photoY: 0, photoScale: 1, 
                 sigX: 50, sigY: 50, sigScale: 1, sigRotate: 0,
@@ -578,6 +583,9 @@ createApp({
         };
         // Navigation function with History API
         const navigateTo = (viewName) => {
+            if (viewName === 'create') {
+                resetForm();
+            }
             view.value = viewName;
             const path = routePaths[viewName] || '/';
             window.history.pushState({ view: viewName }, '', path);
@@ -602,6 +610,11 @@ createApp({
             if (!viewName) viewName = 'home';
             
             view.value = viewName;
+
+            if (viewName === 'create') {
+                resetForm();
+            }
+
             return viewName;
         };
 
@@ -1036,6 +1049,7 @@ createApp({
                     localStorage.setItem('auth_token', lineToken);
                     localStorage.setItem('auth_user', lineUser);
                     isLoggedIn.value = true;
+                    currentUser.value = userData;
                     showToast('LINE 登入成功！歡迎來到 LoveTennis', 'success');
                     loadMessages();
                     loadMyCards();
@@ -1059,63 +1073,15 @@ createApp({
             const user = localStorage.getItem('auth_user');
             if (token && user) {
                 isLoggedIn.value = true;
+                try {
+                    currentUser.value = JSON.parse(user);
+                } catch (e) {}
                 loadMessages();
                 loadMyCards();
-                try {
-                    const userData = JSON.parse(user);
-                } catch (e) {}
             }
         };
 
-        // Register
-        const register = async () => {
-            isLoading.value = true;
-            authError.value = '';
-            try {
-                const response = await api.post('/register', {
-                    name: authForm.name,
-                    email: authForm.email,
-                    password: authForm.password,
-                    password_confirmation: authForm.password_confirmation || authForm.password,
-                });
-                if (response.data.success) {
-                    localStorage.setItem('auth_token', response.data.token);
-                    localStorage.setItem('auth_user', JSON.stringify(response.data.user));
-                    isLoggedIn.value = true;
-                    showToast('註冊成功！歡迎加入 LoveTennis', 'success');
-                    navigateTo('home');
-                    loadMessages();
-                }
-            } catch (error) {
-                authError.value = error.response?.data?.message || '註冊失敗，請稍後再試';
-            } finally {
-                isLoading.value = false;
-            }
-        };
 
-        // Login
-        const login = async () => {
-            isLoading.value = true;
-            authError.value = '';
-            try {
-                const response = await api.post('/login', {
-                    email: authForm.email,
-                    password: authForm.password,
-                });
-                if (response.data.success) {
-                    localStorage.setItem('auth_token', response.data.token);
-                    localStorage.setItem('auth_user', JSON.stringify(response.data.user));
-                    isLoggedIn.value = true;
-                    showToast('登入成功！歡迎回來', 'success');
-                    navigateTo('home');
-                    loadMessages();
-                }
-            } catch (error) {
-                authError.value = error.response?.data?.message || '登入失敗，請檢查帳號密碼';
-            } finally {
-                isLoading.value = false;
-            }
-        };
 
         // Logout
         const logout = async () => {
@@ -1125,6 +1091,7 @@ createApp({
             localStorage.removeItem('auth_token');
             localStorage.removeItem('auth_user');
             isLoggedIn.value = false;
+            currentUser.value = null;
             showToast('已成功登出', 'info');
             navigateTo('home');
         };
@@ -1367,8 +1334,8 @@ createApp({
 
         // Handle browser back/forward
         onMounted(() => {
-            parseRoute();
             checkAuth();
+            parseRoute();
             loadPlayers();
             window.addEventListener('popstate', (event) => {
                 if (event.state && event.state.view) {
@@ -1380,7 +1347,7 @@ createApp({
         });
 
         return { 
-            view, isLoggedIn, isLoginMode, hasUnread, regions, levels, players, messages, features, form, 
+            view, isLoggedIn, currentUser, isLoginMode, hasUnread, regions, levels, players, messages, features, form, 
             matchModal, detailPlayer, isSigning, showNtrpGuide, levelDescs, cardThemes, currentStep, showPreview, showQuickEditModal, stepTitles, genders,
             isAdjustingPhoto, isAdjustingSig, toggleAdjustSig, handleSignatureUpdate, dragInfo, startDrag, handleDrag, stopDrag, initMoveable,
             // UI State
@@ -1396,7 +1363,7 @@ createApp({
             // Navigation
             navigateTo,
             // Auth & API
-            isLoading, isPlayersLoading, authError, authForm, register, login, logout, loadPlayers, loadMessages, loadMyCards,
+            isLoading, isPlayersLoading, authError, authForm, logout, loadPlayers, loadMessages, loadMyCards,
             triggerUpload, handleFileUpload, saveCard, resetForm, getPlayersByRegion, 
             openMatchModal, sendMatchRequest, showDetail, getDetailStats, scrollToSubmit, markMessageRead 
         };

@@ -19,10 +19,11 @@
                     </div>
                 </div>
                 <h1 class="text-3xl sm:text-6xl lg:text-7xl font-black italic uppercase tracking-tighter leading-[0.9]">
-                    找球友，<br><span class="text-blue-500">來 LoveTennis</span>
+                    找球友，約打<br><span class="text-blue-500">來 LoveTennis</span>
                 </h1>
                 <p class="text-slate-400 max-w-xl mx-auto lg:mx-0 text-sm sm:text-xl font-medium leading-relaxed">
-                    全台最專業的網球約打平台。LINE 快速登入，3 秒建立球友卡，即刻開始約打！
+                    全台最專業的網球約打平台。
+                    <br>LINE 快速登入，建立球友卡，即刻開始約打！
                 </p>
                 <div class="flex flex-col sm:flex-row gap-3 sm:gap-5 justify-center lg:justify-start pt-2">
                     <a href="/create" @click.prevent="navigateTo('create')" class="bg-blue-600 text-white px-8 py-4 sm:px-10 sm:py-5 rounded-2xl sm:rounded-3xl font-black text-base sm:text-xl hover:scale-105 transition-all shadow-2xl shadow-blue-500/40 text-center">製作球友卡</a>

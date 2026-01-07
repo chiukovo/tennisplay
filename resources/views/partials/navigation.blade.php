@@ -4,8 +4,8 @@
         <div class="flex items-center gap-2 sm:gap-3 cursor-pointer shrink-0" @click="navigateTo('home')">
             <img src="/img/logo.png" alt="LoveTennis Logo" class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl object-contain">
             <div class="flex flex-col leading-none">
-                <span class="font-black text-lg sm:text-2xl tracking-tighter italic uppercase text-slate-900">LOVE<span class="text-blue-600">TENNIS</span></span>
-                <span class="text-[8px] sm:text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase">愛網球</span>
+                <span class="font-black text-base sm:text-2xl tracking-tighter italic uppercase text-slate-900">LOVE<span class="text-blue-600">TENNIS</span></span>
+                <span class="hidden sm:block text-[8px] sm:text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase">愛網球</span>
             </div>
         </div>
         
@@ -19,21 +19,19 @@
 
         <div class="flex items-center gap-2 sm:gap-4 shrink-0">
             {{-- Not Logged In: LINE Login Button --}}
-            <a v-if="!isLoggedIn" href="/auth" @click.prevent="navigateTo('auth')" class="hidden sm:flex items-center gap-2 bg-[#06C755] hover:bg-[#05b34c] text-white px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-green-500/20">
+            <a v-if="!isLoggedIn" href="/auth" @click.prevent="navigateTo('auth')" class="flex items-center gap-2 bg-[#06C755] hover:bg-[#05b34c] text-white px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-green-500/20">
                 <app-icon name="line" fill="currentColor" stroke="none" class-name="w-4 h-4"></app-icon>
-                LINE 登入
+                <span class="hidden sm:inline">LINE 登入</span>
+                <span class="sm:hidden">登入</span>
             </a>
             
             {{-- Logged In: User Dropdown --}}
-            <div v-if="isLoggedIn" class="relative hidden sm:block group">
-                <button @click="showUserMenu = !showUserMenu" class="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors">
-                    <div class="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center">
-                        <app-icon name="user" class-name="w-5 h-5 text-blue-600"></app-icon>
+            <div v-if="isLoggedIn" class="relative group">
+                <button @click="showUserMenu = !showUserMenu" class="flex items-center text-slate-600 hover:text-slate-900 transition-colors">
+                    <div class="w-9 h-9 sm:w-10 sm:h-10 bg-blue-100 rounded-full flex items-center justify-center overflow-hidden border-2 border-white shadow-md">
+                        <img v-if="currentUser?.line_picture_url" :src="currentUser.line_picture_url" class="w-full h-full object-cover">
+                        <app-icon v-else name="user" class-name="w-5 h-5 text-blue-600"></app-icon>
                     </div>
-                    <span class="text-xs font-black uppercase tracking-widest">帳號</span>
-                    <svg class="w-4 h-4 transition-transform" :class="showUserMenu ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
                 </button>
                 {{-- Dropdown Menu - Click to toggle, click outside to close --}}
                 <div v-show="showUserMenu" @click.stop class="absolute right-0 top-full pt-2 w-48 z-50">

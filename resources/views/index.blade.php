@@ -30,7 +30,7 @@
     @include('partials.navigation')
 
     {{-- Main Content --}}
-    <main class="max-w-6xl mx-auto px-4 pt-6 sm:pt-10 min-h-screen pb-48 sm:pb-32">
+    <main class="max-w-6xl mx-auto px-4 pt-6 sm:pt-10 min-h-screen pb-32 sm:pb-32">
         @include('pages.auth')
         @include('pages.home')
         @include('pages.create')
@@ -56,7 +56,7 @@
     </div>
 
     {{-- Toast Notifications --}}
-    <div class="fixed bottom-32 sm:bottom-8 right-4 sm:right-8 z-[180] space-y-3">
+    <div class="fixed bottom-28 sm:bottom-8 right-4 sm:right-8 z-[180] space-y-3">
         <transition-group name="toast">
             <div v-for="toast in toasts" :key="toast.id" 
                 :class="['px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 min-w-[280px] max-w-md',

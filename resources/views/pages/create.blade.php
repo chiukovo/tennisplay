@@ -74,6 +74,7 @@
                                         <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
                                             <button type="button" @click="isAdjustingPhoto = true" class="bg-slate-900 text-white px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl whitespace-nowrap">調整版面</button>
                                             <button type="button" @click="triggerUpload" class="bg-white text-slate-900 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl border border-slate-100 whitespace-nowrap">更換照片</button>
+                                            <button v-if="currentUser?.line_picture_url && form.photo !== currentUser.line_picture_url" type="button" @click="form.photo = currentUser.line_picture_url; form.photoX = 0; form.photoY = 0; form.photoScale = 1;" class="bg-[#06C755] text-white px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl whitespace-nowrap">使用 LINE 照片</button>
                                         </div>
                                     </div>
                                 </div>
@@ -90,6 +91,10 @@
                                     <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">建議直式照片 (會自動適應)</p>
                                     <p v-if="stepAttempted[1] && !form.photo" class="text-red-500 text-xs font-bold">請上傳您的形象照</p>
                                 </div>
+                                <button v-if="currentUser?.line_picture_url" type="button" @click.stop="form.photo = currentUser.line_picture_url; form.photoX = 0; form.photoY = 0; form.photoScale = 1;" class="mt-2 bg-[#06C755] text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-all flex items-center gap-2">
+                                    <app-icon name="line" fill="currentColor" stroke="none" class-name="w-4 h-4"></app-icon>
+                                    使用 LINE 大頭貼
+                                </button>
                             </div>
                             <input type="file" id="photo-upload" class="hidden" @change="handleFileUpload" accept="image/*">
                         </div>

@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
@@ -103,6 +104,32 @@ class AuthController extends Controller
             $lineName = $lineUser['displayName'];
             $linePicture = $lineUser['pictureUrl'] ?? null;
 
+            // Download and save avatar locally if it exists
+            $localAvatarPath = null;
+            if ($linePicture) {
+                try {
+                    $avatarResponse = Http::get($linePicture);
+                    if ($avatarResponse->successful()) {
+                        $extension = 'jpg'; // LINE avatars are usually jpg
+                        $filename = 'avatar_' . $lineUserId . '_' . time() . '.' . $extension;
+                        $path = 'avatars/' . $filename;
+                        
+                        // Ensure directory exists
+                        if (!Storage::disk('public')->exists('avatars')) {
+                            Storage::disk('public')->makeDirectory('avatars');
+                        }
+
+                        // Save to storage/app/public/avatars
+                        Storage::disk('public')->put($path, $avatarResponse->body());
+                        $localAvatarPath = '/storage/' . $path;
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Failed to download LINE avatar: ' . $e->getMessage());
+                    // Fallback to original URL if download fails
+                    $localAvatarPath = $linePicture;
+                }
+            }
+
             // Find or create user
             $user = User::where('line_user_id', $lineUserId)->first();
 
@@ -111,13 +138,20 @@ class AuthController extends Controller
                 $user = User::create([
                     'line_user_id' => $lineUserId,
                     'name' => $lineName,
-                    'line_picture_url' => $linePicture,
+                    'line_picture_url' => $localAvatarPath,
                 ]);
             } else {
                 // Update existing user's LINE info
+                // If we have a new local avatar, we might want to delete the old one
+                $oldRawPath = $user->getRawOriginal('line_picture_url');
+                if ($localAvatarPath && $oldRawPath && Str::startsWith($oldRawPath, '/storage/avatars/')) {
+                    $oldPath = str_replace('/storage/', '', $oldRawPath);
+                    Storage::disk('public')->delete($oldPath);
+                }
+
                 $user->update([
                     'name' => $lineName,
-                    'line_picture_url' => $linePicture,
+                    'line_picture_url' => $localAvatarPath ?: $user->line_picture_url,
                 ]);
             }
 

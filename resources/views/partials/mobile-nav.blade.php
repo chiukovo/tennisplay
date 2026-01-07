@@ -2,11 +2,11 @@
 <div class="fixed bottom-4 left-1/2 -translate-x-1/2 w-[92%] max-w-md bg-slate-950/95 backdrop-blur-3xl border border-white/10 rounded-[24px] p-1.5 flex justify-between items-center shadow-[0_20px_50px_rgba(0,0,0,0.6)] z-[150] md:hidden">
     <a href="/" @click.prevent="navigateTo('home')" class="flex-1 flex flex-col items-center gap-1 py-1.5 rounded-xl transition-all" :class="view === 'home' ? 'text-blue-400 bg-white/5' : 'text-slate-500'">
         <app-icon name="home" class-name="w-5 h-5"></app-icon>
-        <span class="text-[9px] font-black uppercase tracking-widest">Home</span>
+        <span class="text-[9px] font-black uppercase tracking-widest">首頁</span>
     </a>
     <a href="/list" @click.prevent="navigateTo('list')" class="flex-1 flex flex-col items-center gap-1 py-1.5 rounded-xl transition-all" :class="view === 'list' ? 'text-blue-400 bg-white/5' : 'text-slate-500'">
         <app-icon name="search" class-name="w-5 h-5"></app-icon>
-        <span class="text-[9px] font-black uppercase tracking-widest">Hall</span>
+        <span class="text-[9px] font-black uppercase tracking-widest">大廳</span>
     </a>
     <a href="/create" @click.prevent="resetForm(); navigateTo('create')" class="relative -mt-6 group px-2">
         <div class="absolute inset-0 bg-blue-600 rounded-full blur-2xl opacity-40 group-hover:opacity-100 transition-opacity"></div>
@@ -19,7 +19,7 @@
             <app-icon name="mail" class-name="w-5 h-5"></app-icon>
             <div v-if="hasUnread" class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border-2 border-slate-950"></div>
         </div>
-        <span class="text-[9px] font-black uppercase tracking-widest">Mail</span>
+        <span class="text-[9px] font-black uppercase tracking-widest">訊息</span>
     </a>
     {{-- Profile / Login / Logout --}}
     <template v-if="isLoggedIn">
@@ -31,9 +31,12 @@
         </button>
     </template>
     <template v-else>
-        <a href="/auth" @click.prevent="navigateTo('auth')" class="flex-1 flex flex-col items-center gap-1 py-1.5 text-slate-500" :class="view === 'auth' ? 'text-blue-400 bg-white/5' : ''">
-            <app-icon name="user" class-name="w-5 h-5"></app-icon>
-            <span class="text-[9px] font-black uppercase tracking-widest">登入</span>
+        <a href="/auth" @click.prevent="navigateTo('auth')" class="flex-1 flex flex-col items-center gap-1 py-1.5 rounded-xl transition-all" :class="view === 'auth' ? 'text-[#06C755] bg-[#06C755]/10' : 'text-[#06C755]'">
+            <div class="w-5 h-5 bg-[#06C755] rounded-md flex items-center justify-center">
+                <app-icon name="line" fill="white" stroke="none" class-name="w-3.5 h-3.5"></app-icon>
+            </div>
+            <span class="text-[9px] font-black uppercase tracking-widest whitespace-nowrap">登入</span>
         </a>
     </template>
 </div>
+

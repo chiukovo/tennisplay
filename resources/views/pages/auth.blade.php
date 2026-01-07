@@ -1,50 +1,63 @@
 {{-- Auth View --}}
-<div v-if="view === 'auth'" class="flex items-center justify-center py-10">
-    <div class="w-full max-w-md bg-white rounded-[40px] shadow-2xl p-10 border border-slate-100">
-        <div class="text-center mb-10">
-            <div class="inline-block bg-blue-50 p-4 rounded-3xl mb-4">
-                <app-icon name="user" class-name="text-blue-600 w-10 h-10"></app-icon>
-            </div>
-            <h2 class="text-3xl font-black italic uppercase tracking-tighter leading-tight">
-                @{{ isLoginMode ? '歡迎回來' : '建立 lovetennis 帳號' }}
-            </h2>
-            <p class="text-slate-500 text-base font-medium mt-2">啟動您的專業網球社交生活</p>
-        </div>
+<div v-if="view === 'auth'" class="flex items-center justify-center py-10 sm:py-20">
+    <div class="w-full max-w-md bg-white rounded-[48px] shadow-[0_20px_80px_rgba(0,0,0,0.1)] p-10 sm:p-14 border border-slate-100 relative overflow-hidden">
+        {{-- Decorative Background --}}
+        <div class="absolute top-0 right-0 w-32 h-32 bg-green-500/5 blur-[60px] rounded-full"></div>
+        <div class="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/5 blur-[60px] rounded-full"></div>
 
-        {{-- Error Message --}}
-        <div v-if="authError" class="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-2xl text-sm font-bold">
-            @{{ authError }}
-        </div>
+        <div class="relative z-10">
+            <div class="text-center mb-12">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-slate-900 rounded-[28px] mb-6 shadow-xl shadow-slate-900/20">
+                    <app-icon name="trophy" class-name="text-white w-10 h-10"></app-icon>
+                </div>
+                <h2 class="text-4xl font-black italic uppercase tracking-tighter leading-tight text-slate-900">
+                    開始約打
+                </h2>
+                <p class="text-slate-400 text-sm font-bold mt-3 uppercase tracking-widest">Join the LoveTennis community</p>
+            </div>
 
-        <form class="space-y-6" @submit.prevent="isLoginMode ? login() : register()">
-            <div v-if="!isLoginMode">
-                <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2">真實姓名</label>
-                <input type="text" v-model="authForm.name" required class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-blue-500 outline-none font-bold text-lg" placeholder="例如: Roger Chen">
+            {{-- Error Message --}}
+            <div v-if="authError" class="mb-8 bg-red-50 border border-red-100 text-red-600 px-6 py-4 rounded-2xl text-xs font-bold flex items-center gap-3">
+                <app-icon name="x" class-name="w-4 h-4"></app-icon>
+                @{{ authError }}
             </div>
-            <div>
-                <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2">電子郵件</label>
-                <input type="email" v-model="authForm.email" required class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-blue-500 outline-none font-bold text-lg" placeholder="your@email.com">
+
+            <div class="space-y-6">
+                <p class="text-center text-slate-500 text-sm font-medium leading-relaxed px-4">
+                    為了提供更即時的約打通知與安全的社群環境，我們採用 LINE 快速登入。
+                </p>
+
+                <a href="/auth/line" class="w-full bg-[#06C755] text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-[#05b34c] transition-all shadow-xl shadow-green-500/20 flex items-center justify-center gap-4 text-lg group">
+                    <app-icon name="line" fill="currentColor" stroke="none" class-name="w-7 h-7"></app-icon>
+                    使用 LINE 快速登入
+                </a>
+
+                <div class="flex items-center gap-4 py-4">
+                    <div class="h-px flex-1 bg-slate-100"></div>
+                    <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Secure & Fast</span>
+                    <div class="h-px flex-1 bg-slate-100"></div>
+                </div>
+
+                <div class="bg-blue-50/50 p-6 rounded-3xl border border-blue-100/50">
+                    <div class="flex gap-4">
+                        <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+                            <app-icon name="shield-check" class-name="w-5 h-5 text-blue-600"></app-icon>
+                        </div>
+                        <div class="space-y-1">
+                            <h4 class="text-xs font-black text-slate-900 uppercase tracking-wider">隱私保護</h4>
+                            <p class="text-[10px] font-bold text-slate-400 leading-relaxed">
+                                我們僅會取得您的公開資訊與唯一識別碼，不會在未經許可下發布任何動態。
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div>
-                <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2">密碼</label>
-                <input type="password" v-model="authForm.password" required minlength="6" class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-blue-500 outline-none font-bold text-lg" placeholder="••••••••">
+
+            <div class="mt-12 text-center">
+                <p class="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em]">
+                    Powered by LoveTennis Engine
+                </p>
             </div>
-            <div v-if="!isLoginMode">
-                <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-2">確認密碼</label>
-                <input type="password" v-model="authForm.password_confirmation" required minlength="6" class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-blue-500 outline-none font-bold text-lg" placeholder="••••••••">
-            </div>
-            <button type="submit" :disabled="isLoading" class="w-full bg-slate-950 text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-xl text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3">
-                <svg v-if="isLoading" class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                @{{ isLoading ? '處理中...' : (isLoginMode ? '進入系統' : '完成註冊') }}
-            </button>
-        </form>
-        <div class="mt-8 text-center">
-            <button @click="isLoginMode = !isLoginMode; authError = ''" class="text-base font-bold text-slate-400 hover:text-blue-600">
-                @{{ isLoginMode ? '還沒有帳號？立即註冊' : '已有帳號？直接登入' }}
-            </button>
         </div>
     </div>
 </div>

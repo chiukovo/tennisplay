@@ -2,7 +2,7 @@
 
 {{-- App Icon Template --}}
 <script type="text/x-template" id="app-icon-template">
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" :class="className" v-html="iconPath"></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" :fill="fill || 'none'" :stroke="stroke || 'currentColor'" :stroke-width="strokeWidth || 2" stroke-linecap="round" stroke-linejoin="round" :class="className" v-html="iconPath"></svg>
 </script>
 
 {{-- Signature Pad Template --}}
@@ -45,7 +45,7 @@
                     <div :class="['backdrop-blur-md p-[1.5cqw] rounded-[3cqw] border transition-all duration-500', themeStyle.logoBg, themeStyle.logoBorder]">
                         <app-icon name="trophy" :class-name="['w-[4cqw] h-[4cqw] transition-all duration-500', themeStyle.logoIcon]"></app-icon>
                     </div>
-                    <span :class="['font-black tracking-tighter italic uppercase transition-all duration-500', themeStyle.logoText]" style="font-size: 4.5cqw;">lovetennis</span>
+                    <span :class="['font-black tracking-tighter italic uppercase transition-all duration-500', themeStyle.logoText]" style="font-size: 4.5cqw;">LoveTennis</span>
                 </div>
             </div>
 

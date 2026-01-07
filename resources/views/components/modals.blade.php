@@ -35,7 +35,7 @@
                                                     <div :class="['p-1.5 rounded-lg border border-white/10', getThemeStyle(player.theme || 'standard').logoBg]">
                                                         <app-icon name="trophy" class-name="w-4 h-4 text-white"></app-icon>
                                                     </div>
-                                                    <span class="text-xs font-black italic text-white/40 tracking-tighter uppercase">lovetennis PRO</span>
+                                                    <span class="text-xs font-black italic text-white/40 tracking-tighter uppercase">LoveTennis PRO</span>
                                                 </div>
                                                 <div class="text-[8px] font-black italic text-white/20 tracking-widest uppercase">#@{{player.id}}</div>
                                             </div>
@@ -156,10 +156,10 @@
                 <div class="p-8 space-y-6">
                     <div class="bg-blue-50 p-5 rounded-2xl border border-blue-100 flex gap-4 text-xs text-blue-800 font-bold uppercase leading-normal">
                         <app-icon name="shield-check" class-name="w-6 h-6 text-blue-600 shrink-0"></app-icon>
-                        安全提示：lovetennis 建議在公開且有監視設備的球場會面，祝您球技進步。
+                        安全提示：LoveTennis 建議在公開且有監視設備的球場會面，祝您球技進步。
                     </div>
                     <textarea v-model="textModel" class="w-full h-40 p-5 bg-slate-50 border-2 border-transparent rounded-[28px] focus:border-blue-500 outline-none font-bold text-base leading-relaxed" 
-                        :placeholder="'Hi ' + (player.name || '') + '，看到你的 lovetennis 檔案後非常想跟你交流，請問... '"></textarea>
+                        :placeholder="'Hi ' + (player.name || '') + '，看到你的 LoveTennis 檔案後非常想跟你交流，請問... '"></textarea>
                     <button type="button" @click="$emit('submit', textModel)" class="w-full bg-slate-950 text-white py-5 rounded-3xl font-black uppercase tracking-[0.2em] hover:bg-blue-600 shadow-2xl transition-all text-lg">
                         發送站內訊息
                     </button>

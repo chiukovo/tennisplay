@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>lovetennis | 專業網球約打媒合與球友卡社群</title>
+    <title>LoveTennis | 專業網球約打媒合與球友卡社群</title>
     <!-- SEO Meta Tags -->
-    <meta name="description" content="lovetennis 是全台最專業的網球約打平台，提供職業級球友卡製作、透明約打費用與安全站內信媒合系統。">
+    <meta name="description" content="LoveTennis 是全台最專業的網球約打平台，提供職業級球友卡製作、透明約打費用與安全站內信媒合系統。">
     <style>[v-cloak] { display: none !important; }</style>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>

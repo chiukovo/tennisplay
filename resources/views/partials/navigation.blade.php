@@ -20,8 +20,11 @@
         </div>
 
         <div class="flex items-center gap-2 sm:gap-4 shrink-0">
-            {{-- Not Logged In --}}
-            <a v-if="!isLoggedIn" href="/auth" @click.prevent="navigateTo('auth')" class="hidden sm:block text-slate-400 hover:text-slate-900 text-xs font-black uppercase tracking-widest transition-all">登入 / 註冊</a>
+            {{-- Not Logged In: LINE Login Button --}}
+            <a v-if="!isLoggedIn" href="/auth" @click.prevent="navigateTo('auth')" class="hidden sm:flex items-center gap-2 bg-[#06C755] hover:bg-[#05b34c] text-white px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-green-500/20">
+                <app-icon name="line" fill="currentColor" stroke="none" class-name="w-4 h-4"></app-icon>
+                LINE 登入
+            </a>
             
             {{-- Logged In: User Dropdown --}}
             <div v-if="isLoggedIn" class="relative hidden sm:block group">

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AuthController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -38,3 +39,8 @@ Route::get('/auth', function () {
 Route::get('/mycards', function () {
     return view('index');
 });
+
+// LINE Login Routes
+Route::get('/auth/line', [AuthController::class, 'lineLogin'])->name('line.login');
+Route::get('/auth/line/callback', [AuthController::class, 'lineCallback'])->name('line.callback');
+

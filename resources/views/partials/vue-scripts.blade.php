@@ -1023,8 +1023,38 @@ createApp({
             }
         };
 
-        // Check for saved auth on mount
+        // Check for saved auth on mount (including LINE callback)
         const checkAuth = () => {
+            // Check for LINE callback token in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const lineToken = urlParams.get('line_token');
+            const lineUser = urlParams.get('line_user');
+            
+            if (lineToken && lineUser) {
+                try {
+                    const userData = JSON.parse(lineUser);
+                    localStorage.setItem('auth_token', lineToken);
+                    localStorage.setItem('auth_user', lineUser);
+                    isLoggedIn.value = true;
+                    showToast('LINE 登入成功！歡迎來到 LoveTennis', 'success');
+                    loadMessages();
+                    loadMyCards();
+                    // Clean URL
+                    window.history.replaceState({}, document.title, '/');
+                    return;
+                } catch (e) {
+                    console.error('LINE callback parse error:', e);
+                }
+            }
+
+            // Check for LINE error in URL
+            const lineError = urlParams.get('error');
+            if (lineError) {
+                showToast(lineError, 'error');
+                window.history.replaceState({}, document.title, '/auth');
+            }
+
+            // Normal auth check
             const token = localStorage.getItem('auth_token');
             const user = localStorage.getItem('auth_user');
             if (token && user) {

@@ -70,7 +70,7 @@
             <app-icon name="mail" class-name="w-12 h-12 text-blue-300"></app-icon>
         </div>
         <h3 class="text-2xl font-black italic uppercase tracking-tight mb-4">還沒有訊息</h3>
-        <p class="text-slate-400 font-medium mb-8">開始瀏覽球友大廳，找到心儀的球友後發送約打邀請！</p>
+        <p class="text-slate-400 font-medium mb-8">開始瀏覽球友列表，找到心儀的球友後發送約打邀請！</p>
         <a href="/list" @click.prevent="navigateTo('list')" class="inline-block bg-blue-600 text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl">
             探索球友
         </a>

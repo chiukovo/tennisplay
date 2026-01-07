@@ -5,65 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
-    /**
-     * Register a new user.
-     */
-    public function register(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
-        ]);
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        $token = $user->createToken('auth-token')->plainTextToken;
-
-        return response()->json([
-            'success' => true,
-            'message' => '註冊成功',
-            'user' => $user,
-            'token' => $token,
-        ], 201);
-    }
-
-    /**
-     * Login user and create token.
-     */
-    public function login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            throw ValidationException::withMessages([
-                'email' => ['帳號或密碼錯誤'],
-            ]);
-        }
-
-        $user = Auth::user();
-        $token = $user->createToken('auth-token')->plainTextToken;
-
-        return response()->json([
-            'success' => true,
-            'message' => '登入成功',
-            'user' => $user,
-            'token' => $token,
-        ]);
-    }
 
     /**
      * Logout user and revoke token.
@@ -88,4 +35,106 @@ class AuthController extends Controller
             'user' => $request->user(),
         ]);
     }
+
+    /**
+     * Redirect to LINE OAuth2 authorization page.
+     */
+    public function lineLogin(Request $request)
+    {
+        $state = Str::random(32);
+        session(['line_oauth_state' => $state]);
+
+        $params = http_build_query([
+            'response_type' => 'code',
+            'client_id' => config('services.line.client_id'),
+            'redirect_uri' => config('services.line.redirect'),
+            'state' => $state,
+            'scope' => 'profile openid',
+        ]);
+
+        return redirect('https://access.line.me/oauth2/v2.1/authorize?' . $params);
+    }
+
+    /**
+     * Handle LINE OAuth2 callback.
+     */
+    public function lineCallback(Request $request)
+    {
+        // Verify state to prevent CSRF
+        if ($request->state !== session('line_oauth_state')) {
+            return redirect('/auth?error=' . urlencode('驗證失敗，請重試'));
+        }
+
+        // Check for error from LINE
+        if ($request->has('error')) {
+            Log::error('LINE OAuth error: ' . $request->error_description);
+            return redirect('/auth?error=' . urlencode('LINE 登入失敗：' . $request->error_description));
+        }
+
+        try {
+            // Exchange code for access token
+            $tokenResponse = Http::asForm()->post('https://api.line.me/oauth2/v2.1/token', [
+                'grant_type' => 'authorization_code',
+                'code' => $request->code,
+                'redirect_uri' => config('services.line.redirect'),
+                'client_id' => config('services.line.client_id'),
+                'client_secret' => config('services.line.client_secret'),
+            ]);
+
+            if (!$tokenResponse->successful()) {
+                Log::error('LINE token exchange failed: ' . $tokenResponse->body());
+                return redirect('/auth?error=' . urlencode('無法取得 LINE 授權'));
+            }
+
+            $tokenData = $tokenResponse->json();
+            $accessToken = $tokenData['access_token'];
+
+            // Get user profile from LINE
+            $profileResponse = Http::withToken($accessToken)
+                ->get('https://api.line.me/v2/profile');
+
+            if (!$profileResponse->successful()) {
+                Log::error('LINE profile fetch failed: ' . $profileResponse->body());
+                return redirect('/auth?error=' . urlencode('無法取得 LINE 用戶資料'));
+            }
+
+            $lineUser = $profileResponse->json();
+            $lineUserId = $lineUser['userId'];
+            $lineName = $lineUser['displayName'];
+            $linePicture = $lineUser['pictureUrl'] ?? null;
+
+            // Find or create user
+            $user = User::where('line_user_id', $lineUserId)->first();
+
+            if (!$user) {
+                // Create new user
+                $user = User::create([
+                    'line_user_id' => $lineUserId,
+                    'name' => $lineName,
+                    'line_picture_url' => $linePicture,
+                ]);
+            } else {
+                // Update existing user's LINE info
+                $user->update([
+                    'name' => $lineName,
+                    'line_picture_url' => $linePicture,
+                ]);
+            }
+
+            // Create Sanctum token
+            $token = $user->createToken('auth-token')->plainTextToken;
+
+            // Redirect back to frontend with token
+            return redirect('/?line_token=' . $token . '&line_user=' . urlencode(json_encode([
+                'id' => $user->id,
+                'name' => $user->name,
+                'line_picture_url' => $user->line_picture_url,
+            ])));
+
+        } catch (\Exception $e) {
+            Log::error('LINE login error: ' . $e->getMessage());
+            return redirect('/auth?error=' . urlencode('LINE 登入發生錯誤，請稍後再試'));
+        }
+    }
 }
+

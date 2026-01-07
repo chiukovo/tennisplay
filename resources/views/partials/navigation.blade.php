@@ -2,12 +2,10 @@
 <nav class="bg-white/90 backdrop-blur-xl border-b sticky top-0 z-50">
     <div class="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between gap-2">
         <div class="flex items-center gap-2 sm:gap-3 cursor-pointer shrink-0" @click="navigateTo('home')">
-            <div class="bg-blue-600 p-1.5 sm:p-2 rounded-xl shadow-lg">
-                <app-icon name="trophy" class-name="text-white w-5 h-5 sm:w-6 h-6"></app-icon>
-            </div>
+            <img src="/img/logo.png" alt="LoveTennis Logo" class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl object-contain">
             <div class="flex flex-col leading-none">
                 <span class="font-black text-lg sm:text-2xl tracking-tighter italic uppercase text-slate-900">LOVE<span class="text-blue-600">TENNIS</span></span>
-                <span class="text-[8px] sm:text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase">94i網球</span>
+                <span class="text-[8px] sm:text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase">愛網球</span>
             </div>
         </div>
         

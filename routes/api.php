@@ -39,6 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/messages', [MessageController::class, 'store']);
     Route::get('/messages/unread-count', [MessageController::class, 'unreadCount']);
     Route::get('/messages/sent', [MessageController::class, 'sent']);
+    Route::get('/messages/chat/{userId}', [MessageController::class, 'chat']);
     Route::get('/messages/{id}', [MessageController::class, 'show']);
     Route::put('/messages/{id}/read', [MessageController::class, 'markRead']);
     Route::delete('/messages/{id}', [MessageController::class, 'destroy']);

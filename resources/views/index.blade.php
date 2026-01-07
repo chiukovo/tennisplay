@@ -43,6 +43,7 @@
     <player-detail-modal :player="detailPlayer" :stats="getDetailStats(detailPlayer)" @close="detailPlayer = null" @open-match="p => { detailPlayer = null; openMatchModal(p); }"></player-detail-modal>
     <match-modal v-model:open="matchModal.open" :player="matchModal.player" @submit="text => { matchModal.text = text; sendMatchRequest(); }"></match-modal>
     <ntrp-guide-modal v-model:open="showNtrpGuide" :descs="levelDescs"></ntrp-guide-modal>
+    <message-detail-modal v-model:open="showMessageDetail" :target-user="selectedChatUser" :current-user="currentUser" @message-sent="onMessageSent"></message-detail-modal>
 
     {{-- Global Loading Overlay --}}
     <div v-if="isLoading" class="fixed inset-0 bg-slate-950/50 backdrop-blur-sm z-[200] flex items-center justify-center">

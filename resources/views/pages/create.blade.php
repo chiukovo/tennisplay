@@ -48,7 +48,7 @@
                                     {{-- Larger, interactive preview --}}
                                     <div :class="['relative w-full max-w-[320px] mx-auto aspect-[2.5/3.5] rounded-2xl overflow-hidden shadow-2xl border-4 border-white cursor-move touch-none bg-slate-100', isAdjustingPhoto ? 'touch-none' : '']"
                                         @mousedown="startDrag($event, 'photo')" @touchstart="startDrag($event, 'photo')">
-                                        <img :src="form.photo" 
+                                        <img :src="getUrl(form.photo)" 
                                             class="absolute inset-0 w-full h-full object-contain pointer-events-none"
                                             :style="{ transform: `translate(${form.photoX}%, ${form.photoY}%) scale(${form.photoScale})` }">
                                         <div class="absolute inset-0 border-2 border-blue-500/50 pointer-events-none"></div>
@@ -69,7 +69,7 @@
                                 <div v-else class="flex flex-col items-center gap-4">
                                     <div class="relative group">
                                         <div class="w-40 h-52 rounded-[28px] overflow-hidden border-4 border-white shadow-2xl bg-slate-100">
-                                            <img :src="form.photo" class="w-full h-full object-contain" :style="{ transform: `translate(${form.photoX}%, ${form.photoY}%) scale(${form.photoScale})` }">
+                                            <img :src="getUrl(form.photo)" class="w-full h-full object-contain" :style="{ transform: `translate(${form.photoX}%, ${form.photoY}%) scale(${form.photoScale})` }">
                                         </div>
                                         <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
                                             <button type="button" @click="isAdjustingPhoto = true" class="bg-slate-900 text-white px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl whitespace-nowrap">調整版面</button>

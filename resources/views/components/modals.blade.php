@@ -49,19 +49,13 @@
                                                 </div>
 
                                                 <div class="space-y-3">
-                                                    <div class="flex items-center gap-2">
-                                                        <div class="w-1 h-2.5 bg-blue-400 rounded-full"></div>
-                                                        <h4 class="text-[9px] font-black italic text-blue-400 uppercase tracking-widest">約打宣告</h4>
-                                                    </div>
-                                                    <div class="bg-white/5 border border-white/10 p-4 rounded-xl relative">
-                                                        <p class="text-xs font-bold text-slate-300 italic leading-relaxed">@{{player.intro || '期待與更多高手交流。'}}</p>
-                                                    </div>
+                                                    {{-- Intro Removed --}}
                                                 </div>
                                             </div>
 
                                             <div class="mt-auto pt-4 flex justify-between items-end border-t border-white/10">
                                                 <div class="text-left">
-                                                    <div class="text-[7px] font-bold text-white/20 uppercase tracking-[0.2em]">Verified Profile</div>
+                                                    <div class="text-[7px] font-bold text-white/20 uppercase tracking-[0.2em]">已認證檔案</div>
                                                     <div class="text-[10px] font-black italic text-white/40">@{{ formatDate(player.created_at) }}</div>
                                                 </div>
                                                 <div class="flex items-center gap-1 opacity-20">
@@ -83,7 +77,7 @@
                             <h3 class="text-4xl sm:text-5xl font-black italic uppercase tracking-tighter text-slate-900 leading-tight mb-4">@{{player.name}}</h3>
                             
                             <div class="flex flex-nowrap items-center gap-2 overflow-x-auto no-scrollbar">
-                                <span class="px-2 py-1 bg-blue-600 text-white text-[8px] font-black rounded-lg uppercase tracking-widest italic shrink-0">Verified</span>
+                                <span class="px-2 py-1 bg-blue-600 text-white text-[8px] font-black rounded-lg uppercase tracking-widest italic shrink-0">已認證</span>
                                 <div class="flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-lg text-[10px] font-bold text-slate-600 shrink-0">
                                     <app-icon name="map-pin" class-name="w-3 h-3 text-slate-400"></app-icon>
                                     @{{player.region}}
@@ -135,6 +129,8 @@
     </transition>
 </script>
 
+@include('components.message-detail-modal')
+
 {{-- Match Modal --}}
 <script type="text/x-template" id="match-modal-template">
     <transition name="modal">
@@ -142,7 +138,7 @@
             <div class="bg-white w-full max-w-md rounded-[40px] overflow-hidden shadow-2xl">
                 <div class="bg-slate-900 p-8 text-white flex items-center justify-between">
                     <div class="flex items-center gap-4">
-                        <img v-if="player.photo" :src="player.photo" class="w-12 h-12 rounded-full border-2 border-blue-500 object-cover shadow-lg">
+                        <img v-if="photoUrl" :src="photoUrl" class="w-12 h-12 rounded-full border-2 border-blue-500 object-cover shadow-lg">
                         <div v-else class="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center border-2 border-slate-700">
                             <app-icon name="user" class-name="w-6 h-6 text-slate-500"></app-icon>
                         </div>

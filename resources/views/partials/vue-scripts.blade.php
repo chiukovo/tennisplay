@@ -105,7 +105,7 @@ const LEVEL_DESCS = {
     '7.0': '世界頂尖職業球友。'
 };
 
-const { createApp, ref, reactive, computed, onMounted, watch, nextTick } = Vue;
+const { createApp, ref, reactive, computed, onMounted, onUnmounted, watch, nextTick } = Vue;
 
 const LEVEL_TAGS = {
     '1.0': '網球初學者', '1.5': '基礎擊球員', '2.0': '入門球友', '2.5': '進階入門', 
@@ -269,11 +269,20 @@ const PlayerCard = {
         const p = computed(() => {
             const raw = props.player;
             if (!raw) return null;
+
+            const getFullUrl = (path) => {
+                if (!path) return null;
+                if (path.startsWith('http') || path.startsWith('data:')) return path;
+                // Handle paths that already start with /storage/
+                if (path.startsWith('/storage/')) return path;
+                return `/storage/${path}`;
+            };
+
             return {
                 ...raw,
-                photo: raw.photo_url || raw.photo || null,
-                signature: raw.signature_url || raw.signature || null,
-                merged_photo: raw.merged_photo_url || raw.merged_photo || null,
+                photo: getFullUrl(raw.photo_url || raw.photo),
+                signature: getFullUrl(raw.signature_url || raw.signature),
+                merged_photo: getFullUrl(raw.merged_photo_url || raw.merged_photo),
                 photoX: raw.photoX ?? raw.photo_x ?? 0,
                 photoY: raw.photoY ?? raw.photo_y ?? 0,
                 photoScale: raw.photoScale ?? raw.photo_scale ?? 1,
@@ -339,15 +348,169 @@ const PlayerDetailModal = {
         return { isFlipped, backStats, getThemeStyle, formatDate };
     }
 };
+const MessageDetailModal = {
+    props: ['open', 'targetUser', 'currentUser'],
+    components: { AppIcon },
+    template: '#message-detail-modal-template',
+    emits: ['update:open', 'message-sent'],
+    setup(props, { emit }) {
+        const messages = ref([]);
+        const loading = ref(false);
+        const sending = ref(false);
+        const newMessage = ref('');
+        const chatContainer = ref(null);
+
+        const formatDate = (dateString) => {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        };
+
+        const scrollToBottom = () => {
+            nextTick(() => {
+                if (chatContainer.value) {
+                    chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
+                }
+            });
+        };
+
+        const hasMore = ref(false);
+        const page = ref(1);
+
+        const loadChat = async (isPolling = false) => {
+            if (!props.targetUser) return;
+            if (!isPolling) loading.value = true;
+            
+            try {
+                let url = `/messages/chat/${props.targetUser.id}`;
+                const lastMsg = messages.value.length > 0 ? messages.value[messages.value.length - 1] : null;
+                
+                if (isPolling && lastMsg) {
+                    url += `?after_id=${lastMsg.id}`;
+                } else {
+                    url += `?page=${page.value}`;
+                }
+
+                const response = await api.get(url);
+                if (response.data.success) {
+                    let newMessages = [];
+                    
+                    if (isPolling) {
+                        // Polling returns array directly (from get())
+                        newMessages = response.data.data.map(m => ({
+                            ...m,
+                            is_me: m.from_user_id === props.currentUser.id
+                        }));
+                        
+                        if (newMessages.length > 0) {
+                            messages.value = [...messages.value, ...newMessages];
+                            scrollToBottom();
+                        }
+                    } else {
+                        // Pagination returns paginated object (from paginate())
+                        const data = response.data.data;
+                        const rawMessages = data.data || [];
+                        hasMore.value = data.next_page_url !== null;
+                        
+                        newMessages = rawMessages.map(m => ({
+                            ...m,
+                            is_me: m.from_user_id === props.currentUser.id
+                        })).reverse(); // Reverse because backend gives desc
+                        
+                        if (page.value === 1) {
+                            messages.value = newMessages;
+                            scrollToBottom();
+                        } else {
+                            // Prepend for load more
+                            const currentHeight = chatContainer.value.scrollHeight;
+                            messages.value = [...newMessages, ...messages.value];
+                            nextTick(() => {
+                                // Restore scroll position
+                                chatContainer.value.scrollTop = chatContainer.value.scrollHeight - currentHeight;
+                            });
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Load chat error:', error);
+            } finally {
+                if (!isPolling) loading.value = false;
+            }
+        };
+
+        const loadMore = () => {
+            if (!hasMore.value || loading.value) return;
+            page.value++;
+            loadChat(false);
+        };
+
+        const sendMessage = async () => {
+            if (!newMessage.value.trim() || sending.value) return;
+            sending.value = true;
+            try {
+                const response = await api.post('/messages', {
+                    to_user_id: props.targetUser.id,
+                    content: newMessage.value
+                });
+
+                if (response.data.success) {
+                    const msg = response.data.data;
+                    messages.value.push({
+                        ...msg,
+                        is_me: true
+                    });
+                    newMessage.value = '';
+                    scrollToBottom();
+                    emit('message-sent');
+                }
+            } catch (error) {
+                console.error('Send message error:', error);
+                alert('發送失敗，請稍後再試');
+            } finally {
+                sending.value = false;
+            }
+        };
+
+        let pollInterval;
+
+        watch(() => props.open, (newVal) => {
+            if (newVal) {
+                document.body.style.overflow = 'hidden';
+                page.value = 1;
+                loadChat(false);
+                pollInterval = setInterval(() => loadChat(true), 5000);
+            } else {
+                document.body.style.overflow = '';
+                messages.value = [];
+                page.value = 1;
+                if (pollInterval) clearInterval(pollInterval);
+            }
+        });
+
+        onUnmounted(() => {
+            document.body.style.overflow = '';
+            if (pollInterval) clearInterval(pollInterval);
+        });
+
+        return { messages, loading, sending, newMessage, chatContainer, formatDate, sendMessage, hasMore, loadMore };
+    }
+};
 
 const MatchModal = {
     props: ['open', 'player'],
     components: { AppIcon },
     template: '#match-modal-template',
     emits: ['update:open', 'submit'],
-    setup(props) {
+    setup(props, { emit }) {
         const textModel = ref('');
-        return { textModel };
+        const photoUrl = computed(() => {
+            const path = props.player?.photo_url || props.player?.photo;
+            if (!path) return null;
+            if (path.startsWith('http') || path.startsWith('data:')) return path;
+            if (path.startsWith('/storage/')) return path;
+            return `/storage/${path}`;
+        });
+        return { textModel, photoUrl };
     }
 };
 
@@ -580,6 +743,13 @@ createApp({
         const removeToast = (id) => {
             const index = toasts.value.findIndex(t => t.id === id);
             if (index > -1) toasts.value.splice(index, 1);
+        };
+
+        // Helper to get full URL for storage paths
+        const getUrl = (path) => {
+            if (!path) return null;
+            if (path.startsWith('http') || path.startsWith('data:')) return path;
+            return `/storage/${path}`;
         };
         // Navigation function with History API
         const navigateTo = (viewName) => {
@@ -997,7 +1167,7 @@ createApp({
             isPlayersLoading.value = true;
 
             try {
-                const response = await api.get('/players');
+                const response = await api.get('/players?per_page=1000');
                 if (response.data.success) {
                     const data = response.data.data;
                     if (data) {
@@ -1199,6 +1369,7 @@ createApp({
         };
 
         // Save card to API
+        // Save card to API
         const saveCard = async () => {
             // Check if user is logged in
             if (!isLoggedIn.value) {
@@ -1257,7 +1428,7 @@ createApp({
                     navigateTo('mycards');
                 }
             } catch (error) {
-
+                console.error('Save card error:', error);
                 showToast('儲存失敗，請稍後再試', 'error');
             } finally {
                 isLoading.value = false;
@@ -1346,7 +1517,61 @@ createApp({
             });
         });
 
-        return { 
+        // Poll messages when on messages view
+        let messagePollInterval;
+        watch(view, (newView) => {
+            if (newView === 'messages') {
+                loadMessages();
+                if (!messagePollInterval) {
+                    messagePollInterval = setInterval(loadMessages, 5000);
+                }
+            } else {
+                if (messagePollInterval) {
+                    clearInterval(messagePollInterval);
+                    messagePollInterval = null;
+                }
+            }
+        });
+
+        // Message Pagination (Client-side)
+        const messagesLimit = ref(20);
+        const paginatedMessages = computed(() => {
+            if (!Array.isArray(messages.value)) return [];
+            return messages.value.slice(0, messagesLimit.value);
+        });
+        const hasMoreMessages = computed(() => {
+            return Array.isArray(messages.value) && messagesLimit.value < messages.value.length;
+        });
+        const loadMoreMessages = () => {
+            messagesLimit.value += 20;
+        };
+
+        const selectedChatUser = ref(null);
+        const showMessageDetail = ref(false);
+
+        const openMessage = (message) => {
+            // Determine the "other" user in the conversation
+            const otherUser = message.from_user_id === currentUser.value.id ? message.receiver : message.sender;
+            // If we have player info attached to the message, we can use it to enrich the user object
+            if (message.player) {
+                otherUser.player = message.player;
+            }
+            
+            selectedChatUser.value = otherUser;
+            showMessageDetail.value = true;
+            
+            // Mark as read locally if needed (backend handles it on chat load)
+            if (message.unread_count > 0) {
+                message.unread_count = 0;
+            }
+        };
+
+        const onMessageSent = () => {
+            // Refresh conversation list to show latest message
+            loadMessages();
+        };
+
+        return {
             view, isLoggedIn, currentUser, isLoginMode, hasUnread, regions, levels, players, messages, features, form, 
             matchModal, detailPlayer, isSigning, showNtrpGuide, levelDescs, cardThemes, currentStep, showPreview, showQuickEditModal, stepTitles, genders,
             isAdjustingPhoto, isAdjustingSig, toggleAdjustSig, handleSignatureUpdate, dragInfo, startDrag, handleDrag, stopDrag, initMoveable,
@@ -1361,12 +1586,24 @@ createApp({
             // Step Validation
             canProceedStep1, canProceedStep2, canProceedStep3, canGoToStep, tryNextStep, tryGoToStep, stepAttempted,
             // Navigation
-            navigateTo,
+            navigateTo, getUrl,
             // Auth & API
             isLoading, isPlayersLoading, authError, authForm, logout, loadPlayers, loadMessages, loadMyCards,
             triggerUpload, handleFileUpload, saveCard, resetForm, getPlayersByRegion, 
-            openMatchModal, sendMatchRequest, showDetail, getDetailStats, scrollToSubmit, markMessageRead 
+            openMatchModal, sendMatchRequest, showDetail, getDetailStats, scrollToSubmit, markMessageRead,
+            selectedChatUser, showMessageDetail, openMessage, onMessageSent,
+            // Message Pagination
+            paginatedMessages, hasMoreMessages, loadMoreMessages
         };
+    },
+    components: {
+        'app-icon': AppIcon,
+        'player-card': PlayerCard,
+        'player-detail-modal': PlayerDetailModal,
+        'match-modal': MatchModal,
+        'ntrp-guide-modal': NtrpGuideModal,
+        'quick-edit-modal': QuickEditModal,
+        'message-detail-modal': MessageDetailModal
     }
 }).mount('#app');
 </script>

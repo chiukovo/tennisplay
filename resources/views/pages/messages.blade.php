@@ -37,30 +37,45 @@
         </div>
         
         <div class="divide-y divide-slate-100">
-            <div v-for="m in messages" :key="m.id" class="p-8 hover:bg-slate-50 transition-colors cursor-pointer relative" :class="(m.unread || !m.read_at) ? 'bg-blue-50/30' : ''">
-                <div v-if="m.unread || !m.read_at" class="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-600"></div>
-                <div class="flex justify-between items-start mb-4">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center text-white text-lg font-black uppercase leading-none shadow-lg">
-                            @{{ (m.from || m.sender?.name || '系統')[0] }}
-                        </div>
-                        <div>
-                            <span class="font-black italic uppercase tracking-tight text-lg block">@{{ m.from || m.sender?.name || '系統通知' }}</span>
-                            <span v-if="m.player" class="text-xs text-slate-400 font-bold">關於: @{{ m.player.name }}</span>
-                        </div>
+            <div v-for="m in paginatedMessages" :key="m.id" @click="openMessage(m)" class="p-4 sm:p-6 hover:bg-slate-50 transition-colors cursor-pointer relative group" :class="m.unread_count > 0 ? 'bg-blue-50/30' : ''">
+                <div v-if="m.unread_count > 0" class="absolute left-0 top-0 bottom-0 w-1 bg-blue-600"></div>
+                <div class="flex items-center gap-4">
+                    {{-- Avatar --}}
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center text-white text-sm sm:text-base font-black uppercase leading-none shadow-md shrink-0">
+                        @{{ (m.from_user_id === currentUser.id ? m.receiver?.name : m.sender?.name)?.[0] || '?' }}
                     </div>
-                    <span class="text-xs font-bold text-slate-400">@{{ m.date || formatDate(m.created_at) }}</span>
-                </div>
-                <p class="text-base font-medium text-slate-600 leading-relaxed mb-6 line-clamp-2">@{{ m.content }}</p>
-                <div class="flex gap-3">
-                    <button class="px-5 py-2.5 bg-slate-950 text-white text-xs font-black uppercase tracking-widest rounded-xl shadow-lg hover:bg-blue-600 transition-all">
-                        回覆
-                    </button>
-                    <button v-if="m.unread || !m.read_at" @click.stop="markMessageRead(m.id)" class="px-5 py-2.5 bg-slate-100 text-slate-600 text-xs font-black uppercase tracking-widest rounded-xl hover:bg-slate-200 transition-all">
-                        標為已讀
-                    </button>
+                    
+                    {{-- Content Preview --}}
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-baseline mb-1">
+                            <h4 class="font-black italic uppercase tracking-tight text-sm sm:text-base truncate pr-2">
+                                @{{ m.from_user_id === currentUser.id ? m.receiver?.name : m.sender?.name }}
+                                <span v-if="m.player" class="text-[10px] text-slate-400 font-bold ml-1 font-sans not-italic">關於: @{{ m.player.name }}</span>
+                            </h4>
+                            <span class="text-[10px] font-bold text-slate-400 shrink-0">@{{ formatDate(m.created_at) }}</span>
+                        </div>
+                        <p class="text-xs sm:text-sm font-medium text-slate-500 truncate group-hover:text-slate-700 transition-colors">
+                            <span v-if="m.from_user_id === currentUser.id" class="text-slate-400 mr-1">你:</span>
+                            @{{ m.content }}
+                        </p>
+                    </div>
+
+                    {{-- Unread Badge or Arrow --}}
+                    <div v-if="m.unread_count > 0" class="bg-blue-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">
+                        @{{ m.unread_count }}
+                    </div>
+                    <div v-else class="text-slate-300 group-hover:text-blue-600 transition-colors">
+                        <app-icon name="chevron-right" class-name="w-4 h-4"></app-icon>
+                    </div>
                 </div>
             </div>
+        </div>
+
+        {{-- Load More Button --}}
+        <div v-if="hasMoreMessages" class="p-4 text-center">
+            <button @click="loadMoreMessages" class="text-blue-600 text-sm font-black uppercase tracking-widest hover:text-blue-700 transition-colors py-2 px-4 rounded-full hover:bg-blue-50">
+                載入更多訊息
+            </button>
         </div>
     </div>
 

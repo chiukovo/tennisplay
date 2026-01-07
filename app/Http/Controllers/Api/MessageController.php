@@ -10,16 +10,69 @@ use Illuminate\Http\Request;
 class MessageController extends Controller
 {
     /**
-     * Display a listing of messages for the authenticated user.
+     * Display a listing of conversations (latest message per user pair).
      */
     public function index(Request $request)
     {
-        $user = $request->user();
-        
-        $messages = Message::forUser($user->id)
-            ->with(['sender', 'player'])
-            ->orderBy('created_at', 'desc')
-            ->paginate($request->per_page ?? 20);
+        $userId = $request->user()->id;
+
+        // Fetch all messages involving the user
+        $messages = Message::where(function ($q) use ($userId) {
+            $q->where('from_user_id', $userId)
+              ->orWhere('to_user_id', $userId);
+        })
+        ->with(['sender', 'receiver', 'player'])
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+        // Group by the "other" user and take the first (latest) one
+        $conversations = $messages->groupBy(function ($message) use ($userId) {
+            return $message->from_user_id === $userId ? $message->to_user_id : $message->from_user_id;
+        })->map(function ($msgs) {
+            $latest = $msgs->first();
+            // Count unread for this conversation
+            $unreadCount = $msgs->where('to_user_id', request()->user()->id)->whereNull('read_at')->count();
+            $latest->unread_count = $unreadCount;
+            return $latest;
+        })->values();
+
+        return response()->json([
+            'success' => true,
+            'data' => $conversations,
+        ]);
+    }
+
+    /**
+     * Get chat history with a specific user.
+     */
+    public function chat(Request $request, $otherUserId)
+    {
+        $userId = $request->user()->id;
+
+        $query = Message::where(function ($q) use ($userId, $otherUserId) {
+            $q->where('from_user_id', $userId)->where('to_user_id', $otherUserId);
+        })->orWhere(function ($q) use ($userId, $otherUserId) {
+            $q->where('from_user_id', $otherUserId)->where('to_user_id', $userId);
+        });
+
+        if ($request->after_id) {
+            // Polling: Get messages after specific ID
+            $messages = $query->where('id', '>', $request->after_id)
+                ->with(['sender', 'player'])
+                ->orderBy('created_at', 'asc')
+                ->get();
+        } else {
+            // Initial Load / Pagination: Get latest messages
+            $messages = $query->with(['sender', 'player'])
+                ->orderBy('created_at', 'desc')
+                ->paginate($request->per_page ?? 50);
+        }
+
+        // Mark all received messages as read
+        Message::where('from_user_id', $otherUserId)
+            ->where('to_user_id', $userId)
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
 
         return response()->json([
             'success' => true,
@@ -33,16 +86,24 @@ class MessageController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'to_player_id' => 'required|exists:players,id',
+            'to_user_id' => 'required_without:to_player_id|exists:users,id',
+            'to_player_id' => 'nullable|exists:players,id',
             'content' => 'required|string|max:2000',
         ]);
 
-        $player = Player::findOrFail($request->to_player_id);
+        $toUserId = $request->to_user_id;
+        $playerId = $request->to_player_id;
+
+        // If player ID is provided, infer user ID
+        if ($playerId && !$toUserId) {
+            $player = Player::findOrFail($playerId);
+            $toUserId = $player->user_id;
+        }
 
         $message = Message::create([
             'from_user_id' => $request->user()->id,
-            'to_user_id' => $player->user_id,
-            'to_player_id' => $player->id,
+            'to_user_id' => $toUserId,
+            'to_player_id' => $playerId,
             'content' => $request->content,
         ]);
 
@@ -70,11 +131,6 @@ class MessageController extends Controller
                 'success' => false,
                 'message' => '無權限查看此訊息',
             ], 403);
-        }
-
-        // Mark as read if receiver is viewing
-        if ($message->to_user_id === $user->id) {
-            $message->markAsRead();
         }
 
         return response()->json([
@@ -122,19 +178,11 @@ class MessageController extends Controller
     }
 
     /**
-     * Get sent messages.
+     * Get sent messages (Deprecated in favor of chat view, but kept for compatibility).
      */
     public function sent(Request $request)
     {
-        $messages = Message::fromUser($request->user()->id)
-            ->with(['receiver', 'player'])
-            ->orderBy('created_at', 'desc')
-            ->paginate($request->per_page ?? 20);
-
-        return response()->json([
-            'success' => true,
-            'data' => $messages,
-        ]);
+        return $this->index($request);
     }
 
     /**

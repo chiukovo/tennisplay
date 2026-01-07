@@ -674,7 +674,7 @@ createApp({
                 sigHeight: card.sig_height || 100,
             });
             currentStep.value = 4; // Go to final step for review
-            navigateTo('create');
+            navigateTo('create', false);
         };
         
         // Delete card with custom confirm dialog
@@ -752,8 +752,8 @@ createApp({
             return `/storage/${path}`;
         };
         // Navigation function with History API
-        const navigateTo = (viewName) => {
-            if (viewName === 'create') {
+        const navigateTo = (viewName, shouldReset = true) => {
+            if (viewName === 'create' && shouldReset) {
                 resetForm();
             }
             view.value = viewName;

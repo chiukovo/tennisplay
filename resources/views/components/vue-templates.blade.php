@@ -35,59 +35,86 @@
     <div v-if="p" ref="cardContainer" 
         :class="['relative group cursor-pointer transition-all duration-500 hover:scale-[1.02] capture-target', size === 'sm' ? 'w-full aspect-[2.5/3.8]' : 'w-full max-w-[320px] aspect-[2.5/3.8]']"
         style="container-type: inline-size;">
-        <div :class="['absolute -inset-1 bg-gradient-to-br rounded-[24px] blur-[2px] group-hover:blur-[6px] transition-all duration-700', themeStyle.border]"></div>
         
-        <div :class="['relative h-full rounded-2xl overflow-hidden card-shadow flex flex-col border border-white/20', themeStyle.bg]">
+        {{-- Animated Border Glow --}}
+        <div :class="['absolute -inset-[2px] bg-gradient-to-br rounded-[24px] blur-[3px] group-hover:blur-[8px] transition-all duration-700 opacity-80 group-hover:opacity-100', themeStyle.border]"></div>
+        
+        <div :class="['relative h-full rounded-2xl overflow-hidden card-shadow flex flex-col border border-white/10', themeStyle.bg]">
             
+            {{-- Noise Texture Overlay --}}
+            <div class="absolute inset-0 opacity-[0.03] pointer-events-none z-[5]" style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E');"></div>
+
+            {{-- Shine Effect --}}
+            <div class="absolute inset-0 z-[60] pointer-events-none opacity-0 group-hover:opacity-20 transition-opacity duration-700 bg-gradient-to-tr from-transparent via-white to-transparent" style="transform: skewX(-20deg) translateX(-100%); transition: transform 0.8s;"></div>
+
             {{-- Logo Watermark --}}
             <div class="absolute top-[5cqw] left-[5cqw] right-[5cqw] z-20 flex justify-end items-center">
-                <div class="flex items-center gap-[2cqw] transition-all duration-500 opacity-60">
-                    <div :class="['backdrop-blur-md p-[1.5cqw] rounded-[3cqw] border transition-all duration-500', themeStyle.logoBg, themeStyle.logoBorder]">
-                        <app-icon name="trophy" :class-name="['w-[4cqw] h-[4cqw] transition-all duration-500', themeStyle.logoIcon]"></app-icon>
+                <div class="flex items-center gap-[1.5cqw] transition-all duration-500 opacity-80 group-hover:opacity-100">
+                    <div :class="['backdrop-blur-md p-[1.2cqw] rounded-[2.5cqw] border border-white/20 shadow-lg transition-all duration-500', themeStyle.logoBg]">
+                        <app-icon name="trophy" :class-name="['w-[4cqw] h-[4cqw] transition-all duration-500 drop-shadow-md', themeStyle.logoIcon]"></app-icon>
                     </div>
-                    <span :class="['font-black tracking-tighter italic uppercase transition-all duration-500', themeStyle.logoText]" style="font-size: 4.5cqw;">LoveTennis</span>
+                    <span :class="['font-black tracking-tighter italic uppercase transition-all duration-500 drop-shadow-md', themeStyle.logoText]" style="font-size: 5cqw;">LoveTennis</span>
                 </div>
             </div>
 
-            <div class="h-[78%] relative overflow-hidden bg-slate-800 z-10">
+            {{-- Main Image Area --}}
+            <div class="h-[75%] relative overflow-hidden bg-slate-800 z-10">
                 <img :src="p.photo || 'https://images.unsplash.com/photo-1614743758466-e569f4791116?q=80&w=650&auto=format&fit=crop'" 
                     :class="['w-full h-full object-contain group-hover:scale-105 transition-transform duration-1000', isAdjustingSig ? 'pointer-events-none select-none' : '']"
                     :style="{ transform: `translate(${p.photoX || 0}%, ${p.photoY || 0}%) scale(${p.photoScale || 1})` }">
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-90 pointer-events-none"></div>
                 
-                <div class="absolute bottom-[5cqw] left-[5cqw] flex flex-col items-start gap-[2cqw]">
-                    <div :class="['flex items-center gap-[2cqw] p-[0.5cqw] rounded-[3cqw] shadow-2xl transform -rotate-2', themeStyle.border]">
-                       <div class="bg-slate-900 px-[3cqw] py-[1.5cqw] rounded-[2cqw] flex items-center gap-[2cqw]">
-                          <span class="font-bold text-white/60 uppercase tracking-widest leading-none" style="font-size: 3cqw;">NTRP</span>
-                          <span class="font-black text-white leading-none italic" style="font-size: 8cqw;">@{{ p.level || '3.5' }}</span>
-                       </div>
+                {{-- Gradient Overlay --}}
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80 pointer-events-none"></div>
+                
+                {{-- NTRP Badge (Premium Style) --}}
+                <div class="absolute bottom-[4cqw] left-[5cqw] flex flex-col items-start gap-[1.5cqw]">
+                    <div class="relative group/badge">
+                        <div class="absolute inset-0 bg-white/20 blur-md rounded-full"></div>
+                        <div :class="['relative flex items-center gap-[2cqw] p-[0.5cqw] rounded-[3cqw] shadow-[0_4px_12px_rgba(0,0,0,0.3)] border border-white/20 backdrop-blur-md overflow-hidden', themeStyle.border]">
+                            <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50"></div>
+                            <div class="bg-slate-900/90 px-[3.5cqw] py-[1.5cqw] rounded-[2.5cqw] flex items-center gap-[2cqw] relative z-10">
+                                <span class="font-bold text-white/50 uppercase tracking-widest leading-none" style="font-size: 3.5cqw;">NTRP</span>
+                                <span class="font-black text-white leading-none italic tracking-tighter" style="font-size: 9cqw; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">@{{ p.level || '3.5' }}</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="bg-white/10 backdrop-blur-md px-[3.5cqw] py-[2cqw] rounded-[2cqw] border border-white/10 max-w-[60cqw]">
-                        <p class="font-bold text-white uppercase tracking-widest italic leading-tight" style="font-size: 3.5cqw;">@{{ getLevelTag(p.level) }}</p>
+                    
+                    {{-- Level Tag --}}
+                    <div class="bg-white/5 backdrop-blur-md px-[3cqw] py-[1.5cqw] rounded-[1.5cqw] border border-white/10 max-w-[60cqw] shadow-lg">
+                        <p class="font-bold text-white/90 uppercase tracking-widest italic leading-tight" style="font-size: 4.5cqw;">@{{ getLevelTag(p.level) }}</p>
                     </div>
                 </div>
             </div>
 
             <signature-pad :active="isSigning" @save="sig => $emit('update-signature', sig)" @close="$emit('close-signing')"></signature-pad>
             
-            {{-- Bottom Info Section --}}
-            <div class="h-[22%] px-[6cqw] py-[3cqw] flex flex-col justify-center relative bg-gradient-to-b from-transparent to-black/30">
-                <h3 :class="['font-black uppercase tracking-tighter italic leading-[0.9] whitespace-nowrap pb-[1cqw] bg-gradient-to-r bg-clip-text text-transparent text-left', themeStyle.border]" style="font-size: 11cqw;">
-                    @{{ p.name || 'ANONYMOUS' }}
-                </h3>
-                <div class="flex items-center gap-[2cqw] text-white/70">
-                    <app-icon name="map-pin" class-name="w-[4cqw] h-[4cqw]" :class="themeStyle.accent"></app-icon>
-                    <span class="font-bold uppercase tracking-wider italic" style="font-size: 4cqw;">@{{ p.region || '全台' }}</span>
+            {{-- Bottom Info Section (Glassmorphism) --}}
+            <div class="h-[25%] px-[6cqw] py-[3cqw] flex flex-col justify-center relative overflow-hidden">
+                {{-- Background Blur & Gradient --}}
+                <div class="absolute inset-0 bg-white/5 backdrop-blur-xl border-t border-white/10"></div>
+                <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 opacity-80"></div>
+                
+                {{-- Content --}}
+                <div class="relative z-10">
+                    <h3 :class="['font-black uppercase tracking-tighter italic leading-[0.9] whitespace-nowrap pb-[1.5cqw] bg-gradient-to-r bg-clip-text text-transparent text-left drop-shadow-sm', themeStyle.border]" style="font-size: 12cqw;">
+                        @{{ p.name || 'ANONYMOUS' }}
+                    </h3>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-[1.5cqw] text-white/80">
+                            <app-icon name="map-pin" class-name="w-[4.5cqw] h-[4.5cqw]" :class="themeStyle.accent"></app-icon>
+                            <span class="font-bold uppercase tracking-wider italic" style="font-size: 5cqw;">@{{ p.region || '全台' }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-
+            
             {{-- Signature Display (Promoted Layer) --}}
             <div v-if="p.signature" :class="['absolute inset-0 z-[70] group/sig signature-layer', isAdjustingSig ? 'pointer-events-auto' : 'pointer-events-none']">
                 <div class="relative w-full h-full">
                     <img :src="p.signature" 
                         id="target-signature"
                         draggable="false"
-                        :class="['absolute origin-center', isAdjustingSig ? 'pointer-events-auto cursor-move' : 'pointer-events-none']"
+                        :class="['absolute origin-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]', isAdjustingSig ? 'pointer-events-auto cursor-move' : 'pointer-events-none']"
                         :style="{ 
                             width: `${p.sigWidth || 100}%`,
                             height: 'auto',

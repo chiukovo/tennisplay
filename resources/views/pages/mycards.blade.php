@@ -31,7 +31,7 @@
                 <player-card :player="card" size="sm"></player-card>
             </div>
             {{-- Action Overlay --}}
-            <div class="absolute bottom-4 left-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-300 z-30">
+            <div class="absolute bottom-4 left-4 right-4 flex flex-col gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 pointer-events-auto sm:pointer-events-none sm:group-hover:pointer-events-auto transition-all duration-300 z-30">
                 <button @click.stop="editCard(card)" class="w-full py-2.5 bg-white/90 backdrop-blur-md text-slate-700 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-white transition-all flex items-center justify-center gap-2 shadow-lg">
                     <app-icon name="edit-3" class-name="w-3.5 h-3.5"></app-icon> 編輯
                 </button>

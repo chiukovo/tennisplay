@@ -3,77 +3,72 @@
 {{-- Player Detail Modal --}}
 <script type="text/x-template" id="player-detail-modal-template">
     <transition name="modal">
-        <div v-if="player" class="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-10 premium-blur modal-content" @click.self="$emit('close')">
-            <div class="bg-white w-full max-w-5xl h-full sm:h-auto max-h-[92vh] rounded-[32px] sm:rounded-[48px] overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.5)] flex flex-col md:flex-row relative">
-                <button type="button" @click="$emit('close')" class="absolute top-6 right-6 z-50 p-2 bg-white/80 backdrop-blur-md hover:bg-red-50 hover:text-red-500 rounded-full shadow-lg transition-all">
-                    <app-icon name="x" class-name="w-5 h-5"></app-icon>
+        <div v-if="player" class="fixed inset-0 z-[200] flex items-center justify-center p-2 sm:p-10 premium-blur modal-content" @click.self="$emit('close')">
+            <div class="bg-white w-full max-w-5xl h-full sm:h-auto max-h-[96vh] sm:max-h-[92vh] rounded-[32px] sm:rounded-[48px] overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.5)] flex flex-col md:flex-row relative">
+                {{-- Close Button --}}
+                <button type="button" @click="$emit('close')" class="absolute top-4 right-4 sm:top-8 sm:right-8 z-[100] p-2.5 bg-white/90 backdrop-blur-md hover:bg-red-50 hover:text-red-500 rounded-full shadow-xl transition-all border border-slate-100 group">
+                    <app-icon name="x" class-name="w-5 h-5 group-hover:scale-110 transition-transform"></app-icon>
                 </button>
 
-                {{-- Left: Card Display with Flip Effect --}}
-                <div class="w-full md:w-1/2 p-6 sm:p-10 flex items-center justify-center bg-slate-50 border-r border-slate-100 shrink-0">
-                    <div class="w-full max-w-[300px] sm:max-w-[340px] aspect-[2.5/3.8] flip-card cursor-pointer" :class="{ 'is-flipped': isFlipped }" @click="isFlipped = !isFlipped">
-                        <div class="flip-card-inner">
-                            {{-- Front Side --}}
-                            <div class="flip-card-front shadow-2xl">
-                                <player-card :player="player" />
-                                <div class="absolute bottom-4 right-4 bg-white/20 backdrop-blur-md p-2 rounded-full border border-white/20 z-[80] animate-pulse">
-                                    <app-icon name="rotate-3d" class-name="w-4 h-4 text-white"></app-icon>
+                {{-- Main Scrollable Area (Mobile) / Split Layout (Desktop) --}}
+                <div class="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden no-scrollbar pb-24 md:pb-0">
+                    {{-- Left: Card Display --}}
+                    <div class="w-full md:w-1/2 p-6 sm:p-10 flex items-center justify-center bg-slate-50 border-r border-slate-100 shrink-0 relative min-h-[400px] sm:min-h-0">
+                        <div class="w-full max-w-[260px] sm:max-w-[340px] aspect-[2.5/3.8] flip-card cursor-pointer" :class="{ 'is-flipped': isFlipped }" @click="isFlipped = !isFlipped">
+                            <div class="flip-card-inner">
+                                {{-- Front Side --}}
+                                <div class="flip-card-front shadow-2xl">
+                                    <player-card :player="player" />
+                                    <div class="absolute bottom-4 right-4 bg-white/20 backdrop-blur-md p-2 rounded-full border border-white/20 z-[80] animate-pulse">
+                                        <app-icon name="rotate-3d" class-name="w-4 h-4 text-white"></app-icon>
+                                    </div>
                                 </div>
-                            </div>
-                            
-                            {{-- Back Side (Professional Technical Stats) --}}
-                            <div class="flip-card-back shadow-2xl overflow-hidden">
-                                <div :class="['w-full h-full p-8 flex flex-col relative overflow-hidden', getThemeStyle(player.theme || 'standard').bg]">
-                                    {{-- Geometric Background Decoration --}}
-                                    <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 skew-y-12 transform translate-x-32 -translate-y-32"></div>
-                                    <div class="absolute bottom-0 left-0 w-64 h-64 bg-white/5 -skew-y-12 transform -translate-x-32 translate-y-32"></div>
-                                    
-                                    {{-- Back Content --}}
-                                    <div class="relative z-10 flex flex-col h-full">
-                                        <div class="flex items-center justify-between mb-10">
-                                            <div class="flex items-center gap-2">
-                                                <div :class="['p-2 rounded-xl border border-white/10', getThemeStyle(player.theme || 'standard').logoBg]">
-                                                    <app-icon name="trophy" class-name="w-5 h-5 text-white"></app-icon>
+                                
+                                {{-- Back Side (Condensed) --}}
+                                <div class="flip-card-back shadow-2xl overflow-hidden">
+                                    <div :class="['w-full h-full p-8 flex flex-col relative overflow-hidden', getThemeStyle(player.theme || 'standard').bg]">
+                                        <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 skew-y-12 transform translate-x-32 -translate-y-32"></div>
+                                        
+                                        <div class="relative z-10 flex flex-col h-full">
+                                            <div class="flex items-center justify-between mb-8">
+                                                <div class="flex items-center gap-2">
+                                                    <div :class="['p-1.5 rounded-lg border border-white/10', getThemeStyle(player.theme || 'standard').logoBg]">
+                                                        <app-icon name="trophy" class-name="w-4 h-4 text-white"></app-icon>
+                                                    </div>
+                                                    <span class="text-xs font-black italic text-white/40 tracking-tighter uppercase">lovetennis PRO</span>
                                                 </div>
-                                                <span class="font-black italic text-white/40 tracking-tighter">lovetennis PRO</span>
+                                                <div class="text-[8px] font-black italic text-white/20 tracking-widest uppercase">#@{{player.id}}</div>
                                             </div>
-                                            <div class="text-[10px] font-black italic text-white/20 tracking-widest uppercase">Player ID: #@{{player.id}}</div>
-                                        </div>
 
-                                        <div class="flex-1 space-y-8 text-left">
-                                            <div class="space-y-4">
-                                                <h4 class="text-xs font-black italic text-blue-400 uppercase tracking-widest">選手技術參數</h4>
-                                                <div class="grid grid-cols-1 gap-4">
-                                                    <div v-for="stat in backStats" :key="stat.label" class="bg-white/5 border border-white/10 p-4 rounded-2xl flex items-center justify-between">
-                                                        <div class="flex items-center gap-3">
-                                                            <div class="p-2 bg-white/5 rounded-lg">
-                                                                <app-icon :name="stat.icon" class-name="w-4 h-4 text-white/60"></app-icon>
-                                                            </div>
-                                                            <span class="text-xs font-bold text-white/80 uppercase tracking-wider">@{{stat.label}}</span>
-                                                        </div>
-                                                        <span class="text-lg font-black italic text-white">@{{stat.value}}</span>
+                                            <div class="flex-1 space-y-6 text-left">
+                                                <div class="grid grid-cols-2 gap-3">
+                                                    <div v-for="stat in backStats" :key="stat.label" class="bg-white/5 border border-white/10 p-3 rounded-xl">
+                                                        <div class="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">@{{stat.label}}</div>
+                                                        <div class="text-sm font-black italic text-white">@{{stat.value}}</div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="space-y-3">
+                                                    <div class="flex items-center gap-2">
+                                                        <div class="w-1 h-2.5 bg-blue-400 rounded-full"></div>
+                                                        <h4 class="text-[9px] font-black italic text-blue-400 uppercase tracking-widest">約打宣告</h4>
+                                                    </div>
+                                                    <div class="bg-white/5 border border-white/10 p-4 rounded-xl relative">
+                                                        <p class="text-xs font-bold text-slate-300 italic leading-relaxed">@{{player.intro || '期待與更多高手交流。'}}</p>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <div class="space-y-4">
-                                                <h4 class="text-xs font-black italic text-blue-400 uppercase tracking-widest">社群評價</h4>
-                                                <div class="bg-white/5 border border-white/10 p-5 rounded-2xl relative">
-                                                    <div class="absolute -top-3 -left-2 text-4xl text-blue-500/30 font-serif">"</div>
-                                                    <p class="text-sm font-bold text-slate-300 italic leading-relaxed">@{{player.intro || '這位球友目前專注於提升球技，期待與更多高手交流。'}}</p>
+                                            <div class="mt-auto pt-4 flex justify-between items-end border-t border-white/10">
+                                                <div class="text-left">
+                                                    <div class="text-[7px] font-bold text-white/20 uppercase tracking-[0.2em]">Verified Profile</div>
+                                                    <div class="text-[10px] font-black italic text-white/40">@{{ formatDate(player.created_at) }}</div>
                                                 </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="mt-auto pt-6 flex justify-between items-end border-t border-white/10">
-                                            <div class="text-left">
-                                                <div class="text-[8px] font-bold text-white/30 uppercase tracking-[0.3em]">Issue Date</div>
-                                                <div class="text-xs font-black italic text-white/60">@{{ formatDate(player.created_at) }}</div>
-                                            </div>
-                                            <div class="flex items-center gap-1 opacity-40">
-                                                <div class="w-1 h-3 bg-white/20 rounded-full"></div>
-                                                <div class="w-1 h-5 bg-white/40 rounded-full"></div>
-                                                <div class="w-1 h-3 bg-white/20 rounded-full"></div>
+                                                <div class="flex items-center gap-1 opacity-20">
+                                                    <div class="w-0.5 h-3 bg-white rounded-full"></div>
+                                                    <div class="w-0.5 h-5 bg-white rounded-full"></div>
+                                                    <div class="w-0.5 h-3 bg-white rounded-full"></div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -81,48 +76,59 @@
                             </div>
                         </div>
                     </div>
+
+                    {{-- Right: Detailed Stats (Condensed) --}}
+                    <div class="w-full md:w-1/2 p-8 sm:p-14 md:overflow-y-auto bg-white flex flex-col no-scrollbar">
+                        <div class="mb-6">
+                            <h3 class="text-4xl sm:text-5xl font-black italic uppercase tracking-tighter text-slate-900 leading-tight mb-4">@{{player.name}}</h3>
+                            
+                            <div class="flex flex-nowrap items-center gap-2 overflow-x-auto no-scrollbar">
+                                <span class="px-2 py-1 bg-blue-600 text-white text-[8px] font-black rounded-lg uppercase tracking-widest italic shrink-0">Verified</span>
+                                <div class="flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-lg text-[10px] font-bold text-slate-600 shrink-0">
+                                    <app-icon name="map-pin" class-name="w-3 h-3 text-slate-400"></app-icon>
+                                    @{{player.region}}
+                                </div>
+                                <div class="flex items-center gap-1 px-2 py-1 bg-blue-50 rounded-lg text-[10px] font-black text-blue-600 italic shrink-0">
+                                    <app-icon name="zap" class-name="w-3 h-3"></app-icon>
+                                    NTRP @{{player.level}}
+                                </div>
+                                <div class="flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-lg text-[10px] font-bold text-slate-600 shrink-0">
+                                    <app-icon name="gender" class-name="w-3 h-3 text-slate-400"></app-icon>
+                                    @{{player.gender}}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            {{-- Intro Section --}}
+                            <div class="bg-slate-50 p-6 rounded-[24px] border border-slate-100 relative overflow-hidden">
+                                <div class="flex items-center gap-2 mb-3">
+                                    <div class="w-1 h-3 bg-blue-600 rounded-full"></div>
+                                    <span class="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 italic">個人特色 / 約打宣告</span>
+                                </div>
+                                <p class="text-base text-slate-700 font-bold leading-relaxed italic whitespace-pre-line relative z-10">
+                                    「@{{player.intro || '這位球友很懶，什麼都沒留下... 希望能找到實力相當的球友進行約打與練習。'}}」
+                                </p>
+                            </div>
+                        </div>
+
+                        {{-- Desktop Only Action Button --}}
+                        <div class="mt-auto hidden md:flex pt-6">
+                            <button type="button" @click="$emit('open-match', player)" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl hover:bg-blue-500 transition-all flex items-center justify-center gap-3">
+                                <app-icon name="message-circle" class-name="w-5 h-5"></app-icon> 立即發送約打信
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
-                {{-- Right: Detailed Stats --}}
-                <div class="w-full md:w-1/2 p-8 sm:p-14 overflow-y-auto bg-white flex flex-col no-scrollbar">
-                    <div class="mb-8">
-                        <div class="flex items-center justify-between mb-2">
-                             <h3 class="text-5xl font-black italic uppercase tracking-tighter text-slate-900 leading-tight">@{{player.name}}</h3>
-                             <div class="hidden sm:block">
-                                 <div class="px-3 py-1 bg-slate-100 rounded-full text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                     Ver. 2.0
-                                 </div>
-                             </div>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="px-4 py-1.5 bg-blue-600 text-white text-[10px] font-black rounded-lg uppercase tracking-widest italic">Verified Player</span>
-                            <span class="text-sm font-bold text-slate-400 flex items-center gap-1"><app-icon name="map-pin" class-name="w-4 h-4"></app-icon> @{{player.region}}</span>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-6 mb-10">
-                        <div v-for="s in stats" :key="s.label" class="p-6 bg-slate-50 rounded-3xl border border-slate-100 shadow-inner">
-                            <div class="flex items-center gap-2 opacity-50 mb-1">
-                                <app-icon :name="s.icon" class-name="w-4 h-4"></app-icon>
-                                <span class="text-[10px] font-black uppercase tracking-widest">@{{s.label}}</span>
-                            </div>
-                            <div class="text-xl font-black text-slate-900">@{{s.value}}</div>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-900 p-8 rounded-[32px] text-white relative overflow-hidden mb-10 shadow-2xl">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/20 blur-[60px] rounded-full"></div>
-                        <span class="text-[10px] font-black uppercase tracking-widest text-blue-400 mb-2 block italic underline">約打宣告 / 個人特色</span>
-                        <p class="text-lg text-slate-300 leading-relaxed italic whitespace-pre-line">
-                            「@{{player.intro || '這位球友很懶，什麼都沒留下... 希望能找到實力相當的球友進行約打與練習。'}}」
-                        </p>
-                    </div>
-
-                    <div class="mt-auto flex flex-col sm:flex-row gap-4 pt-6 border-t border-slate-100">
-                        <button type="button" @click="$emit('open-match', player)" class="flex-1 bg-blue-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-base shadow-xl hover:bg-blue-500 transition-all flex items-center justify-center gap-3">
-                            <app-icon name="message-circle" class-name="w-6 h-6"></app-icon> 立即發送約打信
-                        </button>
-                    </div>
+                {{-- Mobile Sticky Action Bar --}}
+                <div class="md:hidden absolute bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-xl border-t border-slate-100 z-[110] flex gap-3">
+                    <button type="button" @click="$emit('open-match', player)" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-blue-600/20 flex items-center justify-center gap-2 active:scale-95 transition-all">
+                        <app-icon name="message-circle" class-name="w-5 h-5"></app-icon> 發送約打信
+                    </button>
+                    <button type="button" @click="isFlipped = !isFlipped" class="w-14 h-14 bg-slate-900 text-white rounded-2xl flex items-center justify-center shadow-xl active:scale-95 transition-all">
+                        <app-icon name="rotate-3d" class-name="w-6 h-6"></app-icon>
+                    </button>
                 </div>
             </div>
         </div>

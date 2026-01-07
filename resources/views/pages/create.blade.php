@@ -174,12 +174,19 @@
 
                     {{-- Step 4: Final Preview, Theme & Signature --}}
                     <div v-if="currentStep === 4" class="space-y-10 flex flex-col items-center animate__animated animate__fadeIn">
-                        {{-- Theme Pill Selector (Clean & Compact) --}}
-                        <div class="w-full flex overflow-x-auto no-scrollbar gap-2 pb-2 justify-start sm:justify-center">
-                            <button v-for="(t, key) in cardThemes" :key="key" type="button" @click="form.theme = key"
-                                :class="['px-4 py-2 rounded-full whitespace-nowrap text-[10px] font-black uppercase tracking-widest transition-all border-2', form.theme === key ? 'bg-slate-900 text-white border-slate-900 shadow-lg' : 'bg-slate-50 text-slate-400 border-transparent hover:border-slate-200']">
-                                @{{ t.label.split(' ')[0] }}
-                            </button>
+                        
+                        {{-- Sub-step 1: Theme Selection --}}
+                        <div class="w-full space-y-4">
+                            <div class="flex items-center gap-3">
+                                <span class="flex items-center justify-center w-6 h-6 bg-blue-600 text-white rounded-full text-[10px] font-black">1</span>
+                                <h4 class="text-sm font-black uppercase tracking-widest text-slate-900">選擇樣式</h4>
+                            </div>
+                            <div class="w-full flex overflow-x-auto no-scrollbar gap-2 pb-2 justify-start sm:justify-center">
+                                <button v-for="(t, key) in cardThemes" :key="key" type="button" @click="form.theme = key"
+                                    :class="['px-5 py-2.5 rounded-full whitespace-nowrap text-xs font-black transition-all border-2', form.theme === key ? 'bg-slate-900 text-white border-slate-900 shadow-lg' : 'bg-slate-50 text-slate-400 border-transparent hover:border-slate-200']">
+                                    @{{ t.label }}
+                                </button>
+                            </div>
                         </div>
 
                         <div class="w-full max-w-[300px] transform hover:scale-[1.02] transition-all duration-500 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] rounded-2xl relative">
@@ -191,23 +198,30 @@
                                 @sig-ready="initMoveable"></player-card>
                         </div>
                         
-                        <div class="w-full space-y-3">
-                            <button v-if="form.signature" type="button" @click="toggleAdjustSig" 
-                                :class="['w-full py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all shadow-xl', isAdjustingSig ? 'bg-blue-600 text-white hover:bg-blue-500' : 'bg-white text-slate-900 border border-slate-100 hover:bg-slate-50']">
-                                <app-icon :name="isAdjustingSig ? 'check' : 'move'" class-name="w-5 h-5"></app-icon>
-                                @{{ isAdjustingSig ? '✓ 完成調整' : '調整簽名位置' }}
-                            </button>
+                        {{-- Sub-step 2: Signature --}}
+                        <div class="w-full space-y-4">
+                            <div class="flex items-center gap-3">
+                                <span class="flex items-center justify-center w-6 h-6 bg-blue-600 text-white rounded-full text-[10px] font-black">2</span>
+                                <h4 class="text-sm font-black uppercase tracking-widest text-slate-900">在您卡片上簽名</h4>
+                            </div>
+                            <div class="space-y-3">
+                                <button type="button" @click="isSigning = true" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-slate-800 transition-all shadow-xl">
+                                    <app-icon name="eraser" class-name="w-5 h-5 text-blue-400"></app-icon>
+                                    @{{ form.signature ? '重新手寫簽名' : '點擊此處開始簽名 (推薦)' }}
+                                </button>
 
-                            <button type="button" @click="showQuickEditModal = true" class="w-full bg-white text-slate-900 border border-slate-100 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-slate-50 transition-all shadow-xl">
-                                <app-icon name="edit-3" class-name="w-5 h-5 text-blue-600"></app-icon>
-                                快速修改資料
-                            </button>
+                                <button v-if="form.signature" type="button" @click="toggleAdjustSig" 
+                                    :class="['w-full py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all shadow-xl', isAdjustingSig ? 'bg-blue-600 text-white hover:bg-blue-500' : 'bg-white text-slate-900 border border-slate-100 hover:bg-slate-50']">
+                                    <app-icon :name="isAdjustingSig ? 'check' : 'move'" class-name="w-5 h-5"></app-icon>
+                                    @{{ isAdjustingSig ? '✓ 完成調整' : '調整簽名位置' }}
+                                </button>
 
-                            <button type="button" @click="isSigning = true" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-slate-800 transition-all shadow-xl">
-                                <app-icon name="eraser" class-name="w-5 h-5 text-blue-400"></app-icon>
-                                @{{ form.signature ? '重新手寫簽名' : '在卡片上簽名 (推薦)' }}
-                            </button>
-                            <p class="text-[9px] text-slate-400 font-bold italic text-center uppercase tracking-widest">確認內容無誤後，即可點擊發佈</p>
+                                <button type="button" @click="showQuickEditModal = true" class="w-full bg-white text-slate-900 border border-slate-100 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-slate-50 transition-all shadow-xl">
+                                    <app-icon name="edit-3" class-name="w-5 h-5 text-blue-600"></app-icon>
+                                    快速修改資料
+                                </button>
+                                <p class="text-[9px] text-slate-400 font-bold italic text-center uppercase tracking-widest">確認內容無誤後，即可點擊發佈</p>
+                            </div>
                         </div>
                     </div>
                 </div>

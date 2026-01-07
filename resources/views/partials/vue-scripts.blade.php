@@ -78,13 +78,15 @@ const SVG_ICONS = {
   help: '<circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" x2="12.01" y1="17" y2="17" />',
   trash: '<path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" />',
   'edit-3': '<path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />',
-  move: '<path d="m5 9-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20" />',
-  check: '<polyline points="20 6 9 17 4 12" />',
-  users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
-  filter: '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>',
+  'move': '<path d="m5 9-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20" />',
+  'check': '<polyline points="20 6 9 17 4 12" />',
+  'users': '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  'filter': '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>',
   'chevron-left': '<polyline points="15 18 9 12 15 6"/>',
   'chevron-right': '<polyline points="9 18 15 12 9 6"/>',
-  star: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'
+  'chevron-down': '<polyline points="6 9 12 15 18 9"/>',
+  'rotate-3d': '<path d="M3.5 13h6V7"/><path d="M20.5 13h-6v6"/><path d="M6.5 13c0-4.42 3.58-8 8-8s8 3.58 8 8-3.58 8-8 8c-1.22 0-2.37-.27-3.4-.75"/>',
+  'star': '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'
 };
 
 const LEVEL_DESCS = {
@@ -163,18 +165,66 @@ const SignaturePad = {
         const startTouch = (e) => { e.preventDefault(); start(e); };
         const moveTouch = (e) => { e.preventDefault(); draw(e); };
         const clear = () => { if (ctx) ctx.clearRect(0, 0, canvas.value.width, canvas.value.height); };
+        
+        const getTrimmedCanvas = (sourceCanvas) => {
+            const tempCtx = sourceCanvas.getContext('2d');
+            const width = sourceCanvas.width;
+            const height = sourceCanvas.height;
+            const imageData = tempCtx.getImageData(0, 0, width, height);
+            const data = imageData.data;
+            
+            let minX = width, minY = height, maxX = 0, maxY = 0;
+            let found = false;
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const alpha = data[(y * width + x) * 4 + 3];
+                    if (alpha > 0) {
+                        if (x < minX) minX = x;
+                        if (y < minY) minY = y;
+                        if (x > maxX) maxX = x;
+                        if (y > maxY) maxY = y;
+                        found = true;
+                    }
+                }
+            }
+
+            if (!found) return null;
+
+            // Add padding
+            const padding = 10;
+            minX = Math.max(0, minX - padding);
+            minY = Math.max(0, minY - padding);
+            maxX = Math.min(width, maxX + padding);
+            maxY = Math.min(height, maxY + padding);
+
+            const trimmedWidth = maxX - minX;
+            const trimmedHeight = maxY - minY;
+
+            const trimmedCanvas = document.createElement('canvas');
+            trimmedCanvas.width = trimmedWidth;
+            trimmedCanvas.height = trimmedHeight;
+            const trimmedCtx = trimmedCanvas.getContext('2d');
+            trimmedCtx.drawImage(sourceCanvas, minX, minY, trimmedWidth, trimmedHeight, 0, 0, trimmedWidth, trimmedHeight);
+            
+            return {
+                dataUrl: trimmedCanvas.toDataURL('image/png'),
+                widthPct: (trimmedWidth / width) * 100,
+                heightPct: (trimmedHeight / height) * 100,
+                xPct: ((minX + trimmedWidth / 2) / width) * 100,
+                yPct: ((minY + trimmedHeight / 2) / height) * 100
+            };
+        };
+
         const confirm = () => { 
             if (canvas.value) { 
-                // Check if canvas is empty (optional but good practice)
-                const blank = document.createElement('canvas');
-                blank.width = canvas.value.width;
-                blank.height = canvas.value.height;
-                if (canvas.value.toDataURL() === blank.toDataURL()) {
-                    // It's empty, but we'll let it pass if they really want to clear it
-                    // Or we can show a toast. For now, let's just emit.
+                const trimmed = getTrimmedCanvas(canvas.value);
+                if (trimmed) {
+                    emit('save', trimmed); 
+                } else {
+                    // If empty, just close or show warning
+                    emit('close');
                 }
-                emit('save', canvas.value.toDataURL()); 
-                emit('close'); 
             } 
         };
         return { canvas, start, draw, stop, startTouch, moveTouch, clear, confirm };
@@ -230,6 +280,8 @@ const PlayerCard = {
                 sigY: raw.sigY ?? raw.sig_y ?? 50,
                 sigScale: raw.sigScale ?? raw.sig_scale ?? 1,
                 sigRotate: raw.sigRotate ?? raw.sig_rotate ?? 0,
+                sigWidth: raw.sigWidth ?? raw.sig_width ?? 100,
+                sigHeight: raw.sigHeight ?? raw.sig_height ?? 100,
             };
         });
         
@@ -260,9 +312,9 @@ const PlayerDetailModal = {
             if (!p) return [];
             return [
                 { label: '程度 (NTRP)', value: p.level || '3.5', icon: 'zap' },
-                { label: '性別', value: p.gender || '男', icon: 'gender' },
                 { label: '慣用手', value: p.handed || '右手', icon: 'target' },
-                { label: '主要地區', value: p.region || '全台', icon: 'map-pin' }
+                { label: '反手類型', value: p.backhand || '雙反', icon: 'edit-3' },
+                { label: '性別', value: p.gender || '男', icon: 'gender' }
             ];
         });
 
@@ -404,7 +456,7 @@ createApp({
                     myPlayers.value = response.data.data;
                 }
             } catch (error) {
-                console.error('Load my cards failed:', error);
+
             }
         };
         
@@ -416,7 +468,8 @@ createApp({
                 intro: '', fee: '免費 (交流為主)', photo: null, signature: null, theme: 'standard',
                 merged_photo: null,
                 photoX: 0, photoY: 0, photoScale: 1, 
-                sigX: 50, sigY: 50, sigScale: 1, sigRotate: 0
+                sigX: 50, sigY: 50, sigScale: 1, sigRotate: 0,
+                sigWidth: 100, sigHeight: 100
             });
             currentStep.value = 1;
             stepAttempted.value = {};
@@ -448,6 +501,8 @@ createApp({
                 sigY: card.sig_y ?? 50,
                 sigScale: card.sig_scale || 1,
                 sigRotate: card.sig_rotate || 0,
+                sigWidth: card.sig_width || 100,
+                sigHeight: card.sig_height || 100,
             });
             currentStep.value = 4; // Go to final step for review
             navigateTo('create');
@@ -468,7 +523,7 @@ createApp({
                         players.value = players.value.filter(p => p.id !== cardId);
                         showToast('球友卡已刪除', 'info');
                     } catch (error) {
-                        console.error('Delete failed:', error);
+
                         showToast('刪除失敗，請稍後再試', 'error');
                     } finally {
                         isLoading.value = false;
@@ -554,7 +609,8 @@ createApp({
             intro: '', fee: '免費 (交流為主)', photo: null, signature: null, theme: 'standard',
             merged_photo: null,
             photoX: 0, photoY: 0, photoScale: 1, 
-            sigX: 50, sigY: 50, sigScale: 1, sigRotate: 0
+            sigX: 50, sigY: 50, sigScale: 1, sigRotate: 0,
+            sigWidth: 100, sigHeight: 100
         });
         const matchModal = reactive({ open: false, player: null, text: '' });
         const detailPlayer = ref(null);
@@ -562,12 +618,12 @@ createApp({
         const showNtrpGuide = ref(false);
         const levelDescs = LEVEL_DESCS;
         const cardThemes = {
-            gold: { border: 'from-yellow-600 via-yellow-200 to-yellow-700', accent: 'text-yellow-500', bg: 'bg-slate-900', label: 'GOLD EDITION' },
-            platinum: { border: 'from-slate-400 via-white to-slate-500', accent: 'text-blue-400', bg: 'bg-slate-900', label: 'PLATINUM RARE' },
-            holographic: { border: 'from-pink-500 via-cyan-300 via-yellow-200 to-purple-600', accent: 'text-cyan-400', bg: 'bg-slate-900', label: 'HOLO FOIL' },
-            onyx: { border: 'from-slate-900 via-slate-600 to-black', accent: 'text-slate-400', bg: 'bg-black', label: 'ONYX BLACK' },
-            sakura: { border: 'from-pink-400 via-pink-100 to-pink-500', accent: 'text-pink-400', bg: 'bg-slate-900', label: 'SAKURA BLOOM' },
-            standard: { border: 'from-blue-600 via-indigo-400 to-blue-800', accent: 'text-blue-500', bg: 'bg-slate-900', label: 'PRO CARD' }
+            gold: { border: 'from-yellow-600 via-yellow-200 to-yellow-700', accent: 'text-yellow-500', bg: 'bg-slate-900', label: '黃金版' },
+            platinum: { border: 'from-slate-400 via-white to-slate-500', accent: 'text-blue-400', bg: 'bg-slate-900', label: '白金版' },
+            holographic: { border: 'from-pink-500 via-cyan-300 via-yellow-200 to-purple-600', accent: 'text-cyan-400', bg: 'bg-slate-900', label: '幻彩版' },
+            onyx: { border: 'from-slate-900 via-slate-600 to-black', accent: 'text-slate-400', bg: 'bg-black', label: '曜石黑' },
+            sakura: { border: 'from-pink-400 via-pink-100 to-pink-500', accent: 'text-pink-400', bg: 'bg-slate-900', label: '櫻花粉' },
+            standard: { border: 'from-blue-600 via-indigo-400 to-blue-800', accent: 'text-blue-500', bg: 'bg-slate-900', label: '專業版' }
         };
         const stepTitles = [
             '上傳您的專業形象照並填寫姓名',
@@ -620,7 +676,7 @@ createApp({
                 
                 return result;
             } catch (e) {
-                console.error('Error in filteredPlayers computed:', e);
+
                 return [];
             }
         });
@@ -794,7 +850,7 @@ createApp({
                 if (retryCount < 10) {
                     setTimeout(() => initMoveable(target, retryCount + 1), 200);
                 } else {
-                    console.error('Moveable library not loaded yet.');
+
                 }
                 return;
             }
@@ -879,25 +935,38 @@ createApp({
             isAdjustingSig.value = !isAdjustingSig.value;
         };
 
-        const handleSignatureUpdate = (sig) => {
-            form.signature = sig;
-            if (sig) {
-                // Reset position to center when a new signature is provided
-                form.sigX = 50;
-                form.sigY = 50;
+        const handleSignatureUpdate = (sigData) => {
+            if (sigData && typeof sigData === 'object' && sigData.dataUrl) {
+                form.signature = sigData.dataUrl;
+                form.sigX = sigData.xPct;
+                form.sigY = sigData.yPct;
+                form.sigWidth = sigData.widthPct;
+                form.sigHeight = sigData.heightPct;
                 form.sigScale = 1;
                 form.sigRotate = 0;
                 
                 // Clear merged_photo to ensure the new signature is visible
                 form.merged_photo = null;
-                
                 isAdjustingSig.value = true;
-                // initMoveable will be called by @sig-ready event in template
+                isSigning.value = false; // Close signing mode
             } else {
-                isAdjustingSig.value = false;
-                if (moveableInstance) {
-                    moveableInstance.destroy();
-                    moveableInstance = null;
+                form.signature = sigData;
+                if (sigData) {
+                    form.sigX = 50;
+                    form.sigY = 50;
+                    form.sigScale = 1;
+                    form.sigRotate = 0;
+                    form.sigWidth = 100;
+                    form.sigHeight = 100;
+                    form.merged_photo = null;
+                    isAdjustingSig.value = true;
+                    isSigning.value = false; // Close signing mode
+                } else {
+                    isAdjustingSig.value = false;
+                    if (moveableInstance) {
+                        moveableInstance.destroy();
+                        moveableInstance = null;
+                    }
                 }
             }
         };
@@ -926,7 +995,7 @@ createApp({
                     }
                 }
             } catch (error) {
-                console.error('Failed to load players:', error);
+
             } finally {
                 isPlayersLoading.value = false;
             }
@@ -935,10 +1004,10 @@ createApp({
         // Load messages from API
         const loadMessages = async () => {
             if (!isLoggedIn.value) return;
-            console.log('Fetching messages...');
+
             try {
                 const response = await api.get('/messages');
-                console.log('Messages response:', response.data);
+
                 if (response.data.success) {
                     const data = response.data.data;
                     if (data) {
@@ -946,10 +1015,10 @@ createApp({
                     } else {
                         messages.value = [];
                     }
-                    console.log('Messages loaded:', messages.value.length);
+
                 }
             } catch (error) {
-                console.error('Failed to load messages:', error);
+
             }
         };
 
@@ -1048,7 +1117,7 @@ createApp({
         // Capture static card image
         const captureCardImage = async () => {
             if (typeof html2canvas === 'undefined') {
-                console.warn('html2canvas not loaded, waiting...');
+
                 for (let i = 0; i < 10; i++) {
                     await new Promise(r => setTimeout(r, 500));
                     if (typeof html2canvas !== 'undefined') break;
@@ -1121,7 +1190,7 @@ createApp({
 
                 return canvas.toDataURL('image/png');
             } catch (e) {
-                console.error('Capture failed:', e);
+
                 return null;
             } finally {
                 // 7. Restore original state
@@ -1148,12 +1217,6 @@ createApp({
             
             isLoading.value = true;
             try {
-                // Capture the card as a single PNG
-                const mergedImage = await captureCardImage();
-                if (mergedImage) {
-                    form.merged_photo = mergedImage;
-                }
-
                 const payload = {
                     name: form.name,
                     region: form.region,
@@ -1166,7 +1229,6 @@ createApp({
                     theme: form.theme,
                     photo: form.photo,
                     signature: form.signature,
-                    merged_photo: form.merged_photo,
                     photo_x: form.photoX,
                     photo_y: form.photoY,
                     photo_scale: form.photoScale,
@@ -1174,6 +1236,8 @@ createApp({
                     sig_y: form.sigY,
                     sig_scale: form.sigScale,
                     sig_rotate: form.sigRotate,
+                    sig_width: form.sigWidth,
+                    sig_height: form.sigHeight,
                 };
 
                 let response;
@@ -1195,7 +1259,7 @@ createApp({
                     navigateTo('mycards');
                 }
             } catch (error) {
-                console.error('Save failed:', error);
+
                 showToast('儲存失敗，請稍後再試', 'error');
             } finally {
                 isLoading.value = false;
@@ -1230,7 +1294,7 @@ createApp({
                     });
                 }
             } catch (error) {
-                console.error('Send message failed:', error);
+
                 // Fallback: show local confirmation
                 messages.value.unshift({ 
                     id: Date.now(), 
@@ -1266,7 +1330,7 @@ createApp({
                     msg.unread = false;
                 }
             } catch (error) {
-                console.error('Failed to mark message as read:', error);
+
             }
         };
 

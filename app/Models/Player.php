@@ -29,6 +29,8 @@ class Player extends Model
         'sig_y',
         'sig_scale',
         'sig_rotate',
+        'sig_width',
+        'sig_height',
         'is_active',
         'is_verified',
     ];
@@ -41,6 +43,8 @@ class Player extends Model
         'sig_y' => 'float',
         'sig_scale' => 'float',
         'sig_rotate' => 'float',
+        'sig_width' => 'float',
+        'sig_height' => 'float',
         'is_active' => 'boolean',
         'is_verified' => 'boolean',
     ];

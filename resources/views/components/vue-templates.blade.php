@@ -32,23 +32,20 @@
 
 {{-- Player Card Template --}}
 <script type="text/x-template" id="player-card-template">
-    <div v-if="p" ref="cardContainer" :class="['relative group cursor-pointer transition-all duration-500 hover:scale-[1.02] capture-target', size === 'sm' ? 'w-full aspect-[2.5/3.8]' : 'w-full max-w-[320px] aspect-[2.5/3.8]']">
+    <div v-if="p" ref="cardContainer" 
+        :class="['relative group cursor-pointer transition-all duration-500 hover:scale-[1.02] capture-target', size === 'sm' ? 'w-full aspect-[2.5/3.8]' : 'w-full max-w-[320px] aspect-[2.5/3.8]']"
+        style="container-type: inline-size;">
         <div :class="['absolute -inset-1 bg-gradient-to-br rounded-[24px] blur-[2px] group-hover:blur-[6px] transition-all duration-700', themeStyle.border]"></div>
         
-        {{-- Final Static Merged Image (Show if exists and NOT in adjustment mode) --}}
-        <div v-if="p.merged_photo && !isSigning && !isAdjustingSig" class="absolute inset-0 z-[100] rounded-2xl overflow-hidden shadow-2xl animate__animated animate__fadeIn merged-photo-layer">
-             <img :src="p.merged_photo" class="w-full h-full object-cover">
-        </div>
-
         <div :class="['relative h-full rounded-2xl overflow-hidden card-shadow flex flex-col border border-white/20', themeStyle.bg]">
             
             {{-- Logo Watermark --}}
-            <div class="absolute top-4 left-4 right-4 z-20 flex justify-end items-center">
-                <div class="flex items-center gap-2 transition-all duration-500 opacity-60">
-                    <div :class="['backdrop-blur-md p-1.5 rounded-xl border transition-all duration-500', themeStyle.logoBg, themeStyle.logoBorder]">
-                        <app-icon name="trophy" :class-name="['w-4 h-4 transition-all duration-500', themeStyle.logoIcon]"></app-icon>
+            <div class="absolute top-[5cqw] left-[5cqw] right-[5cqw] z-20 flex justify-end items-center">
+                <div class="flex items-center gap-[2cqw] transition-all duration-500 opacity-60">
+                    <div :class="['backdrop-blur-md p-[1.5cqw] rounded-[3cqw] border transition-all duration-500', themeStyle.logoBg, themeStyle.logoBorder]">
+                        <app-icon name="trophy" :class-name="['w-[4cqw] h-[4cqw] transition-all duration-500', themeStyle.logoIcon]"></app-icon>
                     </div>
-                    <span :class="['font-black text-sm tracking-tighter italic uppercase transition-all duration-500', themeStyle.logoText]">lovetennis</span>
+                    <span :class="['font-black tracking-tighter italic uppercase transition-all duration-500', themeStyle.logoText]" style="font-size: 4.5cqw;">lovetennis</span>
                 </div>
             </div>
 
@@ -58,15 +55,15 @@
                     :style="{ transform: `translate(${p.photoX || 0}%, ${p.photoY || 0}%) scale(${p.photoScale || 1})` }">
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-90 pointer-events-none"></div>
                 
-                <div class="absolute bottom-4 left-4 flex flex-col items-start gap-2">
-                    <div :class="['flex items-center gap-2 p-0.5 rounded-xl shadow-2xl transform -rotate-2', themeStyle.border]">
-                       <div class="bg-slate-900 px-3 py-1.5 rounded-[10px] flex items-center gap-2">
-                          <span class="text-[10px] font-bold text-white/60 uppercase tracking-widest leading-none">NTRP</span>
-                          <span class="text-2xl font-black text-white leading-none italic">@{{ p.level || '3.5' }}</span>
+                <div class="absolute bottom-[5cqw] left-[5cqw] flex flex-col items-start gap-[2cqw]">
+                    <div :class="['flex items-center gap-[2cqw] p-[0.5cqw] rounded-[3cqw] shadow-2xl transform -rotate-2', themeStyle.border]">
+                       <div class="bg-slate-900 px-[3cqw] py-[1.5cqw] rounded-[2cqw] flex items-center gap-[2cqw]">
+                          <span class="font-bold text-white/60 uppercase tracking-widest leading-none" style="font-size: 3cqw;">NTRP</span>
+                          <span class="font-black text-white leading-none italic" style="font-size: 8cqw;">@{{ p.level || '3.5' }}</span>
                        </div>
                     </div>
-                    <div class="bg-white/10 backdrop-blur-md px-3.5 py-2 rounded-lg border border-white/10 max-w-[200px]">
-                        <p class="text-[11px] font-bold text-white uppercase tracking-widest italic leading-tight">@{{ getLevelTag(p.level) }}</p>
+                    <div class="bg-white/10 backdrop-blur-md px-[3.5cqw] py-[2cqw] rounded-[2cqw] border border-white/10 max-w-[60cqw]">
+                        <p class="font-bold text-white uppercase tracking-widest italic leading-tight" style="font-size: 3.5cqw;">@{{ getLevelTag(p.level) }}</p>
                     </div>
                 </div>
             </div>
@@ -74,27 +71,26 @@
             <signature-pad :active="isSigning" @save="sig => $emit('update-signature', sig)" @close="$emit('close-signing')"></signature-pad>
             
             {{-- Bottom Info Section --}}
-            <div class="h-[22%] px-6 py-3 flex flex-col justify-center relative bg-gradient-to-b from-transparent to-black/30">
-                <h3 :class="['text-3xl sm:text-4xl font-black uppercase tracking-tighter italic leading-[0.9] whitespace-nowrap pb-1 bg-gradient-to-r bg-clip-text text-transparent text-left', themeStyle.border]">
+            <div class="h-[22%] px-[6cqw] py-[3cqw] flex flex-col justify-center relative bg-gradient-to-b from-transparent to-black/30">
+                <h3 :class="['font-black uppercase tracking-tighter italic leading-[0.9] whitespace-nowrap pb-[1cqw] bg-gradient-to-r bg-clip-text text-transparent text-left', themeStyle.border]" style="font-size: 11cqw;">
                     @{{ p.name || 'ANONYMOUS' }}
                 </h3>
-                <div class="flex items-center gap-2 text-white/70">
-                    <app-icon name="map-pin" class-name="w-4 h-4" :class="themeStyle.accent"></app-icon>
-                    <span class="text-[13px] font-bold uppercase tracking-wider italic">@{{ p.region || '全台' }}</span>
+                <div class="flex items-center gap-[2cqw] text-white/70">
+                    <app-icon name="map-pin" class-name="w-[4cqw] h-[4cqw]" :class="themeStyle.accent"></app-icon>
+                    <span class="font-bold uppercase tracking-wider italic" style="font-size: 4cqw;">@{{ p.region || '全台' }}</span>
                 </div>
             </div>
 
             {{-- Signature Display (Promoted Layer) --}}
-            <div v-if="p.signature && (isAdjustingSig || !p.merged_photo)" :class="['absolute inset-0 z-[70] group/sig signature-layer', isAdjustingSig ? 'pointer-events-auto' : 'pointer-events-none']">
+            <div v-if="p.signature" :class="['absolute inset-0 z-[70] group/sig signature-layer', isAdjustingSig ? 'pointer-events-auto' : 'pointer-events-none']">
                 <div class="relative w-full h-full">
                     <img :src="p.signature" 
                         id="target-signature"
                         draggable="false"
                         :class="['absolute origin-center', isAdjustingSig ? 'pointer-events-auto cursor-move' : 'pointer-events-none']"
                         :style="{ 
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'contain',
+                            width: `${p.sigWidth || 100}%`,
+                            height: 'auto',
                             left: `${p.sigX ?? 50}%`, 
                             top: `${p.sigY ?? 50}%`,
                             transform: `translate(-50%, -50%) scale(${p.sigScale || 1}) rotate(${p.sigRotate || 0}deg)` 
@@ -102,12 +98,12 @@
                         @load="$emit('sig-ready', $event.target)">
                     
                     {{-- Floating Controls --}}
-                    <div v-if="!isSigning && !p.merged_photo" class="absolute -top-12 left-1/2 -translate-x-1/2 flex gap-2 opacity-0 group-hover/sig:opacity-100 transition-opacity pointer-events-auto">
-                        <button type="button" @click.stop="$emit('update-signature', null)" class="p-2 bg-red-500 text-white rounded-full shadow-lg hover:scale-110 transition-all">
-                            <app-icon name="trash" class-name="w-4 h-4"></app-icon>
+                    <div v-if="!isSigning" class="absolute -top-[12cqw] left-1/2 -translate-x-1/2 flex gap-[2cqw] opacity-0 group-hover/sig:opacity-100 transition-opacity pointer-events-auto">
+                        <button type="button" @click.stop="$emit('update-signature', null)" class="p-[2cqw] bg-red-500 text-white rounded-full shadow-lg hover:scale-110 transition-all">
+                            <app-icon name="trash" class-name="w-[4cqw] h-[4cqw]"></app-icon>
                         </button>
-                        <button type="button" @click.stop="$emit('edit-signature')" class="p-2 bg-blue-600 text-white rounded-full shadow-lg hover:scale-110 transition-all">
-                            <app-icon name="edit-3" class-name="w-4 h-4"></app-icon>
+                        <button type="button" @click.stop="$emit('edit-signature')" class="p-[2cqw] bg-blue-600 text-white rounded-full shadow-lg hover:scale-110 transition-all">
+                            <app-icon name="edit-3" class-name="w-[4cqw] h-[4cqw]"></app-icon>
                         </button>
                     </div>
                 </div>

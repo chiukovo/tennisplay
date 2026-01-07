@@ -25,7 +25,7 @@
     </div>
 
     {{-- Cards List --}}
-    <div v-else-if="myCards.length > 0" class="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-6">
+    <div v-else-if="myCards.length > 0" class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <div v-for="card in myCards" :key="card.id" class="relative group">
             <div @click="showDetail(card)" class="cursor-pointer">
                 <player-card :player="card" size="sm"></player-card>

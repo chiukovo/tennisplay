@@ -68,7 +68,7 @@ class PlayerController extends Controller
         $data = $request->only([
             'name', 'region', 'level', 'gender', 'handed', 'backhand',
             'intro', 'fee', 'theme', 'photo_x', 'photo_y', 'photo_scale',
-            'sig_x', 'sig_y', 'sig_scale', 'sig_rotate'
+            'sig_x', 'sig_y', 'sig_scale', 'sig_rotate', 'sig_width', 'sig_height'
         ]);
 
         // Handle base64 photo
@@ -90,17 +90,17 @@ class PlayerController extends Controller
 
         $player = Player::create($data);
 
-        // Merge signature into photo if both exist
+        // Merging disabled as per user request to keep signatures dynamic
+        /*
         if ($player->photo && $player->signature) {
             $mergedPath = $this->mergeSignature($player);
             if ($mergedPath) {
                 $player->update([
                     'photo' => $mergedPath,
-                    // We keep the signature in DB so user can still edit/adjust it later
-                    // The frontend will handle not showing the layer if it's already in the photo
                 ]);
             }
         }
+        */
 
         return response()->json([
             'success' => true,
@@ -140,7 +140,7 @@ class PlayerController extends Controller
         $data = $request->only([
             'name', 'region', 'level', 'gender', 'handed', 'backhand',
             'intro', 'fee', 'theme', 'photo_x', 'photo_y', 'photo_scale',
-            'sig_x', 'sig_y', 'sig_scale', 'sig_rotate', 'is_active'
+            'sig_x', 'sig_y', 'sig_scale', 'sig_rotate', 'sig_width', 'sig_height', 'is_active'
         ]);
 
         // Handle base64 photo
@@ -162,7 +162,8 @@ class PlayerController extends Controller
 
         $player->update($data);
 
-        // Merge signature into photo if both exist (or if signature was updated)
+        // Merging disabled as per user request to keep signatures dynamic
+        /*
         if ($player->photo && $player->signature) {
             $mergedPath = $this->mergeSignature($player);
             if ($mergedPath) {
@@ -172,6 +173,7 @@ class PlayerController extends Controller
                 ]);
             }
         }
+        */
 
         return response()->json([
             'success' => true,

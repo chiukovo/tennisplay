@@ -163,7 +163,20 @@ const SignaturePad = {
         const startTouch = (e) => { e.preventDefault(); start(e); };
         const moveTouch = (e) => { e.preventDefault(); draw(e); };
         const clear = () => { if (ctx) ctx.clearRect(0, 0, canvas.value.width, canvas.value.height); };
-        const confirm = () => { if (canvas.value) { emit('save', canvas.value.toDataURL()); emit('close'); } };
+        const confirm = () => { 
+            if (canvas.value) { 
+                // Check if canvas is empty (optional but good practice)
+                const blank = document.createElement('canvas');
+                blank.width = canvas.value.width;
+                blank.height = canvas.value.height;
+                if (canvas.value.toDataURL() === blank.toDataURL()) {
+                    // It's empty, but we'll let it pass if they really want to clear it
+                    // Or we can show a toast. For now, let's just emit.
+                }
+                emit('save', canvas.value.toDataURL()); 
+                emit('close'); 
+            } 
+        };
         return { canvas, start, draw, stop, startTouch, moveTouch, clear, confirm };
     }
 };
@@ -730,6 +743,10 @@ createApp({
             dragInfo.startX = clientX;
             dragInfo.startY = clientY;
             
+            // Store rect for percentage calculation
+            const rect = e.currentTarget.getBoundingClientRect();
+            dragInfo.rect = rect;
+
             if (target === 'photo') {
                 dragInfo.initialX = form.photoX;
                 dragInfo.initialY = form.photoY;
@@ -745,18 +762,20 @@ createApp({
         };
 
         const handleDrag = (e) => {
-            if (!dragInfo.active) return;
+            if (!dragInfo.active || !dragInfo.rect) return;
             const clientX = e.clientX || (e.touches && e.touches[0].clientX);
             const clientY = e.clientY || (e.touches && e.touches[0].clientY);
             const dx = clientX - dragInfo.startX;
             const dy = clientY - dragInfo.startY;
 
+            const { width, height } = dragInfo.rect;
+
             if (dragInfo.target === 'photo') {
-                form.photoX = dragInfo.initialX + dx;
-                form.photoY = dragInfo.initialY + dy;
+                form.photoX = dragInfo.initialX + (dx / width) * 100;
+                form.photoY = dragInfo.initialY + (dy / height) * 100;
             } else if (dragInfo.target === 'sig') {
-                form.sigX = dragInfo.initialX + dx;
-                form.sigY = dragInfo.initialY + dy;
+                form.sigX = dragInfo.initialX + (dx / width) * 100;
+                form.sigY = dragInfo.initialY + (dy / height) * 100;
             }
         };
 
@@ -770,7 +789,15 @@ createApp({
 
         // Moveable Integration
         let moveableInstance = null;
-        const initMoveable = (target) => {
+        const initMoveable = (target, retryCount = 0) => {
+            if (typeof Moveable === 'undefined') {
+                if (retryCount < 10) {
+                    setTimeout(() => initMoveable(target, retryCount + 1), 200);
+                } else {
+                    console.error('Moveable library not loaded yet.');
+                }
+                return;
+            }
             if (moveableInstance) moveableInstance.destroy();
             if (!target || !isAdjustingSig.value) return;
 
@@ -812,7 +839,9 @@ createApp({
         watch(isAdjustingSig, (val) => {
             if (val) {
                 nextTick(() => {
-                    const target = document.getElementById('target-signature');
+                    // Try to find the target in the current view
+                    const target = document.querySelector('.capture-target #target-signature') || 
+                                 document.getElementById('target-signature');
                     if (target) initMoveable(target);
                 });
             } else {
@@ -835,6 +864,17 @@ createApp({
             if (val) isAdjustingSig.value = false;
         });
 
+        // Watch for view changes to refresh data
+        watch(view, (newView) => {
+            if (newView === 'home' || newView === 'list') {
+                loadPlayers();
+            } else if (newView === 'messages') {
+                loadMessages();
+            } else if (newView === 'mycards') {
+                loadMyCards();
+            }
+        });
+
         const toggleAdjustSig = () => {
             isAdjustingSig.value = !isAdjustingSig.value;
         };
@@ -842,6 +882,15 @@ createApp({
         const handleSignatureUpdate = (sig) => {
             form.signature = sig;
             if (sig) {
+                // Reset position to center when a new signature is provided
+                form.sigX = 50;
+                form.sigY = 50;
+                form.sigScale = 1;
+                form.sigRotate = 0;
+                
+                // Clear merged_photo to ensure the new signature is visible
+                form.merged_photo = null;
+                
                 isAdjustingSig.value = true;
                 // initMoveable will be called by @sig-ready event in template
             } else {
@@ -933,7 +982,7 @@ createApp({
                     localStorage.setItem('auth_token', response.data.token);
                     localStorage.setItem('auth_user', JSON.stringify(response.data.user));
                     isLoggedIn.value = true;
-                    showToast('註冊成功！歡迎加入 AceMate', 'success');
+                    showToast('註冊成功！歡迎加入 lovetennis', 'success');
                     navigateTo('home');
                     loadMessages();
                 }
@@ -998,77 +1047,88 @@ createApp({
 
         // Capture static card image
         const captureCardImage = async () => {
-             const cardEl = document.querySelector('.capture-target') || document.querySelector('[ref="cardContainer"]');
-             if (!cardEl) return null;
-             
-             // 0. Ensure we're not in adjustment mode
-             if (typeof isAdjustingSig !== 'undefined') isAdjustingSig.value = false;
+            if (typeof html2canvas === 'undefined') {
+                console.warn('html2canvas not loaded, waiting...');
+                for (let i = 0; i < 10; i++) {
+                    await new Promise(r => setTimeout(r, 500));
+                    if (typeof html2canvas !== 'undefined') break;
+                }
+                if (typeof html2canvas === 'undefined') {
+                    showToast('截圖組件載入失敗，請重新整理頁面', 'error');
+                    return null;
+                }
+            }
+            const cardEl = document.querySelector('.capture-target') || document.querySelector('[ref="cardContainer"]');
+            if (!cardEl) return null;
+            
+            // 0. Ensure we're not in adjustment mode
+            if (typeof isAdjustingSig !== 'undefined') isAdjustingSig.value = false;
 
-             // 1. Store original styles and identify layers
-             const originalStyle = cardEl.getAttribute('style') || '';
-             const originalClassName = cardEl.className;
-             const mergedLayer = cardEl.querySelector('.merged-photo-layer');
-             const originalMergedDisplay = mergedLayer ? mergedLayer.style.display : '';
-             
-             try {
-                 // 2. Ensure all images are loaded
-                 const images = cardEl.querySelectorAll('img');
-                 await Promise.all(Array.from(images).map(img => {
-                     if (img.complete) return Promise.resolve();
-                     return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
-                 }));
+            // 1. Store original styles and identify layers
+            const originalStyle = cardEl.getAttribute('style') || '';
+            const originalClassName = cardEl.className;
+            const mergedLayer = cardEl.querySelector('.merged-photo-layer');
+            const originalMergedDisplay = mergedLayer ? mergedLayer.style.display : '';
+            
+            try {
+                // 2. Ensure all images are loaded
+                const images = cardEl.querySelectorAll('img');
+                await Promise.all(Array.from(images).map(img => {
+                    if (img.complete) return Promise.resolve();
+                    return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
+                }));
 
-                 // 3. Hide merged layer to capture raw content
-                 if (mergedLayer) mergedLayer.style.display = 'none';
+                // 3. Hide merged layer to capture raw content
+                if (mergedLayer) mergedLayer.style.display = 'none';
 
-                 // 4. Force static size and disable animations for capture
-                 const targetWidth = 320;
-                 const targetHeight = (targetWidth / 2.5) * 3.8;
-                 
-                 cardEl.style.width = `${targetWidth}px`;
-                 cardEl.style.height = `${targetHeight}px`;
-                 cardEl.style.maxWidth = 'none';
-                 cardEl.style.transform = 'none';
-                 cardEl.style.transition = 'none';
-                 cardEl.style.position = 'fixed';
-                 cardEl.style.top = '0';
-                 cardEl.style.left = '0';
-                 cardEl.style.zIndex = '9999';
-                 cardEl.style.pointerEvents = 'none';
+                // 4. Force static size and disable animations for capture
+                const targetWidth = 320;
+                const targetHeight = (targetWidth / 2.5) * 3.8;
+                
+                cardEl.style.width = `${targetWidth}px`;
+                cardEl.style.height = `${targetHeight}px`;
+                cardEl.style.maxWidth = 'none';
+                cardEl.style.transform = 'none';
+                cardEl.style.transition = 'none';
+                cardEl.style.position = 'fixed';
+                cardEl.style.top = '0';
+                cardEl.style.left = '0';
+                cardEl.style.zIndex = '9999';
+                cardEl.style.pointerEvents = 'none';
 
-                 // 5. Wait for layout settling
-                 await new Promise(resolve => setTimeout(resolve, 100));
+                // 5. Wait for layout settling
+                await new Promise(resolve => setTimeout(resolve, 100));
 
-                 // 6. Perform capture
-                 const canvas = await html2canvas(cardEl, {
-                     useCORS: true,
-                     allowTaint: true,
-                     backgroundColor: null,
-                     scale: 2,
-                     width: targetWidth,
-                     height: targetHeight,
-                     logging: false,
-                     onclone: (clonedDoc) => {
-                         const clonedCard = clonedDoc.querySelector('.capture-target');
-                         if (clonedCard) {
-                             clonedCard.style.transform = 'none';
-                             clonedCard.style.transition = 'none';
-                             const clonedMerged = clonedCard.querySelector('.merged-photo-layer');
-                             if (clonedMerged) clonedMerged.style.display = 'none';
-                         }
-                     }
-                 });
+                // 6. Perform capture
+                const canvas = await html2canvas(cardEl, {
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: null,
+                    scale: 2,
+                    width: targetWidth,
+                    height: targetHeight,
+                    logging: false,
+                    onclone: (clonedDoc) => {
+                        const clonedCard = clonedDoc.querySelector('.capture-target');
+                        if (clonedCard) {
+                            clonedCard.style.transform = 'none';
+                            clonedCard.style.transition = 'none';
+                            const clonedMerged = clonedCard.querySelector('.merged-photo-layer');
+                            if (clonedMerged) clonedMerged.style.display = 'none';
+                        }
+                    }
+                });
 
-                 return canvas.toDataURL('image/png');
-             } catch (e) {
-                 console.error('Capture failed:', e);
-                 return null;
-             } finally {
-                 // 7. Restore original state
-                 cardEl.setAttribute('style', originalStyle);
-                 cardEl.className = originalClassName;
-                 if (mergedLayer) mergedLayer.style.display = originalMergedDisplay;
-             }
+                return canvas.toDataURL('image/png');
+            } catch (e) {
+                console.error('Capture failed:', e);
+                return null;
+            } finally {
+                // 7. Restore original state
+                cardEl.setAttribute('style', originalStyle);
+                cardEl.className = originalClassName;
+                if (mergedLayer) mergedLayer.style.display = originalMergedDisplay;
+            }
         };
 
         // Save card to API

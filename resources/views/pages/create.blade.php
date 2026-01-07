@@ -50,7 +50,7 @@
                                         @mousedown="startDrag($event, 'photo')" @touchstart="startDrag($event, 'photo')">
                                         <img :src="form.photo" 
                                             class="absolute inset-0 w-full h-full object-contain pointer-events-none"
-                                            :style="{ transform: `translate3d(${form.photoX}px, ${form.photoY}px, 0) scale(${form.photoScale})` }">
+                                            :style="{ transform: `translate(${form.photoX}%, ${form.photoY}%) scale(${form.photoScale})` }">
                                         <div class="absolute inset-0 border-2 border-blue-500/50 pointer-events-none"></div>
                                         <div class="absolute bottom-3 left-0 right-0 text-center">
                                             <span class="bg-blue-600 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg">拖動調整位置</span>
@@ -69,7 +69,7 @@
                                 <div v-else class="flex flex-col items-center gap-4">
                                     <div class="relative group">
                                         <div class="w-40 h-52 rounded-[28px] overflow-hidden border-4 border-white shadow-2xl bg-slate-100">
-                                            <img :src="form.photo" class="w-full h-full object-contain" :style="{ transform: `translate3d(${form.photoX/2}px, ${form.photoY/2}px, 0) scale(${form.photoScale})` }">
+                                            <img :src="form.photo" class="w-full h-full object-contain" :style="{ transform: `translate(${form.photoX}%, ${form.photoY}%) scale(${form.photoScale})` }">
                                         </div>
                                         <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
                                             <button type="button" @click="isAdjustingPhoto = true" class="bg-slate-900 text-white px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl whitespace-nowrap">調整版面</button>

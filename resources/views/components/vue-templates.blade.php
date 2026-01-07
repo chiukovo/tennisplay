@@ -48,14 +48,14 @@
                     <div :class="['backdrop-blur-md p-1.5 rounded-xl border transition-all duration-500', themeStyle.logoBg, themeStyle.logoBorder]">
                         <app-icon name="trophy" :class-name="['w-4 h-4 transition-all duration-500', themeStyle.logoIcon]"></app-icon>
                     </div>
-                    <span :class="['font-black text-sm tracking-tighter italic uppercase transition-all duration-500', themeStyle.logoText]">AceMate</span>
+                    <span :class="['font-black text-sm tracking-tighter italic uppercase transition-all duration-500', themeStyle.logoText]">lovetennis</span>
                 </div>
             </div>
 
             <div class="h-[78%] relative overflow-hidden bg-slate-800 z-10">
                 <img :src="p.photo || 'https://images.unsplash.com/photo-1614743758466-e569f4791116?q=80&w=650&auto=format&fit=crop'" 
                     :class="['w-full h-full object-contain group-hover:scale-105 transition-transform duration-1000', isAdjustingSig ? 'pointer-events-none select-none' : '']"
-                    :style="{ transform: `translate3d(${p.photoX || 0}px, ${p.photoY || 0}px, 0) scale(${p.photoScale || 1})` }">
+                    :style="{ transform: `translate(${p.photoX || 0}%, ${p.photoY || 0}%) scale(${p.photoScale || 1})` }">
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-90 pointer-events-none"></div>
                 
                 <div class="absolute bottom-4 left-4 flex flex-col items-start gap-2">
@@ -75,7 +75,7 @@
             
             {{-- Bottom Info Section --}}
             <div class="h-[22%] px-6 py-3 flex flex-col justify-center relative bg-gradient-to-b from-transparent to-black/30">
-                <h3 :class="['text-3xl sm:text-4xl font-black uppercase tracking-tighter italic leading-[0.9] whitespace-nowrap pb-1 bg-gradient-to-r bg-clip-text text-transparent drop-shadow-2xl', themeStyle.border]">
+                <h3 :class="['text-3xl sm:text-4xl font-black uppercase tracking-tighter italic leading-[0.9] whitespace-nowrap pb-1 bg-gradient-to-r bg-clip-text text-transparent text-left', themeStyle.border]">
                     @{{ p.name || 'ANONYMOUS' }}
                 </h3>
                 <div class="flex items-center gap-2 text-white/70">
@@ -85,7 +85,7 @@
             </div>
 
             {{-- Signature Display (Promoted Layer) --}}
-            <div v-if="p.signature && (isAdjustingSig || !p.merged_photo)" :class="['absolute inset-0 z-[70] group/sig', isAdjustingSig ? 'pointer-events-auto' : 'pointer-events-none']">
+            <div v-if="p.signature && (isAdjustingSig || !p.merged_photo)" :class="['absolute inset-0 z-[70] group/sig signature-layer', isAdjustingSig ? 'pointer-events-auto' : 'pointer-events-none']">
                 <div class="relative w-full h-full">
                     <img :src="p.signature" 
                         id="target-signature"
@@ -97,7 +97,7 @@
                             objectFit: 'contain',
                             left: `${p.sigX ?? 50}%`, 
                             top: `${p.sigY ?? 50}%`,
-                            transform: `translate3d(-50%, -50%, 0) scale(${p.sigScale || 1}) rotate(${p.sigRotate || 0}deg)` 
+                            transform: `translate(-50%, -50%) scale(${p.sigScale || 1}) rotate(${p.sigRotate || 0}deg)` 
                         }"
                         @load="$emit('sig-ready', $event.target)">
                     

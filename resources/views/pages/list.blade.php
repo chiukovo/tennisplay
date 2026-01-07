@@ -5,7 +5,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <h2 class="text-3xl sm:text-5xl font-black italic uppercase tracking-tighter leading-tight">球友大廳</h2>
-                <p class="text-slate-400 font-bold text-xs sm:text-base uppercase tracking-[0.2em] mt-1">Find your matching AceMate</p>
+                <p class="text-slate-400 font-bold text-xs sm:text-base uppercase tracking-[0.2em] mt-1">Find your matching lovetennis</p>
             </div>
             <div class="text-right">
                 <div class="text-2xl font-black text-blue-600">@{{ filteredPlayers.length }}</div>

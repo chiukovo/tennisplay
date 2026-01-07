@@ -6,8 +6,8 @@
                 <app-icon name="trophy" class-name="text-white w-5 h-5 sm:w-6 h-6"></app-icon>
             </div>
             <div class="flex flex-col leading-none">
-                <span class="font-black text-lg sm:text-2xl tracking-tighter italic uppercase text-slate-900">Ace<span class="text-blue-600">Mate</span></span>
-                <span class="text-[8px] sm:text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase">愛思拍檔</span>
+                <span class="font-black text-lg sm:text-2xl tracking-tighter italic uppercase text-slate-900">LOVE<span class="text-blue-600">TENNIS</span></span>
+                <span class="text-[8px] sm:text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase">94i網球</span>
             </div>
         </div>
         

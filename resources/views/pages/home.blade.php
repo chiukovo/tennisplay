@@ -14,7 +14,7 @@
                     <app-icon name="shield-check" class-name="w-5 h-5 text-blue-400"></app-icon> 全台網球媒合新標竿
                 </div>
                 <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black italic uppercase tracking-tighter leading-[0.9]">
-                    找球友，<br><span class="text-blue-600">就上 AceMate</span>
+                    找球友，<br><span class="text-blue-600">就上 lovetennis</span>
                 </h1>
                 <p class="text-slate-400 max-w-xl mx-auto lg:mx-0 text-lg sm:text-xl font-medium leading-relaxed">
                     全台最專業的網球約打平台。透過精美球友卡展示您的實力，在社群大廳獲得曝光，開啟您的專業社交。
@@ -43,7 +43,7 @@
                         <app-icon name="trophy" class-name="w-6 h-6"></app-icon>
                     </div>
                     <div class="absolute top-1/2 -right-12 z-0 hidden sm:block opacity-20 transform rotate-90 scale-150">
-                        <span class="text-6xl font-black tracking-tighter italic uppercase text-white">AceMate</span>
+                        <span class="text-6xl font-black tracking-tighter italic uppercase text-white">lovetennis</span>
                     </div>
                 </div>
             </div>
@@ -149,7 +149,7 @@
         </div>
         <div class="relative z-10">
             <div class="text-center mb-12">
-                <h2 class="text-3xl sm:text-4xl font-black italic uppercase tracking-tighter">為什麼選擇 AceMate？</h2>
+                <h2 class="text-3xl sm:text-4xl font-black italic uppercase tracking-tighter">為什麼選擇 lovetennis？</h2>
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-8 text-center">
                 <div class="space-y-2">
@@ -181,7 +181,7 @@
                     專業網球社交<br><span class="text-blue-600">從這裡開始</span>
                 </h2>
                 <p class="text-slate-500 text-lg font-medium leading-relaxed">
-                    AceMate 不僅僅是一個約球網站，我們致力於建立一個高品質、誠信且專業的網球社群。透過數位球友卡，您可以更直觀地展示實力，並找到志同道合的夥伴。
+                    lovetennis 不僅僅是一個約球網站，我們致力於建立一個高品質、誠信且專業的網球社群。透過數位球友卡，您可以更直觀地展示實力，並找到志同道合的夥伴。
                 </p>
                 <div class="space-y-6">
                     <div class="flex items-start gap-4">
@@ -234,7 +234,7 @@
                 準備好了嗎？
             </h2>
             <p class="text-slate-400 text-lg font-medium">
-                立即加入 AceMate，建立您的專業球友卡，開始您的網球社交之旅！
+                立即加入 lovetennis，建立您的專業球友卡，開始您的網球社交之旅！
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="/create" @click.prevent="navigateTo('create')" class="bg-blue-600 text-white px-10 py-5 rounded-3xl font-black text-lg hover:scale-105 transition-all shadow-2xl shadow-blue-500/40">

@@ -6,7 +6,7 @@
                 <app-icon name="user" class-name="text-blue-600 w-10 h-10"></app-icon>
             </div>
             <h2 class="text-3xl font-black italic uppercase tracking-tighter leading-tight">
-                @{{ isLoginMode ? '歡迎回來' : '建立 AceMate 帳號' }}
+                @{{ isLoginMode ? '歡迎回來' : '建立 lovetennis 帳號' }}
             </h2>
             <p class="text-slate-500 text-base font-medium mt-2">啟動您的專業網球社交生活</p>
         </div>

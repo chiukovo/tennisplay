@@ -1,5 +1,12 @@
 {{-- Events List View --}}
 <div v-if="view === 'events'" class="space-y-8 pb-24">
+    {{-- SEO Content for Crawlers (SSR) --}}
+    <div class="sr-only" aria-hidden="true">
+        @foreach($initialEvents ?? [] as $e)
+            <h3>{{ $e->title }} - {{ $e->event_date }} ({{ $e->location }})</h3>
+            <p>{{ $e->notes }}</p>
+        @endforeach
+    </div>
     {{-- Hero --}}
     <div class="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-blue-700 via-indigo-600 to-blue-600 text-white p-6 sm:p-10 shadow-2xl">
         <div class="absolute inset-0 pointer-events-none">
@@ -132,8 +139,10 @@
                         <app-icon name="map-pin" class-name="w-5 h-5"></app-icon>
                     </div>
                     <div class="min-w-0">
-                        <div class="text-[13px] font-black text-slate-800 truncate">@{{ event.location }}</div>
-                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">球場地點</div>
+                        <div class="text-[13px] font-black text-slate-800 truncate">
+                            @{{ event.region ? event.region + ' · ' : '' }}@{{ event.location }}
+                        </div>
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">區域地點</div>
                     </div>
                 </div>
             </div>

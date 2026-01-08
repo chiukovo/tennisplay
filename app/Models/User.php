@@ -22,6 +22,16 @@ class User extends Authenticatable
         'name',
         'line_user_id',
         'line_picture_url',
+        'settings',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'settings' => 'array',
     ];
 
     /**
@@ -39,6 +49,14 @@ class User extends Authenticatable
     public function players()
     {
         return $this->hasMany(Player::class);
+    }
+
+    /**
+     * Get the primary player card.
+     */
+    public function player()
+    {
+        return $this->hasOne(Player::class)->latest();
     }
 
     /**

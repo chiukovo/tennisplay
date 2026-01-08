@@ -12,6 +12,7 @@ class Event extends Model
     protected $fillable = [
         'user_id',
         'player_id',
+        'region',
         'title',
         'event_date',
         'end_date',
@@ -111,15 +112,11 @@ class Event extends Model
     }
 
     /**
-     * Scope for filtering by region (from location).
+     * Get the comments for this event.
      */
-    public function scopeInRegion($query, $region)
+    public function comments()
     {
-        if ($region && $region !== '全部') {
-            return $query->where('location', 'like', "%{$region}%")
-                         ->orWhere('address', 'like', "%{$region}%");
-        }
-        return $query;
+        return $this->hasMany(EventComment::class);
     }
 
     /**
@@ -128,6 +125,21 @@ class Event extends Model
     public function hasParticipant($userId)
     {
         return $this->confirmedParticipants()->where('user_id', $userId)->exists();
+    }
+
+    /**
+     * Scope for filtering by region.
+     */
+    public function scopeInRegion($query, $region)
+    {
+        if ($region && $region !== '全部') {
+            return $query->where(function($q) use ($region) {
+                $q->where('region', $region)
+                  ->orWhere('location', 'like', "%{$region}%")
+                  ->orWhere('address', 'like', "%{$region}%");
+            });
+        }
+        return $query;
     }
 
     /**

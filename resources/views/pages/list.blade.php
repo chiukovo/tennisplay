@@ -1,5 +1,12 @@
 {{-- List View --}}
 <div v-if="view === 'list'" class="space-y-6 pb-24">
+    {{-- SEO Content for Crawlers (SSR) --}}
+    <div class="sr-only" aria-hidden="true">
+        @foreach($initialPlayers ?? [] as $p)
+            <h3>{{ $p->name }} - {{ $p->level }} ({{ $p->region }})</h3>
+            <p>{{ $p->intro }}</p>
+        @endforeach
+    </div>
     {{-- Header --}}
     <div class="flex flex-col gap-4">
         <div class="flex items-center justify-between">

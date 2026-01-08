@@ -585,10 +585,10 @@ const QuickEditModal = {
 };
 
 const EventDetailModal = {
-    props: ['open', 'event', 'likes', 'comments', 'commentDraft'],
+    props: ['open', 'event', 'likes', 'comments', 'commentDraft', 'currentUser'],
     components: { AppIcon },
     template: '#event-detail-modal-template',
-    emits: ['update:open', 'like', 'join', 'comment', 'leave', 'update:commentDraft']
+    emits: ['update:open', 'like', 'join', 'comment', 'leave', 'update:comment-draft', 'delete-comment']
 };
 
 // --- Main App ---
@@ -608,14 +608,34 @@ createApp({
         };
         const routePaths = Object.fromEntries(Object.entries(routes).map(([k, v]) => [v, k]));
         
+        // SEO Titles for client-side navigation
+        const viewTitles = {
+            'home': 'LoveTennis | 全台最專業的網球約打媒合與球友卡社群',
+            'list': '球友大廳 | 發現您的最佳網球夥伴',
+            'create': '建立球友卡 | 展現您的網球風格',
+            'messages': '我的訊息 | 網球約打邀請管理',
+            'events': '揪球開團 | 搜尋全台網球場次',
+            'create-event': '發佈揪球 | 建立新的網球場次',
+            'auth': '登入/註冊 | 加入 LoveTennis 社群',
+            'mycards': '我的球友卡 | 管理個人檔案',
+            'settings': '帳號設置 | 個性化您的網球體驗'
+        };
+
         const view = ref('home');
+
+        // Update document title when view changes
+        watch(view, (newView) => {
+            if (viewTitles[newView]) {
+                document.title = viewTitles[newView];
+            }
+        });
         const isLoggedIn = ref(false);
         const currentUser = ref(null);
         const isLoginMode = ref(true);
         const showUserMenu = ref(false);
         const messageTab = ref('inbox');
         const regions = REGIONS; const levels = LEVELS;
-        const players = ref(INITIAL_PLAYERS);
+        const players = ref(window.__INITIAL_STATE__?.players || INITIAL_PLAYERS);
         const messages = ref([]);
         const isPlayersLoading = ref(false);
         const isPlayersError = ref(false);
@@ -634,15 +654,19 @@ createApp({
         const defaultEventTimes = getDefaultEventTimes();
         
         // Events State
-        const events = ref([]);
+        const events = ref(window.__INITIAL_STATE__?.events || []);
         const eventsLoading = ref(false);
         const eventFilter = ref('all');
         const eventRegionFilter = ref('all');
         const eventSearchQuery = ref('');
         const eventSubmitting = ref(false);
+        const isSavingSettings = ref(false);
+        const settingsForm = reactive({
+            default_region: '全部'
+        });
         const eventForm = reactive({
             title: '',
-            region: '',
+            region: (settingsForm.default_region && settingsForm.default_region !== '全部') ? settingsForm.default_region : '',
             event_date: defaultEventTimes.start,
             end_date: defaultEventTimes.end,
             location: '',
@@ -672,7 +696,11 @@ createApp({
 
             // Filter by region
             if (eventRegionFilter.value !== 'all') {
-                result = result.filter(e => e.location && e.location.includes(eventRegionFilter.value));
+                result = result.filter(e => 
+                    (e.region === eventRegionFilter.value) || 
+                    (e.location && e.location.includes(eventRegionFilter.value)) ||
+                    (e.address && e.address.includes(eventRegionFilter.value))
+                );
             }
 
             // Filter by search query
@@ -766,10 +794,14 @@ createApp({
         // Reset form to default values
         const resetForm = () => {
             const user = currentUser.value;
+            const defRegion = (settingsForm.default_region && settingsForm.default_region !== '全部') 
+                ? settingsForm.default_region 
+                : '台北市';
+
             Object.assign(form, {
                 id: null,
                 name: user?.name || '', 
-                region: '台北市', level: '3.5', handed: '右手', backhand: '雙反', gender: '男',
+                region: defRegion, level: '3.5', handed: '右手', backhand: '雙反', gender: '男',
                 intro: '', fee: '免費 (交流為主)', 
                 photo: null, // User requested NOT to pre-fill photo
                 signature: null, theme: 'standard',
@@ -882,21 +914,7 @@ createApp({
                 showToast(response.data.message || '活動建立成功！', 'success');
                 
                 // Reset form
-                const nextDefaults = getDefaultEventTimes();
-                Object.assign(eventForm, {
-                    title: '',
-                    event_date: nextDefaults.start,
-                    end_date: nextDefaults.end,
-                    location: '',
-                    address: '',
-                    fee: 0,
-                    max_participants: 0,
-                    match_type: 'all',
-                    gender: 'all',
-                    level_min: '',
-                    level_max: '',
-                    notes: ''
-                });
+                resetEventForm();
                 
                 // Reload events and navigate
                 await loadEvents();
@@ -907,6 +925,29 @@ createApp({
             } finally {
                 eventSubmitting.value = false;
             }
+        };
+
+        const resetEventForm = () => {
+            const nextDefaults = getDefaultEventTimes();
+            const defRegion = (settingsForm.default_region && settingsForm.default_region !== '全部') 
+                ? settingsForm.default_region 
+                : '';
+            
+            Object.assign(eventForm, {
+                title: '',
+                region: defRegion,
+                event_date: nextDefaults.start,
+                end_date: nextDefaults.end,
+                location: '',
+                address: '',
+                fee: 0,
+                max_participants: 0,
+                match_type: 'all',
+                gender: 'all',
+                level_min: '',
+                level_max: '',
+                notes: ''
+            });
         };
         
         const joinEvent = async (eventId) => {
@@ -951,10 +992,14 @@ createApp({
 
         const loadEventDetail = async (eventId) => {
             try {
-                const response = await api.get(`/events/${eventId}`);
-                // Ensure data structure for modal
-                const eventData = response.data;
-                if (!eventComments[eventId]) eventComments[eventId] = [];
+                // Fetch event and comments in parallel
+                const [eventRes, commentsRes] = await Promise.all([
+                    api.get(`/events/${eventId}`),
+                    api.get(`/events/${eventId}/comments`)
+                ]);
+                
+                const eventData = eventRes.data;
+                eventComments[eventId] = commentsRes.data || [];
                 activeEvent.value = { ...eventData, loading: false };
             } catch (error) {
                 console.error('Load event error:', error);
@@ -973,17 +1018,120 @@ createApp({
             eventLikes[eventId] = !eventLikes[eventId];
         };
 
-        const submitEventComment = (eventId) => {
+        const initSettings = () => {
+            if (currentUser.value && currentUser.value.settings) {
+                const s = currentUser.value.settings;
+                settingsForm.default_region = s.default_region || '全部';
+                // Trigger filter application when settings are loaded
+                applyDefaultFilters(view.value);
+                if (view.value === 'create-event') {
+                    resetEventForm();
+                }
+            }
+        };
+
+        // Watch for settings changes to re-apply filters
+        watch(() => settingsForm.default_region, (newVal) => {
+            if (newVal && newVal !== '全部') {
+                applyDefaultFilters(view.value);
+                if (view.value === 'create-event') {
+                    resetEventForm();
+                }
+            }
+        });
+
+        const applyDefaultFilters = (viewName) => {
+            const defRegion = settingsForm.default_region;
+            if (!defRegion || defRegion === '全部') return;
+
+            if (viewName === 'list') {
+                if (selectedRegion.value === '全部') {
+                    selectedRegion.value = defRegion;
+                }
+            } else if (viewName === 'events') {
+                if (eventRegionFilter.value === 'all') {
+                    eventRegionFilter.value = defRegion;
+                }
+            }
+        };
+
+        const saveSettings = async () => {
+            if (isSavingSettings.value) return;
+            isSavingSettings.value = true;
+            try {
+                const response = await api.put('/user/settings', {
+                    settings: {
+                        default_region: settingsForm.default_region
+                    }
+                });
+
+                if (response.data.success) {
+                    currentUser.value = response.data.data;
+                    localStorage.setItem('auth_user', JSON.stringify(currentUser.value));
+                    showToast('設置已儲存', 'success');
+                }
+            } catch (error) {
+                console.error('Save settings error:', error);
+                showToast('儲存失敗', 'error');
+            } finally {
+                isSavingSettings.value = false;
+            }
+        };
+
+        const submitEventComment = async (idFromEmit) => {
+            if (!isLoggedIn.value) {
+                showToast('請先登入後再留言', 'error');
+                navigateTo('auth');
+                return;
+            }
+
+            const eventId = idFromEmit || activeEvent.value?.id;
+            if (!eventId) {
+                showToast('找不到活動 ID', 'error');
+                return;
+            }
+
             const text = eventCommentDraft.value?.trim();
-            if (!text) return;
-            if (!eventComments[eventId]) eventComments[eventId] = [];
-            eventComments[eventId].unshift({
-                id: Date.now(),
-                user: currentUser.value || { name: '匿名' },
-                text,
-                at: new Date().toISOString()
+            if (!text) {
+                showToast('請輸入留言內容', 'warning');
+                return;
+            }
+            
+            try {
+                const response = await api.post(`/events/${eventId}/comments`, {
+                    content: text
+                });
+                
+                if (!eventComments[eventId]) eventComments[eventId] = [];
+                eventComments[eventId].unshift(response.data.comment);
+                eventCommentDraft.value = '';
+                showToast('留言成功', 'success');
+            } catch (error) {
+                console.error('Submit comment error:', error);
+                const msg = error.response?.data?.message || '發送失敗，請稍後再試';
+                showToast(msg, 'error');
+            }
+        };
+
+        const deleteEventComment = async (commentId, eventId) => {
+            showConfirm({
+                title: '刪除留言',
+                message: '確定要刪除這條留言嗎？此操作無法復原。',
+                type: 'danger',
+                confirmText: '確定刪除',
+                onConfirm: async () => {
+                    try {
+                        await api.delete(`/events/comments/${commentId}`);
+                        if (eventComments[eventId]) {
+                            eventComments[eventId] = eventComments[eventId].filter(c => c.id !== commentId);
+                        }
+                        showToast('留言已刪除', 'success');
+                    } catch (error) {
+                        console.error('Delete comment error:', error);
+                        showToast('刪除失敗，請稍後再試', 'error');
+                    }
+                }
             });
-            eventCommentDraft.value = '';
         };
         
         const formatEventDate = (dateStr) => {
@@ -1037,9 +1185,15 @@ createApp({
             if (viewName === 'create' && shouldReset) {
                 resetForm();
             }
+            if (viewName === 'create-event' && shouldReset) {
+                resetEventForm();
+            }
             view.value = viewName;
             const path = routePaths[viewName] || '/';
             window.history.pushState({ view: viewName }, '', path);
+            
+            applyDefaultFilters(viewName);
+
             // Scroll to top smoothly
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
@@ -1064,6 +1218,9 @@ createApp({
 
             if (viewName === 'create') {
                 resetForm();
+            }
+            if (viewName === 'create-event') {
+                resetEventForm();
             }
 
             return viewName;
@@ -1385,16 +1542,7 @@ createApp({
             if (val) isAdjustingSig.value = false;
         });
 
-        // Watch for view changes to refresh data
-        watch(view, (newView) => {
-            if (newView === 'home' || newView === 'list') {
-                loadPlayers();
-            } else if (newView === 'messages') {
-                loadMessages();
-            } else if (newView === 'mycards') {
-                loadMyCards();
-            }
-        });
+
 
         const toggleAdjustSig = () => {
             isAdjustingSig.value = !isAdjustingSig.value;
@@ -1501,6 +1649,7 @@ createApp({
                     localStorage.setItem('auth_user', lineUser);
                     isLoggedIn.value = true;
                     currentUser.value = userData;
+                    initSettings();
                     showToast('LINE 登入成功！歡迎來到 LoveTennis', 'success');
                     loadMessages();
                     loadMyCards();
@@ -1526,6 +1675,7 @@ createApp({
                 isLoggedIn.value = true;
                 try {
                     currentUser.value = JSON.parse(user);
+                    initSettings();
                 } catch (e) {}
                 loadMessages();
                 loadMyCards();
@@ -1822,7 +1972,6 @@ createApp({
         onMounted(() => {
             checkAuth();
             parseRoute();
-            loadPlayers();
             window.addEventListener('popstate', (event) => {
                 if (event.state && event.state.view) {
                     view.value = event.state.view;
@@ -1832,9 +1981,25 @@ createApp({
             });
         });
 
-        // Poll messages when on messages view
+        // Consolidate view changes (Data loading, filters, polling)
         let messagePollInterval;
         watch(view, (newView) => {
+            if (newView === 'list' || newView === 'events') {
+                nextTick(() => {
+                    applyDefaultFilters(newView);
+                });
+            }
+
+            // 2. Data Loading
+            if (newView === 'home' || newView === 'list') {
+                loadPlayers();
+            } else if (newView === 'mycards') {
+                loadMyCards();
+            } else if (newView === 'events' || newView === 'create-event') {
+                loadEvents();
+            }
+
+            // 3. Messages & Polling
             if (newView === 'messages') {
                 loadMessages();
                 if (!messagePollInterval) {
@@ -1846,12 +2011,7 @@ createApp({
                     messagePollInterval = null;
                 }
             }
-            
-            // Load events when navigating to events view
-            if (newView === 'events' || newView === 'create-event') {
-                loadEvents();
-            }
-        });
+        }, { immediate: true });
 
         // Message Pagination (Client-side)
         const messagesLimit = ref(20);
@@ -1916,7 +2076,9 @@ createApp({
             paginatedMessages, hasMoreMessages, loadMoreMessages,
             // Events
             events, eventsLoading, eventFilter, eventRegionFilter, eventSearchQuery, eventSubmitting, eventForm, filteredEvents, minEventDate,
-            loadEvents, createEvent, joinEvent, leaveEvent, openEventDetail, formatEventDate, LEVELS, showEventDetail, activeEvent, eventLikes, toggleEventLike, eventComments, eventCommentDraft, submitEventComment
+            loadEvents, createEvent, joinEvent, leaveEvent, openEventDetail, formatEventDate, LEVELS, showEventDetail, activeEvent, eventLikes, toggleEventLike, eventComments, eventCommentDraft, submitEventComment, deleteEventComment,
+            // Settings
+            settingsForm, isSavingSettings, saveSettings
         };
     },
     components: {

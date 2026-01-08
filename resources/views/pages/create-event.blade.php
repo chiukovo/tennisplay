@@ -67,13 +67,19 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-sm font-black uppercase tracking-widest text-slate-400 mb-3 ml-1">開始時間 <span class="text-red-500">*</span></label>
-                    <input v-model="eventForm.event_date" type="datetime-local" required :min="minEventDate"
+                    <input v-model="eventForm.event_date" type="datetime-local" required :min="minEventDate" step="60"
                         class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl text-lg font-black focus:bg-white focus:border-blue-500 transition-all text-slate-900">
+                    <p v-if="eventForm.event_date" class="mt-2 text-xs font-bold text-blue-600 px-1">
+                        ✨ 確認時間：@{{ formatEventDate(eventForm.event_date) }}
+                    </p>
                 </div>
                 <div>
                     <label class="block text-sm font-black uppercase tracking-widest text-slate-400 mb-3 ml-1">預計結束</label>
-                    <input v-model="eventForm.end_date" type="datetime-local" :min="eventForm.event_date"
+                    <input v-model="eventForm.end_date" type="datetime-local" :min="eventForm.event_date" step="60"
                         class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl text-lg font-black focus:bg-white focus:border-blue-500 transition-all text-slate-900">
+                    <p v-if="eventForm.end_date" class="mt-2 text-xs font-bold text-slate-400 px-1">
+                        🏁 結束時間：@{{ formatEventDate(eventForm.end_date) }}
+                    </p>
                 </div>
             </div>
         </div>

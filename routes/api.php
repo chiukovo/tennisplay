@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PlayerController;
 use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Api\EventController;
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -26,12 +27,14 @@ Route::get('/players/{id}', [PlayerController::class, 'show']);
 Route::get('/events', [EventController::class, 'index']);
 Route::get('/events/{id}', [EventController::class, 'show']);
 Route::get('/events/{id}/share', [EventController::class, 'share']);
+Route::get('/events/{id}/comments', [\App\Http\Controllers\Api\EventCommentController::class, 'index']);
 
 // Protected Routes (requires LINE login)
 Route::middleware('auth:sanctum')->group(function () {
     // Auth
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
+    Route::put('/user/settings', [UserController::class, 'updateSettings']);
     
     // Player Management (authenticated)
     Route::post('/players', [PlayerController::class, 'store']);
@@ -56,6 +59,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/events/{id}', [EventController::class, 'destroy']);
     Route::post('/events/{id}/join', [EventController::class, 'join']);
     Route::post('/events/{id}/leave', [EventController::class, 'leave']);
+    Route::post('/events/{id}/comments', [\App\Http\Controllers\Api\EventCommentController::class, 'store']);
+    Route::delete('/events/comments/{id}', [\App\Http\Controllers\Api\EventCommentController::class, 'destroy']);
     Route::get('/my-events/organized', [EventController::class, 'myOrganized']);
     Route::get('/my-events/joined', [EventController::class, 'myJoined']);
 });

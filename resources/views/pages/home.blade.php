@@ -114,6 +114,14 @@
             <a v-if="players.length > 0" href="/list" @click.prevent="navigateTo('list')" class="text-blue-600 text-sm font-black uppercase tracking-widest border-b-2 border-blue-600/10 pb-1">顯示更多</a>
         </div>
         
+        {{-- SEO Content for Crawlers (SSR) --}}
+        <div class="sr-only" aria-hidden="true">
+            @foreach($initialPlayers ?? [] as $p)
+                <h3>{{ $p->name }} - {{ $p->level }} ({{ $p->region }})</h3>
+                <p>{{ $p->intro }}</p>
+            @endforeach
+        </div>
+
         {{-- Has Players --}}
         <div v-if="players.length > 0" class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-12">
             <player-card v-for="p in players.slice(0, 4)" :key="p.id" :player="p" @click="showDetail(p)" size="sm" class="max-w-60 mx-auto w-full"></player-card>

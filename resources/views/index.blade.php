@@ -3,9 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LoveTennis | 專業網球約打媒合與球友卡社群</title>
+    <title>{{ $seo['title'] ?? 'LoveTennis | 專業網球約打媒合與球友卡社群' }}</title>
     <!-- SEO Meta Tags -->
-    <meta name="description" content="LoveTennis 是全台最專業的網球約打平台，提供職業級球友卡製作、透明約打費用與安全站內信媒合系統。">
+    <meta name="description" content="{{ $seo['description'] ?? 'LoveTennis 是全台最專業的網球約打平台，提供職業級球友卡製作、透明約打費用與安全站內信媒合系統。' }}">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:title" content="{{ $seo['title'] ?? 'LoveTennis' }}">
+    <meta property="og:description" content="{{ $seo['description'] ?? '全台最專業的網球約打平台' }}">
+    <meta property="og:image" content="{{ url($seo['og_image'] ?? '/img/og-default.jpg') }}">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ url()->current() }}">
+    <meta property="twitter:title" content="{{ $seo['title'] ?? 'LoveTennis' }}">
+    <meta property="twitter:description" content="{{ $seo['description'] ?? '全台最專業的網球約打平台' }}">
+    <meta property="twitter:image" content="{{ url($seo['og_image'] ?? '/img/og-default.jpg') }}">
+    
+    <!-- Canonical Link -->
+    <link rel="canonical" href="{{ url()->current() }}">
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "LoveTennis",
+      "url": "{{ url('/') }}",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "{{ url('/list') }}?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      },
+      "description": "全台最專業的網球約打平台"
+    }
+    </script>
     
     {{-- Favicon --}}
     <link rel="icon" type="image/x-icon" href="/img/favicon/favicon.ico">
@@ -46,6 +79,7 @@
         @include('pages.mycards')
         @include('pages.events')
         @include('pages.create-event')
+        @include('pages.settings')
     </main>
 
     {{-- Modal Components --}}
@@ -58,10 +92,12 @@
         :event="activeEvent" 
         :likes="eventLikes" 
         :comments="eventComments" 
-        v-model:commentDraft="eventCommentDraft"
+        v-model:comment-draft="eventCommentDraft"
+        :current-user="currentUser"
         @like="toggleEventLike" 
         @join="joinEvent" 
         @comment="submitEventComment"
+        @delete-comment="deleteEventComment"
     ></event-detail-modal>
 
     {{-- Global Loading Overlay --}}
@@ -139,7 +175,14 @@
     @include('partials.mobile-nav')
 </div>
 
-@include('partials.vue-scripts')
+    {{-- Initial State for SEO / Fast Load --}}
+    <script>
+        window.__INITIAL_STATE__ = {
+            players: {!! isset($initialPlayers) ? $initialPlayers->toJson() : '[]' !!},
+            events: {!! isset($initialEvents) ? $initialEvents->toJson() : '[]' !!}
+        };
+    </script>
+    @include('partials.vue-scripts')
 
 </body>
 </html>

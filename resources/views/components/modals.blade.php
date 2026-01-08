@@ -199,7 +199,7 @@
                             <div class="flex items-center gap-4 text-slate-300">
                                 <div class="flex items-center gap-1.5 font-bold text-xs uppercase tracking-wider">
                                     <app-icon name="map-pin" class-name="w-4 h-4 text-blue-400"></app-icon>
-                                    @{{ event.location }}
+                                    @{{ event.region }} · @{{ event.location }}
                                 </div>
                                 <div class="flex items-center gap-1.5 font-bold text-xs uppercase tracking-wider">
                                     <app-icon name="users" class-name="w-4 h-4 text-indigo-400"></app-icon>
@@ -316,7 +316,10 @@
                                 <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 ml-2">提問、留言、或打個招呼...</div>
                                 <div class="flex gap-3">
                                     <div class="flex-1">
-                                        <textarea :value="commentDraft" @input="$emit('update:commentDraft', $event.target.value)" rows="1" placeholder="寫下你的訊息..." 
+                                        <textarea :value="commentDraft" 
+                                            @input="$emit('update:comment-draft', $event.target.value)"
+                                            @keydown.enter.prevent="$emit('comment', event.id)"
+                                            rows="1" placeholder="寫下你的訊息..." 
                                             class="w-full bg-white border-2 border-slate-100 rounded-[24px] px-6 py-4 text-sm font-bold focus:border-slate-900 focus:ring-0 outline-none transition-all placeholder:text-slate-300 min-h-[56px]"></textarea>
                                     </div>
                                     <button type="button" @click="$emit('comment', event.id)" class="bg-slate-900 hover:bg-blue-600 text-white px-8 rounded-[24px] font-black uppercase tracking-widest text-xs shadow-xl transition-all">
@@ -335,11 +338,21 @@
                                     <div class="flex-1 bg-white rounded-3xl p-5 border border-slate-100 shadow-sm relative group-hover:border-blue-100 transition-colors">
                                         <div class="flex items-center justify-between mb-1.5">
                                             <span class="text-xs font-black text-slate-800">@{{ c.user?.name || '匿名球友' }}</span>
-                                            <span class="text-[9px] font-bold text-slate-400 uppercase">@{{ c.at?.slice(0,16).replace('T',' ') }}</span>
+                                            <div class="flex items-center gap-2">
+                                                <button v-if="currentUser && c.user_id === currentUser.id" 
+                                                    @click="$emit('delete-comment', c.id, event.id)"
+                                                    class="p-1 text-slate-400 hover:text-red-500 transition-colors">
+                                                    <app-icon name="trash" class-name="w-3 h-3"></app-icon>
+                                                </button>
+                                                <span class="text-[9px] font-bold text-slate-400 uppercase">@{{ c.at?.slice(0,16).replace('T',' ') }}</span>
+                                            </div>
                                         </div>
                                         <p class="text-sm font-bold text-slate-600 leading-relaxed">@{{ c.text }}</p>
                                     </div>
                                 </div>
+                            </div>
+                            <div v-else-if="!event.loading" class="text-center py-10 bg-white/30 rounded-[32px] border-2 border-dashed border-slate-200">
+                                <p class="text-slate-400 font-bold text-sm">目前尚無問答，快來當第一個發問的人吧！</p>
                             </div>
                         </div>
 

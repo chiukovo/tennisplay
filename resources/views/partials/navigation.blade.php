@@ -52,6 +52,10 @@
                         </svg>
                         <span>我的球友卡</span>
                     </a>
+                    <a href="/settings" @click.prevent="navigateTo('settings'); showUserMenu = false" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors">
+                        <app-icon name="zap" class-name="w-5 h-5"></app-icon>
+                        <span>個人設置</span>
+                    </a>
                     <div class="border-t border-slate-100 my-2"></div>
                     <button @click="logout(); showUserMenu = false" class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

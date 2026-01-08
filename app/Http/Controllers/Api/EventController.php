@@ -28,11 +28,8 @@ class EventController extends Controller
         }
 
         // Filter by region
-        if ($request->has('region') && $request->region !== '全部') {
-            $query->where(function ($q) use ($request) {
-                $q->where('location', 'like', "%{$request->region}%")
-                  ->orWhere('address', 'like', "%{$request->region}%");
-            });
+        if ($request->has('region')) {
+            $query->inRegion($request->region);
         }
 
         // Filter by match type
@@ -97,6 +94,7 @@ class EventController extends Controller
             'max_participants' => 'required|integer|min:0|max:99', // 0 means unlimited
             'match_type' => 'required|in:all,singles,doubles,mixed',
             'gender' => 'nullable|in:all,male,female',
+            'region' => 'required|string',
             'level_min' => 'nullable|string',
             'level_max' => 'nullable|string',
             'notes' => 'nullable|string|max:500',
@@ -150,6 +148,7 @@ class EventController extends Controller
             'max_participants' => 'sometimes|integer|min:0|max:99',
             'match_type' => 'sometimes|in:all,singles,doubles,mixed',
             'gender' => 'nullable|in:all,male,female',
+            'region' => 'sometimes|string',
             'level_min' => 'nullable|string',
             'level_max' => 'nullable|string',
             'notes' => 'nullable|string|max:500',

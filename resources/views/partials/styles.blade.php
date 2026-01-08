@@ -187,4 +187,26 @@
     .bg-pattern {
         background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23fff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     }
+
+    /* Directional Slide Transitions */
+    .slide-next-enter-active, .slide-next-leave-active,
+    .slide-prev-enter-active, .slide-prev-leave-active {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .slide-next-enter-from { opacity: 0; transform: translateX(50px); }
+    .slide-next-leave-to { opacity: 0; transform: translateX(-50px); }
+    
+    .slide-prev-enter-from { opacity: 0; transform: translateX(-50px); }
+    .slide-prev-leave-to { opacity: 0; transform: translateX(50px); }
+
+    /* Navigation Pulse Animation */
+    @keyframes nav-pulse {
+        0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.6); }
+        70% { box-shadow: 0 0 0 15px rgba(37, 99, 235, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+    }
+    .nav-pulse {
+        animation: nav-pulse 2s infinite;
+    }
 </style>

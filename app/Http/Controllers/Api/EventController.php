@@ -1,0 +1,349 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\Event;
+use App\Models\EventParticipant;
+use App\Models\Player;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class EventController extends Controller
+{
+    /**
+     * Get list of events with optional filters.
+     */
+    public function index(Request $request)
+    {
+        $query = Event::with(['player', 'confirmedParticipants.player'])
+            ->upcoming()
+            ->orderBy('event_date', 'asc');
+
+        // Filter by status
+        if ($request->has('status') && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        } else {
+            $query->whereIn('status', ['open', 'full']);
+        }
+
+        // Filter by region
+        if ($request->has('region') && $request->region !== '全部') {
+            $query->where(function ($q) use ($request) {
+                $q->where('location', 'like', "%{$request->region}%")
+                  ->orWhere('address', 'like', "%{$request->region}%");
+            });
+        }
+
+        // Filter by match type
+        if ($request->has('match_type')) {
+            $query->where('match_type', $request->match_type);
+        }
+
+        // Search
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('location', 'like', "%{$search}%")
+                  ->orWhere('address', 'like', "%{$search}%");
+            });
+        }
+
+        $events = $query->paginate($request->get('per_page', 12));
+
+        return response()->json($events);
+    }
+
+    /**
+     * Get a single event by ID.
+     */
+    public function show($id)
+    {
+        $event = Event::with(['player', 'user', 'confirmedParticipants.player'])
+            ->findOrFail($id);
+
+        // Check if current user has joined
+        $userId = Auth::id();
+        $event->has_joined = $userId ? $event->hasParticipant($userId) : false;
+        $event->is_organizer = $userId ? $event->user_id === $userId : false;
+
+        return response()->json($event);
+    }
+
+    /**
+     * Create a new event.
+     */
+    public function store(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => '請先登入'], 401);
+        }
+
+        // Get user's player card
+        $player = Player::where('user_id', $user->id)->first();
+        if (!$player) {
+            return response()->json(['error' => '請先建立球員卡'], 400);
+        }
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:100',
+            'event_date' => 'required|date|after:now',
+            'end_date' => 'nullable|date|after:event_date',
+            'location' => 'required|string|max:100',
+            'address' => 'nullable|string|max:255',
+            'fee' => 'required|integer|min:0',
+            'max_participants' => 'required|integer|min:0|max:99', // 0 means unlimited
+            'match_type' => 'required|in:all,singles,doubles,mixed',
+            'gender' => 'nullable|in:all,male,female',
+            'level_min' => 'nullable|string',
+            'level_max' => 'nullable|string',
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        $eventData = array_merge(
+            [
+                'user_id' => $user->id,
+                'player_id' => $player->id,
+                'status' => 'open',
+            ],
+            $validated
+        );
+
+        $event = Event::create($eventData);
+
+        // Organizer automatically joins the event
+        EventParticipant::create([
+            'event_id' => $event->id,
+            'user_id' => $user->id,
+            'player_id' => $player->id,
+            'status' => 'confirmed',
+            'registered_at' => now(),
+        ]);
+
+        return response()->json([
+            'message' => '活動建立成功',
+            'event' => $event->load(['player', 'confirmedParticipants.player']),
+        ], 201);
+    }
+
+    /**
+     * Update an event.
+     */
+    public function update(Request $request, $id)
+    {
+        $user = Auth::user();
+        $event = Event::findOrFail($id);
+
+        if ($event->user_id !== $user->id) {
+            return response()->json(['error' => '只有主辦人可以修改活動'], 403);
+        }
+
+        $validated = $request->validate([
+            'title' => 'sometimes|string|max:100',
+            'event_date' => 'sometimes|date|after:now',
+            'end_date' => 'nullable|date|after:event_date',
+            'location' => 'sometimes|string|max:100',
+            'address' => 'nullable|string|max:255',
+            'fee' => 'sometimes|integer|min:0',
+            'max_participants' => 'sometimes|integer|min:0|max:99',
+            'match_type' => 'sometimes|in:all,singles,doubles,mixed',
+            'gender' => 'nullable|in:all,male,female',
+            'level_min' => 'nullable|string',
+            'level_max' => 'nullable|string',
+            'notes' => 'nullable|string|max:500',
+            'status' => 'sometimes|in:open,closed,cancelled',
+        ]);
+
+        $event->update($validated);
+
+        return response()->json([
+            'message' => '活動已更新',
+            'event' => $event->fresh(['player', 'confirmedParticipants.player']),
+        ]);
+    }
+
+    /**
+     * Delete/cancel an event.
+     */
+    public function destroy($id)
+    {
+        $user = Auth::user();
+        $event = Event::findOrFail($id);
+
+        if ($event->user_id !== $user->id) {
+            return response()->json(['error' => '只有主辦人可以取消活動'], 403);
+        }
+
+        $event->update(['status' => 'cancelled']);
+
+        return response()->json(['message' => '活動已取消']);
+    }
+
+    /**
+     * Join an event.
+     */
+    public function join($id)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => '請先登入'], 401);
+        }
+
+        $player = Player::where('user_id', $user->id)->first();
+        if (!$player) {
+            return response()->json(['error' => '請先建立球員卡才能報名'], 400);
+        }
+
+        $event = Event::findOrFail($id);
+
+        // Check if event is open
+        if ($event->status !== 'open') {
+            return response()->json(['error' => '此活動目前無法報名'], 400);
+        }
+
+        // Check if already full
+        if ($event->is_full) {
+            return response()->json(['error' => '活動已額滿'], 400);
+        }
+
+        // Check if already joined
+        if ($event->hasParticipant($user->id)) {
+            return response()->json(['error' => '您已報名此活動'], 400);
+        }
+
+        // Check level requirements
+        if ($event->level_min && $player->level < $event->level_min) {
+            return response()->json(['error' => '您的程度低於此活動要求'], 400);
+        }
+        if ($event->level_max && $player->level > $event->level_max) {
+            return response()->json(['error' => '您的程度高於此活動要求'], 400);
+        }
+
+        // Create participation
+        EventParticipant::create([
+            'event_id' => $event->id,
+            'user_id' => $user->id,
+            'player_id' => $player->id,
+            'status' => 'confirmed',
+            'registered_at' => now(),
+        ]);
+
+        // Update event status if full
+        $event->refresh();
+        if ($event->is_full) {
+            $event->update(['status' => 'full']);
+        }
+
+        return response()->json([
+            'message' => '報名成功！',
+            'event' => $event->load(['player', 'confirmedParticipants.player']),
+        ]);
+    }
+
+    /**
+     * Leave an event.
+     */
+    public function leave($id)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => '請先登入'], 401);
+        }
+
+        $event = Event::findOrFail($id);
+
+        // Can't leave if you're the organizer
+        if ($event->user_id === $user->id) {
+            return response()->json(['error' => '主辦人無法取消報名，請直接取消活動'], 400);
+        }
+
+        $participant = EventParticipant::where('event_id', $id)
+            ->where('user_id', $user->id)
+            ->where('status', 'confirmed')
+            ->first();
+
+        if (!$participant) {
+            return response()->json(['error' => '您尚未報名此活動'], 400);
+        }
+
+        $participant->update([
+            'status' => 'cancelled',
+            'cancelled_at' => now(),
+        ]);
+
+        // Reopen event if it was full
+        if ($event->status === 'full') {
+            $event->update(['status' => 'open']);
+        }
+
+        return response()->json([
+            'message' => '已取消報名',
+            'event' => $event->fresh(['player', 'confirmedParticipants.player']),
+        ]);
+    }
+
+    /**
+     * Get events organized by current user.
+     */
+    public function myOrganized()
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => '請先登入'], 401);
+        }
+
+        $events = Event::with(['player', 'confirmedParticipants.player'])
+            ->where('user_id', $user->id)
+            ->orderBy('event_date', 'desc')
+            ->get();
+
+        return response()->json($events);
+    }
+
+    /**
+     * Get events joined by current user.
+     */
+    public function myJoined()
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => '請先登入'], 401);
+        }
+
+        $eventIds = EventParticipant::where('user_id', $user->id)
+            ->where('status', 'confirmed')
+            ->pluck('event_id');
+
+        $events = Event::with(['player', 'confirmedParticipants.player'])
+            ->whereIn('id', $eventIds)
+            ->orderBy('event_date', 'desc')
+            ->get();
+
+        return response()->json($events);
+    }
+
+    /**
+     * Get LINE share data for an event.
+     */
+    public function share($id)
+    {
+        $event = Event::with('player')->findOrFail($id);
+
+        $shareData = [
+            'title' => $event->title,
+            'text' => sprintf(
+                "🎾 %s\n📅 %s\n📍 %s\n💰 $%d/人\n👥 剩餘 %d 位\n\n立即報名 👇",
+                $event->title,
+                $event->event_date->format('m/d (D) H:i'),
+                $event->location,
+                $event->fee,
+                $event->spots_left
+            ),
+            'url' => url("/events/{$event->id}"),
+        ];
+
+        return response()->json($shareData);
+    }
+}

@@ -6,62 +6,94 @@
         <div v-if="player" class="fixed inset-0 z-[200] flex items-center justify-center p-2 sm:p-10 premium-blur modal-content" @click.self="$emit('close')">
             <div class="bg-white w-full max-w-5xl h-full sm:h-auto max-h-[96vh] sm:max-h-[92vh] rounded-[32px] sm:rounded-[48px] overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.5)] flex flex-col md:flex-row relative">
                 {{-- Close Button --}}
-                <button type="button" @click="$emit('close')" class="absolute top-4 right-4 sm:top-8 sm:right-8 z-[100] p-2.5 bg-white/90 backdrop-blur-md hover:bg-red-50 hover:text-red-500 rounded-full shadow-xl transition-all border border-slate-100 group">
+                <button type="button" @click="$emit('close')" class="absolute top-4 right-4 sm:top-8 sm:right-8 z-[120] p-2.5 bg-white/90 backdrop-blur-md hover:bg-red-50 hover:text-red-500 rounded-full shadow-xl transition-all border border-slate-100 group">
                     <app-icon name="x" class-name="w-5 h-5 group-hover:scale-110 transition-transform"></app-icon>
                 </button>
 
+                {{-- Page Counter --}}
+                <div v-if="players && players.length > 1" class="absolute top-4 left-4 md:top-8 md:left-1/2 md:-translate-x-1/2 z-[120] px-3 py-1.5 md:px-4 md:py-2 bg-slate-900/10 backdrop-blur-md rounded-full border border-slate-200/50 flex items-center gap-2 md:gap-3">
+                    <span class="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">球友</span>
+                    <span class="text-xs md:text-sm font-black italic text-slate-900">@{{ currentIndex + 1 }} / @{{ players.length }}</span>
+                </div>
+
+                {{-- Navigation Buttons (Desktop) --}}
+                <div class="hidden md:block">
+                    <button v-if="hasPrev" @click="navigate(-1)" class="absolute left-6 top-1/2 -translate-y-1/2 z-[120] w-20 h-20 bg-blue-600 hover:bg-blue-500 text-white rounded-full shadow-[0_20px_60px_rgba(37,99,235,0.5)] transition-all border-4 border-white/30 group flex items-center justify-center nav-pulse">
+                        <app-icon name="arrow-left" class-name="w-10 h-10 group-hover:scale-110 transition-transform" stroke-width="3.5"></app-icon>
+                    </button>
+                    <button v-if="hasNext" @click="navigate(1)" class="absolute right-6 top-1/2 -translate-y-1/2 z-[120] w-20 h-20 bg-blue-600 hover:bg-blue-500 text-white rounded-full shadow-[0_20px_60px_rgba(37,99,235,0.5)] transition-all border-4 border-white/30 group flex items-center justify-center nav-pulse">
+                        <app-icon name="arrow-right" class-name="w-10 h-10 group-hover:scale-110 transition-transform" stroke-width="3.5"></app-icon>
+                    </button>
+                </div>
+
                 {{-- Main Scrollable Area (Mobile) / Split Layout (Desktop) --}}
-                <div class="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden no-scrollbar pb-24 md:pb-0">
-                    {{-- Left: Card Display --}}
-                    <div class="w-full md:w-1/2 p-6 sm:p-10 flex items-center justify-center bg-slate-50 border-r border-slate-100 shrink-0 relative min-h-[400px] sm:min-h-0">
-                        <div class="w-full max-w-[260px] sm:max-w-[340px] aspect-[2.5/3.8] flip-card cursor-pointer" :class="{ 'is-flipped': isFlipped }" @click="isFlipped = !isFlipped">
-                            <div class="flip-card-inner">
-                                {{-- Front Side --}}
-                                <div class="flip-card-front shadow-2xl">
-                                    <player-card :player="player" />
-                                    <div class="absolute bottom-4 right-4 bg-white/20 backdrop-blur-md p-2 rounded-full border border-white/20 z-[80] animate-pulse">
-                                        <app-icon name="rotate-3d" class-name="w-4 h-4 text-white"></app-icon>
-                                    </div>
-                                </div>
-                                
-                                {{-- Back Side (Condensed) --}}
-                                <div class="flip-card-back shadow-2xl overflow-hidden">
-                                    <div :class="['w-full h-full p-8 flex flex-col relative overflow-hidden', getThemeStyle(player.theme || 'standard').bg]">
-                                        <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 skew-y-12 transform translate-x-32 -translate-y-32"></div>
+                <transition :name="transitionName" mode="out-in">
+                    <div :key="player.id" 
+                        @touchstart="handleTouchStart" 
+                        @touchend="handleTouchEnd"
+                        class="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden no-scrollbar pb-24 md:pb-0">
+                        {{-- Left: Card Display --}}
+                        <div class="w-full md:w-1/2 p-6 sm:p-10 flex items-center justify-center bg-slate-50 border-r border-slate-100 shrink-0 relative min-h-[400px] sm:min-h-0">
+                            <div class="w-full max-w-[260px] sm:max-w-[340px] aspect-[2.5/3.8] flip-card cursor-pointer" :class="{ 'is-flipped': isFlipped }" @click="isFlipped = !isFlipped">
+                                <div class="flip-card-inner">
+                                    {{-- Front Side --}}
+                                    <div class="flip-card-front shadow-2xl">
+                                        <player-card :player="player" />
                                         
-                                        <div class="relative z-10 flex flex-col h-full">
-                                            <div class="flex items-center justify-between mb-8">
-                                                <div class="flex items-center gap-2">
-                                                    <div :class="['p-1.5 rounded-lg border border-white/10', getThemeStyle(player.theme || 'standard').logoBg]">
-                                                        <app-icon name="trophy" class-name="w-4 h-4 text-white"></app-icon>
+                                        {{-- Floating Navigation (Mobile Only) --}}
+                                        <div class="md:hidden absolute inset-y-0 -left-4 -right-4 flex items-center justify-between pointer-events-none z-[90]">
+                                            <button v-if="hasPrev" @click.stop="navigate(-1)" class="w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(37,99,235,0.4)] border-2 border-white/50 pointer-events-auto active:scale-90 transition-all nav-pulse">
+                                                <app-icon name="arrow-left" class-name="w-7 h-7" stroke-width="3.5"></app-icon>
+                                            </button>
+                                            <button v-if="hasNext" @click.stop="navigate(1)" class="w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(37,99,235,0.4)] border-2 border-white/50 pointer-events-auto active:scale-90 transition-all nav-pulse">
+                                                <app-icon name="arrow-right" class-name="w-7 h-7" stroke-width="3.5"></app-icon>
+                                            </button>
+                                        </div>
+
+                                        <div class="absolute bottom-4 right-4 bg-white/20 backdrop-blur-md p-2 rounded-full border border-white/20 z-[80] animate-pulse">
+                                            <app-icon name="rotate-3d" class-name="w-4 h-4 text-white"></app-icon>
+                                        </div>
+                                    </div>
+                                    
+                                    {{-- Back Side (Condensed) --}}
+                                    <div class="flip-card-back shadow-2xl overflow-hidden">
+                                        <div :class="['w-full h-full p-8 flex flex-col relative overflow-hidden', getThemeStyle(player.theme || 'standard').bg]">
+                                            <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 skew-y-12 transform translate-x-32 -translate-y-32"></div>
+                                            
+                                            <div class="relative z-10 flex flex-col h-full">
+                                                <div class="flex items-center justify-between mb-8">
+                                                    <div class="flex items-center gap-2">
+                                                        <div :class="['p-1.5 rounded-lg border border-white/10', getThemeStyle(player.theme || 'standard').logoBg]">
+                                                            <app-icon name="trophy" class-name="w-4 h-4 text-white"></app-icon>
+                                                        </div>
+                                                        <span class="text-xs font-black italic text-white/40 tracking-tighter uppercase">LoveTennis PRO</span>
                                                     </div>
-                                                    <span class="text-xs font-black italic text-white/40 tracking-tighter uppercase">LoveTennis PRO</span>
+                                                    <div class="text-[8px] font-black italic text-white/20 tracking-widest uppercase">#@{{player.id}}</div>
                                                 </div>
-                                                <div class="text-[8px] font-black italic text-white/20 tracking-widest uppercase">#@{{player.id}}</div>
-                                            </div>
 
-                                            <div class="flex-1 space-y-6 text-left">
-                                                <div class="grid grid-cols-2 gap-3">
-                                                    <div v-for="stat in backStats" :key="stat.label" class="bg-white/5 border border-white/10 p-3 rounded-xl">
-                                                        <div class="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">@{{stat.label}}</div>
-                                                        <div class="text-sm font-black italic text-white">@{{stat.value}}</div>
+                                                <div class="flex-1 space-y-6 text-left">
+                                                    <div class="grid grid-cols-2 gap-3">
+                                                        <div v-for="stat in backStats" :key="stat.label" class="bg-white/5 border border-white/10 p-3 rounded-xl">
+                                                            <div class="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">@{{stat.label}}</div>
+                                                            <div class="text-sm font-black italic text-white">@{{stat.value}}</div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="space-y-3">
+                                                        {{-- Intro Removed --}}
                                                     </div>
                                                 </div>
 
-                                                <div class="space-y-3">
-                                                    {{-- Intro Removed --}}
-                                                </div>
-                                            </div>
-
-                                            <div class="mt-auto pt-4 flex justify-between items-end border-t border-white/10">
-                                                <div class="text-left">
-                                                    <div class="text-[7px] font-bold text-white/20 uppercase tracking-[0.2em]">已認證檔案</div>
-                                                    <div class="text-[10px] font-black italic text-white/40">@{{ formatDate(player.created_at) }}</div>
-                                                </div>
-                                                <div class="flex items-center gap-1 opacity-20">
-                                                    <div class="w-0.5 h-3 bg-white rounded-full"></div>
-                                                    <div class="w-0.5 h-5 bg-white rounded-full"></div>
-                                                    <div class="w-0.5 h-3 bg-white rounded-full"></div>
+                                                <div class="mt-auto pt-4 flex justify-between items-end border-t border-white/10">
+                                                    <div class="text-left">
+                                                        <div class="text-[7px] font-bold text-white/20 uppercase tracking-[0.2em]">已認證檔案</div>
+                                                        <div class="text-[10px] font-black italic text-white/40">@{{ formatDate(player.created_at) }}</div>
+                                                    </div>
+                                                    <div class="flex items-center gap-1 opacity-20">
+                                                        <div class="w-0.5 h-3 bg-white rounded-full"></div>
+                                                        <div class="w-0.5 h-5 bg-white rounded-full"></div>
+                                                        <div class="w-0.5 h-3 bg-white rounded-full"></div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -69,56 +101,62 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    {{-- Right: Detailed Stats (Condensed) --}}
-                    <div class="w-full md:w-1/2 p-8 sm:p-14 md:overflow-y-auto bg-white flex flex-col no-scrollbar">
-                        <div class="mb-6">
-                            <h3 class="text-4xl sm:text-5xl font-black italic uppercase tracking-tighter text-slate-900 leading-tight mb-4">@{{player.name}}</h3>
-                            
-                            <div class="flex flex-nowrap items-center gap-2 overflow-x-auto no-scrollbar">
-                                <span class="px-2 py-1 bg-blue-600 text-white text-[8px] font-black rounded-lg uppercase tracking-widest italic shrink-0">已認證</span>
-                                <div class="flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-lg text-[10px] font-bold text-slate-600 shrink-0">
-                                    <app-icon name="map-pin" class-name="w-3 h-3 text-slate-400"></app-icon>
-                                    @{{player.region}}
-                                </div>
-                                <div class="flex items-center gap-1 px-2 py-1 bg-blue-50 rounded-lg text-[10px] font-black text-blue-600 italic shrink-0">
-                                    <app-icon name="zap" class-name="w-3 h-3"></app-icon>
-                                    NTRP @{{player.level}}
-                                </div>
-                                <div class="flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-lg text-[10px] font-bold text-slate-600 shrink-0">
-                                    <app-icon name="gender" class-name="w-3 h-3 text-slate-400"></app-icon>
-                                    @{{player.gender}}
+                        {{-- Right: Detailed Stats (Condensed) --}}
+                        <div class="w-full md:w-1/2 p-8 sm:p-14 md:overflow-y-auto bg-white flex flex-col no-scrollbar">
+                            <div class="mb-6">
+                                <h3 class="text-4xl sm:text-5xl font-black italic uppercase tracking-tighter text-slate-900 leading-tight mb-4">@{{player.name}}</h3>
+                                
+                                <div class="flex flex-nowrap items-center gap-2 overflow-x-auto no-scrollbar">
+                                    <span class="px-2 py-1 bg-blue-600 text-white text-[8px] font-black rounded-lg uppercase tracking-widest italic shrink-0">已認證</span>
+                                    <div class="flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-lg text-[10px] font-bold text-slate-600 shrink-0">
+                                        <app-icon name="map-pin" class-name="w-3 h-3 text-slate-400"></app-icon>
+                                        @{{player.region}}
+                                    </div>
+                                    <div class="flex items-center gap-1 px-2 py-1 bg-blue-50 rounded-lg text-[10px] font-black text-blue-600 italic shrink-0">
+                                        <app-icon name="zap" class-name="w-3 h-3"></app-icon>
+                                        NTRP @{{player.level}}
+                                    </div>
+                                    <div class="flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-lg text-[10px] font-bold text-slate-600 shrink-0">
+                                        <app-icon name="gender" class-name="w-3 h-3 text-slate-400"></app-icon>
+                                        @{{player.gender}}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="space-y-6">
-                            {{-- Intro Section --}}
-                            <div class="bg-slate-50 p-6 rounded-[24px] border border-slate-100 relative overflow-hidden">
-                                <div class="flex items-center gap-2 mb-3">
-                                    <div class="w-1 h-3 bg-blue-600 rounded-full"></div>
-                                    <span class="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 italic">個人特色 / 約打宣告</span>
+                            <div class="space-y-6">
+                                {{-- Intro Section --}}
+                                <div class="bg-slate-50 p-6 rounded-[24px] border border-slate-100 relative overflow-hidden">
+                                    <div class="flex items-center gap-2 mb-3">
+                                        <div class="w-1 h-3 bg-blue-600 rounded-full"></div>
+                                        <span class="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 italic">個人特色 / 約打宣告</span>
+                                    </div>
+                                    <p class="text-base text-slate-700 font-bold leading-relaxed italic whitespace-pre-line relative z-10">
+                                        「@{{player.intro || '這位球友很懶，什麼都沒留下... 希望能找到實力相當的球友進行約打與練習。'}}」
+                                    </p>
                                 </div>
-                                <p class="text-base text-slate-700 font-bold leading-relaxed italic whitespace-pre-line relative z-10">
-                                    「@{{player.intro || '這位球友很懶，什麼都沒留下... 希望能找到實力相當的球友進行約打與練習。'}}」
-                                </p>
+                            </div>
+
+                            {{-- Desktop Only Action Button --}}
+                            <div class="mt-auto hidden md:flex pt-6">
+                                <button type="button" @click="$emit('open-match', player)" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl hover:bg-blue-500 transition-all flex items-center justify-center gap-3">
+                                    <app-icon name="message-circle" class-name="w-5 h-5"></app-icon> 立即發送約打信
+                                </button>
                             </div>
                         </div>
-
-                        {{-- Desktop Only Action Button --}}
-                        <div class="mt-auto hidden md:flex pt-6">
-                            <button type="button" @click="$emit('open-match', player)" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl hover:bg-blue-500 transition-all flex items-center justify-center gap-3">
-                                <app-icon name="message-circle" class-name="w-5 h-5"></app-icon> 立即發送約打信
-                            </button>
-                        </div>
                     </div>
-                </div>
+                </transition>
 
                 {{-- Mobile Sticky Action Bar --}}
                 <div class="md:hidden absolute bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-xl border-t border-slate-100 z-[110] flex gap-3">
-                    <button type="button" @click="$emit('open-match', player)" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-blue-600/20 flex items-center justify-center gap-2 active:scale-95 transition-all">
-                        <app-icon name="message-circle" class-name="w-5 h-5"></app-icon> 發送約打信
+                    <button v-if="hasPrev" @click="navigate(-1)" class="w-16 h-16 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-[0_8px_25px_rgba(37,99,235,0.4)] active:scale-95 active:bg-blue-700 transition-all border-2 border-white/20 nav-pulse">
+                        <app-icon name="arrow-left" class-name="w-9 h-9" stroke-width="3.5"></app-icon>
+                    </button>
+                    <button type="button" @click="$emit('open-match', player)" class="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all">
+                        <app-icon name="message-circle" class-name="w-5 h-5 text-blue-400"></app-icon> 發送約打信
+                    </button>
+                    <button v-if="hasNext" @click="navigate(1)" class="w-16 h-16 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-[0_8px_25px_rgba(37,99,235,0.4)] active:scale-95 active:bg-blue-700 transition-all border-2 border-white/20 nav-pulse">
+                        <app-icon name="arrow-right" class-name="w-9 h-9" stroke-width="3.5"></app-icon>
                     </button>
                     <button type="button" @click="isFlipped = !isFlipped" class="w-14 h-14 bg-slate-900 text-white rounded-2xl flex items-center justify-center shadow-xl active:scale-95 transition-all">
                         <app-icon name="rotate-3d" class-name="w-6 h-6"></app-icon>
@@ -130,6 +168,201 @@
 </script>
 
 @include('components.message-detail-modal')
+
+{{-- Event Detail Modal --}}
+<script type="text/x-template" id="event-detail-modal-template">
+    <transition name="modal">
+        <div v-if="open && event" class="fixed inset-0 z-[320] flex items-center justify-center p-0 sm:p-6 bg-slate-950/80 backdrop-blur-md modal-content" @click.self="$emit('update:open', false)">
+            <div class="bg-slate-50 w-full h-full sm:h-auto max-w-2xl sm:rounded-[48px] overflow-hidden shadow-[0_32px_128px_-16px_rgba(0,0,0,0.5)] flex flex-col max-h-[100vh] sm:max-h-[95vh] animate__animated animate__zoomIn animate__faster">
+                
+                {{-- Dynamic Header Section --}}
+                <div class="relative shrink-0">
+                    <div class="h-48 sm:h-64 bg-slate-900 relative overflow-hidden">
+                        {{-- Abstract Background --}}
+                        <div class="absolute inset-0 opacity-40">
+                            <div class="absolute -right-20 -top-20 w-80 h-80 bg-blue-600 rounded-full blur-[100px]"></div>
+                            <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-indigo-600 rounded-full blur-[100px]"></div>
+                        </div>
+                        {{-- Info Overlay --}}
+                        <div class="absolute inset-0 flex flex-col justify-end p-8 sm:p-12 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span :class="['px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg', 
+                                    event.status === 'open' ? 'bg-green-500 text-white' : 
+                                    event.status === 'full' ? 'bg-amber-500 text-white' : 'bg-slate-600 text-white']">
+                                    @{{ event.status === 'open' ? '招募中' : event.status === 'full' ? '已滿' : '已結束' }}
+                                </span>
+                                <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-white/20 backdrop-blur text-white border border-white/10">
+                                    @{{ event.match_type === 'all' ? '不限賽制' : event.match_type === 'singles' ? '單打' : event.match_type === 'doubles' ? '雙打' : '混雙' }}
+                                </span>
+                            </div>
+                            <h3 class="text-3xl sm:text-5xl font-black text-white leading-[0.9] uppercase tracking-tighter mb-2">@{{ event.title }}</h3>
+                            <div class="flex items-center gap-4 text-slate-300">
+                                <div class="flex items-center gap-1.5 font-bold text-xs uppercase tracking-wider">
+                                    <app-icon name="map-pin" class-name="w-4 h-4 text-blue-400"></app-icon>
+                                    @{{ event.location }}
+                                </div>
+                                <div class="flex items-center gap-1.5 font-bold text-xs uppercase tracking-wider">
+                                    <app-icon name="users" class-name="w-4 h-4 text-indigo-400"></app-icon>
+                                    已徵 @{{ event.participants_count || 1 }} 位球友
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="button" @click="$emit('update:open', false)" class="absolute top-6 right-6 z-[130] w-12 h-12 flex items-center justify-center bg-black/20 hover:bg-black/40 backdrop-blur-xl text-white rounded-2xl transition-all border border-white/10 group">
+                        <app-icon name="x" class-name="w-6 h-6 transition-transform group-hover:rotate-90"></app-icon>
+                    </button>
+                </div>
+
+                {{-- Scrollable Content Area --}}
+                <div class="flex-1 overflow-y-auto no-scrollbar bg-slate-50">
+                    <div class="p-6 sm:p-10 space-y-8 pb-32">
+                        
+                        {{-- Host Section --}}
+                        <div class="flex items-center justify-between bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 rounded-2xl overflow-hidden bg-slate-100 border-2 border-slate-50 shadow-md">
+                                    <img v-if="event.player?.photo" :src="event.player.photo_url || event.player.photo" class="w-full h-full object-cover">
+                                    <app-icon v-else name="user" class-name="w-full h-full text-slate-300 p-2"></app-icon>
+                                </div>
+                                <div>
+                                    <div class="text-slate-400 text-[10px] font-black uppercase tracking-widest leading-none mb-1">主辦人</div>
+                                    <div class="text-slate-900 font-black text-lg">@{{ event.player?.name || '主辦人' }}</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-slate-400 text-[10px] font-black uppercase tracking-widest leading-none mb-1">費用 / 人</div>
+                                <div class="text-2xl font-black italic tracking-tighter text-blue-600 leading-none">@{{ event.fee === 0 ? '全台免費' : '$' + event.fee }}</div>
+                            </div>
+                        </div>
+
+                        {{-- Details Grid --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
+                                <div class="flex items-center gap-3 mb-4 text-blue-600">
+                                    <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+                                        <app-icon name="calendar" class-name="w-5 h-5"></app-icon>
+                                    </div>
+                                    <span class="font-black uppercase tracking-widest text-xs">活動時間資訊</span>
+                                </div>
+                                <div class="space-y-3">
+                                    <div>
+                                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">開始</div>
+                                        <div class="font-black text-slate-800">@{{ event.event_date ? event.event_date.substring(0,16).replace('T',' ') : '' }}</div>
+                                    </div>
+                                    <div v-if="event.end_date">
+                                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">結束</div>
+                                        <div class="font-black text-slate-800 opacity-60">@{{ event.end_date.substring(0,16).replace('T',' ') }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col">
+                                <div class="flex items-center gap-3 mb-4 text-indigo-600">
+                                    <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
+                                        <app-icon name="users" class-name="w-5 h-5"></app-icon>
+                                    </div>
+                                    <span class="font-black uppercase tracking-widest text-xs">參與狀況</span>
+                                </div>
+                                <div class="mt-auto">
+                                    <div class="flex items-end justify-between mb-2">
+                                        <div class="text-3xl font-black italic text-slate-900 leading-none">
+                                            @{{ event.confirmed_participants?.length || 1 }} <span class="text-sm font-bold opacity-30">/ @{{ event.max_participants === 0 ? '∞' : event.max_participants }}</span>
+                                        </div>
+                                        <div class="text-[10px] font-black text-slate-400 tracking-widest uppercase">
+                                            剩餘 @{{ event.max_participants === 0 ? '∞' : event.spots_left }}
+                                        </div>
+                                    </div>
+                                    {{-- Participant Avatars --}}
+                                    <div class="flex -space-x-3 overflow-hidden">
+                                        <div v-for="p in event.confirmed_participants?.slice(0, 5)" :key="p.id" class="w-8 h-8 rounded-full border-2 border-white overflow-hidden bg-slate-100 shadow-sm shrink-0">
+                                            <img v-if="p.player?.photo" :src="p.player.photo_url || p.player.photo" class="w-full h-full object-cover">
+                                            <app-icon v-else name="user" class-name="w-full h-full text-slate-300 p-1.5"></app-icon>
+                                        </div>
+                                        <div v-if="event.participants_count > 5" class="w-8 h-8 rounded-full bg-slate-900 border-2 border-white flex items-center justify-center text-[10px] font-black text-white shrink-0">
+                                            +@{{ event.participants_count - 5 }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Full-width Map/Address --}}
+                        <div class="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
+                            <div class="flex items-center gap-3 mb-4 text-emerald-600">
+                                <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center">
+                                    <app-icon name="map" class-name="w-5 h-5"></app-icon>
+                                </div>
+                                <span class="font-black uppercase tracking-widest text-xs">集合地點</span>
+                            </div>
+                            <div class="text-slate-900 font-black text-lg mb-1 underline decoration-blue-500/30 decoration-4 underline-offset-4">@{{ event.address || event.location }}</div>
+                            <div class="text-slate-400 font-bold text-sm">@{{ event.location }}</div>
+                        </div>
+
+                        {{-- Content / Notes --}}
+                        <div class="bg-blue-600 text-white p-8 rounded-[40px] shadow-[0_20px_40px_-10px_rgba(37,99,235,0.4)] relative overflow-hidden" v-if="event.notes">
+                            <div class="absolute right-[-10%] bottom-[-20%] w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+                            <div class="text-[10px] font-black uppercase tracking-[.3em] text-white/50 mb-3 block">
+                                活動叮嚀 FROM HOST
+                            </div>
+                            <p class="text-xl sm:text-2xl font-black italic leading-tight whitespace-pre-line">
+                                「@{{ event.notes }}」
+                            </p>
+                        </div>
+
+                        {{-- Social interaction --}}
+                        <div class="border-t border-slate-200 pt-10 space-y-8">
+                            {{-- Comment Input --}}
+                            <div class="relative">
+                                <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 ml-2">提問、留言、或打個招呼...</div>
+                                <div class="flex gap-3">
+                                    <div class="flex-1">
+                                        <textarea :value="commentDraft" @input="$emit('update:commentDraft', $event.target.value)" rows="1" placeholder="寫下你的訊息..." 
+                                            class="w-full bg-white border-2 border-slate-100 rounded-[24px] px-6 py-4 text-sm font-bold focus:border-slate-900 focus:ring-0 outline-none transition-all placeholder:text-slate-300 min-h-[56px]"></textarea>
+                                    </div>
+                                    <button type="button" @click="$emit('comment', event.id)" class="bg-slate-900 hover:bg-blue-600 text-white px-8 rounded-[24px] font-black uppercase tracking-widest text-xs shadow-xl transition-all">
+                                        發送
+                                    </button>
+                                </div>
+                            </div>
+
+                            {{-- Comments List --}}
+                            <div class="space-y-4" v-if="comments[event.id]?.length">
+                                <div v-for="c in comments[event.id]" :key="c.id" class="flex gap-3 group">
+                                    <div class="w-10 h-10 rounded-xl bg-slate-200 shrink-0 overflow-hidden border border-white shadow-sm">
+                                        <img v-if="c.user?.photo" :src="c.user?.photo" class="w-full h-full object-cover">
+                                        <app-icon v-else name="user" class-name="w-full h-full text-slate-400 p-2"></app-icon>
+                                    </div>
+                                    <div class="flex-1 bg-white rounded-3xl p-5 border border-slate-100 shadow-sm relative group-hover:border-blue-100 transition-colors">
+                                        <div class="flex items-center justify-between mb-1.5">
+                                            <span class="text-xs font-black text-slate-800">@{{ c.user?.name || '匿名球友' }}</span>
+                                            <span class="text-[9px] font-bold text-slate-400 uppercase">@{{ c.at?.slice(0,16).replace('T',' ') }}</span>
+                                        </div>
+                                        <p class="text-sm font-bold text-slate-600 leading-relaxed">@{{ c.text }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                {{-- Fixed Bottom Action Bar --}}
+                <div class="shrink-0 p-6 bg-white/80 backdrop-blur-xl border-t border-slate-100 flex items-center gap-4 relative z-[10]">
+                    <button type="button" @click="$emit('like', event.id)" 
+                        :class="['w-16 h-16 rounded-3xl flex items-center justify-center transition-all border-2', 
+                            likes[event.id] ? 'bg-pink-50 border-pink-100 text-pink-500 shadow-lg shadow-pink-100' : 'bg-white border-slate-100 text-slate-300 hover:border-pink-200']">
+                        <app-icon name="heart" class-name="w-7 h-7"></app-icon>
+                    </button>
+                    <button type="button" @click="$emit('join', event.id)" 
+                        class="flex-1 h-16 bg-slate-900 hover:bg-blue-600 active:scale-95 text-white rounded-3xl font-black uppercase tracking-[0.2em] text-sm shadow-2xl transition-all flex items-center justify-center gap-3">
+                        <app-icon name="calendar-plus" class-name="w-6 h-6"></app-icon>
+                        立即報名參加 @{{ event.spots_left === 0 ? '(候補)' : '' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </transition>
+</script>
 
 {{-- Match Modal --}}
 <script type="text/x-template" id="match-modal-template">

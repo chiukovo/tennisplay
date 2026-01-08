@@ -73,15 +73,15 @@
                         <div :class="['relative flex items-center gap-[2cqw] p-[0.5cqw] rounded-[3cqw] shadow-[0_4px_12px_rgba(0,0,0,0.3)] border border-white/20 backdrop-blur-md overflow-hidden', themeStyle.border]">
                             <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50"></div>
                             <div class="bg-slate-900/90 px-[3.5cqw] py-[1.5cqw] rounded-[2.5cqw] flex items-center gap-[2cqw] relative z-10">
-                                <span class="font-bold text-white/50 uppercase tracking-widest leading-none" style="font-size: 3.5cqw;">NTRP</span>
-                                <span class="font-black text-white leading-none italic tracking-tighter" style="font-size: 9cqw; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">@{{ p.level || '3.5' }}</span>
+                                <span class="font-bold text-white/50 uppercase tracking-widest leading-none" style="font-size: 4cqw;">NTRP</span>
+                                <span class="font-black text-white leading-none italic tracking-tighter" style="font-size: 11cqw; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">@{{ p.level || '3.5' }}</span>
                             </div>
                         </div>
                     </div>
                     
                     {{-- Level Tag --}}
                     <div class="bg-white/5 backdrop-blur-md px-[3cqw] py-[1.5cqw] rounded-[1.5cqw] border border-white/10 max-w-[60cqw] shadow-lg">
-                        <p class="font-bold text-white/90 uppercase tracking-widest italic leading-tight" style="font-size: 4.5cqw;">@{{ getLevelTag(p.level) }}</p>
+                        <p class="font-bold text-white/90 uppercase tracking-widest italic leading-tight" style="font-size: 5.5cqw;">@{{ getLevelTag(p.level) }}</p>
                     </div>
                 </div>
             </div>
@@ -96,13 +96,13 @@
                 
                 {{-- Content --}}
                 <div class="relative z-10">
-                    <h3 :class="['font-black uppercase tracking-tighter italic leading-[0.9] whitespace-nowrap pb-[1.5cqw] bg-gradient-to-r bg-clip-text text-transparent text-left drop-shadow-sm', themeStyle.border]" style="font-size: 12cqw;">
+                    <h3 :class="['font-black uppercase tracking-tighter italic leading-[0.9] whitespace-nowrap pb-[1.5cqw] bg-gradient-to-r bg-clip-text text-transparent text-left drop-shadow-sm', themeStyle.border]" style="font-size: 14cqw;">
                         @{{ p.name || 'ANONYMOUS' }}
                     </h3>
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-[1.5cqw] text-white/80">
-                            <app-icon name="map-pin" class-name="w-[4.5cqw] h-[4.5cqw]" :class="themeStyle.accent"></app-icon>
-                            <span class="font-bold uppercase tracking-wider italic" style="font-size: 5cqw;">@{{ p.region || '全台' }}</span>
+                            <app-icon name="map-pin" class-name="w-[5cqw] h-[5cqw]" :class="themeStyle.accent"></app-icon>
+                            <span class="font-bold uppercase tracking-wider italic" style="font-size: 6cqw;">@{{ p.region || '全台' }}</span>
                         </div>
                     </div>
                 </div>

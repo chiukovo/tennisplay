@@ -11,6 +11,7 @@
         
         <div class="hidden md:flex gap-10 text-sm font-black uppercase tracking-[0.2em] text-slate-400">
             <a href="/list" @click.prevent="navigateTo('list')" :class="view === 'list' ? 'text-blue-600 border-b-2 border-blue-600 pb-1' : 'hover:text-slate-900 transition-colors'">發現球友</a>
+            <a href="/events" @click.prevent="navigateTo('events')" :class="view === 'events' || view === 'create-event' ? 'text-blue-600 border-b-2 border-blue-600 pb-1' : 'hover:text-slate-900 transition-colors'">開團揪球</a>
             <a href="/messages" @click.prevent="navigateTo('messages')" :class="['relative', view === 'messages' ? 'text-blue-600 border-b-2 border-blue-600 pb-1' : 'hover:text-slate-900 transition-colors']">
                 約打訊息
                 <div v-if="hasUnread" class="absolute -top-1 -right-3 w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse border-2 border-white"></div>

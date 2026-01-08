@@ -58,6 +58,22 @@ class User extends Authenticatable
     }
 
     /**
+     * Get events organized by this user.
+     */
+    public function organizedEvents()
+    {
+        return $this->hasMany(Event::class);
+    }
+
+    /**
+     * Get event participations.
+     */
+    public function eventParticipations()
+    {
+        return $this->hasMany(EventParticipant::class);
+    }
+
+    /**
      * Get unread message count.
      */
     public function getUnreadCountAttribute()

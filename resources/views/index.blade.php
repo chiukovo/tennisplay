@@ -6,6 +6,13 @@
     <title>LoveTennis | 專業網球約打媒合與球友卡社群</title>
     <!-- SEO Meta Tags -->
     <meta name="description" content="LoveTennis 是全台最專業的網球約打平台，提供職業級球友卡製作、透明約打費用與安全站內信媒合系統。">
+    
+    {{-- Favicon --}}
+    <link rel="icon" type="image/x-icon" href="/img/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/favicon/apple-touch-icon.png">
+    <link rel="manifest" href="/img/favicon/site.webmanifest">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>[v-cloak] { display: none !important; }</style>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -37,13 +44,25 @@
         @include('pages.list')
         @include('pages.messages')
         @include('pages.mycards')
+        @include('pages.events')
+        @include('pages.create-event')
     </main>
 
     {{-- Modal Components --}}
-    <player-detail-modal :player="detailPlayer" :stats="getDetailStats(detailPlayer)" @close="detailPlayer = null" @open-match="p => { detailPlayer = null; openMatchModal(p); }"></player-detail-modal>
+    <player-detail-modal v-model:player="detailPlayer" :players="filteredPlayers" :stats="getDetailStats(detailPlayer)" @close="detailPlayer = null" @open-match="p => { detailPlayer = null; openMatchModal(p); }"></player-detail-modal>
     <match-modal v-model:open="matchModal.open" :player="matchModal.player" @submit="text => { matchModal.text = text; sendMatchRequest(); }"></match-modal>
     <ntrp-guide-modal v-model:open="showNtrpGuide" :descs="levelDescs"></ntrp-guide-modal>
     <message-detail-modal v-model:open="showMessageDetail" :target-user="selectedChatUser" :current-user="currentUser" @message-sent="onMessageSent"></message-detail-modal>
+    <event-detail-modal 
+        v-model:open="showEventDetail" 
+        :event="activeEvent" 
+        :likes="eventLikes" 
+        :comments="eventComments" 
+        v-model:commentDraft="eventCommentDraft"
+        @like="toggleEventLike" 
+        @join="joinEvent" 
+        @comment="submitEventComment"
+    ></event-detail-modal>
 
     {{-- Global Loading Overlay --}}
     <div v-if="isLoading" class="fixed inset-0 bg-slate-950/50 backdrop-blur-sm z-[200] flex items-center justify-center">

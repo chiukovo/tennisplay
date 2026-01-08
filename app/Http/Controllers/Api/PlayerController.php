@@ -71,9 +71,11 @@ class PlayerController extends Controller
             'sig_x', 'sig_y', 'sig_scale', 'sig_rotate', 'sig_width', 'sig_height'
         ]);
 
-        // Handle base64 photo
+        // Handle photo
         if ($request->photo && Str::startsWith($request->photo, 'data:image')) {
             $data['photo'] = $this->saveBase64Image($request->photo, 'players/photos');
+        } elseif ($request->photo && Str::startsWith($request->photo, 'http')) {
+            $data['photo'] = $this->downloadRemoteImage($request->photo, 'players/photos');
         } elseif ($request->photo) {
             $data['photo'] = $request->photo;
         }
@@ -143,13 +145,18 @@ class PlayerController extends Controller
             'sig_x', 'sig_y', 'sig_scale', 'sig_rotate', 'sig_width', 'sig_height', 'is_active'
         ]);
 
-        // Handle base64 photo
+        // Handle photo
         if ($request->photo && Str::startsWith($request->photo, 'data:image')) {
             // Delete old photo
             if ($player->photo && !Str::startsWith($player->photo, 'http')) {
                 Storage::disk('public')->delete($player->photo);
             }
             $data['photo'] = $this->saveBase64Image($request->photo, 'players/photos');
+        } elseif ($request->photo && Str::startsWith($request->photo, 'http')) {
+            // If it's a new remote URL (different from current), download it
+            if ($request->photo !== $player->photo) {
+                $data['photo'] = $this->downloadRemoteImage($request->photo, 'players/photos');
+            }
         }
 
         // Handle base64 signature
@@ -351,5 +358,31 @@ class PlayerController extends Controller
         Storage::disk('public')->put($path, $imageData);
 
         return $path;
+    }
+
+    /**
+     * Download remote image and save to storage.
+     */
+    private function downloadRemoteImage($url, $folder)
+    {
+        try {
+            $response = \Illuminate\Support\Facades\Http::get($url);
+            if ($response->successful()) {
+                $extension = 'jpg'; // Default to jpg
+                $contentType = $response->header('Content-Type');
+                if (str_contains($contentType, 'png')) $extension = 'png';
+                elseif (str_contains($contentType, 'webp')) $extension = 'webp';
+                elseif (str_contains($contentType, 'gif')) $extension = 'gif';
+                
+                $filename = Str::uuid() . '.' . $extension;
+                $path = $folder . '/' . $filename;
+                
+                Storage::disk('public')->put($path, $response->body());
+                return $path;
+            }
+        } catch (\Exception $e) {
+            \Log::error('Failed to download remote image: ' . $e->getMessage());
+        }
+        return $url; // Fallback to original URL
     }
 }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PlayerController;
 use App\Http\Controllers\Api\MessageController;
+use App\Http\Controllers\Api\EventController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +21,11 @@ use Illuminate\Support\Facades\Route;
 // Public Player Routes
 Route::get('/players', [PlayerController::class, 'index']);
 Route::get('/players/{id}', [PlayerController::class, 'show']);
+
+// Public Event Routes
+Route::get('/events', [EventController::class, 'index']);
+Route::get('/events/{id}', [EventController::class, 'show']);
+Route::get('/events/{id}/share', [EventController::class, 'share']);
 
 // Protected Routes (requires LINE login)
 Route::middleware('auth:sanctum')->group(function () {
@@ -43,5 +49,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/messages/{id}', [MessageController::class, 'show']);
     Route::put('/messages/{id}/read', [MessageController::class, 'markRead']);
     Route::delete('/messages/{id}', [MessageController::class, 'destroy']);
+    
+    // Events (authenticated)
+    Route::post('/events', [EventController::class, 'store']);
+    Route::put('/events/{id}', [EventController::class, 'update']);
+    Route::delete('/events/{id}', [EventController::class, 'destroy']);
+    Route::post('/events/{id}/join', [EventController::class, 'join']);
+    Route::post('/events/{id}/leave', [EventController::class, 'leave']);
+    Route::get('/my-events/organized', [EventController::class, 'myOrganized']);
+    Route::get('/my-events/joined', [EventController::class, 'myJoined']);
 });
+
 

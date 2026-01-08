@@ -19,7 +19,7 @@
                     </div>
                 </div>
                 <h1 class="text-3xl sm:text-6xl lg:text-7xl font-black italic uppercase tracking-tighter leading-[0.9]">
-                    找球友，約打<br><span class="text-blue-500">來 LoveTennis</span>
+                    約球友<br><span class="text-blue-500">來 LoveTennis</span>
                 </h1>
                 <p class="text-slate-400 max-w-xl mx-auto lg:mx-0 text-sm sm:text-xl font-medium leading-relaxed">
                     全台最專業的網球約打平台。
@@ -115,8 +115,8 @@
         </div>
         
         {{-- Has Players --}}
-        <div v-if="players.length > 0" class="flex overflow-x-auto no-scrollbar snap-x snap-mandatory gap-8 pb-8 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-12">
-            <player-card v-for="p in players.slice(0, 3)" :key="p.id" :player="p" @click="showDetail(p)" class="min-w-[280px] sm:min-w-0 snap-center"></player-card>
+        <div v-if="players.length > 0" class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-12">
+            <player-card v-for="p in players.slice(0, 4)" :key="p.id" :player="p" @click="showDetail(p)" size="sm" class="max-w-60 mx-auto w-full"></player-card>
         </div>
         
         {{-- Empty State --}}

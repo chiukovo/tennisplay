@@ -85,9 +85,14 @@ const SVG_ICONS = {
   'chevron-left': '<polyline points="15 18 9 12 15 6"/>',
   'chevron-right': '<polyline points="9 18 15 12 9 6"/>',
   'chevron-down': '<polyline points="6 9 12 15 18 9"/>',
+  'arrow-left': '<path d="m12 19-7-7 7-7M5 12h14"/>',
+  'arrow-right': '<path d="m12 5 7 7-7 7M19 12H5"/>',
   'rotate-3d': '<path d="M3.5 13h6V7"/><path d="M20.5 13h-6v6"/><path d="M6.5 13c0-4.42 3.58-8 8-8s8 3.58 8 8-3.58 8-8 8c-1.22 0-2.37-.27-3.4-.75"/>',
   'star': '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
-  'line': '<path d="M24 10.304c0-5.369-5.383-9.738-12-9.738-6.616 0-12 4.369-12 9.738 0 4.814 4.269 8.846 10.036 9.608.391.084.922.258 1.057.592.121.303.079.778.039 1.085l-.171 1.027c-.052.303-.242 1.186 1.039.647 1.281-.54 6.911-4.069 9.428-6.967 1.739-1.907 2.571-3.943 2.571-5.992zm-17.888 4.044c-.166 0-.303-.135-.303-.302v-3.722h-1.12c-.166 0-.303-.135-.303-.302v-.476c0-.166.137-.302.303-.302h2.9c.166 0 .303.135.303.302v4.5c0 .166-.137.302-.303.302h-1.48zm2.852 0c-.166 0-.303-.135-.303-.302v-4.5c0-.166.137-.302.303-.302h.507c.166 0 .303.135.303.302v4.5c0 .166-.137.302-.303.302h-.507zm6.39 0c-.166 0-.302-.135-.302-.302v-2.1l-1.977-2.4c-.042-.051-.061-.097-.061-.153v-1.847c0-.166.137-.302.303-.302h.506c.166 0 .303.135.303.302v1.388l1.862 2.259v-3.647c0-.166.137-.302.303-.302h.507c.166 0 .303.135.303.302v4.5c0 .166-.137.302-.303.302h-.507l-.938-1.14-1.002 1.216c-.042.051-.061.097-.061.153v.073zm3.693-1.353h-1.12v-1.01h1.12c.166 0 .303-.135.303-.302v-.475c0-.166-.137-.302-.303-.302h-1.12v-.91h1.12c.166 0 .303-.135.303-.302v-.476c0-.166-.137-.302-.303-.302h-2.9c-.166 0-.303.135-.303.302v4.5c0 .166.137.302.303.302h2.9c.166 0 .303-.135.303-.302v-.476c.001-.166-.136-.302-.303-.302z"/>'
+  'line': '<path d="M24 10.304c0-5.369-5.383-9.738-12-9.738-6.616 0-12 4.369-12 9.738 0 4.814 4.269 8.846 10.036 9.608.391.084.922.258 1.057.592.121.303.079.778.039 1.085l-.171 1.027c-.052.303-.242 1.186 1.039.647 1.281-.54 6.911-4.069 9.428-6.967 1.739-1.907 2.571-3.943 2.571-5.992zm-17.888 4.044c-.166 0-.303-.135-.303-.302v-3.722h-1.12c-.166 0-.303-.135-.303-.302v-.476c0-.166.137-.302.303-.302h2.9c.166 0 .303.135.303.302v4.5c0 .166-.137.302-.303.302h-1.48zm2.852 0c-.166 0-.303-.135-.303-.302v-4.5c0-.166.137-.302.303-.302h.507c.166 0 .303.135.303.302v4.5c0 .166-.137.302-.303.302h-.507zm6.39 0c-.166 0-.302-.135-.302-.302v-2.1l-1.977-2.4c-.042-.051-.061-.097-.061-.153v-1.847c0-.166.137-.302.303-.302h.506c.166 0 .303.135.303.302v1.388l1.862 2.259v-3.647c0-.166.137-.302.303-.302h.507c.166 0 .303.135.303.302v4.5c0 .166-.137.302-.303.302h-.507l-.938-1.14-1.002 1.216c-.042.051-.061.097-.061.153v.073zm3.693-1.353h-1.12v-1.01h1.12c.166 0 .303-.135.303-.302v-.475c0-.166-.137-.302-.303-.302h-1.12v-.91h1.12c.166 0 .303-.135.303-.302v-.476c0-.166-.137-.302-.303-.302h-2.9c-.166 0-.303.135-.303.302v4.5c0 .166.137.302.303.302h2.9c.166 0 .303-.135.303-.302v-.476c.001-.166-.136-.302-.303-.302z"/>',
+  'calendar': '<rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/>',
+  'calendar-plus': '<path d="M21 13V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><line x1="19" x2="19" y1="16" y2="22"/><line x1="16" x2="22" y1="19" y2="19"/>',
+  'share': '<path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/>'
 };
 
 const LEVEL_DESCS = {
@@ -305,17 +310,64 @@ const PlayerCard = {
 };
 
 const PlayerDetailModal = {
-    props: ['player', 'stats'],
+    props: ['player', 'stats', 'players'],
     components: { AppIcon, PlayerCard },
     template: '#player-detail-modal-template',
-    emits: ['close', 'open-match'],
-    setup(props) {
+    emits: ['close', 'open-match', 'update:player'],
+    setup(props, { emit }) {
         const isFlipped = ref(false);
         
         // Reset flip state when player changes
         watch(() => props.player, () => {
             isFlipped.value = false;
         });
+
+        const currentIndex = computed(() => {
+            if (!props.player || !props.players) return -1;
+            return props.players.findIndex(p => p.id === props.player.id);
+        });
+
+        const hasPrev = computed(() => props.players && props.players.length > 1);
+        const hasNext = computed(() => props.players && props.players.length > 1);
+        const transitionName = ref('slide-next');
+
+        const navigate = (direction) => {
+            if (!props.players || props.players.length <= 1) return;
+            
+            // Set transition direction
+            transitionName.value = direction > 0 ? 'slide-next' : 'slide-prev';
+            
+            let nextIndex = currentIndex.value + direction;
+            
+            // Loop logic
+            if (nextIndex < 0) nextIndex = props.players.length - 1;
+            if (nextIndex >= props.players.length) nextIndex = 0;
+            
+            emit('update:player', props.players[nextIndex]);
+        };
+
+        // Swipe Support
+        let touchStartX = 0;
+        const handleTouchStart = (e) => { touchStartX = e.touches[0].clientX; };
+        const handleTouchEnd = (e) => {
+            const touchEndX = e.changedTouches[0].clientX;
+            const diff = touchStartX - touchEndX;
+            if (Math.abs(diff) > 50) { // Threshold
+                if (diff > 0) navigate(1); // Swipe left -> next
+                else navigate(-1); // Swipe right -> prev
+            }
+        };
+
+        // Keyboard support
+        const handleKeydown = (e) => {
+            if (!props.player) return;
+            if (e.key === 'ArrowLeft') navigate(-1);
+            if (e.key === 'ArrowRight') navigate(1);
+            if (e.key === 'Escape') emit('close');
+        };
+
+        onMounted(() => window.addEventListener('keydown', handleKeydown));
+        onUnmounted(() => window.removeEventListener('keydown', handleKeydown));
 
         const backStats = computed(() => {
             const p = props.player;
@@ -345,7 +397,11 @@ const PlayerDetailModal = {
             return new Date(date).toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' });
         };
 
-        return { isFlipped, backStats, getThemeStyle, formatDate };
+        return { 
+            isFlipped, backStats, getThemeStyle, formatDate, 
+            hasPrev, hasNext, navigate, currentIndex, transitionName,
+            handleTouchStart, handleTouchEnd 
+        };
     }
 };
 const MessageDetailModal = {
@@ -528,9 +584,16 @@ const QuickEditModal = {
     emits: ['update:open']
 };
 
+const EventDetailModal = {
+    props: ['open', 'event', 'likes', 'comments', 'commentDraft'],
+    components: { AppIcon },
+    template: '#event-detail-modal-template',
+    emits: ['update:open', 'like', 'join', 'comment', 'leave', 'update:commentDraft']
+};
+
 // --- Main App ---
 createApp({
-    components: { SignaturePad, PlayerCard, AppIcon, PlayerDetailModal, MatchModal, NtrpGuideModal, QuickEditModal },
+    components: { SignaturePad, PlayerCard, AppIcon, PlayerDetailModal, MatchModal, NtrpGuideModal, QuickEditModal, EventDetailModal },
     setup() {
         // Route Configuration
         const routes = {
@@ -539,7 +602,9 @@ createApp({
             '/create': 'create',
             '/messages': 'messages',
             '/auth': 'auth',
-            '/mycards': 'mycards'
+            '/mycards': 'mycards',
+            '/events': 'events',
+            '/create-event': 'create-event'
         };
         const routePaths = Object.fromEntries(Object.entries(routes).map(([k, v]) => [v, k]));
         
@@ -554,6 +619,79 @@ createApp({
         const messages = ref([]);
         const isPlayersLoading = ref(false);
         const isPlayersError = ref(false);
+
+        const formatLocalDateTime = (date) => {
+            const pad = (n) => String(n).padStart(2, '0');
+            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+        };
+
+        const getDefaultEventTimes = () => {
+            const now = new Date();
+            const start = formatLocalDateTime(now);
+            const end = formatLocalDateTime(new Date(now.getTime() + 2 * 60 * 60 * 1000));
+            return { start, end };
+        };
+        const defaultEventTimes = getDefaultEventTimes();
+        
+        // Events State
+        const events = ref([]);
+        const eventsLoading = ref(false);
+        const eventFilter = ref('all');
+        const eventRegionFilter = ref('all');
+        const eventSearchQuery = ref('');
+        const eventSubmitting = ref(false);
+        const eventForm = reactive({
+            title: '',
+            region: '',
+            event_date: defaultEventTimes.start,
+            end_date: defaultEventTimes.end,
+            location: '',
+            address: '',
+            fee: 0,
+            max_participants: 0, // 0 = unlimited
+            match_type: 'all', // default to '不限'
+            gender: 'all', // default to '不限'
+            level_min: '',
+            level_max: '',
+            notes: ''
+        });
+        
+        // Computed: Has player card
+        const hasPlayerCard = computed(() => {
+            return myCards.value && myCards.value.length > 0;
+        });
+        
+        // Computed: Filtered events
+        const filteredEvents = computed(() => {
+            let result = events.value;
+
+            // Filter by match type
+            if (eventFilter.value !== 'all') {
+                result = result.filter(e => e.match_type === eventFilter.value);
+            }
+
+            // Filter by region
+            if (eventRegionFilter.value !== 'all') {
+                result = result.filter(e => e.location && e.location.includes(eventRegionFilter.value));
+            }
+
+            // Filter by search query
+            const query = (eventSearchQuery.value || '').trim().toLowerCase();
+            if (query) {
+                result = result.filter(e => 
+                    (e.title && e.title.toLowerCase().includes(query)) ||
+                    (e.location && e.location.toLowerCase().includes(query)) ||
+                    (e.address && e.address.toLowerCase().includes(query))
+                );
+            }
+
+            return result;
+        });
+        
+        // Min event date (now)
+        const minEventDate = computed(() => {
+            return formatLocalDateTime(new Date());
+        });
         
         // Confirm Dialog State
         const confirmDialog = reactive({
@@ -689,7 +827,8 @@ createApp({
                     isLoading.value = true;
                     try {
                         await api.delete(`/players/${cardId}`);
-                        players.value = players.value.filter(p => p.id !== cardId);
+                        await loadPlayers();
+                        await loadMyCards();
                         showToast('球友卡已刪除', 'info');
                     } catch (error) {
 
@@ -715,6 +854,148 @@ createApp({
             if (diffHours < 24) return `${diffHours} 小時前`;
             if (diffDays < 7) return `${diffDays} 天前`;
             return date.toLocaleDateString('zh-TW');
+        };
+        
+        // Event Methods
+        const loadEvents = async () => {
+            eventsLoading.value = true;
+            try {
+                const response = await api.get('/events');
+                events.value = response.data.data || response.data || [];
+            } catch (error) {
+                console.error('Failed to load events:', error);
+                events.value = [];
+            } finally {
+                eventsLoading.value = false;
+            }
+        };
+        
+        const createEvent = async () => {
+            if (!isLoggedIn.value) {
+                showToast('請先登入', 'error');
+                return;
+            }
+            
+            eventSubmitting.value = true;
+            try {
+                const response = await api.post('/events', eventForm);
+                showToast(response.data.message || '活動建立成功！', 'success');
+                
+                // Reset form
+                const nextDefaults = getDefaultEventTimes();
+                Object.assign(eventForm, {
+                    title: '',
+                    event_date: nextDefaults.start,
+                    end_date: nextDefaults.end,
+                    location: '',
+                    address: '',
+                    fee: 0,
+                    max_participants: 0,
+                    match_type: 'all',
+                    gender: 'all',
+                    level_min: '',
+                    level_max: '',
+                    notes: ''
+                });
+                
+                // Reload events and navigate
+                await loadEvents();
+                navigateTo('events');
+            } catch (error) {
+                const msg = error.response?.data?.error || error.response?.data?.message || '建立失敗，請稍後再試';
+                showToast(msg, 'error');
+            } finally {
+                eventSubmitting.value = false;
+            }
+        };
+        
+        const joinEvent = async (eventId) => {
+            if (!isLoggedIn.value) {
+                showToast('請先登入', 'error');
+                navigateTo('auth');
+                return;
+            }
+            
+            isLoading.value = true;
+            try {
+                const response = await api.post(`/events/${eventId}/join`);
+                showToast(response.data.message || '報名成功！', 'success');
+                await loadEvents();
+            } catch (error) {
+                const msg = error.response?.data?.error || '報名失敗，請稍後再試';
+                showToast(msg, 'error');
+            } finally {
+                isLoading.value = false;
+            }
+        };
+        
+        const leaveEvent = async (eventId) => {
+            isLoading.value = true;
+            try {
+                const response = await api.post(`/events/${eventId}/leave`);
+                showToast(response.data.message || '已取消報名', 'info');
+                await loadEvents();
+            } catch (error) {
+                const msg = error.response?.data?.error || '取消失敗，請稍後再試';
+                showToast(msg, 'error');
+            } finally {
+                isLoading.value = false;
+            }
+        };
+
+        const showEventDetail = ref(false);
+        const activeEvent = ref(null);
+        const eventLikes = reactive({});
+        const eventComments = reactive({});
+        const eventCommentDraft = ref('');
+
+        const loadEventDetail = async (eventId) => {
+            try {
+                const response = await api.get(`/events/${eventId}`);
+                // Ensure data structure for modal
+                const eventData = response.data;
+                if (!eventComments[eventId]) eventComments[eventId] = [];
+                activeEvent.value = { ...eventData, loading: false };
+            } catch (error) {
+                console.error('Load event error:', error);
+                showToast('載入活動失敗，請稍後再試', 'error');
+                showEventDetail.value = false;
+            }
+        };
+
+        const openEventDetail = (event) => {
+            activeEvent.value = { ...event, loading: true };
+            showEventDetail.value = true;
+            loadEventDetail(event.id);
+        };
+
+        const toggleEventLike = (eventId) => {
+            eventLikes[eventId] = !eventLikes[eventId];
+        };
+
+        const submitEventComment = (eventId) => {
+            const text = eventCommentDraft.value?.trim();
+            if (!text) return;
+            if (!eventComments[eventId]) eventComments[eventId] = [];
+            eventComments[eventId].unshift({
+                id: Date.now(),
+                user: currentUser.value || { name: '匿名' },
+                text,
+                at: new Date().toISOString()
+            });
+            eventCommentDraft.value = '';
+        };
+        
+        const formatEventDate = (dateStr) => {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            const days = ['日', '一', '二', '三', '四', '五', '六'];
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const weekday = days[date.getDay()];
+            const hours = date.getHours().toString().padStart(2, '0');
+            const mins = date.getMinutes().toString().padStart(2, '0');
+            return `${month}/${day} (${weekday}) ${hours}:${mins}`;
         };
         const features = [
             { icon: 'zap', title: '快速約球陪打', desc: '精準媒合 NTRP 等級，輕鬆找到實力相當的球友或專業陪打夥伴。' },
@@ -1282,6 +1563,40 @@ createApp({
             }
         };
 
+        const useLinePhoto = async () => {
+            const url = currentUser.value?.line_picture_url;
+            if (!url) return;
+            
+            isLoading.value = true;
+            try {
+                // Use getUrl to ensure we have a valid path
+                const targetUrl = getUrl(url);
+                const response = await fetch(targetUrl);
+                const blob = await response.blob();
+                
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    form.photo = reader.result;
+                    form.photoX = 0;
+                    form.photoY = 0;
+                    form.photoScale = 1;
+                    isAdjustingPhoto.value = true;
+                    showToast('已成功匯入 LINE 大頭貼', 'success');
+                };
+                reader.readAsDataURL(blob);
+            } catch (error) {
+                console.error('Error fetching LINE photo:', error);
+                // Fallback: if fetch fails, we still set the URL so the user can see it
+                form.photo = url;
+                form.photoX = 0;
+                form.photoY = 0;
+                form.photoScale = 1;
+                showToast('無法直接匯入圖片，已使用連結代替', 'warning');
+            } finally {
+                isLoading.value = false;
+            }
+        };
+
         // Capture static card image
         const captureCardImage = async () => {
             if (typeof html2canvas === 'undefined') {
@@ -1531,6 +1846,11 @@ createApp({
                     messagePollInterval = null;
                 }
             }
+            
+            // Load events when navigating to events view
+            if (newView === 'events' || newView === 'create-event') {
+                loadEvents();
+            }
         });
 
         // Message Pagination (Client-side)
@@ -1580,7 +1900,7 @@ createApp({
             // Confirm Dialog
             confirmDialog, showConfirm, hideConfirm, executeConfirm,
             // My Cards
-            myCards, editCard, deleteCard,
+            myCards, editCard, deleteCard, hasPlayerCard,
             // Search, Filter, Pagination
             searchQuery, selectedRegion, currentPage, perPage, activeRegions, filteredPlayers, totalPages, paginatedPlayers, displayPages,
             // Step Validation
@@ -1589,11 +1909,14 @@ createApp({
             navigateTo, getUrl,
             // Auth & API
             isLoading, isPlayersLoading, authError, authForm, logout, loadPlayers, loadMessages, loadMyCards,
-            triggerUpload, handleFileUpload, saveCard, resetForm, getPlayersByRegion, 
+            triggerUpload, handleFileUpload, useLinePhoto, saveCard, resetForm, getPlayersByRegion, 
             openMatchModal, sendMatchRequest, showDetail, getDetailStats, scrollToSubmit, markMessageRead,
             selectedChatUser, showMessageDetail, openMessage, onMessageSent,
             // Message Pagination
-            paginatedMessages, hasMoreMessages, loadMoreMessages
+            paginatedMessages, hasMoreMessages, loadMoreMessages,
+            // Events
+            events, eventsLoading, eventFilter, eventRegionFilter, eventSearchQuery, eventSubmitting, eventForm, filteredEvents, minEventDate,
+            loadEvents, createEvent, joinEvent, leaveEvent, openEventDetail, formatEventDate, LEVELS, showEventDetail, activeEvent, eventLikes, toggleEventLike, eventComments, eventCommentDraft, submitEventComment
         };
     },
     components: {
@@ -1603,7 +1926,8 @@ createApp({
         'match-modal': MatchModal,
         'ntrp-guide-modal': NtrpGuideModal,
         'quick-edit-modal': QuickEditModal,
-        'message-detail-modal': MessageDetailModal
+        'message-detail-modal': MessageDetailModal,
+        'event-detail-modal': EventDetailModal
     }
 }).mount('#app');
 </script>

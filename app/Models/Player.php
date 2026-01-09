@@ -50,7 +50,7 @@ class Player extends Model
         'is_verified' => 'boolean',
     ];
 
-    protected $appends = ['photo_url', 'signature_url'];
+    protected $appends = ['photo_url', 'signature_url', 'likes_count'];
 
     /**
      * Get the user that owns the player card.
@@ -58,6 +58,22 @@ class Player extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the likes for this player card.
+     */
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
+    }
+
+    /**
+     * Get likes count.
+     */
+    public function getLikesCountAttribute()
+    {
+        return $this->likes()->count();
     }
 
     /**

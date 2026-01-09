@@ -90,7 +90,15 @@ class PlayerController extends Controller
             $data['user_id'] = $request->user()->id;
         }
 
-        $player = Player::create($data);
+        // Enforce single card: Update if exists, otherwise create
+        if (isset($data['user_id'])) {
+            $player = Player::updateOrCreate(
+                ['user_id' => $data['user_id']],
+                $data
+            );
+        } else {
+            $player = Player::create($data);
+        }
 
         // Merging disabled as per user request to keep signatures dynamic
         /*

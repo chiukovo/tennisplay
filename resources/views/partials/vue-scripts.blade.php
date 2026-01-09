@@ -602,7 +602,7 @@ createApp({
             '/create': 'create',
             '/messages': 'messages',
             '/auth': 'auth',
-            '/mycards': 'mycards',
+            '/profile': 'profile',
             '/events': 'events',
             '/create-event': 'create-event'
         };
@@ -617,7 +617,7 @@ createApp({
             'events': '揪球開團 | 搜尋全台網球場次',
             'create-event': '發佈揪球 | 建立新的網球場次',
             'auth': '登入/註冊 | 加入 LoveTennis 社群',
-            'mycards': '我的球友卡 | 管理個人檔案',
+            'profile': '個人主頁 | LoveTennis',
             'settings': '帳號設置 | 個性化您的網球體驗'
         };
 
@@ -659,6 +659,18 @@ createApp({
         const eventFilter = ref('all');
         const eventRegionFilter = ref('all');
         const eventSearchQuery = ref('');
+
+        // Profile State
+        const profileData = reactive({
+            user: { player: null },
+            stats: { followers_count: 0, following_count: 0, likes_count: 0, events_count: 0 },
+            status: { is_following: false, is_liked: false, is_me: false }
+        });
+        const profileTab = ref('active');
+        const profileEvents = ref([]);
+        const profileEventsPage = ref(1);
+        const profileEventsHasMore = ref(false);
+
         const eventSubmitting = ref(false);
         const isSavingSettings = ref(false);
         const settingsForm = reactive({
@@ -790,20 +802,74 @@ createApp({
 
             }
         };
-        
+
+        watch(profileTab, () => loadProfileEvents(false));
+
+        const toggleFollow = async () => {
+            if (!isLoggedIn.value) {
+                showToast('請先登入', 'error');
+                navigateTo('auth');
+                return;
+            }
+            const isFollowing = profileData.status.is_following;
+            const url = isFollowing ? `/unfollow/${profileData.user.id}` : `/follow/${profileData.user.id}`;
+            try {
+                const response = await api.post(url);
+                profileData.status.is_following = !isFollowing;
+                profileData.stats.followers_count = response.data.followers_count;
+                showToast(response.data.message, 'success');
+            } catch (error) {
+                showToast('操作失敗', 'error');
+            }
+        };
+
+        const toggleLike = async () => {
+            if (!isLoggedIn.value) {
+                showToast('請先登入', 'error');
+                navigateTo('auth');
+                return;
+            }
+            if (!profileData.user.player) return;
+            const isLiked = profileData.status.is_liked;
+            const url = isLiked ? `/unlike/${profileData.user.player.id}` : `/like/${profileData.user.player.id}`;
+            try {
+                const response = await api.post(url);
+                profileData.status.is_liked = !isLiked;
+                profileData.stats.likes_count = response.data.likes_count;
+                showToast(response.data.message, 'success');
+            } catch (error) {
+                showToast('操作失敗', 'error');
+            }
+        };
+
+        const editMyCard = () => {
+            if (profileData.user.player) {
+                editCard(profileData.user.player);
+            }
+        };
+
+        const openProfile = (userId) => {
+            loadProfile(userId);
+            navigateTo('profile', true, userId);
+        };
+
         // Reset form to default values
         const resetForm = () => {
             const user = currentUser.value;
-            const defRegion = (settingsForm.default_region && settingsForm.default_region !== '全部') 
-                ? settingsForm.default_region 
-                : '台北市';
+            const defRegion = (user?.region && user.region !== '全部') 
+                ? user.region 
+                : ((settingsForm.default_region && settingsForm.default_region !== '全部') ? settingsForm.default_region : '台北市');
 
             Object.assign(form, {
                 id: null,
                 name: user?.name || '', 
-                region: defRegion, level: '3.5', handed: '右手', backhand: '雙反', gender: '男',
+                region: defRegion, 
+                level: '3.5', 
+                handed: '右手', 
+                backhand: '雙反', 
+                gender: user?.gender || '男',
                 intro: '', fee: '免費 (交流為主)', 
-                photo: null, // User requested NOT to pre-fill photo
+                photo: null, 
                 signature: null, theme: 'standard',
                 merged_photo: null,
                 photoX: 0, photoY: 0, photoScale: 1, 
@@ -861,9 +927,14 @@ createApp({
                         await api.delete(`/players/${cardId}`);
                         await loadPlayers();
                         await loadMyCards();
+                        
+                        // If we are on profile page, refresh profile
+                        if (view.value === 'profile' && profileData.user.id === currentUser.value.id) {
+                            await loadProfile(profileData.user.id);
+                        }
+                        
                         showToast('球友卡已刪除', 'info');
                     } catch (error) {
-
                         showToast('刪除失敗，請稍後再試', 'error');
                     } finally {
                         isLoading.value = false;
@@ -885,15 +956,17 @@ createApp({
             if (diffMins < 60) return `${diffMins} 分鐘前`;
             if (diffHours < 24) return `${diffHours} 小時前`;
             if (diffDays < 7) return `${diffDays} 天前`;
-            return date.toLocaleDateString('zh-TW');
+            
+            return date.toLocaleDateString('zh-TW', { month: 'short', day: 'numeric' });
         };
-        
-        // Event Methods
+
         const loadEvents = async () => {
             eventsLoading.value = true;
             try {
                 const response = await api.get('/events');
-                events.value = response.data.data || response.data || [];
+                if (response.data.success) {
+                    events.value = response.data.data;
+                }
             } catch (error) {
                 console.error('Failed to load events:', error);
                 events.value = [];
@@ -1181,7 +1254,18 @@ createApp({
             return `/storage/${path}`;
         };
         // Navigation function with History API
-        const navigateTo = (viewName, shouldReset = true) => {
+        const navigateTo = (viewName, shouldReset = true, id = null) => {
+            // Check if user has basic info before creating card
+            if (viewName === 'create' && isLoggedIn.value) {
+                if (!currentUser.value?.gender || !currentUser.value?.region) {
+                    showToast('請先完成基本資料（性別、地區）再建立球友卡', 'warning');
+                    // Redirect to profile instead
+                    viewName = 'profile';
+                    id = currentUser.value?.id;
+                    shouldReset = false;
+                }
+            }
+
             if (viewName === 'create' && shouldReset) {
                 resetForm();
             }
@@ -1189,8 +1273,13 @@ createApp({
                 resetEventForm();
             }
             view.value = viewName;
-            const path = routePaths[viewName] || '/';
-            window.history.pushState({ view: viewName }, '', path);
+            
+            let path = routePaths[viewName] || '/';
+            if (viewName === 'profile' && id) {
+                path = `/profile/${id}`;
+            }
+            
+            window.history.pushState({ view: viewName, id: id }, '', path);
             
             applyDefaultFilters(viewName);
 
@@ -1209,6 +1298,16 @@ createApp({
             if (!viewName) {
                 const matchedKey = Object.keys(routes).find(r => r !== '/' && path.endsWith(r));
                 if (matchedKey) viewName = routes[matchedKey];
+            }
+
+            // Priority 2.5: Handle profile with ID
+            if (!viewName && path.includes('/profile/')) {
+                const parts = path.split('/');
+                const id = parts[parts.length - 1];
+                if (id && !isNaN(id)) {
+                    viewName = 'profile';
+                    loadProfile(id);
+                }
             }
             
             // Priority 3: Default to home if at root of project
@@ -1342,7 +1441,7 @@ createApp({
         });
         
         const canProceedStep3 = computed(() => {
-            return form.region && form.region.trim().length > 0;
+            return true; // Intro is optional
         });
         
         // Check if user can go to a specific step (for step indicator clicks)
@@ -1371,17 +1470,15 @@ createApp({
             stepAttempted[currentStep.value] = true;
             
             if (currentStep.value === 1 && !canProceedStep1.value) {
-                showToast('請上傳照片並填寫姓名', 'error');
+                showToast('請上傳照片', 'error');
                 return;
             }
             if (currentStep.value === 2 && !canProceedStep2.value) {
                 showToast('請選擇 NTRP 等級和技術設定', 'error');
                 return;
             }
-            if (currentStep.value === 3 && !canProceedStep3.value) {
-                showToast('請選擇您的活動地區', 'error');
-                return;
-            }
+            // Step 3 is optional
+            
             // Reset attempted state for next step
             stepAttempted[currentStep.value + 1] = false;
             currentStep.value++;
@@ -1394,11 +1491,9 @@ createApp({
             } else {
                 // Show appropriate error message
                 if (targetStep >= 2 && !canProceedStep1.value) {
-                    showToast('請先完成第一步：上傳照片與填寫姓名', 'error');
+                    showToast('請先完成第一步：上傳照片', 'error');
                 } else if (targetStep >= 3 && !canProceedStep2.value) {
                     showToast('請先完成第二步：選擇 NTRP 等級', 'error');
-                } else if (targetStep >= 4 && !canProceedStep3.value) {
-                    showToast('請先完成第三步：選擇活動地區', 'error');
                 }
             }
         };
@@ -1890,7 +1985,7 @@ createApp({
                     
                     // Reset and navigate
                     resetForm();
-                    navigateTo('mycards');
+                    navigateTo('profile', true, currentUser.value.id);
                 }
             } catch (error) {
                 console.error('Save card error:', error);
@@ -1943,7 +2038,13 @@ createApp({
             matchModal.text = '';
             showToast(`已成功發送約打邀請給 ${matchModal.player.name}`, 'success');
         };
-        const showDetail = (p) => { detailPlayer.value = p; };
+        const showDetail = (p) => { 
+            if (p.user_id) {
+                openProfile(p.user_id);
+            } else {
+                detailPlayer.value = p; 
+            }
+        };
         const getDetailStats = (p) => {
             if (!p) return [];
             return [
@@ -1993,8 +2094,6 @@ createApp({
             // 2. Data Loading
             if (newView === 'home' || newView === 'list') {
                 loadPlayers();
-            } else if (newView === 'mycards') {
-                loadMyCards();
             } else if (newView === 'events' || newView === 'create-event') {
                 loadEvents();
             }
@@ -2050,7 +2149,6 @@ createApp({
             // Refresh conversation list to show latest message
             loadMessages();
         };
-
         return {
             view, isLoggedIn, currentUser, isLoginMode, hasUnread, regions, levels, players, messages, features, form, 
             matchModal, detailPlayer, isSigning, showNtrpGuide, levelDescs, cardThemes, currentStep, showPreview, showQuickEditModal, stepTitles, genders,
@@ -2061,6 +2159,9 @@ createApp({
             confirmDialog, showConfirm, hideConfirm, executeConfirm,
             // My Cards
             myCards, editCard, deleteCard, hasPlayerCard,
+            // Profile
+            profileData, profileTab, profileEvents, profileEventsHasMore, loadProfile, loadProfileEvents, toggleFollow, toggleLike, editMyCard, openProfile,
+            isEditingProfile, profileForm, saveProfile,
             // Search, Filter, Pagination
             searchQuery, selectedRegion, currentPage, perPage, activeRegions, filteredPlayers, totalPages, paginatedPlayers, displayPages,
             // Step Validation

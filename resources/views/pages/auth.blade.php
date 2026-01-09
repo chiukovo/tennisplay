@@ -7,8 +7,8 @@
 
         <div class="relative z-10">
             <div class="text-center mb-12">
-                <div class="inline-flex items-center justify-center w-20 h-20 bg-slate-900 rounded-[28px] mb-6 shadow-xl shadow-slate-900/20">
-                    <app-icon name="trophy" class-name="text-white w-10 h-10"></app-icon>
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-[28px] mb-6 shadow-xl border border-slate-100 overflow-hidden">
+                    <img src="/img/logo.png" alt="LoveTennis Logo" class="w-12 h-12 object-contain">
                 </div>
                 <h2 class="text-4xl font-black italic uppercase tracking-tighter leading-tight text-slate-900">
                     開始約打

@@ -20,6 +20,9 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'gender',
+        'region',
+        'bio',
         'line_user_id',
         'line_picture_url',
         'settings',
@@ -44,19 +47,27 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the player cards owned by the user.
-     */
-    public function players()
-    {
-        return $this->hasMany(Player::class);
-    }
-
-    /**
      * Get the primary player card.
      */
     public function player()
     {
-        return $this->hasOne(Player::class)->latest();
+        return $this->hasOne(Player::class);
+    }
+
+    /**
+     * Get the users following this user.
+     */
+    public function followers()
+    {
+        return $this->belongsToMany(User::class, 'follows', 'following_id', 'follower_id')->withTimestamps();
+    }
+
+    /**
+     * Get the users this user is following.
+     */
+    public function following()
+    {
+        return $this->belongsToMany(User::class, 'follows', 'follower_id', 'following_id')->withTimestamps();
     }
 
     /**

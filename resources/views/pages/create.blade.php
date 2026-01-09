@@ -21,21 +21,33 @@
         <div class="flex items-center justify-between mb-10">
             <div>
                 <h2 class="text-3xl font-black italic uppercase tracking-tighter text-slate-900">
-                    <span v-if="currentStep === 1">1. 形象與姓名</span>
+                    <span v-if="currentStep === 1">1. 形象照片</span>
                     <span v-if="currentStep === 2">2. 技巧與分級</span>
-                    <span v-if="currentStep === 3">3. 地區與資訊</span>
+                    <span v-if="currentStep === 3">3. 約打宣告</span>
                     <span v-if="currentStep === 4">4. 預覽與發佈</span>
                 </h2>
-                <p class="text-xs text-slate-400 font-bold mt-1 uppercase tracking-widest">@{{ stepTitles[currentStep-1] }}</p>
+                <p class="text-xs text-slate-400 font-bold mt-1 uppercase tracking-widest">@{{ ['上傳您的網球形象', '設定您的實力分級', '分享您的打法特色', '最後確認與樣式'][currentStep-1] }}</p>
             </div>
         </div>
 
         <form @submit.prevent="saveCard" class="flex-1 flex flex-col">
             {{-- <transition name="step" mode="out-in"> --}}
                 <div :key="currentStep" class="flex-1">
-                    {{-- Step 1: Photo & Name --}}
+                    {{-- Step 1: Photo --}}
                     <div v-if="currentStep === 1" class="space-y-8">
-                        {{-- Photo Section (always visible) --}}
+                        {{-- Basic Info Summary --}}
+                        <div class="bg-slate-50 rounded-3xl p-6 flex items-center justify-between border border-slate-100">
+                            <div class="flex items-center gap-4">
+                                <img :src="currentUser?.line_picture_url" class="w-12 h-12 rounded-full border-2 border-white shadow-sm">
+                                <div>
+                                    <h4 class="font-black text-slate-900 leading-none">@{{ currentUser?.name }}</h4>
+                                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">@{{ currentUser?.gender }} · @{{ currentUser?.region }}</p>
+                                </div>
+                            </div>
+                            <button type="button" @click="navigateTo('profile')" class="text-blue-600 text-[10px] font-black uppercase tracking-widest hover:underline">修改基本資料</button>
+                        </div>
+
+                        {{-- Photo Section --}}
                         <div class="flex flex-col items-center gap-6">
                             {{-- If photo exists, show preview with controls --}}
                             <div v-if="form.photo" class="w-full">
@@ -98,26 +110,6 @@
                             </div>
                             <input type="file" id="photo-upload" class="hidden" @change="handleFileUpload" accept="image/*">
                         </div>
-
-                        {{-- Name & Gender (always visible) --}}
-                        <div class="space-y-6">
-                            <div class="space-y-3">
-                                <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">您的姓名 <span class="text-red-500">*</span></label>
-                                <input type="text" v-model="form.name" placeholder="請輸入姓名或暱稱" 
-                                    :class="['w-full px-6 py-4 bg-slate-50 border-2 rounded-2xl outline-none font-black italic text-lg transition-all',
-                                    stepAttempted[1] && !form.name ? 'border-red-300 focus:border-red-500' : 'border-transparent focus:border-blue-500']">
-                                <p v-if="stepAttempted[1] && !form.name" class="text-red-500 text-xs font-bold mt-1">請填寫您的姓名</p>
-                            </div>
-                            <div class="space-y-3">
-                                <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">生理性別</label>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <button v-for="g in genders" :key="g" type="button" @click="form.gender = g" 
-                                        :class="['py-4 rounded-2xl font-black text-sm transition-all border-2', form.gender === g ? 'bg-slate-900 text-white border-slate-900 shadow-xl' : 'bg-slate-50 text-slate-400 border-transparent hover:border-slate-200']">
-                                        @{{ g }}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                     {{-- Step 2: Stats --}}
@@ -159,18 +151,8 @@
                         </div>
                     </div>
 
-                    {{-- Step 3: Location & Intro --}}
+                    {{-- Step 3: Intro --}}
                     <div v-if="currentStep === 3" class="space-y-8">
-                        <div class="space-y-4">
-                            <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">主要活動地區</label>
-                            <div class="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-[220px] overflow-y-auto no-scrollbar p-1">
-                                <button v-for="r in regions" :key="r" type="button" @click="form.region = r"
-                                    :class="['py-3 px-2 rounded-xl font-bold text-xs transition-all border-2', form.region === r ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-slate-50 text-slate-400 border-transparent hover:border-slate-200']">
-                                    @{{r}}
-                                </button>
-                            </div>
-                            <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest italic text-center">上下滑動查看更多地區</p>
-                        </div>
                         <div class="space-y-4">
                             <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">約打宣告 / 個人特色</label>
                             <textarea v-model="form.intro" class="w-full px-6 py-5 bg-slate-50 border-2 border-transparent rounded-[24px] focus:border-blue-500 outline-none font-bold text-base shadow-inner h-40 resize-none" placeholder="分享一下您的打法特色，或想找什麼樣的球友..."></textarea>

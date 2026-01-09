@@ -51,6 +51,7 @@ class AuthController extends Controller
             'redirect_uri' => config('services.line.redirect'),
             'state' => $state,
             'scope' => 'profile openid',
+            'bot_prompt' => 'normal',
         ]);
 
         return redirect('https://access.line.me/oauth2/v2.1/authorize?' . $params);

@@ -76,7 +76,7 @@
         @include('pages.create')
         @include('pages.list')
         @include('pages.messages')
-        @include('pages.mycards')
+        @include('pages.profile')
         @include('pages.events')
         @include('pages.create-event')
         @include('pages.settings')

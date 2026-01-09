@@ -191,23 +191,35 @@
                                 <span class="flex items-center justify-center w-6 h-6 bg-blue-600 text-white rounded-full text-[10px] font-black">2</span>
                                 <h4 class="text-sm font-black uppercase tracking-widest text-slate-900">在您卡片上簽名</h4>
                             </div>
-                            <div class="space-y-3">
-                                <button type="button" @click="isSigning = true" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-slate-800 transition-all shadow-xl">
+                            <div class="space-y-4 w-full">
+                                {{-- Signature Actions Grid --}}
+                                <div v-if="form.signature" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <button type="button" @click="isSigning = true" class="bg-slate-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-800 transition-all shadow-lg active:scale-95">
+                                        <app-icon name="eraser" class-name="w-4 h-4 text-blue-400"></app-icon>
+                                        重新手寫簽名
+                                    </button>
+
+                                    <button type="button" @click="toggleAdjustSig" 
+                                        :class="['py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95', isAdjustingSig ? 'bg-blue-600 text-white shadow-blue-500/30' : 'bg-white text-slate-900 border border-slate-100 hover:bg-slate-50']">
+                                        <app-icon :name="isAdjustingSig ? 'check' : 'move'" class-name="w-4 h-4" :class="isAdjustingSig ? 'text-white' : 'text-blue-600'"></app-icon>
+                                        @{{ isAdjustingSig ? '✓ 完成調整' : '調整簽名位置' }}
+                                    </button>
+                                </div>
+
+                                {{-- Initial Signature Button --}}
+                                <button v-else type="button" @click="isSigning = true" class="w-full bg-slate-900 text-white py-5 rounded-3xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-slate-800 transition-all shadow-xl active:scale-95">
                                     <app-icon name="eraser" class-name="w-5 h-5 text-blue-400"></app-icon>
-                                    @{{ form.signature ? '重新手寫簽名' : '點擊此處開始簽名 (推薦)' }}
+                                    點擊此處開始簽名 (推薦)
                                 </button>
 
-                                <button v-if="form.signature" type="button" @click="toggleAdjustSig" 
-                                    :class="['w-full py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all shadow-xl', isAdjustingSig ? 'bg-blue-600 text-white hover:bg-blue-500' : 'bg-white text-slate-900 border border-slate-100 hover:bg-slate-50']">
-                                    <app-icon :name="isAdjustingSig ? 'check' : 'move'" class-name="w-5 h-5"></app-icon>
-                                    @{{ isAdjustingSig ? '✓ 完成調整' : '調整簽名位置' }}
-                                </button>
-
-                                <button type="button" @click="showQuickEditModal = true" class="w-full bg-white text-slate-900 border border-slate-100 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-slate-50 transition-all shadow-xl">
-                                    <app-icon name="edit-3" class-name="w-5 h-5 text-blue-600"></app-icon>
-                                    快速修改資料
-                                </button>
-                                <p class="text-[9px] text-slate-400 font-bold italic text-center uppercase tracking-widest">確認內容無誤後，即可點擊發佈</p>
+                                {{-- Utility Actions --}}
+                                <div class="flex flex-col items-center gap-4 pt-2">
+                                    <button type="button" @click="showQuickEditModal = true" class="text-slate-400 hover:text-blue-600 font-black text-[10px] uppercase tracking-widest flex items-center gap-1.5 transition-colors group">
+                                        <app-icon name="edit-3" class-name="w-3.5 h-3.5 transition-transform group-hover:rotate-12"></app-icon>
+                                        快速修改資料
+                                    </button>
+                                    <p class="text-[9px] text-slate-400 font-bold italic text-center uppercase tracking-widest">確認內容無誤後，即可點擊下方發佈</p>
+                                </div>
                             </div>
                         </div>
                     </div>

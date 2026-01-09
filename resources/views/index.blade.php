@@ -47,6 +47,9 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/img/favicon/apple-touch-icon.png">
     <link rel="manifest" href="/img/favicon/site.webmanifest">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script>
+        window.tennisConfig = @json(config('tennis'));
+    </script>
     <style>[v-cloak] { display: none !important; }</style>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>

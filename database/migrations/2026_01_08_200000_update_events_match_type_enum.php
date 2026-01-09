@@ -19,6 +19,9 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Update any record with 'all' to a valid value before reverting the enum
+        DB::table('events')->where('match_type', 'all')->update(['match_type' => 'doubles']);
+
         // Revert to the original enum definition
         DB::statement("ALTER TABLE events MODIFY match_type ENUM('singles','doubles','mixed') NOT NULL DEFAULT 'doubles'");
     }

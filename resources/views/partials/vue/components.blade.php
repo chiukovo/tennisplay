@@ -118,7 +118,7 @@ const SignaturePad = {
 };
 
 const PlayerCard = {
-    props: ['player', 'size', 'isSigning', 'isAdjustingSig'],
+    props: ['player', 'size', 'isSigning', 'isAdjustingSig', 'isPlaceholder'],
     components: { AppIcon, SignaturePad },
     template: '#player-card-template',
     setup(props) {
@@ -158,7 +158,6 @@ const PlayerCard = {
             const getFullUrl = (path) => {
                 if (!path) return null;
                 if (path.startsWith('http') || path.startsWith('data:')) return path;
-                // Handle paths that already start with /storage/
                 if (path.startsWith('/storage/')) return path;
                 return `/storage/${path}`;
             };
@@ -185,6 +184,7 @@ const PlayerCard = {
             return themes[p.value.theme || 'standard'] || themes.standard;
         });
         const getLevelTag = (lvl) => LEVEL_TAGS[lvl] || '網球愛愛好者';
+
         return { cardContainer, p, themeStyle, getLevelTag };
     }
 };
@@ -195,13 +195,6 @@ const PlayerDetailModal = {
     template: '#player-detail-modal-template',
     emits: ['close', 'open-match', 'update:player'],
     setup(props, { emit }) {
-        const isFlipped = ref(false);
-        
-        // Reset flip state when player changes
-        watch(() => props.player, () => {
-            isFlipped.value = false;
-        });
-
         const currentIndex = computed(() => {
             if (!props.player || !props.players) return -1;
             return props.players.findIndex(p => p.id === props.player.id);
@@ -277,8 +270,10 @@ const PlayerDetailModal = {
             return new Date(date).toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' });
         };
 
+        const getLevelDesc = (lvl) => LEVEL_DESCS[lvl] || '享受網球樂趣，持續精進球技。';
+
         return { 
-            isFlipped, backStats, getThemeStyle, formatDate, 
+            backStats, getThemeStyle, formatDate, getLevelDesc,
             hasPrev, hasNext, navigate, currentIndex, transitionName,
             handleTouchStart, handleTouchEnd 
         };

@@ -1,5 +1,5 @@
 {{-- Navigation --}}
-<nav class="bg-white/90 backdrop-blur-xl border-b sticky top-0 z-50">
+<nav class="bg-white/90 backdrop-blur-xl border-b sticky top-0 z-[100]">
     <div class="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between gap-2">
         <div class="flex items-center gap-2 sm:gap-3 cursor-pointer shrink-0" @click="navigateTo('home')">
             <img src="/img/logo.png" alt="LoveTennis Logo" class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl object-contain">
@@ -35,14 +35,14 @@
                     </div>
                 </button>
                 {{-- Dropdown Menu - Click to toggle, click outside to close --}}
-                <div v-show="showUserMenu" @click.stop class="absolute right-0 top-full pt-2 w-48 z-50">
+                <div v-show="showUserMenu" @click.stop class="absolute right-0 top-full pt-2 w-48 z-[110]">
                     <div class="bg-white rounded-2xl shadow-2xl border border-slate-100 py-2">
                     <a href="/messages" @click.prevent="navigateTo('messages'); showUserMenu = false" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors">
                         <app-icon name="mail" class-name="w-5 h-5"></app-icon>
                         <span>我的訊息</span>
                         <div v-if="hasUnread" class="ml-auto w-2 h-2 bg-red-500 rounded-full"></div>
                     </a>
-                    <a href="/create" @click.prevent="navigateTo('create'); showUserMenu = false" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors">
+                    <a v-if="!hasPlayerCard" href="/create" @click.prevent="navigateTo('create'); showUserMenu = false" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors">
                         <app-icon name="plus" class-name="w-5 h-5"></app-icon>
                         <span>建立球友卡</span>
                     </a>
@@ -67,10 +67,10 @@
                 <div v-if="showUserMenu" @click="showUserMenu = false" class="fixed inset-0 z-40"></div>
             </div>
             
-            <a href="/create" @click.prevent="navigateTo('create')" class="bg-slate-950 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-blue-600 transition-all flex items-center gap-2 shadow-xl">
-                <app-icon name="plus" class-name="w-4 h-4 sm:w-5 h-5"></app-icon>
-                <span class="hidden sm:inline">製作球友卡</span>
-                <span class="sm:hidden">製作</span>
+            <a :href="hasPlayerCard ? '/events' : '/create'" @click.prevent="navigateTo(hasPlayerCard ? 'events' : 'create')" class="bg-slate-950 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-blue-600 transition-all flex items-center gap-2 shadow-xl">
+                <app-icon :name="hasPlayerCard ? 'users' : 'plus'" class-name="w-4 h-4 sm:w-5 h-5"></app-icon>
+                <span class="hidden sm:inline">@{{ hasPlayerCard ? '開團揪球' : '製作球友卡' }}</span>
+                <span class="sm:hidden">@{{ hasPlayerCard ? '開團' : '製作' }}</span>
             </a>
         </div>
     </div>

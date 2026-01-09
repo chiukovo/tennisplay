@@ -9,13 +9,6 @@ const useNavigation = (routes, routePaths, viewTitles, showToast, applyDefaultFi
     });
 
     const navigateTo = (viewName, shouldReset = true, uid = null, resetForm = null, resetEventForm = null, loadProfile = null) => {
-        if (viewName === 'create' && isLoggedIn.value) {
-            if (!currentUser.value?.gender || !currentUser.value?.region) {
-                showToast('請先完成基本資料（性別、地區）再建立球友卡', 'warning');
-                viewName = 'profile'; uid = currentUser.value?.uid || currentUser.value?.id; shouldReset = false;
-            }
-        }
-
         if (viewName === 'create' && shouldReset && resetForm) resetForm();
         if (viewName === 'create-event' && shouldReset && resetEventForm) resetEventForm();
         

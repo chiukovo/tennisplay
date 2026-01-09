@@ -41,12 +41,9 @@ api.interceptors.response.use(
 );
 
 // --- Constants ---
-const REGIONS = [
-    '台北市', '新北市', '基隆市', '桃園市', '新竹市', '新竹縣', '苗栗縣', 
-    '台中市', '彰化縣', '南投縣', '雲林縣', '嘉義市', '嘉義縣', '台南市', 
-    '高雄市', '屏東縣', '宜蘭縣', '花蓮縣', '台東縣', '澎湖縣', '金門縣', '連江縣'
-];
-const LEVELS = ['1.0', '1.5', '2.0', '2.5', '3.0', '3.5', '4.0', '4.5', '5.0', '5.5', '6.0', '7.0'];
+const config = window.tennisConfig || {};
+const REGIONS = config.regions || [];
+const LEVELS = config.levels || [];
 
 // No initial players - will be loaded from API
 const INITIAL_PLAYERS = [];
@@ -94,25 +91,8 @@ const SVG_ICONS = {
   'share': '<path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/>'
 };
 
-const LEVEL_DESCS = {
-    '1.0': '初學者，剛開始接觸網球。',
-    '1.5': '正在練習基本擊球，具備簡單比賽概念。',
-    '2.0': '能進行簡單來回球，發球尚不穩定。',
-    '2.5': '能維持慢速來回球，開始嘗試網前截擊。',
-    '3.0': '擊球穩定度提高，能控制方向，有比賽策略。',
-    '3.5': '具備良好的擊球控制與力量，能穩定發球。',
-    '4.0': '擊球有明顯威力與深度，能應對各種球路。',
-    '4.5': '具備強力的發球與底線，能進行高強度比賽。',
-    '5.0': '具備職業水準技術，能應對各種戰術變化。',
-    '5.5': '職業球友或資深教練。',
-    '6.0': '頂尖職業球友 (ATP/WTA 排名)。',
-    '7.0': '世界頂尖職業球友。'
-};
+const LEVEL_DESCS = config.level_descs || {};
 
 const { createApp, ref, reactive, computed, onMounted, onUnmounted, watch, nextTick } = Vue;
 
-const LEVEL_TAGS = {
-    '1.0': '網球初學者', '1.5': '基礎擊球員', '2.0': '入門球友', '2.5': '進階入門', 
-    '3.0': '中級程度', '3.5': '中高級員', '4.0': '高級球員', '4.5': '高強度球友', 
-    '5.0': '專家級員', '5.5': '資深教練', '6.0': '職業水準', '7.0': '世界級球星'
-};
+const LEVEL_TAGS = config.level_tags || {};

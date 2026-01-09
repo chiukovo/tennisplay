@@ -22,7 +22,7 @@ class ProfileController extends Controller
             ? User::with(['player'])->findOrFail($uid)
             : User::with(['player'])->where('uid', $uid)->firstOrFail();
         
-        $me = Auth::user();
+        $me = Auth::guard('sanctum')->user();
 
         // Stats
         $stats = [
@@ -34,9 +34,9 @@ class ProfileController extends Controller
 
         // Status for current user
         $status = [
-            'is_following' => $me ? Follow::where('follower_id', $me->id)->where('following_id', $user->id)->exists() : false,
-            'is_liked' => ($me && $user->player) ? Like::where('user_id', $me->id)->where('player_id', $user->player->id)->exists() : false,
-            'is_me' => $me ? $me->id == $user->id : false,
+            'is_following' => $me ? \App\Models\Follow::where('follower_id', $me->id)->where('following_id', $user->id)->exists() : false,
+            'is_liked' => ($me && $user->player) ? \App\Models\Like::where('user_id', $me->id)->where('player_id', $user->player->id)->exists() : false,
+            'is_me' => $me ? (string)$me->id === (string)$user->id : false,
         ];
 
         return response()->json([

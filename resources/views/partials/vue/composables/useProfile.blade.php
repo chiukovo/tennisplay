@@ -14,7 +14,7 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
     const isEditingProfile = ref(false);
     const profileForm = reactive({ name: '', gender: '', region: '', bio: '' });
 
-    const loadProfile = async (userId, loadProfileEventsCallback) => {
+    const loadProfile = async (userId, loadProfileEventsCallback, autoEdit = false) => {
         try {
             const response = await api.get(`/profile/${userId}`);
             Object.assign(profileData, response.data);
@@ -23,6 +23,7 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
                     name: response.data.user.name, gender: response.data.user.gender,
                     region: response.data.user.region, bio: response.data.user.bio
                 });
+                if (autoEdit) isEditingProfile.value = true;
             }
             profileEventsPage.value = 1;
             if (loadProfileEventsCallback) loadProfileEventsCallback(false);
@@ -30,7 +31,7 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
     };
 
     const loadProfileEvents = async (append = false) => {
-        const userId = profileData.user.uid || profileData.user.id;
+        const userId = profileData.user?.uid || profileData.user?.id;
         if (!userId) return;
         try {
             const response = await api.get(`/profile/${userId}/events`, {

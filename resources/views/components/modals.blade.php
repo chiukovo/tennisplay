@@ -34,75 +34,22 @@
                         class="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden no-scrollbar pb-24 md:pb-0">
                         {{-- Left: Card Display --}}
                         <div class="w-full md:w-1/2 p-6 sm:p-10 flex items-center justify-center bg-slate-50 border-r border-slate-100 shrink-0 relative min-h-[400px] sm:min-h-0">
-                            <div class="w-full max-w-[260px] sm:max-w-[340px] aspect-[2.5/3.8] flip-card cursor-pointer" :class="{ 'is-flipped': isFlipped }" @click="isFlipped = !isFlipped">
-                                <div class="flip-card-inner">
-                                    {{-- Front Side --}}
-                                    <div class="flip-card-front shadow-2xl">
-                                        <player-card :player="player" />
-                                        
-                                        {{-- Floating Navigation (Mobile Only) --}}
-                                        <div class="md:hidden absolute inset-y-0 -left-4 -right-4 flex items-center justify-between pointer-events-none z-[90]">
-                                            <button v-if="hasPrev" @click.stop="navigate(-1)" class="w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(37,99,235,0.4)] border-2 border-white/50 pointer-events-auto active:scale-90 transition-all nav-pulse">
-                                                <app-icon name="arrow-left" class-name="w-7 h-7" stroke-width="3.5"></app-icon>
-                                            </button>
-                                            <button v-if="hasNext" @click.stop="navigate(1)" class="w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(37,99,235,0.4)] border-2 border-white/50 pointer-events-auto active:scale-90 transition-all nav-pulse">
-                                                <app-icon name="arrow-right" class-name="w-7 h-7" stroke-width="3.5"></app-icon>
-                                            </button>
-                                        </div>
-
-                                        <div class="absolute bottom-4 right-4 bg-white/20 backdrop-blur-md p-2 rounded-full border border-white/20 z-[80] animate-pulse">
-                                            <app-icon name="rotate-3d" class-name="w-4 h-4 text-white"></app-icon>
-                                        </div>
-                                    </div>
-                                    
-                                    {{-- Back Side (Condensed) --}}
-                                    <div class="flip-card-back shadow-2xl overflow-hidden">
-                                        <div :class="['w-full h-full p-8 flex flex-col relative overflow-hidden', getThemeStyle(player.theme || 'standard').bg]">
-                                            <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 skew-y-12 transform translate-x-32 -translate-y-32"></div>
-                                            
-                                            <div class="relative z-10 flex flex-col h-full">
-                                                <div class="flex items-center justify-between mb-8">
-                                                    <div class="flex items-center gap-2">
-                                                        <div :class="['p-1.5 rounded-lg border border-white/10', getThemeStyle(player.theme || 'standard').logoBg]">
-                                                            <app-icon name="trophy" class-name="w-4 h-4 text-white"></app-icon>
-                                                        </div>
-                                                        <span class="text-xs font-black italic text-white/40 tracking-tighter uppercase">LoveTennis PRO</span>
-                                                    </div>
-                                                    <div class="text-[8px] font-black italic text-white/20 tracking-widest uppercase cursor-pointer hover:text-white/40 transition-colors" @click.stop="openProfile(player.user?.uid || player.user_id)">#@{{player.user?.uid || player.user_id}}</div>
-                                                </div>
-
-                                                <div class="flex-1 space-y-6 text-left">
-                                                    <div class="grid grid-cols-2 gap-3">
-                                                        <div v-for="stat in backStats" :key="stat.label" class="bg-white/5 border border-white/10 p-3 rounded-xl">
-                                                            <div class="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">@{{stat.label}}</div>
-                                                            <div class="text-sm font-black italic text-white">@{{stat.value}}</div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="space-y-3">
-                                                        {{-- Intro Removed --}}
-                                                    </div>
-                                                </div>
-
-                                                <div class="mt-auto pt-4 flex justify-between items-end border-t border-white/10">
-                                                    <div class="text-left">
-                                                        <div class="text-[7px] font-bold text-white/20 uppercase tracking-[0.2em]">已認證檔案</div>
-                                                        <div class="text-[10px] font-black italic text-white/40">@{{ formatDate(player.created_at) }}</div>
-                                                    </div>
-                                                    <div class="flex items-center gap-1 opacity-20">
-                                                        <div class="w-0.5 h-3 bg-white rounded-full"></div>
-                                                        <div class="w-0.5 h-5 bg-white rounded-full"></div>
-                                                        <div class="w-0.5 h-3 bg-white rounded-full"></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                            <div class="w-full max-w-[260px] sm:max-w-[340px]">
+                                <player-card :player="player" />
+                                
+                                {{-- Floating Navigation (Mobile Only) --}}
+                                <div class="md:hidden absolute inset-y-0 -left-4 -right-4 flex items-center justify-between pointer-events-none z-[90]">
+                                    <button v-if="hasPrev" @click.stop="navigate(-1)" class="w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(37,99,235,0.4)] border-2 border-white/50 pointer-events-auto active:scale-90 transition-all nav-pulse">
+                                        <app-icon name="arrow-left" class-name="w-7 h-7" stroke-width="3.5"></app-icon>
+                                    </button>
+                                    <button v-if="hasNext" @click.stop="navigate(1)" class="w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(37,99,235,0.4)] border-2 border-white/50 pointer-events-auto active:scale-90 transition-all nav-pulse">
+                                        <app-icon name="arrow-right" class-name="w-7 h-7" stroke-width="3.5"></app-icon>
+                                    </button>
                                 </div>
                             </div>
                         </div>
 
-                        {{-- Right: Detailed Stats (Condensed) --}}
+                        {{-- Right: Detailed Stats --}}
                         <div class="w-full md:w-1/2 p-8 sm:p-14 md:overflow-y-auto bg-white flex flex-col no-scrollbar">
                             <div class="mb-6">
                                 <h3 class="text-4xl sm:text-5xl font-black italic uppercase tracking-tighter text-slate-900 leading-tight mb-4">@{{player.name}}</h3>
@@ -125,6 +72,18 @@
                             </div>
 
                             <div class="space-y-6">
+                                {{-- Stats Row --}}
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                        <div class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Handed / 慣用手</div>
+                                        <div class="text-lg font-black italic text-slate-900">@{{player.handed || '右手'}}</div>
+                                    </div>
+                                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                        <div class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Backhand / 反手</div>
+                                        <div class="text-lg font-black italic text-slate-900">@{{player.backhand || '雙反'}}</div>
+                                    </div>
+                                </div>
+
                                 {{-- Intro Section --}}
                                 <div class="bg-slate-50 p-6 rounded-[24px] border border-slate-100 relative overflow-hidden">
                                     <div class="flex items-center gap-2 mb-3">
@@ -133,6 +92,17 @@
                                     </div>
                                     <p class="text-base text-slate-700 font-bold leading-relaxed italic whitespace-pre-line relative z-10">
                                         「@{{player.intro || '這位球友很懶，什麼都沒留下... 希望能找到實力相當的球友進行約打與練習。'}}」
+                                    </p>
+                                </div>
+
+                                {{-- NTRP Desc Section --}}
+                                <div class="bg-blue-600/5 p-6 rounded-[24px] border border-blue-600/10">
+                                    <div class="flex items-center gap-2 mb-3">
+                                        <div class="w-1 h-3 bg-blue-600 rounded-full"></div>
+                                        <span class="text-[10px] font-black uppercase tracking-[0.1em] text-blue-600/50 italic">等級說明 / NTRP Description</span>
+                                    </div>
+                                    <p class="text-sm text-blue-900/70 font-bold leading-relaxed">
+                                        @{{getLevelDesc(player.level)}}
                                     </p>
                                 </div>
                             </div>
@@ -166,9 +136,6 @@
                     <div class="flex gap-3">
                         <button type="button" @click="$emit('open-match', player)" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all">
                             <app-icon name="message-circle" class-name="w-5 h-5"></app-icon> 發送約打信
-                        </button>
-                        <button type="button" @click="isFlipped = !isFlipped" class="w-14 h-14 bg-slate-100 text-slate-600 rounded-2xl flex items-center justify-center shadow-md active:scale-95 transition-all border border-slate-200">
-                            <app-icon name="rotate-3d" class-name="w-6 h-6"></app-icon>
                         </button>
                     </div>
                 </div>

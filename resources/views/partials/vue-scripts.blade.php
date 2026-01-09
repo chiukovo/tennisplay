@@ -143,11 +143,9 @@ createApp({
             // Check if trying to create card without basic info
             if (viewName === 'create' && isLoggedIn.value) {
                 if (!currentUser.value?.gender || !currentUser.value?.region) {
-                    showToast('請先完成基本資料（性別、地區）再建立球友卡', 'warning');
-                    // Load profile and navigate - use uid or fallback to id
-                    const userUid = currentUser.value?.uid;
-                    loadProfile(userUid, loadProfileEvents);
-                    isEditingProfile.value = true; // Auto open edit mode
+                    showToast('請先完成預設資料（性別、地區）再製作球友卡', 'warning');
+                    const userUid = currentUser.value?.uid || currentUser.value?.id;
+                    loadProfile(userUid, loadProfileEvents, true); // Auto open edit mode
                     navigateTo('profile', false, userUid, resetFormFull, resetEventForm, loadProfile);
                     return;
                 }
@@ -155,7 +153,10 @@ createApp({
             
             // For profile navigation, load the profile data
             if (viewName === 'profile' && uid) {
-                loadProfile(uid, loadProfileEvents);
+                // If we are navigating to our own profile and it's incomplete, auto-edit
+                const isMe = uid === currentUser.value?.uid || String(uid) === String(currentUser.value?.id);
+                const isIncomplete = isMe && (!currentUser.value?.gender || !currentUser.value?.region);
+                loadProfile(uid, loadProfileEvents, isIncomplete);
             }
             
             navigateTo(viewName, shouldReset, uid, resetFormFull, resetEventForm, loadProfile);
@@ -284,6 +285,7 @@ createApp({
             reader.onload = (event) => {
                 form.photo = event.target.result;
                 form.photoX = 0; form.photoY = 0; form.photoScale = 1;
+                isAdjustingPhoto.value = true; // Auto enter adjustment mode
                 showToast('照片上傳成功，您可以拖動調整位置', 'success');
             };
             reader.readAsDataURL(file);
@@ -301,11 +303,13 @@ createApp({
                 reader.onload = (e) => {
                     form.photo = e.target.result;
                     form.photoX = 0; form.photoY = 0; form.photoScale = 1;
+                    isAdjustingPhoto.value = true; // Auto enter adjustment mode
                     showToast('已成功匯入 LINE 大頭貼', 'success');
                 };
                 reader.readAsDataURL(blob);
             } catch (error) {
                 form.photo = url;
+                isAdjustingPhoto.value = true; // Also enter adjustment mode for link fallback
                 showToast('無法直接匯入圖片，已使用連結代替', 'warning');
             }
         };

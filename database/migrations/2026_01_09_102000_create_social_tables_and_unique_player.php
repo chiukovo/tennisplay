@@ -45,9 +45,17 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Disable foreign key checks before dropping the unique index
+        \DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        
+        // Drop unique index from players table
         Schema::table('players', function (Blueprint $table) {
-            $table->dropUnique(['user_id']);
+            $table->dropUnique('players_user_id_unique');
         });
+        
+        // Re-enable foreign key checks
+        \DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        
         Schema::dropIfExists('likes');
         Schema::dropIfExists('follows');
     }

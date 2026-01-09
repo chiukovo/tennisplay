@@ -28,6 +28,7 @@ class EventCommentController extends Controller
                     'user' => [
                         'name' => ($p = $comment->user->player) ? $p->name : $comment->user->name,
                         'photo' => $p ? $p->photo_url : null,
+                        'uid' => $comment->user->uid,
                     ],
                 ];
             });
@@ -62,6 +63,7 @@ class EventCommentController extends Controller
                 'user' => [
                     'name' => ($userPlayer = Auth::user()->player) ? $userPlayer->name : Auth::user()->name,
                     'photo' => $userPlayer ? $userPlayer->photo_url : null,
+                    'uid' => Auth::user()->uid,
                 ],
             ]
         ]);

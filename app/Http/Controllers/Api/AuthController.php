@@ -150,10 +150,13 @@ class AuthController extends Controller
                     Storage::disk('public')->delete($oldPath);
                 }
 
-                $user->update([
-                    'name' => $lineName,
+                $updateData = [
                     'line_picture_url' => $localAvatarPath ?: $user->line_picture_url,
-                ]);
+                ];
+                if (empty($user->name)) {
+                    $updateData['name'] = $lineName;
+                }
+                $user->update($updateData);
             }
 
             // Create Sanctum token
@@ -161,7 +164,7 @@ class AuthController extends Controller
 
             // Redirect back to frontend with token
             return redirect('/?line_token=' . $token . '&line_user=' . urlencode(json_encode([
-                'id' => $user->id,
+                'uid' => $user->uid,
                 'name' => $user->name,
                 'line_picture_url' => $user->line_picture_url,
             ])));

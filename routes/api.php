@@ -32,8 +32,8 @@ Route::get('/events', [EventController::class, 'index']);
 Route::get('/events/{id}', [EventController::class, 'show']);
 Route::get('/events/{id}/share', [EventController::class, 'share']);
 Route::get('/events/{id}/comments', [EventCommentController::class, 'index']);
-Route::get('/profile/{userId}', [ProfileController::class, 'show']);
-Route::get('/profile/{userId}/events', [ProfileController::class, 'events']);
+Route::get('/profile/{uid}', [ProfileController::class, 'show']);
+Route::get('/profile/{uid}/events', [ProfileController::class, 'events']);
 
 // Protected Routes (requires LINE login)
 Route::middleware('auth:sanctum')->group(function () {
@@ -57,7 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/messages', [MessageController::class, 'store']);
     Route::get('/messages/unread-count', [MessageController::class, 'unreadCount']);
     Route::get('/messages/sent', [MessageController::class, 'sent']);
-    Route::get('/messages/chat/{userId}', [MessageController::class, 'chat']);
+    Route::get('/messages/chat/{uid}', [MessageController::class, 'chat']);
     Route::get('/messages/{id}', [MessageController::class, 'show']);
     Route::put('/messages/{id}/read', [MessageController::class, 'markRead']);
     Route::delete('/messages/{id}', [MessageController::class, 'destroy']);
@@ -74,9 +74,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/my-events/joined', [EventController::class, 'myJoined']);
 
     // Social Actions
-    Route::post('/follow/{userId}', [FollowController::class, 'follow']);
-    Route::post('/unfollow/{userId}', [FollowController::class, 'unfollow']);
-    Route::get('/follow/status/{userId}', [FollowController::class, 'status']);
+    Route::post('/follow/{uid}', [FollowController::class, 'follow']);
+    Route::post('/unfollow/{uid}', [FollowController::class, 'unfollow']);
+    Route::get('/follow/status/{uid}', [FollowController::class, 'status']);
     
     Route::post('/like/{playerId}', [LikeController::class, 'like']);
     Route::post('/unlike/{playerId}', [LikeController::class, 'unlike']);

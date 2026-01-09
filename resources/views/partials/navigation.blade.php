@@ -46,7 +46,7 @@
                         <app-icon name="plus" class-name="w-5 h-5"></app-icon>
                         <span>建立球友卡</span>
                     </a>
-                    <a href="/profile" @click.prevent="openProfile(currentUser.id); showUserMenu = false" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors">
+                    <a href="/profile" @click.prevent="openProfile(currentUser.uid); showUserMenu = false" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors">
                         <app-icon name="user" class-name="w-5 h-5"></app-icon>
                         <span>個人主頁</span>
                     </a>

@@ -16,7 +16,7 @@ class EventController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Event::with(['player', 'confirmedParticipants.player'])
+        $query = Event::with(['player', 'user', 'confirmedParticipants.player'])
             ->upcoming()
             ->orderBy('event_date', 'asc');
 
@@ -293,7 +293,7 @@ class EventController extends Controller
             return response()->json(['error' => '請先登入'], 401);
         }
 
-        $events = Event::with(['player', 'confirmedParticipants.player'])
+        $events = Event::with(['player', 'user', 'confirmedParticipants.player'])
             ->where('user_id', $user->id)
             ->orderBy('event_date', 'desc')
             ->get();
@@ -315,7 +315,7 @@ class EventController extends Controller
             ->where('status', 'confirmed')
             ->pluck('event_id');
 
-        $events = Event::with(['player', 'confirmedParticipants.player'])
+        $events = Event::with(['player', 'user', 'confirmedParticipants.player'])
             ->whereIn('id', $eventIds)
             ->orderBy('event_date', 'desc')
             ->get();

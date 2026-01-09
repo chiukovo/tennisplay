@@ -27,7 +27,7 @@ class MessageController extends Controller
 
         // Group by the "other" user and take the first (latest) one
         $conversations = $messages->groupBy(function ($message) use ($userId) {
-            return $message->from_user_id === $userId ? $message->to_user_id : $message->from_user_id;
+            return $message->from_user_id === $userId ? ($message->receiver->uid ?? $message->to_user_id) : ($message->sender->uid ?? $message->from_user_id);
         })->map(function ($msgs) {
             $latest = $msgs->first();
             // Count unread for this conversation
@@ -45,9 +45,16 @@ class MessageController extends Controller
     /**
      * Get chat history with a specific user.
      */
-    public function chat(Request $request, $otherUserId)
+    public function chat(Request $request, $uid)
     {
         $userId = $request->user()->id;
+        
+        // Find other user by uid or id
+        $otherUser = is_numeric($uid) 
+            ? \App\Models\User::findOrFail($uid)
+            : \App\Models\User::where('uid', $uid)->firstOrFail();
+        
+        $otherUserId = $otherUser->id;
 
         $query = Message::where(function ($q) use ($userId, $otherUserId) {
             $q->where('from_user_id', $userId)->where('to_user_id', $otherUserId);
@@ -86,13 +93,20 @@ class MessageController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'to_user_id' => 'required_without:to_player_id|exists:users,id',
+            'to_user_id' => 'nullable|exists:users,id',
+            'to_user_uid' => 'nullable|exists:users,uid',
             'to_player_id' => 'nullable|exists:players,id',
             'content' => 'required|string|max:2000',
         ]);
 
         $toUserId = $request->to_user_id;
+        $toUserUid = $request->to_user_uid;
         $playerId = $request->to_player_id;
+
+        // If UID is provided, find the ID
+        if ($toUserUid && !$toUserId) {
+            $toUserId = \App\Models\User::where('uid', $toUserUid)->value('id');
+        }
 
         // If player ID is provided, infer user ID
         if ($playerId && !$toUserId) {

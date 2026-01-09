@@ -48,12 +48,9 @@
             <div class="absolute inset-0 z-[60] pointer-events-none opacity-0 group-hover:opacity-20 transition-opacity duration-700 bg-gradient-to-tr from-transparent via-white to-transparent" style="transform: skewX(-20deg) translateX(-100%); transition: transform 0.8s;"></div>
 
             {{-- Logo Watermark --}}
-            <div class="absolute top-[5cqw] left-[5cqw] right-[5cqw] z-20 flex justify-end items-center">
-                <div class="flex items-center gap-[1.5cqw] transition-all duration-500 opacity-80 group-hover:opacity-100">
-                    <div :class="['backdrop-blur-md p-[1.2cqw] rounded-[2.5cqw] border border-white/20 shadow-lg transition-all duration-500', themeStyle.logoBg]">
-                        <app-icon name="trophy" :class-name="['w-[4cqw] h-[4cqw] transition-all duration-500 drop-shadow-md', themeStyle.logoIcon]"></app-icon>
-                    </div>
-                    <span :class="['font-black tracking-tighter italic uppercase transition-all duration-500 drop-shadow-md', themeStyle.logoText]" style="font-size: 5cqw;">LoveTennis</span>
+            <div class="absolute top-[5cqw] right-[5cqw] z-20">
+                <div class="opacity-20 group-hover:opacity-40 transition-all duration-700">
+                    <app-icon name="trophy" :class-name="['w-[6cqw] h-[6cqw] drop-shadow-md', themeStyle.logoIcon]"></app-icon>
                 </div>
             </div>
 

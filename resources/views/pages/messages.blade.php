@@ -42,20 +42,20 @@
                 <div class="flex items-center gap-4">
                     {{-- Avatar --}}
                     <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center text-white text-sm sm:text-base font-black uppercase leading-none shadow-md shrink-0">
-                        @{{ (m.from_user_id === currentUser.id ? m.receiver?.name : m.sender?.name)?.[0] || '?' }}
+                        @{{ (m.sender?.uid === currentUser.uid ? m.receiver?.name : m.sender?.name)?.[0] || '?' }}
                     </div>
                     
                     {{-- Content Preview --}}
                     <div class="flex-1 min-w-0">
                         <div class="flex justify-between items-baseline mb-1">
                             <h4 class="font-black italic uppercase tracking-tight text-sm sm:text-base truncate pr-2">
-                                @{{ m.from_user_id === currentUser.id ? m.receiver?.name : m.sender?.name }}
+                                @{{ m.sender?.uid === currentUser.uid ? m.receiver?.name : m.sender?.name }}
                                 <span v-if="m.player" class="text-[10px] text-slate-400 font-bold ml-1 font-sans not-italic">關於: @{{ m.player.name }}</span>
                             </h4>
                             <span class="text-[10px] font-bold text-slate-400 shrink-0">@{{ formatDate(m.created_at) }}</span>
                         </div>
                         <p class="text-xs sm:text-sm font-medium text-slate-500 truncate group-hover:text-slate-700 transition-colors">
-                            <span v-if="m.from_user_id === currentUser.id" class="text-slate-400 mr-1">你:</span>
+                            <span v-if="m.sender?.uid === currentUser.uid" class="text-slate-400 mr-1">你:</span>
                             @{{ m.content }}
                         </p>
                     </div>

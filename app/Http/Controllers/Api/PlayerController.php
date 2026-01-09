@@ -15,7 +15,7 @@ class PlayerController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Player::active()
+        $query = Player::with('user')->active()
             ->inRegion($request->region)
             ->atLevel($request->level)
             ->search($request->search);
@@ -38,7 +38,7 @@ class PlayerController extends Controller
      */
     public function myCards(Request $request)
     {
-        $players = Player::where('user_id', $request->user()->id)
+        $players = Player::with('user')->where('user_id', $request->user()->id)
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -124,7 +124,7 @@ class PlayerController extends Controller
      */
     public function show($id)
     {
-        $player = Player::findOrFail($id);
+        $player = Player::with('user')->findOrFail($id);
 
         return response()->json([
             'success' => true,

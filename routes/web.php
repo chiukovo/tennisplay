@@ -101,6 +101,15 @@ Route::get('/settings', function () use ($seoData) {
     return view('index', ['seo' => $seoData['settings']]);
 });
 
+Route::get('/profile/{uid}', function ($uid) use ($seoData) {
+    return view('index', [
+        'seo' => [
+            'title' => '個人主頁 | LoveTennis',
+            'description' => '查看球友的個人資料與球友卡'
+        ]
+    ]);
+});
+
 // LINE Login Routes
 Route::get('/auth/line', [AuthController::class, 'lineLogin'])->name('line.login');
 Route::get('/auth/line/callback', [AuthController::class, 'lineCallback'])->name('line.callback');

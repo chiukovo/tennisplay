@@ -68,7 +68,7 @@
                                                         </div>
                                                         <span class="text-xs font-black italic text-white/40 tracking-tighter uppercase">LoveTennis PRO</span>
                                                     </div>
-                                                    <div class="text-[8px] font-black italic text-white/20 tracking-widest uppercase">#@{{player.id}}</div>
+                                                    <div class="text-[8px] font-black italic text-white/20 tracking-widest uppercase cursor-pointer hover:text-white/40 transition-colors" @click.stop="openProfile(player.user?.uid || player.user_id)">#@{{player.user?.uid || player.user_id}}</div>
                                                 </div>
 
                                                 <div class="flex-1 space-y-6 text-left">
@@ -138,7 +138,10 @@
                             </div>
 
                             {{-- Desktop Only Action Button --}}
-                            <div class="mt-auto hidden md:flex pt-6">
+                            <div class="mt-auto hidden md:flex gap-3 pt-6">
+                                <button type="button" @click="openProfile(player.user?.uid || player.user_id)" class="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-3">
+                                    <app-icon name="user" class-name="w-5 h-5"></app-icon> 查看個人主頁
+                                </button>
                                 <button type="button" @click="$emit('open-match', player)" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl hover:bg-blue-500 transition-all flex items-center justify-center gap-3">
                                     <app-icon name="message-circle" class-name="w-5 h-5"></app-icon> 立即發送約打信
                                 </button>
@@ -148,19 +151,26 @@
                 </transition>
 
                 {{-- Mobile Sticky Action Bar --}}
-                <div class="md:hidden absolute bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-xl border-t border-slate-100 z-[110] flex gap-3">
-                    <button v-if="hasPrev" @click="navigate(-1)" class="w-16 h-16 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-[0_8px_25px_rgba(37,99,235,0.4)] active:scale-95 active:bg-blue-700 transition-all border-2 border-white/20 nav-pulse">
-                        <app-icon name="arrow-left" class-name="w-9 h-9" stroke-width="3.5"></app-icon>
-                    </button>
-                    <button type="button" @click="$emit('open-match', player)" class="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all">
-                        <app-icon name="message-circle" class-name="w-5 h-5 text-blue-400"></app-icon> 發送約打信
-                    </button>
-                    <button v-if="hasNext" @click="navigate(1)" class="w-16 h-16 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-[0_8px_25px_rgba(37,99,235,0.4)] active:scale-95 active:bg-blue-700 transition-all border-2 border-white/20 nav-pulse">
-                        <app-icon name="arrow-right" class-name="w-9 h-9" stroke-width="3.5"></app-icon>
-                    </button>
-                    <button type="button" @click="isFlipped = !isFlipped" class="w-14 h-14 bg-slate-900 text-white rounded-2xl flex items-center justify-center shadow-xl active:scale-95 transition-all">
-                        <app-icon name="rotate-3d" class-name="w-6 h-6"></app-icon>
-                    </button>
+                <div class="md:hidden absolute bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-xl border-t border-slate-100 z-[110] flex flex-col gap-3">
+                    <div class="flex gap-3">
+                        <button v-if="hasPrev" @click="navigate(-1)" class="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-all border-2 border-white/20">
+                            <app-icon name="arrow-left" class-name="w-7 h-7" stroke-width="3.5"></app-icon>
+                        </button>
+                        <button type="button" @click="openProfile(player.user?.uid || player.user_id)" class="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all">
+                            <app-icon name="user" class-name="w-4 h-4 text-blue-400"></app-icon> 查看主頁
+                        </button>
+                        <button v-if="hasNext" @click="navigate(1)" class="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-all border-2 border-white/20">
+                            <app-icon name="arrow-right" class-name="w-7 h-7" stroke-width="3.5"></app-icon>
+                        </button>
+                    </div>
+                    <div class="flex gap-3">
+                        <button type="button" @click="$emit('open-match', player)" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all">
+                            <app-icon name="message-circle" class-name="w-5 h-5"></app-icon> 發送約打信
+                        </button>
+                        <button type="button" @click="isFlipped = !isFlipped" class="w-14 h-14 bg-slate-100 text-slate-600 rounded-2xl flex items-center justify-center shadow-md active:scale-95 transition-all border border-slate-200">
+                            <app-icon name="rotate-3d" class-name="w-6 h-6"></app-icon>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -219,7 +229,7 @@
                     <div class="p-6 sm:p-10 space-y-8 pb-32">
                         
                         {{-- Host Section --}}
-                        <div class="flex items-center justify-between bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
+                        <div class="flex items-center justify-between bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm hover:border-blue-200 transition-all cursor-pointer" @click="openProfile(event.user?.uid || event.user_id)">
                             <div class="flex items-center gap-4">
                                 <div class="w-14 h-14 rounded-2xl overflow-hidden bg-slate-100 border-2 border-slate-50 shadow-md">
                                     <img v-if="event.player?.photo" :src="event.player.photo_url || event.player.photo" class="w-full h-full object-cover">
@@ -337,9 +347,9 @@
                                     </div>
                                     <div class="flex-1 bg-white rounded-3xl p-5 border border-slate-100 shadow-sm relative group-hover:border-blue-100 transition-colors">
                                         <div class="flex items-center justify-between mb-1.5">
-                                            <span class="text-xs font-black text-slate-800">@{{ c.user?.name || '匿名球友' }}</span>
+                                            <span class="text-xs font-black text-slate-800 cursor-pointer hover:text-blue-600 transition-colors" @click="openProfile(c.user?.uid || c.user_id)">@{{ c.user?.name || '匿名球友' }}</span>
                                             <div class="flex items-center gap-2">
-                                                <button v-if="currentUser && c.user_id === currentUser.id" 
+                                                <button v-if="currentUser && c.user?.uid === currentUser.uid" 
                                                     @click="$emit('delete-comment', c.id, event.id)"
                                                     class="p-1 text-slate-400 hover:text-red-500 transition-colors">
                                                     <app-icon name="trash" class-name="w-3 h-3"></app-icon>

@@ -15,9 +15,13 @@ class ProfileController extends Controller
     /**
      * Get profile data for a user.
      */
-    public function show($userId)
+    public function show($uid)
     {
-        $user = User::with(['player'])->findOrFail($userId);
+        // Support both uid and numeric id for backwards compatibility
+        $user = is_numeric($uid) 
+            ? User::with(['player'])->findOrFail($uid)
+            : User::with(['player'])->where('uid', $uid)->firstOrFail();
+        
         $me = Auth::user();
 
         // Stats
@@ -30,9 +34,9 @@ class ProfileController extends Controller
 
         // Status for current user
         $status = [
-            'is_following' => $me ? Follow::where('follower_id', $me->id)->where('following_id', $userId)->exists() : false,
+            'is_following' => $me ? Follow::where('follower_id', $me->id)->where('following_id', $user->id)->exists() : false,
             'is_liked' => ($me && $user->player) ? Like::where('user_id', $me->id)->where('player_id', $user->player->id)->exists() : false,
-            'is_me' => $me ? $me->id == $userId : false,
+            'is_me' => $me ? $me->id == $user->id : false,
         ];
 
         return response()->json([
@@ -54,7 +58,7 @@ class ProfileController extends Controller
 
         $data = $request->validate([
             'name' => 'required|string|max:255',
-            'gender' => 'nullable|string|in:男,女',
+            'gender' => 'nullable|string',
             'region' => 'nullable|string',
             'bio' => 'nullable|string|max:1000',
         ]);
@@ -79,12 +83,17 @@ class ProfileController extends Controller
     /**
      * Get events for a user's profile.
      */
-    public function events(Request $request, $userId)
+    public function events(Request $request, $uid)
     {
         $type = $request->get('type', 'active'); // active or past
+        
+        // Support both uid and numeric id
+        $user = is_numeric($uid) 
+            ? User::findOrFail($uid)
+            : User::where('uid', $uid)->firstOrFail();
 
-        $query = Event::with(['player', 'confirmedParticipants.player'])
-            ->where('user_id', $userId);
+        $query = Event::with(['player', 'user', 'confirmedParticipants.player'])
+            ->where('user_id', $user->id);
 
         if ($type === 'active') {
             $query->where('event_date', '>=', now())

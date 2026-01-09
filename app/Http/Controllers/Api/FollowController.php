@@ -13,18 +13,19 @@ class FollowController extends Controller
     /**
      * Follow a user.
      */
-    public function follow(Request $request, $userId)
+    public function follow(Request $request, $uid)
     {
         $follower = Auth::user();
         if (!$follower) {
             return response()->json(['error' => '請先登入'], 401);
         }
 
+        $following = is_numeric($uid) ? User::findOrFail($uid) : User::where('uid', $uid)->firstOrFail();
+        $userId = $following->id;
+
         if ($follower->id == $userId) {
             return response()->json(['error' => '您不能追蹤自己'], 400);
         }
-
-        $following = User::findOrFail($userId);
 
         // Check if already following
         $exists = Follow::where('follower_id', $follower->id)
@@ -49,14 +50,15 @@ class FollowController extends Controller
     /**
      * Unfollow a user.
      */
-    public function unfollow(Request $request, $userId)
+    public function unfollow(Request $request, $uid)
     {
         $follower = Auth::user();
         if (!$follower) {
             return response()->json(['error' => '請先登入'], 401);
         }
 
-        $following = User::findOrFail($userId);
+        $following = is_numeric($uid) ? User::findOrFail($uid) : User::where('uid', $uid)->firstOrFail();
+        $userId = $following->id;
 
         Follow::where('follower_id', $follower->id)
             ->where('following_id', $userId)
@@ -71,10 +73,13 @@ class FollowController extends Controller
     /**
      * Check if following a user.
      */
-    public function status($userId)
+    public function status($uid)
     {
         $me = Auth::user();
         if (!$me) return response()->json(['is_following' => false]);
+
+        $following = is_numeric($uid) ? User::findOrFail($uid) : User::where('uid', $uid)->firstOrFail();
+        $userId = $following->id;
 
         $isFollowing = Follow::where('follower_id', $me->id)
             ->where('following_id', $userId)

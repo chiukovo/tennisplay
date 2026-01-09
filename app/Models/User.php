@@ -20,6 +20,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'uid',
         'gender',
         'region',
         'bio',
@@ -27,6 +28,24 @@ class User extends Authenticatable
         'line_picture_url',
         'settings',
     ];
+
+    /**
+     * Boot the model.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            if (empty($user->uid)) {
+                // Generate unique UID
+                do {
+                    $uid = 'u' . substr(md5(uniqid(mt_rand(), true)), 0, 8);
+                } while (static::where('uid', $uid)->exists());
+                $user->uid = $uid;
+            }
+        });
+    }
 
     /**
      * The attributes that should be cast.
@@ -43,6 +62,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
+        'id',
         'line_user_id',
     ];
 

@@ -209,4 +209,110 @@
     .nav-pulse {
         animation: nav-pulse 2s infinite;
     }
+
+    /* Premium Holo Effects (Refined CodePen Style - Subtle & Persistent) */
+    .card-holo {
+        --color1: rgb(0, 231, 255);
+        --color2: rgb(255, 0, 231);
+        position: relative;
+        z-index: 10;
+        touch-action: none;
+        isolation: isolate;
+        transition: transform 0.5s ease, box-shadow 0.2s ease;
+        will-change: transform, filter;
+        background-color: #040712;
+        /* Balanced persistent shadow */
+        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+    }
+
+    .card-holo:before,
+    .card-holo:after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-repeat: no-repeat;
+        opacity: var(--opc, 0);
+        mix-blend-mode: color-dodge;
+        transition: all 0.5s ease; /* Smoother transitions */
+        z-index: 60;
+        pointer-events: none;
+        border-radius: inherit;
+    }
+
+    .card-holo:before {
+        background-position: var(--lp, 50%) var(--tp, 50%);
+        background-size: 250% 250%;
+        background-image: linear-gradient(
+            115deg,
+            transparent 0%,
+            var(--color1) 25%,
+            transparent 47%,
+            transparent 53%,
+            var(--color2) 75%,
+            transparent 100%
+        );
+        filter: brightness(0.5) contrast(1.1);
+    }
+
+    .card-holo:after {
+        background-image: url("https://assets.codepen.io/13471/sparkles.gif"),
+            url(https://assets.codepen.io/13471/holo.png),
+            linear-gradient(
+                125deg,
+                #ff008450 15%,
+                #fca40040 30%,
+                #ffff0030 40%,
+                #00ff8a20 60%,
+                #00cfff40 70%,
+                #cc4cfa50 85%
+            );
+        background-position: var(--spx, 50%) var(--spy, 50%);
+        background-size: 160%;
+        background-blend-mode: overlay;
+        filter: brightness(0.8) contrast(1.1);
+    }
+
+    /* Animated State (Initial Shine - Softened) */
+    .card-holo.animated:before {
+        animation: holoGradient 12s ease 0s infinite;
+    }
+    .card-holo.animated:after {
+        animation: holoSparkle 12s ease 0s infinite;
+    }
+
+    @keyframes holoSparkle {
+        0%, 100% { opacity: 0.5; background-position: 50% 50%; }
+        5%, 8% { opacity: 0.8; background-position: 40% 40%; }
+        13%, 16% { opacity: 0.35; background-position: 50% 50%; }
+        35%, 38% { opacity: 0.8; background-position: 60% 60%; }
+        55% { opacity: 0.2; background-position: 45% 45%; }
+    }
+
+    @keyframes holoGradient {
+        0%, 100% { opacity: 0.1; background-position: 50% 50%; }
+        5%, 9% { background-position: 100% 100%; opacity: 0.25; }
+        13%, 17% { background-position: 0% 0%; opacity: 0.2; }
+        35%, 39% { background-position: 100% 100%; opacity: 0.25; }
+        55% { background-position: 0% 0%; opacity: 0.2; }
+    }
+
+    /* Removed holoCard rotation from always-on animation to keep it stable */
+    .card-holo.animated {
+        transform: rotateX(0deg) rotateY(0deg) translateZ(0);
+    }
+
+    /* Active State (Interaction - Subtle) */
+    .card-holo:not(.animated) {
+        transition: transform 0.2s ease-out; /* Slower, gentler return */
+    }
+    .card-holo:not(.animated):before,
+    .card-holo:not(.animated):after {
+        opacity: var(--opc, 0.2); /* Increased persistent base for interaction */
+        transition: opacity 0.3s ease;
+    }
+
+    /* Theme Styles */
+    .theme-gold { --color1: #fac; --color2: #ddccaa; }
+    .theme-platinum { --color1: #54a29e; --color2: #a79d66; }
+    .theme-holographic { --color1: #efb2fb; --color2: #acc6f8; }
 </style>

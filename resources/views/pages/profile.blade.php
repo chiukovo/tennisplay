@@ -29,11 +29,6 @@
                 <div class="w-full md:w-[260px] lg:w-[300px] shrink-0" :class="{'hidden md:block': !profileData.user?.player}">
                     <div v-if="profileData.user.player" class="relative group">
                         <player-card :player="profileData.user.player" @click="showDetail(profileData.user.player)"></player-card>
-                        
-                        <!-- Zoom Hint -->
-                        <div class="absolute bottom-4 right-4 p-2 bg-white/90 backdrop-blur rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 z-10 pointer-events-none">
-                            <app-icon name="maximize" class-name="w-3 h-3 text-slate-600"></app-icon>
-                        </div>
                     </div>
                     
                     <!-- Empty State -->

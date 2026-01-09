@@ -185,7 +185,72 @@ const PlayerCard = {
         });
         const getLevelTag = (lvl) => LEVEL_TAGS[lvl] || '網球愛愛好者';
 
-        return { cardContainer, p, themeStyle, getLevelTag };
+        // Holo Effect Logic (Refined Math & Auto-Animation)
+        const tilt = reactive({ 
+            lp: 50, tp: 50,    // Light position
+            spx: 50, spy: 50,  // Sparkle position
+            opc: 0,            // Opacity
+            rX: 0, rY: 0       // Rotation
+        });
+        const isAnimated = ref(true);
+        let rafId = null;
+        let resumeTimeout = null;
+
+        const handleMove = (e) => {
+            isAnimated.value = false;
+            if (resumeTimeout) clearTimeout(resumeTimeout);
+            if (rafId) cancelAnimationFrame(rafId);
+            
+            rafId = requestAnimationFrame(() => {
+                const card = cardContainer.value;
+                if (!card) return;
+                const rect = card.getBoundingClientRect();
+                let x, y;
+
+                if (e.type === 'touchmove') {
+                    x = e.touches[0].clientX - rect.left;
+                    y = e.touches[0].clientY - rect.top;
+                } else {
+                    x = e.clientX - rect.left;
+                    y = e.clientY - rect.top;
+                }
+
+                // Normalise mouse position (0-100)
+                const px = Math.abs(Math.floor(100 / rect.width * x) - 100);
+                const py = Math.abs(Math.floor(100 / rect.height * y) - 100);
+                const pa = (50 - px) + (50 - py);
+
+                // Math for light / sparkle positions
+                tilt.lp = (50 + (px - 50) / 1.5);
+                tilt.tp = (50 + (py - 50) / 1.5);
+                tilt.spx = (50 + (px - 50) / 7);
+                tilt.spy = (50 + (py - 50) / 7);
+                tilt.opc = (15 + (Math.abs(pa) * 0.5)) / 100; // Subtler baseline
+
+                // Math for rotation (Softer tilt for non-aggressive look)
+                tilt.rX = ((tilt.tp - 50) / 6) * -1; 
+                tilt.rY = ((tilt.lp - 50) / 4.5) * 0.5;
+            });
+        };
+
+        const handleLeave = () => {
+            if (rafId) cancelAnimationFrame(rafId);
+            tilt.rX = 0;
+            tilt.rY = 0;
+            tilt.opc = 0;
+            
+            // Resume animation after delay
+            resumeTimeout = setTimeout(() => {
+                isAnimated.value = true;
+            }, 2500);
+        };
+
+        const isHoloTheme = computed(() => {
+            if (!p.value) return false;
+            return ['gold', 'platinum', 'holographic'].includes(p.value.theme);
+        });
+
+        return { cardContainer, p, themeStyle, getLevelTag, tilt, handleMove, handleLeave, isHoloTheme, isAnimated };
     }
 };
 

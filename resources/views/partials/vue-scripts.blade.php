@@ -803,6 +803,77 @@ createApp({
             }
         };
 
+        const isEditingProfile = ref(false);
+        const profileForm = reactive({
+            name: '',
+            gender: '',
+            region: '',
+            bio: ''
+        });
+
+        const loadProfile = async (userId) => {
+            try {
+                const response = await api.get(`/profile/${userId}`);
+                Object.assign(profileData, response.data);
+                
+                // If it's my profile, sync to profileForm
+                if (response.data.status.is_me) {
+                    profileForm.name = response.data.user.name;
+                    profileForm.gender = response.data.user.gender;
+                    profileForm.region = response.data.user.region;
+                    profileForm.bio = response.data.user.bio;
+                }
+                
+                // Load events
+                profileEventsPage.value = 1;
+                loadProfileEvents(false);
+            } catch (error) {
+                console.error('Load profile error:', error);
+                showToast('載入個人資料失敗', 'error');
+            }
+        };
+
+        const loadProfileEvents = async (append = false) => {
+            if (!profileData.user.id) return;
+            try {
+                const response = await api.get(`/profile/${profileData.user.id}/events`, {
+                    params: {
+                        type: profileTab.value,
+                        page: profileEventsPage.value
+                    }
+                });
+                const data = response.data.data || [];
+                if (append) {
+                    profileEvents.value = [...profileEvents.value, ...data];
+                } else {
+                    profileEvents.value = data;
+                }
+                profileEventsHasMore.value = response.data.next_page_url !== null;
+                if (profileEventsHasMore.value) profileEventsPage.value++;
+            } catch (error) {
+                console.error('Load profile events error:', error);
+            }
+        };
+
+        const saveProfile = async () => {
+            try {
+                const response = await api.post('/profile/update', profileForm);
+                if (response.data.user) {
+                    // Update local user state
+                    currentUser.value = response.data.user;
+                    localStorage.setItem('auth_user', JSON.stringify(response.data.user));
+                    
+                    // Refresh profile data
+                    await loadProfile(currentUser.value.id);
+                    isEditingProfile.value = false;
+                    showToast('個人資料已更新', 'success');
+                }
+            } catch (error) {
+                console.error('Save profile error:', error);
+                showToast('儲存失敗，請稍後再試', 'error');
+            }
+        };
+
         watch(profileTab, () => loadProfileEvents(false));
 
         const toggleFollow = async () => {

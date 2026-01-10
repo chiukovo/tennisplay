@@ -7,6 +7,8 @@ use App\Models\Player;
 use App\Models\PlayerComment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+
 
 class PlayerCommentController extends Controller
 {
@@ -44,12 +46,19 @@ class PlayerCommentController extends Controller
         $request->validate([
             'content' => 'required|string|max:1000',
         ]);
-
+ 
         $player = Player::findOrFail($playerId);
+        $actor = $request->user('sanctum') ?: $request->user();
+        if (!$actor) {
+            $actor = Auth::guard('sanctum')->user() ?: Auth::user();
+        }
+        if (!$actor) {
+            return response()->json(['message' => '未授權'], 401);
+        }
 
         $comment = PlayerComment::create([
             'player_id' => $player->id,
-            'user_id' => Auth::id(),
+            'user_id' => $actor->id,
             'content' => $request->content,
         ]);
 
@@ -61,27 +70,46 @@ class PlayerCommentController extends Controller
                 'at' => $comment->created_at->toISOString(),
                 'user_id' => $comment->user_id,
                 'user' => [
-                    'name' => ($userPlayer = Auth::user()->player) ? $userPlayer->name : Auth::user()->name,
-                    'photo' => $userPlayer ? $userPlayer->photo_url : null,
-                    'uid' => Auth::user()->uid,
+                    'name' => ($actor && $actor->player) ? $actor->player->name : $actor->name,
+                    'photo' => ($actor && $actor->player) ? $actor->player->photo_url : null,
+                    'uid' => $actor->uid,
                 ],
-            ]
+            ],
         ]);
+
+
     }
 
     /**
      * Delete a comment.
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $comment = PlayerComment::findOrFail($id);
-
-        if ($comment->user_id !== Auth::id()) {
+        $actor = $request->user('sanctum') ?: $request->user();
+        Log::info('PlayerComment destroy resolved actor', ['actor' => $actor ? $actor->id : null, 'comment_user' => $comment->user_id]);
+        if (!$actor) {
+            $actor = Auth::guard('sanctum')->user() ?: Auth::user();
+            Log::info('PlayerComment destroy fallback actor', ['actor' => $actor ? $actor->id : null, 'comment_user' => $comment->user_id]);
+        }
+        if (!$actor) {
+            Log::warning('PlayerComment destroy unauthorized', ['comment_user' => $comment->user_id]);
+            return response()->json(['message' => '未授權'], 401);
+        }
+        if ($comment->user_id != $actor->id) {
+            Log::warning('PlayerComment destroy forbidden', ['actor' => $actor->id, 'comment_user' => $comment->user_id]);
             return response()->json(['message' => '無權限刪除此留言'], 403);
         }
-
+ 
+        Log::info('PlayerComment destroy deleting', ['actor' => $actor->id, 'comment_id' => $comment->id]);
         $comment->delete();
+ 
+        return response()->json([
+            'message' => '留言已刪除',
+            'comment_id' => $id,
+        ]);
 
-        return response()->json(['message' => '留言已刪除']);
+ 
     }
+
 }

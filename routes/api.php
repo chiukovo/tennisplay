@@ -10,23 +10,11 @@ use App\Http\Controllers\Api\EventCommentController;
 use App\Http\Controllers\Api\FollowController;
 use App\Http\Controllers\Api\LikeController;
 use App\Http\Controllers\Api\PlayerCommentController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
 
 // Public Player Routes
 Route::get('/players', [PlayerController::class, 'index']);
-Route::get('/players/{id}', [PlayerController::class, 'show']);
+Route::get('/players/{id}', [PlayerController::class, 'show'])->withoutMiddleware(['auth:sanctum', 'throttle:60,1']);
 
 // Public Event Routes
 Route::get('/events', [EventController::class, 'index']);

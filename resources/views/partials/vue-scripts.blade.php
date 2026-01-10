@@ -190,14 +190,6 @@ createApp({
             return { likes: player.likes_count || 0, matches: player.matches_count || 0 };
         };
 
-        // Toggle event like
-        const toggleEventLike = async (eventId) => {
-            if (!isLoggedIn.value) { showToast('請先登入', 'error'); navigateTo('auth'); return; }
-            try {
-                const response = await api.post(`/events/${eventId}/like`);
-                eventLikes[eventId] = response.data.liked;
-            } catch (error) { showToast('操作失敗', 'error'); }
-        };
 
         // Message sent callback
         const onMessageSent = (data) => {
@@ -421,6 +413,14 @@ createApp({
             matchModal.open = false; matchModal.text = '';
         };
 
+        const toggleEventLike = async (eventId) => {
+            if (!isLoggedIn.value) { showToast('請先登入', 'error'); navigateTo('auth'); return; }
+            try {
+                const response = await api.post(`/events/${eventId}/like`);
+                eventLikes[eventId] = response.data.liked;
+            } catch (error) { showToast('操作失敗', 'error'); }
+        };
+
         const openEventDetail = async (event) => {
             activeEvent.value = { ...event, loading: true };
             showEventDetail.value = true;
@@ -429,9 +429,17 @@ createApp({
                     api.get(`/events/${event.id}`),
                     api.get(`/events/${event.id}/comments`)
                 ]);
-                activeEvent.value = { ...eventRes.data, loading: false };
-                eventComments[event.id] = commentsRes.data || [];
-            } catch (error) { showToast('載入失敗', 'error'); showEventDetail.value = false; }
+                const eventData = eventRes?.data?.data ?? eventRes?.data ?? {};
+                const commentsData = commentsRes?.data?.data ?? commentsRes?.data ?? [];
+                const targetId = eventData.id ?? event.id;
+                activeEvent.value = { ...eventData, loading: false };
+                eventComments[targetId] = Array.isArray(commentsData) ? commentsData : [];
+            } catch (error) {
+                const fallbackData = event?.data ?? event ?? {};
+                activeEvent.value = { ...fallbackData, loading: false };
+                showToast('載入失敗', 'error');
+                showEventDetail.value = false;
+            }
         };
 
         const submitEventComment = async () => {
@@ -462,6 +470,8 @@ createApp({
         };
 
         const openMessage = (message) => {
+
+
             const otherUser = (message.sender?.uid === currentUser.value.uid) ? message.receiver : message.sender;
             if (message.player) otherUser.player = message.player;
             selectedChatUser.value = otherUser;

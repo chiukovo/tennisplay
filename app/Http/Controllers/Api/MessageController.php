@@ -1,11 +1,13 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-
+ 
 use App\Http\Controllers\Controller;
 use App\Models\Message;
 use App\Models\Player;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class MessageController extends Controller
 {
@@ -14,32 +16,30 @@ class MessageController extends Controller
      */
     public function index(Request $request)
     {
-        $userId = $request->user()->id;
+        $user = $this->resolveUser($request);
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => '未授權'], 401);
+        }
+        $userId = $user->id;
 
-        // Fetch the latest message ID for each unique conversation pair
-        $latestIds = Message::where(function($q) use ($userId) {
+        $latestIds = Message::where(function ($q) use ($userId) {
                 $q->where('from_user_id', $userId)
                   ->orWhere('to_user_id', $userId);
             })
             ->selectRaw('MAX(id) as id')
-            ->groupBy(\DB::raw('LEAST(from_user_id, to_user_id), GREATEST(from_user_id, to_user_id)'))
+            ->groupBy(DB::raw('LEAST(from_user_id, to_user_id), GREATEST(from_user_id, to_user_id)'))
             ->pluck('id');
 
-        // Fetch the full message details for these IDs
         $conversations = Message::whereIn('id', $latestIds)
             ->with(['sender', 'receiver', 'player'])
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($message) use ($userId) {
-                // Determine who the other person is
                 $otherUserId = ($message->from_user_id == $userId) ? $message->to_user_id : $message->from_user_id;
-
-                // Efficiently count unread messages from that person
                 $message->unread_count = Message::where('from_user_id', $otherUserId)
                     ->where('to_user_id', $userId)
                     ->whereNull('read_at')
                     ->count();
-
                 return $message;
             });
 
@@ -54,13 +54,15 @@ class MessageController extends Controller
      */
     public function chat(Request $request, $uid)
     {
-        $userId = $request->user()->id;
-        
-        // Find other user by uid or id
-        $otherUser = is_numeric($uid) 
+        $user = $this->resolveUser($request);
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => '未授權'], 401);
+        }
+        $userId = $user->id;
+
+        $otherUser = is_numeric($uid)
             ? \App\Models\User::findOrFail($uid)
             : \App\Models\User::where('uid', $uid)->firstOrFail();
-        
         $otherUserId = $otherUser->id;
 
         $query = Message::where(function ($q) use ($userId, $otherUserId) {
@@ -70,19 +72,16 @@ class MessageController extends Controller
         });
 
         if ($request->after_id) {
-            // Polling: Get messages after specific ID
             $messages = $query->where('id', '>', $request->after_id)
                 ->with(['sender', 'player'])
                 ->orderBy('created_at', 'asc')
                 ->get();
         } else {
-            // Initial Load / Pagination: Get latest messages
             $messages = $query->with(['sender', 'player'])
                 ->orderBy('created_at', 'desc')
                 ->paginate($request->per_page ?? 50);
         }
 
-        // Mark all received messages as read
         Message::where('from_user_id', $otherUserId)
             ->where('to_user_id', $userId)
             ->whereNull('read_at')
@@ -106,23 +105,26 @@ class MessageController extends Controller
             'content' => 'required|string|max:2000',
         ]);
 
+        $user = $this->resolveUser($request);
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => '未授權'], 401);
+        }
+
         $toUserId = $request->to_user_id;
         $toUserUid = $request->to_user_uid;
         $playerId = $request->to_player_id;
 
-        // If UID is provided, find the ID
         if ($toUserUid && !$toUserId) {
             $toUserId = \App\Models\User::where('uid', $toUserUid)->value('id');
         }
 
-        // If player ID is provided, infer user ID
         if ($playerId && !$toUserId) {
             $player = Player::findOrFail($playerId);
             $toUserId = $player->user_id;
         }
 
         $message = Message::create([
-            'from_user_id' => $request->user()->id,
+            'from_user_id' => $user->id,
             'to_user_id' => $toUserId,
             'to_player_id' => $playerId,
             'content' => $request->content,
@@ -142,12 +144,10 @@ class MessageController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $message = Message::with(['sender', 'player'])
-            ->findOrFail($id);
+        $message = Message::with(['sender', 'player'])->findOrFail($id);
 
-        // Only allow sender or receiver to view
-        $user = $request->user();
-        if ($message->from_user_id !== $user->id && $message->to_user_id !== $user->id) {
+        $user = $this->resolveUser($request);
+        if (!$user || ($message->from_user_id !== $user->id && $message->to_user_id !== $user->id)) {
             return response()->json([
                 'success' => false,
                 'message' => '無權限查看此訊息',
@@ -167,8 +167,8 @@ class MessageController extends Controller
     {
         $message = Message::findOrFail($id);
 
-        // Only receiver can mark as read
-        if ($message->to_user_id !== $request->user()->id) {
+        $user = $this->resolveUser($request);
+        if (!$user || $message->to_user_id != $user->id) {
             return response()->json([
                 'success' => false,
                 'message' => '無權限操作',
@@ -181,6 +181,7 @@ class MessageController extends Controller
             'success' => true,
             'message' => '已標記為已讀',
         ]);
+
     }
 
     /**
@@ -188,9 +189,12 @@ class MessageController extends Controller
      */
     public function unreadCount(Request $request)
     {
-        $count = Message::forUser($request->user()->id)
-            ->unread()
-            ->count();
+        $user = $this->resolveUser($request);
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => '未授權'], 401);
+        }
+
+        $count = Message::forUser($user->id)->unread()->count();
 
         return response()->json([
             'success' => true,
@@ -199,7 +203,7 @@ class MessageController extends Controller
     }
 
     /**
-     * Get sent messages (Deprecated in favor of chat view, but kept for compatibility).
+     * Get sent messages (deprecated in favor of chat view, kept for compatibility).
      */
     public function sent(Request $request)
     {
@@ -213,9 +217,8 @@ class MessageController extends Controller
     {
         $message = Message::findOrFail($id);
 
-        // Only sender or receiver can delete
-        $user = $request->user();
-        if ($message->from_user_id !== $user->id && $message->to_user_id !== $user->id) {
+        $user = $this->resolveUser($request);
+        if (!$user || ($message->from_user_id != $user->id && $message->to_user_id != $user->id)) {
             return response()->json([
                 'success' => false,
                 'message' => '無權限刪除此訊息',
@@ -228,5 +231,20 @@ class MessageController extends Controller
             'success' => true,
             'message' => '訊息已刪除',
         ]);
+    }
+
+    /**
+     * Resolve current authenticated user checking request, Sanctum guards, then default auth.
+     */
+    private function resolveUser(Request $request)
+    {
+        $user = $request->user('sanctum') ?: $request->user();
+        if (!$user) {
+            $user = Auth::guard('sanctum')->user();
+        }
+        if (!$user) {
+            $user = Auth::user();
+        }
+        return $user;
     }
 }

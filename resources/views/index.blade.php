@@ -6,67 +6,45 @@
     <title>{{ $seo['title'] ?? 'LoveTennis | 專業網球約打媒合與球友卡社群' }}</title>
     <!-- SEO Meta Tags -->
     <meta name="description" content="{{ $seo['description'] ?? 'LoveTennis 是全台最專業的網球約打平台，提供職業級球友卡製作、透明約打費用與安全站內信媒合系統。' }}">
+    @php
+        $canonical = $seo['canonical'] ?? url()->current();
+    @endphp
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:url" content="{{ $canonical }}">
     <meta property="og:title" content="{{ $seo['title'] ?? 'LoveTennis' }}">
     <meta property="og:description" content="{{ $seo['description'] ?? '全台最專業的網球約打平台' }}">
     <meta property="og:image" content="{{ url($seo['og_image'] ?? '/img/og-default.jpg') }}">
+    <link rel="canonical" href="{{ $canonical }}">
 
-    
-    <!-- Twitter -->
-
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="{{ url()->current() }}">
-    <meta property="twitter:title" content="{{ $seo['title'] ?? 'LoveTennis' }}">
-    <meta property="twitter:description" content="{{ $seo['description'] ?? '全台最專業的網球約打平台' }}">
-    <meta property="twitter:image" content="{{ url($seo['og_image'] ?? '/img/og-default.jpg') }}">
-    
-    <!-- Canonical Link -->
-    <link rel="canonical" href="{{ $seo['canonical'] ?? url()->current() }}">
-
-    <!-- Structured Data (JSON-LD) -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "LoveTennis",
-      "url": "{{ url('/') }}",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "{{ url('/list') }}?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      },
-      "description": "全台最專業的網球約打平台"
-    }
-    </script>
-    @if(!empty($seo['type']) && $seo['type'] === 'event')
-    <script type="application/ld+json">
-    {!! json_encode([
-        '@context' => 'https://schema.org',
-        '@type' => 'Event',
-        'name' => $seo['title'] ?? '',
-        'description' => $seo['description'] ?? '',
-        'url' => $seo['canonical'] ?? url()->current(),
-        'startDate' => $seo['start_date'] ?? '',
-        'endDate' => $seo['end_date'] ?? '',
-        'eventAttendanceMode' => 'https://schema.org/OfflineEventAttendanceMode',
-        'eventStatus' => 'https://schema.org/EventScheduled',
-        'location' => [
-            '@type' => 'Place',
-            'name' => $seo['location'] ?? '',
-            'address' => $seo['address'] ?? ''
-        ]
-    ], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) !!}
-    </script>
+    @if(isset($seo['type']) && $seo['type'] === 'event')
+        <script type="application/ld+json">
+        {!! json_encode([
+            '@context' => 'https://schema.org',
+            '@type' => 'Event',
+            'name' => $seo['title'] ?? 'LoveTennis 活動',
+            'description' => $seo['description'] ?? '查看此網球活動詳情與報名資訊',
+            'startDate' => $seo['start_date'] ?? null,
+            'endDate' => $seo['end_date'] ?? null,
+            'eventStatus' => 'https://schema.org/EventScheduled',
+            'eventAttendanceMode' => 'https://schema.org/OfflineEventAttendanceMode',
+            'location' => [
+                '@type' => 'Place',
+                'name' => $seo['location'] ?? '網球場',
+                'address' => $seo['address'] ?? '',
+            ],
+            'url' => $canonical,
+            'image' => url($seo['og_image'] ?? '/img/og-default.jpg'),
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
+        </script>
     @endif
-    
+
     {{-- Favicon --}}
 
-
-
     <link rel="icon" type="image/x-icon" href="/img/favicon/favicon.ico">
+
+
     <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon/favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/img/favicon/apple-touch-icon.png">
@@ -76,12 +54,12 @@
         window.tennisConfig = @json(config('tennis'));
     </script>
     <style>[v-cloak] { display: none !important; }</style>
-    <script src="/vendor/vue/vue.global.js" defer></script>
-    <script src="/vendor/tailwind/tailwind.js" defer></script>
+    <script src="/vendor/vue/vue.global.js"></script>
+    <script src="/vendor/tailwind/tailwind.js"></script>
     <link rel="stylesheet" href="/vendor/animate/animate.min.css"/>
     
     {{-- External Scripts (Loaded in head for reliability) --}}
-    <script src="/vendor/axios/axios.min.js" defer></script>
+    <script src="/vendor/axios/axios.min.js"></script>
     <script src="/vendor/moveable/moveable.min.js" defer></script>
     <script src="/vendor/html2canvas/html2canvas.min.js" defer></script>
     

@@ -13,6 +13,11 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
     const profileEventsHasMore = ref(false);
     const isEditingProfile = ref(false);
     const profileForm = reactive({ name: '', gender: '', region: '', bio: '' });
+    const profileComments = ref([]);
+    const followingUsers = ref([]);
+    const followerUsers = ref([]);
+    const likedPlayers = ref([]);
+    const playerCommentDraft = ref('');
 
     const loadProfile = async (userId, loadProfileEventsCallback, autoEdit = false) => {
         try {
@@ -42,6 +47,54 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
             profileEventsHasMore.value = response.data.next_page_url !== null;
             if (profileEventsHasMore.value) profileEventsPage.value++;
         } catch (error) {}
+    };
+
+    const loadProfileComments = async () => {
+        const playerId = profileData.user?.player?.id;
+        if (!playerId) return;
+        try {
+            const response = await api.get(`/players/${playerId}/comments`);
+            profileComments.value = response.data;
+        } catch (error) {}
+    };
+
+    const loadFollowing = async () => {
+        const userId = profileData.user?.uid;
+        if (!userId) return;
+        try {
+            const response = await api.get(`/following/${userId}`);
+            followingUsers.value = response.data;
+        } catch (error) {}
+    };
+
+    const loadFollowers = async () => {
+        const userId = profileData.user?.uid;
+        if (!userId) return;
+        try {
+            const response = await api.get(`/followers/${userId}`);
+            followerUsers.value = response.data;
+        } catch (error) {}
+    };
+
+    const loadLikedPlayers = async () => {
+        const userId = profileData.user?.uid;
+        if (!userId) return;
+        try {
+            const response = await api.get(`/likes/${userId}`);
+            likedPlayers.value = response.data;
+        } catch (error) {}
+    };
+
+    const submitPlayerComment = async (playerId) => {
+        if (!isLoggedIn.value) { showToast('請先登入', 'error'); navigateTo('auth'); return; }
+        const text = playerCommentDraft.value.trim();
+        if (!text) return;
+        try {
+            const response = await api.post(`/players/${playerId}/comments`, { content: text });
+            profileComments.value.unshift(response.data.comment);
+            playerCommentDraft.value = '';
+            showToast('留言成功', 'success');
+        } catch (error) { showToast('發送失敗', 'error'); }
     };
 
     const saveProfile = async () => {
@@ -87,5 +140,10 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
         navigateTo('profile', true, uid);
     };
 
-    return { profileData, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm, loadProfile, loadProfileEvents, saveProfile, openProfile, toggleFollow, toggleLike };
+    return { 
+        profileData, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm, 
+        profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,
+        loadProfile, loadProfileEvents, saveProfile, openProfile, toggleFollow, toggleLike,
+        loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment
+    };
 };

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Like;
 use App\Models\Player;
 use Illuminate\Http\Request;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class LikeController extends Controller
@@ -77,5 +78,19 @@ class LikeController extends Controller
             ->exists();
 
         return response()->json(['is_liked' => $isLiked]);
+    }
+
+    /**
+     * Get player cards liked by a specific user.
+     */
+    public function index($uid)
+    {
+        $user = is_numeric($uid) ? User::findOrFail($uid) : User::where('uid', $uid)->firstOrFail();
+        
+        $likedPlayers = Player::withCount(['likes', 'comments'])->whereHas('likes', function($q) use ($user) {
+            $q->where('user_id', $user->id);
+        })->get();
+
+        return response()->json($likedPlayers);
     }
 }

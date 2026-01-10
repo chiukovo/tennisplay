@@ -6,13 +6,13 @@
                 <button @click="navigateTo('home')" class="p-2 hover:bg-slate-100 rounded-xl transition-colors">
                     <app-icon name="arrow-left" class-name="w-5 h-5 text-slate-600"></app-icon>
                 </button>
-                <h1 class="text-lg font-black italic uppercase tracking-tight text-slate-900">個人主頁</h1>
+                <h1 class="text-lg font-black italic uppercase tracking-tight text-slate-900 whitespace-nowrap">個人主頁</h1>
             </div>
-            <div v-if="profileData.status?.is_me" class="flex items-center gap-2">
-                <button v-if="!isEditingProfile" @click="isEditingProfile = true" class="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm">
+            <div v-if="profileData.status?.is_me" class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                <button v-if="!isEditingProfile" @click="isEditingProfile = true" class="px-3 sm:px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm whitespace-nowrap">
                     編輯資料
                 </button>
-                <button v-if="!isEditingProfile && profileData.user?.player" @click="editCard(profileData.user.player)" class="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-sm">
+                <button v-if="!isEditingProfile && profileData.user?.player" @click="editCard(profileData.user.player)" class="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-sm whitespace-nowrap">
                     編輯卡片樣式
                 </button>
             </div>
@@ -66,31 +66,46 @@
                             </div>
                             
                             <!-- Action Buttons -->
-                            <div v-if="!profileData.status?.is_me" class="flex gap-3">
+                            <div v-if="!profileData.status?.is_me" class="flex flex-nowrap gap-2 sm:gap-3">
                                 <button @click="toggleFollow" 
                                         :class="profileData.status.is_following ? 'bg-slate-100 text-slate-600' : 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'"
-                                        class="px-8 py-3.5 rounded-2xl font-black uppercase tracking-widest text-xs transition-all active:scale-95">
+                                        class="px-6 sm:px-8 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] sm:text-xs transition-all active:scale-95 whitespace-nowrap">
                                     @{{ profileData.status.is_following ? '已追蹤' : '追蹤球友' }}
                                 </button>
-                                <button @click="openMessage({from_user_id: profileData.user.id, sender: profileData.user})" class="px-6 py-3.5 bg-white border border-slate-200 text-slate-700 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-slate-50 transition-all flex items-center gap-2">
+                                <button @click="openMessage({from_user_id: profileData.user.id, sender: profileData.user})" class="px-5 sm:px-6 py-3.5 bg-white border border-slate-200 text-slate-700 rounded-2xl font-black uppercase tracking-widest text-[10px] sm:text-xs hover:bg-slate-50 transition-all flex items-center gap-2 shrink-0">
                                     <app-icon name="mail" class-name="w-4 h-4"></app-icon>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Stats (Instagram Style) -->
-                        <div class="flex gap-10 sm:gap-16 border-b border-slate-100 pb-8 mb-8">
-                            <div class="flex flex-col">
-                                <div class="text-3xl sm:text-4xl font-black text-slate-950 tracking-tighter leading-none">@{{ profileData.stats.followers_count }}</div>
-                                <div class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mt-2">粉絲 / Followers</div>
+                        <!-- Stats (Clean Icon Row) -->
+                        <div class="flex flex-nowrap items-center gap-6 sm:gap-10 border-b border-slate-100 pb-8 mb-8 overflow-x-auto no-scrollbar">
+                            <div class="flex items-center gap-2.5 shrink-0 group">
+                                <div class="w-9 h-9 sm:w-11 sm:h-11 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-600 transition-all duration-300">
+                                    <app-icon name="users" class-name="w-4 h-4 sm:w-5 sm:h-5"></app-icon>
+                                </div>
+                                <div class="flex flex-col">
+                                    <div class="text-lg sm:text-xl font-black text-slate-950 tracking-tight leading-none whitespace-nowrap">@{{ profileData.stats.followers_count }}</div>
+                                    <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5 whitespace-nowrap">粉絲</div>
+                                </div>
                             </div>
-                            <div class="flex flex-col">
-                                <div class="text-3xl sm:text-4xl font-black text-slate-950 tracking-tighter leading-none">@{{ profileData.stats.following_count }}</div>
-                                <div class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mt-2">追蹤 / Following</div>
+                            <div class="flex items-center gap-2.5 shrink-0 group">
+                                <div class="w-9 h-9 sm:w-11 sm:h-11 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-600 transition-all duration-300">
+                                    <app-icon name="user" class-name="w-4 h-4 sm:w-5 sm:h-5"></app-icon>
+                                </div>
+                                <div class="flex flex-col">
+                                    <div class="text-lg sm:text-xl font-black text-slate-950 tracking-tight leading-none whitespace-nowrap">@{{ profileData.stats.following_count }}</div>
+                                    <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5 whitespace-nowrap">追蹤</div>
+                                </div>
                             </div>
-                            <div class="flex flex-col">
-                                <div class="text-3xl sm:text-4xl font-black text-slate-950 tracking-tighter leading-none">@{{ profileData.stats.likes_count }}</div>
-                                <div class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mt-2">獲讚 / Likes</div>
+                            <div class="flex items-center gap-2.5 shrink-0 group">
+                                <div class="w-9 h-9 sm:w-11 sm:h-11 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-all duration-300">
+                                    <app-icon name="heart" class-name="w-4 h-4 sm:w-5 sm:h-5"></app-icon>
+                                </div>
+                                <div class="flex flex-col">
+                                    <div class="text-lg sm:text-xl font-black text-slate-950 tracking-tight leading-none whitespace-nowrap">@{{ profileData.stats.likes_count }}</div>
+                                    <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5 whitespace-nowrap">獲讚</div>
+                                </div>
                             </div>
                         </div>
 
@@ -166,63 +181,190 @@
 
         <!-- Events Section -->
         <div class="space-y-6">
-            <div class="flex items-center justify-between px-2">
-                <div class="flex gap-8">
+            <div class="flex items-center justify-between px-2 overflow-x-auto no-scrollbar border-b border-slate-100">
+                <div class="flex flex-nowrap gap-x-6 sm:gap-x-8">
                     <button @click="profileTab = 'active'" 
                             :class="profileTab === 'active' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'"
-                            class="relative py-2 text-sm font-black uppercase tracking-[0.2em] transition-all group">
+                            class="relative py-4 text-[11px] sm:text-sm font-black uppercase tracking-[0.2em] transition-all group whitespace-nowrap">
                         正在揪球
                         <div :class="['absolute bottom-0 left-0 right-0 h-1 bg-blue-600 rounded-full transition-all duration-300', profileTab === 'active' ? 'opacity-100 w-full' : 'opacity-0 w-0']"></div>
                     </button>
                     <button @click="profileTab = 'past'" 
                             :class="profileTab === 'past' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'"
-                            class="relative py-2 text-sm font-black uppercase tracking-[0.2em] transition-all group">
+                            class="relative py-4 text-[11px] sm:text-sm font-black uppercase tracking-[0.2em] transition-all group whitespace-nowrap">
                         歷史紀錄
                         <div :class="['absolute bottom-0 left-0 right-0 h-1 bg-blue-600 rounded-full transition-all duration-300', profileTab === 'past' ? 'opacity-100 w-full' : 'opacity-0 w-0']"></div>
+                    </button>
+                    <button @click="profileTab = 'comments'; loadProfileComments()" 
+                            :class="profileTab === 'comments' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'"
+                            class="relative py-4 text-[11px] sm:text-sm font-black uppercase tracking-[0.2em] transition-all group whitespace-nowrap flex items-center gap-1.5">
+                        留言板
+                        <div v-if="profileData.user?.player?.comments_count > 0" 
+                             :class="profileTab === 'comments' ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400'"
+                             class="px-1.5 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-black tracking-normal transition-colors">
+                            @{{ profileData.user.player.comments_count }}
+                        </div>
+                        <div :class="['absolute bottom-0 left-0 right-0 h-1 bg-blue-600 rounded-full transition-all duration-300', profileTab === 'comments' ? 'opacity-100 w-full' : 'opacity-0 w-0']"></div>
+                    </button>
+                    <button v-if="profileData.status?.is_me" @click="profileTab = 'likes'; loadLikedPlayers()" 
+                            :class="profileTab === 'likes' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'"
+                            class="relative py-4 text-[11px] sm:text-sm font-black uppercase tracking-[0.2em] transition-all group whitespace-nowrap">
+                        我的按讚
+                        <div :class="['absolute bottom-0 left-0 right-0 h-1 bg-blue-600 rounded-full transition-all duration-300', profileTab === 'likes' ? 'opacity-100 w-full' : 'opacity-0 w-0']"></div>
+                    </button>
+                    <button v-if="profileData.status?.is_me" @click="profileTab = 'following'; loadFollowing()" 
+                            :class="profileTab === 'following' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'"
+                            class="relative py-4 text-[11px] sm:text-sm font-black uppercase tracking-[0.2em] transition-all group whitespace-nowrap">
+                        我的追蹤
+                        <div :class="['absolute bottom-0 left-0 right-0 h-1 bg-blue-600 rounded-full transition-all duration-300', profileTab === 'following' ? 'opacity-100 w-full' : 'opacity-0 w-0']"></div>
                     </button>
                 </div>
             </div>
 
-            <!-- Event List -->
-            <div v-if="profileEvents.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div v-for="event in profileEvents" :key="event.id" 
-                     @click="openEventDetail(event)"
-                     class="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm hover:border-blue-200 hover:shadow-md transition-all cursor-pointer group">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex items-center gap-2">
-                            <span :class="event.match_type === 'match' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'" 
-                                  class="px-2 py-1 text-[9px] font-black rounded-lg uppercase tracking-widest italic">
-                                @{{ event.match_type === 'match' ? '比賽' : (event.match_type === 'practice' ? '練習' : '不限') }}
-                            </span>
+            <!-- Event List (Active/Past) -->
+            <div v-if="['active', 'past'].includes(profileTab)">
+                <div v-if="profileEvents.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate__animated animate__fadeIn">
+                    <div v-for="event in profileEvents" :key="event.id" 
+                         @click="openEventDetail(event)"
+                         class="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm hover:border-blue-200 hover:shadow-md transition-all cursor-pointer group">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-center gap-2">
+                                <span :class="event.match_type === 'match' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'" 
+                                      class="px-2 py-1 text-[9px] font-black rounded-lg uppercase tracking-widest italic">
+                                    @{{ event.match_type === 'match' ? '比賽' : (event.match_type === 'practice' ? '練習' : '不限') }}
+                                </span>
+                            </div>
+                            <span class="text-[9px] font-black text-slate-300 uppercase tracking-widest">@{{ formatDate(event.event_date) }}</span>
                         </div>
-                        <span class="text-[9px] font-black text-slate-300 uppercase tracking-widest">@{{ formatDate(event.event_date) }}</span>
-                    </div>
-                    <h4 class="font-black text-slate-900 text-lg mb-4 group-hover:text-blue-600 transition-colors leading-tight">@{{ event.title }}</h4>
-                    <div class="flex items-center justify-between pt-4 border-t border-slate-50">
-                        <div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400">
-                            <app-icon name="map-pin" class-name="w-3.5 h-3.5"></app-icon>
-                            @{{ event.location }}
-                        </div>
-                        <div class="flex items-center gap-1.5 text-[10px] font-black text-blue-600">
-                            <app-icon name="users" class-name="w-3.5 h-3.5"></app-icon>
-                            @{{ event.confirmed_participants_count }}/@{{ event.max_participants === 0 ? '∞' : event.max_participants }}
+                        <h4 class="font-black text-slate-900 text-lg mb-4 group-hover:text-blue-600 transition-colors leading-tight">@{{ event.title }}</h4>
+                        <div class="flex items-center justify-between pt-4 border-t border-slate-50">
+                            <div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400">
+                                <app-icon name="map-pin" class-name="w-3.5 h-3.5"></app-icon>
+                                @{{ event.location }}
+                            </div>
+                            <div class="flex items-center gap-1.5 text-[10px] font-black text-blue-600">
+                                <app-icon name="users" class-name="w-3.5 h-3.5"></app-icon>
+                                @{{ event.confirmed_participants_count }}/@{{ event.max_participants === 0 ? '∞' : event.max_participants }}
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <div v-else class="py-20 text-center bg-white rounded-[40px] border border-slate-100 shadow-sm">
-                <div class="w-20 h-20 bg-slate-50 rounded-[32px] flex items-center justify-center mx-auto mb-6">
-                    <app-icon name="calendar" class-name="w-10 h-10 text-slate-200"></app-icon>
+                <div v-else class="py-20 text-center bg-white rounded-[40px] border border-slate-100 shadow-sm animate__animated animate__fadeIn">
+                    <div class="w-20 h-20 bg-slate-50 rounded-[32px] flex items-center justify-center mx-auto mb-6">
+                        <app-icon name="calendar" class-name="w-10 h-10 text-slate-200"></app-icon>
+                    </div>
+                    <p class="text-slate-400 font-black uppercase tracking-widest text-xs">目前沒有相關活動</p>
                 </div>
-                <p class="text-slate-400 font-black uppercase tracking-widest text-xs">目前沒有相關活動</p>
+                <!-- Load More -->
+                <button v-if="profileEventsHasMore" @click="loadProfileEvents(true)" 
+                        class="w-full mt-6 py-5 bg-white border border-slate-100 text-blue-600 text-xs font-black uppercase tracking-[0.2em] hover:bg-blue-50 rounded-[28px] transition-all shadow-sm">
+                    載入更多活動
+                </button>
             </div>
 
-            <!-- Load More -->
-            <button v-if="profileEventsHasMore" @click="loadProfileEvents(true)" 
-                    class="w-full py-5 bg-white border border-slate-100 text-blue-600 text-xs font-black uppercase tracking-[0.2em] hover:bg-blue-50 rounded-[28px] transition-all shadow-sm">
-                載入更多活動
-            </button>
+            <!-- Comments Tab -->
+            <div v-if="profileTab === 'comments'" class="space-y-6 animate__animated animate__fadeIn">
+                <div class="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm ring-1 ring-slate-100">
+                    <div class="mb-8 flex items-center justify-between">
+                        <h3 class="text-xl font-black italic uppercase tracking-tighter text-slate-900">球友留言板 / Comments</h3>
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-3 py-1.5 rounded-full">@{{ profileComments.length }} 則留言</span>
+                    </div>
+
+                    <!-- Comment Input -->
+                    <div class="flex gap-4 mb-10">
+                        <div class="flex-1 relative group">
+                            <textarea v-model="playerCommentDraft" 
+                                rows="2" 
+                                placeholder="對這位球友有什麼想說的嗎..." 
+                                class="w-full bg-slate-50 border-2 border-transparent rounded-[24px] px-6 py-4 text-sm font-bold focus:bg-white focus:border-blue-500 outline-none transition-all placeholder:text-slate-300 resize-none"></textarea>
+                            <button @click="submitPlayerComment(profileData.user.player.id)" 
+                                :disabled="!playerCommentDraft.trim()"
+                                class="absolute right-3 bottom-3 w-10 h-10 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:hover:scale-100 transition-all">
+                                <app-icon name="send" class-name="w-5 h-5"></app-icon>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Comment List -->
+                    <div v-if="profileComments.length > 0" class="space-y-6">
+                        <div v-for="c in profileComments" :key="c.id" class="flex gap-4 group">
+                            <div class="w-12 h-12 rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 shrink-0 cursor-pointer" @click="openProfile(c.user.uid)">
+                                <img v-if="c.user.photo" :src="c.user.photo" class="w-full h-full object-cover">
+                                <app-icon v-else name="user" class-name="w-full h-full text-slate-200 p-2"></app-icon>
+                            </div>
+                            <div class="flex-1 space-y-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-black text-slate-900 cursor-pointer hover:text-blue-600 transition-colors" @click="openProfile(c.user.uid)">@{{ c.user.name }}</span>
+                                    <span class="text-[9px] font-black text-slate-300 uppercase tracking-widest">@{{ formatDate(c.at) }}</span>
+                                </div>
+                                <div class="bg-slate-50/80 p-5 rounded-[24px] rounded-tl-none text-slate-700 text-sm font-bold leading-relaxed relative">
+                                    @{{ c.text }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else class="py-12 text-center">
+                        <p class="text-slate-300 font-black italic text-sm uppercase tracking-widest">目前還沒有留言，快來搶頭香吧！</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Liked Players Tab -->
+            <div v-if="profileTab === 'likes'" class="animate__animated animate__fadeIn">
+                <div v-if="likedPlayers.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div v-for="p in likedPlayers" :key="p.id" 
+                         @click="openProfile(p.user?.uid || p.user_id)"
+                         class="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm hover:border-blue-200 hover:shadow-md transition-all cursor-pointer flex items-center gap-4">
+                        <div class="w-16 h-16 rounded-2xl overflow-hidden bg-slate-50 border-2 border-white shadow-sm shrink-0">
+                            <img v-if="p.photo_url || p.photo" :src="p.photo_url || p.photo" class="w-full h-full object-cover">
+                            <app-icon v-else name="user" class-name="w-full h-full text-slate-200 p-3"></app-icon>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <div class="text-slate-900 font-black text-lg leading-tight">@{{ p.name }}</div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 bg-blue-50 text-blue-600 text-[8px] font-black rounded uppercase italic" v-if="p.level">NTRP @{{ p.level }}</span>
+                                <span class="text-slate-400 text-[9px] font-bold">@{{ p.region }}</span>
+                            </div>
+                        </div>
+                        <app-icon name="chevron-right" class-name="w-5 h-5 text-slate-300"></app-icon>
+                    </div>
+                </div>
+                <div v-else class="py-20 text-center bg-white rounded-[40px] border border-slate-100">
+                    <app-icon name="heart" class-name="w-12 h-12 text-slate-100 mx-auto mb-4"></app-icon>
+                    <p class="text-slate-400 font-black uppercase tracking-widest text-xs">還沒有收藏任何球員卡</p>
+                </div>
+            </div>
+
+            <!-- Following Tab -->
+            <div v-if="profileTab === 'following'" class="animate__animated animate__fadeIn">
+                <div v-if="followingUsers.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div v-for="u in followingUsers" :key="u.uid" 
+                         @click="openProfile(u.uid)"
+                         class="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm hover:border-blue-200 hover:shadow-md transition-all cursor-pointer flex items-center gap-4">
+                        <div class="w-16 h-16 rounded-2xl overflow-hidden bg-slate-50 border-2 border-white shadow-sm shrink-0">
+                            <img v-if="u.photo" :src="u.photo" class="w-full h-full object-cover">
+                            <app-icon v-else name="user" class-name="w-full h-full text-slate-200 p-3"></app-icon>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <div class="text-slate-900 font-black text-lg leading-tight">@{{ u.name }}</div>
+                                <span v-if="u.is_mutual" class="bg-emerald-50 text-emerald-600 text-[8px] font-black px-1.5 py-0.5 rounded uppercase">互追</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 bg-blue-50 text-blue-600 text-[8px] font-black rounded uppercase italic" v-if="u.level">NTRP @{{ u.level }}</span>
+                                <span class="text-slate-400 text-[9px] font-bold">@{{ u.region }}</span>
+                            </div>
+                        </div>
+                        <app-icon name="chevron-right" class-name="w-5 h-5 text-slate-300"></app-icon>
+                    </div>
+                </div>
+                <div v-else class="py-20 text-center bg-white rounded-[40px] border border-slate-100">
+                    <app-icon name="users" class-name="w-12 h-12 text-slate-100 mx-auto mb-4"></app-icon>
+                    <p class="text-slate-400 font-black uppercase tracking-widest text-xs">目前沒有追蹤任何人</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>

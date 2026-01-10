@@ -45,7 +45,7 @@ createApp({
         // --- 2. Helper Functions (Must be defined before composables that use them) ---
         const { 
             toasts, showToast, removeToast, confirmDialog, showConfirm, hideConfirm, executeConfirm, 
-            formatDate, getUrl, formatLocalDateTime 
+            formatDate, getUrl, formatLocalDateTime, formatEventDate
         } = useUtils();
 
         const initSettings = () => {
@@ -107,16 +107,18 @@ createApp({
 
         const { 
             profileData, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm, 
-            loadProfile, loadProfileEvents, saveProfile, openProfile, toggleFollow, toggleLike
+            profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,
+            loadProfile, loadProfileEvents, saveProfile, openProfile, toggleFollow, toggleLike,
+            loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment
         } = useProfile(isLoggedIn, currentUser, showToast, navigateTo);
 
         const { 
-            players, myPlayers, isPlayersLoading, loadPlayers, loadMyCards, saveCard, deleteCard 
+            players, myPlayers, isPlayersLoading, loadPlayers, loadMyCards, saveCard, deleteCard
         } = usePlayers(isLoggedIn, currentUser, showToast, navigateTo, showConfirm, (id) => loadProfile(id), form);
 
         const { 
             events, eventsLoading, eventSubmitting, loadEvents, createEvent, joinEvent, leaveEvent 
-        } = useEvents(isLoggedIn, showToast, navigateTo, formatLocalDateTime, eventForm);
+        } = useEvents(isLoggedIn, showToast, navigateTo, formatLocalDateTime, eventForm, resetEventForm);
 
         const { messages, loadMessages, markMessageRead } = useMessages(isLoggedIn, currentUser, showToast);
 
@@ -198,9 +200,12 @@ createApp({
         };
 
         // Message sent callback
-        const onMessageSent = () => {
+        const onMessageSent = (data) => {
             loadMessages();
-            showMessageDetail.value = false;
+            // Only close modal if it's the initial match request (no data or type != chat-reply)
+            if (!data || data.type !== 'chat-reply') {
+                showMessageDetail.value = false;
+            }
         };
 
         // Loading state
@@ -276,6 +281,21 @@ createApp({
         const hasUnread = computed(() => Array.isArray(messages.value) && messages.value.some(m => m.unread || !m.read_at));
         const hasPlayerCard = computed(() => myPlayers.value && myPlayers.value.length > 0);
         const myCards = computed(() => myPlayers.value);
+
+        const allConversations = computed(() => {
+            if (!Array.isArray(messages.value) || !currentUser.value) return [];
+            // Backend already returns the latest message per conversation group, 
+            // sorted by activity (created_at DESC).
+            return messages.value;
+        });
+
+        const paginatedMessages = computed(() => {
+            return allConversations.value.slice(0, messagesLimit.value);
+        });
+
+        const hasMoreMessages = computed(() => {
+            return allConversations.value.length > messagesLimit.value;
+        });
 
         // --- 6. Methods ---
         const handleFileUpload = (e) => {
@@ -448,6 +468,10 @@ createApp({
             showMessageDetail.value = true;
         };
 
+        const loadMoreMessages = () => {
+            messagesLimit.value += 20;
+        };
+
         // --- 7. Lifecycle & Watchers ---
         onMounted(() => {
             checkAuth(() => loadMessages(), () => loadMyCards());
@@ -496,7 +520,7 @@ createApp({
         return {
             // State
             view, isLoggedIn, currentUser, isLoginMode, showUserMenu, isSigning, messageTab,
-            players, myPlayers, isPlayersLoading, messages, events, eventsLoading,
+            players, myPlayers, isPlayersLoading, messages, events, eventsLoading, eventSubmitting,
             profileData, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm,
             form, eventForm, currentStep, stepAttempted, isAdjustingPhoto, isAdjustingSig, isCapturing,
             searchQuery, selectedRegion, currentPage, perPage, matchModal, detailPlayer,
@@ -504,16 +528,21 @@ createApp({
             eventLikes, showNtrpGuide, showMessageDetail, selectedChatUser, isLoading,
             showPreview, showQuickEditModal, features, cardThemes,
             settingsForm, isSavingSettings, toasts, confirmDialog, dragInfo,
+            profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,
             // Computed
-            hasUnread, hasPlayerCard, myCards, activeRegions, filteredPlayers, totalPages, paginatedPlayers, displayPages, filteredEvents,
+            hasUnread: computed(() => Array.isArray(messages.value) && messages.value.some(m => m.unread_count > 0)),
+            hasPlayerCard, myCards, activeRegions, filteredPlayers, totalPages, paginatedPlayers, displayPages, filteredEvents,
+            minEventDate: computed(() => formatLocalDateTime(new Date())),
+            paginatedMessages, hasMoreMessages,
             canProceedStep1, canProceedStep2, canProceedStep3, canGoToStep,
             // Methods - use navigateToWithProfile as the exported navigateTo
             navigateTo: navigateToWithProfile, logout, checkAuth, saveSettings, loadPlayers, loadMyCards, saveCard: handleSaveCard, deleteCard, editCard, resetForm, resetFormFull,
             loadEvents, createEvent, joinEvent, leaveEvent, resetEventForm, openEventDetail, submitEventComment, deleteEventComment,
             loadProfile, loadProfileEvents, saveProfile, openProfile, toggleFollow, toggleLike,
-            loadMessages, markMessageRead, openMessage, onMessageSent,
+            loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment,
+            loadMessages, markMessageRead, openMessage, onMessageSent, loadMoreMessages,
             showToast, removeToast, showConfirm, hideConfirm, executeConfirm,
-            formatDate, getUrl, formatLocalDateTime,
+            formatDate, getUrl, formatLocalDateTime, formatEventDate,
             handleFileUpload, triggerUpload, useLinePhoto, handleSignatureUpdate, toggleAdjustSig, initMoveable, getPlayersByRegion,
             startDrag, handleDrag, stopDrag, captureCardImage,
             tryNextStep, tryGoToStep, openMatchModal, sendMatchRequest,

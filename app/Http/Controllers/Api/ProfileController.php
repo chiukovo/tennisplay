@@ -19,8 +19,8 @@ class ProfileController extends Controller
     {
         // Support both uid and numeric id for backwards compatibility
         $user = is_numeric($uid) 
-            ? User::with(['player'])->findOrFail($uid)
-            : User::with(['player'])->where('uid', $uid)->firstOrFail();
+            ? User::with(['player' => fn($q) => $q->withCount(['likes', 'comments'])])->findOrFail($uid)
+            : User::with(['player' => fn($q) => $q->withCount(['likes', 'comments'])])->where('uid', $uid)->firstOrFail();
         
         $me = Auth::guard('sanctum')->user();
 

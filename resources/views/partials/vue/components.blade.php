@@ -275,7 +275,7 @@ const PlayerCard = {
 };
 
 const PlayerDetailModal = {
-    props: ['player', 'stats', 'players'],
+    props: ['player', 'stats', 'players', 'isLoggedIn', 'showToast', 'navigateTo'],
     components: { AppIcon, PlayerCard },
     template: '#player-detail-modal-template',
     emits: ['close', 'open-match', 'update:player', 'open-profile'],
@@ -288,6 +288,72 @@ const PlayerDetailModal = {
         const hasPrev = computed(() => props.players && props.players.length > 1);
         const hasNext = computed(() => props.players && props.players.length > 1);
         const transitionName = ref('slide-next');
+        const comments = ref([]);
+        const commentDraft = ref('');
+        const isLoadingComments = ref(false);
+        const socialStatus = reactive({ is_liked: false, is_following: false, likes_count: 0 });
+
+        const loadComments = async () => {
+            if (!props.player) return;
+            isLoadingComments.value = true;
+            try {
+                const response = await api.get(`/players/${props.player.id}/comments`);
+                comments.value = response.data;
+            } catch (error) {}
+            finally { isLoadingComments.value = false; }
+        };
+
+        const toggleFollowModal = async () => {
+            if (!props.isLoggedIn) { props.showToast('請先登入', 'error'); props.navigateTo('auth'); return; }
+            const uid = props.player.user?.uid || props.player.user_id;
+            try {
+                const action = socialStatus.is_following ? 'unfollow' : 'follow';
+                const response = await api.post(`/${action}/${uid}`);
+                socialStatus.is_following = !socialStatus.is_following;
+                emit('update:player', { ...props.player, is_following: socialStatus.is_following });
+                props.showToast(response.data.message, 'success');
+            } catch (error) {
+                props.showToast('操作失敗', 'error');
+            }
+        };
+
+        const toggleLikeModal = async () => {
+            if (!props.isLoggedIn) { props.showToast('請先登入', 'error'); props.navigateTo('auth'); return; }
+            try {
+                const action = socialStatus.is_liked ? 'unlike' : 'like';
+                const response = await api.post(`/${action}/${props.player.id}`);
+                socialStatus.is_liked = !socialStatus.is_liked;
+                socialStatus.likes_count = response.data.likes_count;
+                emit('update:player', { ...props.player, is_liked: socialStatus.is_liked, likes_count: socialStatus.likes_count });
+                props.showToast(response.data.message, 'success');
+            } catch (error) {
+                props.showToast('操作失敗', 'error');
+            }
+        };
+
+        const postComment = async () => {
+            if (!props.isLoggedIn) { props.showToast('請先登入', 'error'); props.navigateTo('auth'); return; }
+            const text = commentDraft.value.trim();
+            if (!text) return;
+            try {
+                const response = await api.post(`/players/${props.player.id}/comments`, { content: text });
+                comments.value.unshift(response.data.comment);
+                commentDraft.value = '';
+                emit('update:player', { ...props.player, comments_count: (props.player.comments_count || 0) + 1 });
+                props.showToast('留言成功', 'success');
+            } catch (error) {
+                props.showToast('發送失敗', 'error');
+            }
+        };
+
+        watch(() => props.player, (newP) => {
+            if (newP) {
+                socialStatus.is_liked = newP.is_liked || false;
+                socialStatus.is_following = newP.is_following || false;
+                socialStatus.likes_count = newP.likes_count || 0;
+                loadComments();
+            }
+        }, { immediate: true });
 
         const navigate = (direction) => {
             if (!props.players || props.players.length <= 1) return;
@@ -350,17 +416,19 @@ const PlayerDetailModal = {
             return themes[theme] || themes.standard;
         };
 
-        const formatDate = (date) => {
-            if (!date) return '2026/01/01';
-            return new Date(date).toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        const formatDate = (dateStr) => {
+            if (!dateStr) return '';
+            const d = new Date(dateStr);
+            return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
         };
 
         const getLevelDesc = (lvl) => LEVEL_DESCS[lvl] || '享受網球樂趣，持續精進球技。';
 
         return { 
-            backStats, getThemeStyle, formatDate, getLevelDesc,
-            hasPrev, hasNext, navigate, currentIndex, transitionName,
-            handleTouchStart, handleTouchEnd 
+            currentIndex, hasPrev, hasNext, transitionName, navigate, 
+            handleTouchStart, handleTouchEnd, backStats, getThemeStyle, formatDate, getLevelDesc,
+            comments, commentDraft, isLoadingComments, socialStatus,
+            toggleFollowModal, toggleLikeModal, postComment
         };
     }
 };
@@ -465,10 +533,20 @@ const MessageDetailModal = {
             if (!newMessage.value.trim() || sending.value) return;
             sending.value = true;
             try {
-                const response = await api.post('/messages', {
-                    to_user_id: props.targetUser.id,
+                const payload = {
                     content: newMessage.value
-                });
+                };
+                
+                // Use both id and uid if available for maximum resilience
+                if (props.targetUser.id) payload.to_user_id = props.targetUser.id;
+                if (props.targetUser.uid) payload.to_user_uid = props.targetUser.uid;
+                
+                // If this is a conversation about a specific player, include it
+                if (props.targetUser.player?.id) {
+                    payload.to_player_id = props.targetUser.player.id;
+                }
+
+                const response = await api.post('/messages', payload);
 
                 if (response.data.success) {
                     const msg = response.data.data;
@@ -478,7 +556,8 @@ const MessageDetailModal = {
                     });
                     newMessage.value = '';
                     scrollToBottom();
-                    emit('message-sent');
+                    // Emit but specify this is a chat-reply to avoid closing modal
+                    emit('message-sent', { type: 'chat-reply' });
                 }
             } catch (error) {
                 console.error('Send message error:', error);

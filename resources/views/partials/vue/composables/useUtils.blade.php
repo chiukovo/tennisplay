@@ -69,5 +69,19 @@ const useUtils = () => {
         return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
     };
 
-    return { toasts, showToast, removeToast, confirmDialog, showConfirm, hideConfirm, executeConfirm, formatDate, getUrl, formatLocalDateTime };
+    const formatEventDate = (dateStr) => {
+        if (!dateStr) return '';
+        const date = new Date(dateStr);
+        return date.toLocaleString('zh-TW', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+            weekday: 'short'
+        });
+    };
+
+    return { toasts, showToast, removeToast, confirmDialog, showConfirm, hideConfirm, executeConfirm, formatDate, getUrl, formatLocalDateTime, formatEventDate };
 };

@@ -24,57 +24,51 @@
         </a>
     </div>
 
-    {{-- Messages List --}}
-    <div v-else-if="messages.length > 0" class="bg-white rounded-[48px] shadow-2xl border border-slate-100 overflow-hidden">
-        {{-- Tabs --}}
-        <div class="flex border-b border-slate-100">
-            <button @click="messageTab = 'inbox'" :class="['flex-1 py-5 text-sm font-black uppercase tracking-widest transition-all', messageTab === 'inbox' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/30' : 'text-slate-400 hover:text-slate-600']">
-                收件匣 (@{{ messages.filter(m => m.to_user_id || !m.from_user_id).length }})
-            </button>
-            <button @click="messageTab = 'sent'" :class="['flex-1 py-5 text-sm font-black uppercase tracking-widest transition-all', messageTab === 'sent' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/30' : 'text-slate-400 hover:text-slate-600']">
-                已發送 (@{{ messages.filter(m => m.from_user_id).length }})
-            </button>
-        </div>
-        
-        <div class="divide-y divide-slate-100">
-            <div v-for="m in paginatedMessages" :key="m.id" @click="openMessage(m)" class="p-4 sm:p-6 hover:bg-slate-50 transition-colors cursor-pointer relative group" :class="m.unread_count > 0 ? 'bg-blue-50/30' : ''">
-                <div v-if="m.unread_count > 0" class="absolute left-0 top-0 bottom-0 w-1 bg-blue-600"></div>
-                <div class="flex items-center gap-4">
-                    {{-- Avatar --}}
-                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center text-white text-sm sm:text-base font-black uppercase leading-none shadow-md shrink-0">
+    {{-- Messages List (LINE-Style) --}}
+    <div v-else-if="messages.length > 0" class="bg-white rounded-[40px] shadow-2xl border border-slate-100 overflow-hidden">
+        <div class="divide-y divide-slate-50">
+            <div v-for="m in paginatedMessages" :key="m.id" @click="openMessage(m)" class="p-5 sm:p-6 hover:bg-slate-50 transition-all cursor-pointer relative group flex items-center gap-4 border-l-4 border-transparent" :class="m.unread_count > 0 ? 'bg-blue-50/20 border-l-blue-600' : ''">
+                {{-- Avatar with Unread Dot --}}
+                <div class="relative shrink-0">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-500 text-xl font-black uppercase shadow-inner border-2 border-white">
                         @{{ (m.sender?.uid === currentUser.uid ? m.receiver?.name : m.sender?.name)?.[0] || '?' }}
                     </div>
-                    
-                    {{-- Content Preview --}}
-                    <div class="flex-1 min-w-0">
-                        <div class="flex justify-between items-baseline mb-1">
-                            <h4 class="font-black italic uppercase tracking-tight text-sm sm:text-base truncate pr-2">
-                                @{{ m.sender?.uid === currentUser.uid ? m.receiver?.name : m.sender?.name }}
-                                <span v-if="m.player" class="text-[10px] text-slate-400 font-bold ml-1 font-sans not-italic">關於: @{{ m.player.name }}</span>
-                            </h4>
-                            <span class="text-[10px] font-bold text-slate-400 shrink-0">@{{ formatDate(m.created_at) }}</span>
-                        </div>
-                        <p class="text-xs sm:text-sm font-medium text-slate-500 truncate group-hover:text-slate-700 transition-colors">
-                            <span v-if="m.sender?.uid === currentUser.uid" class="text-slate-400 mr-1">你:</span>
+                    <div v-if="m.unread_count > 0" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 border-2 border-white rounded-full shadow-sm animate-pulse"></div>
+                </div>
+                
+                {{-- Content --}}
+                <div class="flex-1 min-w-0">
+                    <div class="flex justify-between items-center mb-1">
+                        <h4 class="font-black italic uppercase tracking-tight text-base sm:text-lg text-slate-800 truncate pr-2">
+                            @{{ m.sender?.uid === currentUser.uid ? m.receiver?.name : m.sender?.name }}
+                        </h4>
+                        <span class="text-[11px] font-bold text-slate-400 whitespace-nowrap">@{{ formatDate(m.created_at) }}</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4">
+                        <p class="text-sm font-medium text-slate-500 truncate group-hover:text-slate-900 transition-colors leading-snug">
+                            <span v-if="m.sender?.uid === currentUser.uid" class="text-blue-500 font-bold mr-1">您:</span>
                             @{{ m.content }}
                         </p>
+                        <div v-if="m.unread_count > 0" class="bg-blue-600 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-md shrink-0">
+                            @{{ m.unread_count }}
+                        </div>
                     </div>
+                    <div v-if="m.player" class="mt-1 flex items-center gap-1">
+                        <span class="text-[10px] bg-slate-100 text-slate-400 font-black px-2 py-0.5 rounded-md uppercase tracking-tighter italic">關於卡片: @{{ m.player.name }}</span>
+                    </div>
+                </div>
 
-                    {{-- Unread Badge or Arrow --}}
-                    <div v-if="m.unread_count > 0" class="bg-blue-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">
-                        @{{ m.unread_count }}
-                    </div>
-                    <div v-else class="text-slate-300 group-hover:text-blue-600 transition-colors">
-                        <app-icon name="chevron-right" class-name="w-4 h-4"></app-icon>
-                    </div>
+                {{-- Hover Indicator --}}
+                <div class="absolute right-4 text-slate-200 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0">
+                    <app-icon name="chevron-right" class-name="w-5 h-5"></app-icon>
                 </div>
             </div>
         </div>
 
-        {{-- Load More Button --}}
-        <div v-if="hasMoreMessages" class="p-4 text-center">
-            <button @click="loadMoreMessages" class="text-blue-600 text-sm font-black uppercase tracking-widest hover:text-blue-700 transition-colors py-2 px-4 rounded-full hover:bg-blue-50">
-                載入更多訊息
+        {{-- Load More --}}
+        <div v-if="hasMoreMessages" class="p-6 text-center bg-slate-50/50 border-t border-slate-50">
+            <button @click="loadMoreMessages" class="bg-white border border-slate-200 text-blue-600 text-xs font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all py-3 px-8 rounded-full shadow-sm">
+                查看較早對話
             </button>
         </div>
     </div>

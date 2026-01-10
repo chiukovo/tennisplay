@@ -159,17 +159,6 @@
         </div>
     </section>
 
-    {{-- Features --}}
-    <div class="flex overflow-x-auto no-scrollbar snap-x snap-mandatory gap-4 pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 md:grid md:grid-cols-3 md:gap-10">
-        <div v-for="f in features" :key="f.title" class="bg-white p-6 sm:p-10 rounded-[28px] sm:rounded-[40px] shadow-sm border border-slate-100 hover:shadow-xl hover:-translate-y-2 transition-all min-w-[260px] sm:min-w-0 snap-center">
-            <div class="bg-blue-50 w-12 h-12 sm:w-16 sm:h-16 rounded-2xl sm:rounded-3xl flex items-center justify-center text-blue-600 mb-4 sm:mb-8 shadow-inner">
-                <app-icon :name="f.icon" class-name="w-6 h-6 sm:w-8 sm:h-8"></app-icon>
-            </div>
-            <h3 class="text-base sm:text-xl font-black italic uppercase tracking-tighter mb-2 sm:mb-4">@{{ f.title }}</h3>
-            <p class="text-slate-500 text-xs sm:text-base font-medium leading-relaxed">@{{ f.desc }}</p>
-        </div>
-    </div>
-
     {{-- Stats Counter --}}
     <section class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-[32px] sm:rounded-[48px] p-8 sm:p-20 text-white relative overflow-hidden">
         <div class="absolute inset-0 opacity-10">

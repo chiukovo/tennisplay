@@ -48,8 +48,10 @@ class EventController extends Controller
         }
 
         $events = $query->paginate($request->get('per_page', 12));
-
-        return response()->json($events);
+        return response()->json([
+            'success' => true,
+            'data' => $events,
+        ]);
     }
 
     /**
@@ -65,7 +67,10 @@ class EventController extends Controller
         $event->has_joined = $userId ? $event->hasParticipant($userId) : false;
         $event->is_organizer = $userId ? $event->user_id === $userId : false;
 
-        return response()->json($event);
+        return response()->json([
+            'success' => true,
+            'data' => $event,
+        ]);
     }
 
     /**
@@ -121,6 +126,7 @@ class EventController extends Controller
         ]);
 
         return response()->json([
+            'success' => true,
             'message' => '活動建立成功',
             'event' => $event->load(['player', 'confirmedParticipants.player']),
         ], 201);
@@ -158,6 +164,7 @@ class EventController extends Controller
         $event->update($validated);
 
         return response()->json([
+            'success' => true,
             'message' => '活動已更新',
             'event' => $event->fresh(['player', 'confirmedParticipants.player']),
         ]);
@@ -177,7 +184,10 @@ class EventController extends Controller
 
         $event->update(['status' => 'cancelled']);
 
-        return response()->json(['message' => '活動已取消']);
+        return response()->json([
+            'success' => true,
+            'message' => '活動已取消'
+        ]);
     }
 
     /**
@@ -236,6 +246,7 @@ class EventController extends Controller
         }
 
         return response()->json([
+            'success' => true,
             'message' => '報名成功！',
             'event' => $event->load(['player', 'confirmedParticipants.player']),
         ]);
@@ -278,6 +289,7 @@ class EventController extends Controller
         }
 
         return response()->json([
+            'success' => true,
             'message' => '已取消報名',
             'event' => $event->fresh(['player', 'confirmedParticipants.player']),
         ]);
@@ -298,7 +310,10 @@ class EventController extends Controller
             ->orderBy('event_date', 'desc')
             ->get();
 
-        return response()->json($events);
+        return response()->json([
+            'success' => true,
+            'data' => $events,
+        ]);
     }
 
     /**
@@ -320,7 +335,10 @@ class EventController extends Controller
             ->orderBy('event_date', 'desc')
             ->get();
 
-        return response()->json($events);
+        return response()->json([
+            'success' => true,
+            'data' => $events,
+        ]);
     }
 
     /**
@@ -343,6 +361,9 @@ class EventController extends Controller
             'url' => url("/events/{$event->id}"),
         ];
 
-        return response()->json($shareData);
+        return response()->json([
+            'success' => true,
+            'data' => $shareData,
+        ]);
     }
 }

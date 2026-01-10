@@ -16,13 +16,12 @@
                     <span class="text-xs md:text-sm font-black italic text-slate-900">@{{ currentIndex + 1 }} / @{{ players.length }}</span>
                 </div>
 
-                {{-- Navigation Buttons (Desktop) --}}
                 <div class="hidden md:block">
-                    <button v-if="hasPrev" @click="navigate(-1)" class="absolute left-6 top-1/2 -translate-y-1/2 z-[120] w-20 h-20 bg-blue-600 hover:bg-blue-500 text-white rounded-full shadow-[0_20px_60px_rgba(37,99,235,0.5)] transition-all border-4 border-white/30 group flex items-center justify-center nav-pulse">
-                        <app-icon name="arrow-left" class-name="w-10 h-10 group-hover:scale-110 transition-transform" stroke-width="3.5"></app-icon>
+                    <button v-if="hasPrev" @click="navigate(-1)" class="absolute left-6 top-1/2 -translate-y-1/2 z-[120] w-14 h-14 bg-blue-600 hover:bg-blue-500 text-white rounded-full shadow-xl transition-all border-4 border-white/30 group flex items-center justify-center nav-pulse">
+                        <app-icon name="arrow-left" class-name="w-6 h-6 group-hover:scale-110 transition-transform" stroke-width="4"></app-icon>
                     </button>
-                    <button v-if="hasNext" @click="navigate(1)" class="absolute right-6 top-1/2 -translate-y-1/2 z-[120] w-20 h-20 bg-blue-600 hover:bg-blue-500 text-white rounded-full shadow-[0_20px_60px_rgba(37,99,235,0.5)] transition-all border-4 border-white/30 group flex items-center justify-center nav-pulse">
-                        <app-icon name="arrow-right" class-name="w-10 h-10 group-hover:scale-110 transition-transform" stroke-width="3.5"></app-icon>
+                    <button v-if="hasNext" @click="navigate(1)" class="absolute right-6 top-1/2 -translate-y-1/2 z-[120] w-14 h-14 bg-blue-600 hover:bg-blue-500 text-white rounded-full shadow-xl transition-all border-4 border-white/30 group flex items-center justify-center nav-pulse">
+                        <app-icon name="arrow-right" class-name="w-6 h-6 group-hover:scale-110 transition-transform" stroke-width="4"></app-icon>
                     </button>
                 </div>
 
@@ -37,8 +36,8 @@
                             <div class="w-full max-w-[260px] sm:max-w-[340px]">
                                 <player-card :player="player" />
                                 
-                                {{-- Floating Navigation (Mobile Only) --}}
-                                <div class="md:hidden absolute inset-y-0 -left-4 -right-4 flex items-center justify-between pointer-events-none z-[90]">
+                                {{-- Floating Navigation (Mobile Only) - Hidden as requested --}}
+                                <div class="hidden absolute inset-y-0 -left-4 -right-4 flex items-center justify-between pointer-events-none z-[90]">
                                     <button v-if="hasPrev" @click.stop="navigate(-1)" class="w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(37,99,235,0.4)] border-2 border-white/50 pointer-events-auto active:scale-90 transition-all nav-pulse">
                                         <app-icon name="arrow-left" class-name="w-7 h-7" stroke-width="3.5"></app-icon>
                                     </button>
@@ -105,37 +104,120 @@
                                         @{{getLevelDesc(player.level)}}
                                     </p>
                                 </div>
+                                
+                                {{-- Social Action Bar --}}
+                                {{-- Action Dashboard (Desktop Only) --}}
+                                <div class="hidden md:block mt-8 rounded-[28px] border-2 border-slate-100 overflow-hidden shadow-sm bg-white">
+                                    <div class="flex divide-x divide-slate-100">
+                                        <button type="button" @click="$emit('open-match', player)" 
+                                                class="flex-1 py-5 flex flex-col items-center justify-center gap-2 bg-blue-600 text-white hover:bg-blue-500 transition-all group">
+                                            <app-icon name="message-circle" class-name="w-5 h-5 group-hover:animate-bounce"></app-icon>
+                                            <span class="text-[11px] font-black uppercase tracking-widest">約打</span>
+                                        </button>
+                                        <button type="button" @click="toggleFollowModal" 
+                                                class="flex-1 py-5 flex flex-col items-center justify-center gap-2 hover:bg-slate-50 transition-all group">
+                                            <app-icon :name="socialStatus.is_following ? 'check' : 'plus'" 
+                                                     :class-name="['w-5 h-5 transition-all', socialStatus.is_following ? 'text-emerald-500 scale-110' : 'text-slate-400 group-hover:text-slate-900 group-hover:scale-110']"></app-icon>
+                                            <span class="text-[11px] font-black uppercase tracking-widest transition-colors"
+                                                  :class="socialStatus.is_following ? 'text-emerald-600' : 'text-slate-400 group-hover:text-slate-900'">
+                                                @{{ socialStatus.is_following ? '已追蹤' : '追蹤' }}
+                                            </span>
+                                        </button>
+                                        <button type="button" @click="$emit('open-profile', player.user?.uid || player.user_id)" 
+                                                class="flex-1 py-5 flex flex-col items-center justify-center gap-2 hover:bg-slate-50 transition-all group">
+                                            <app-icon name="user" class-name="w-5 h-5 text-slate-400 group-hover:text-slate-900 group-hover:scale-110 transition-all"></app-icon>
+                                            <span class="text-[11px] font-black uppercase tracking-widest text-slate-400 group-hover:text-slate-900 transition-colors">主頁</span>
+                                        </button>
+                                        <button type="button" @click="toggleLikeModal" 
+                                                class="flex-1 py-5 flex flex-col items-center justify-center gap-2 hover:bg-slate-50 transition-all group">
+                                            <app-icon name="heart" 
+                                                     :class-name="['w-5 h-5 transition-all', socialStatus.is_liked ? 'text-red-500 fill-current scale-110' : 'text-slate-400 group-hover:text-red-500 group-hover:scale-110']"></app-icon>
+                                            <span class="text-[11px] font-black uppercase tracking-widest transition-colors"
+                                                  :class="socialStatus.is_liked ? 'text-red-600' : 'text-slate-400 group-hover:text-red-600'">
+                                                @{{ socialStatus.likes_count || '讚' }}
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
 
-                            {{-- Desktop Only Action Button --}}
-                            <div class="mt-auto hidden md:flex gap-3 pt-6">
-                                <button type="button" @click="$emit('open-profile', player.user?.uid || player.user_id)" class="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-3">
-                                    <app-icon name="user" class-name="w-5 h-5"></app-icon> 查看個人主頁
-                                </button>
-                                <button type="button" @click="$emit('open-match', player)" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl hover:bg-blue-500 transition-all flex items-center justify-center gap-3">
-                                    <app-icon name="message-circle" class-name="w-5 h-5"></app-icon> 立即發送約打信
-                                </button>
+                            {{-- Comments Section --}}
+                            <div class="mt-10 border-t border-slate-50 pt-8">
+                                <div class="flex items-center justify-between mb-6">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-1 h-3 bg-blue-600 rounded-full"></div>
+                                        <span class="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 italic">互動留言 / Comments</span>
+                                    </div>
+                                    <span class="text-[9px] font-black text-slate-300">@{{ comments.length }} COMMENTS</span>
+                                </div>
+
+                                <!-- Combined Comment Unit -->
+                                <div class="bg-slate-50/50 rounded-[32px] p-6 border border-slate-100">
+                                    <!-- Comment Input -->
+                                    <div class="relative mb-6">
+                                        <textarea v-model="commentDraft" 
+                                               rows="1"
+                                               @keyup.enter.prevent="postComment"
+                                               placeholder="留個言打聲招呼吧..." 
+                                               class="w-full bg-white border-2 border-transparent rounded-[20px] px-5 py-4 pr-16 text-sm font-bold focus:border-blue-500 outline-none transition-all shadow-sm shadow-blue-500/5 placeholder:text-slate-300 resize-none overflow-hidden"></textarea>
+                                        <button @click="postComment" :disabled="!commentDraft.trim()" class="absolute right-2 top-2 bottom-2 w-12 bg-blue-600 text-white rounded-[14px] shadow-lg shadow-blue-500/20 active:scale-95 transition-all disabled:opacity-30 flex items-center justify-center">
+                                            <app-icon name="send" class-name="w-5 h-5"></app-icon>
+                                        </button>
+                                    </div>
+
+                                    <!-- Scrollable Comment List -->
+                                    <div class="max-h-[400px] overflow-y-auto pr-2 space-y-4 scrollbar-thin">
+                                        <div v-if="comments.length > 0" class="space-y-4">
+                                            <div v-for="c in comments" :key="c.id" class="flex gap-3 group">
+                                                <div class="w-10 h-10 rounded-2xl overflow-hidden bg-white border border-slate-100 shrink-0 shadow-sm cursor-pointer" @click="$emit('open-profile', c.user.uid)">
+                                                    <img v-if="c.user.photo" :src="c.user.photo" class="w-full h-full object-cover">
+                                                    <app-icon v-else name="user" class-name="w-full h-full text-slate-200 p-2"></app-icon>
+                                                </div>
+                                                <div class="flex-1 space-y-1">
+                                                    <div class="flex items-center justify-between">
+                                                        <span class="text-[11px] font-black text-slate-900 cursor-pointer hover:text-blue-600" @click="$emit('open-profile', c.user.uid)">@{{ c.user.name }}</span>
+                                                        <span class="text-[9px] font-black text-slate-300 tracking-tighter">@{{ formatDate(c.at) }}</span>
+                                                    </div>
+                                                    <div class="bg-white/80 p-4 rounded-[22px] rounded-tl-none text-slate-700 text-xs font-bold leading-relaxed shadow-sm">
+                                                        @{{ c.text }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div v-else class="py-10 text-center">
+                                            <p class="text-slate-300 font-black italic text-xs uppercase tracking-widest">目前還沒有留言...</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </transition>
 
                 {{-- Mobile Sticky Action Bar --}}
-                <div class="md:hidden absolute bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-xl border-t border-slate-100 z-[110] flex flex-col gap-3">
-                    <div class="flex gap-3">
-                        <button v-if="hasPrev" @click="navigate(-1)" class="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-all border-2 border-white/20">
-                            <app-icon name="arrow-left" class-name="w-7 h-7" stroke-width="3.5"></app-icon>
+                <div class="md:hidden absolute bottom-0 left-0 right-0 p-4 pb-8 bg-white/95 backdrop-blur-xl border-t border-slate-100 z-[110] shadow-[0_-15px_30px_rgba(0,0,0,0.08)]">
+                    <div class="flex gap-2">
+                        <button type="button" @click="$emit('open-match', player)" 
+                                class="flex-1 py-3.5 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex flex-col items-center justify-center gap-1 active:scale-95 transition-all">
+                            <app-icon name="message-circle" class-name="w-4 h-4"></app-icon>
+                            約打
                         </button>
-                        <button type="button" @click="$emit('open-profile', player.user?.uid || player.user_id)" class="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all">
-                            <app-icon name="user" class-name="w-4 h-4 text-blue-400"></app-icon> 查看主頁
+                        <button type="button" @click="toggleFollowModal" 
+                                :class="socialStatus.is_following ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-slate-600'"
+                                class="flex-1 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all flex flex-col items-center justify-center gap-1 active:scale-95">
+                            <app-icon :name="socialStatus.is_following ? 'check' : 'plus'" class-name="w-4 h-4"></app-icon>
+                            @{{ socialStatus.is_following ? '已追蹤' : '追蹤' }}
                         </button>
-                        <button v-if="hasNext" @click="navigate(1)" class="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-all border-2 border-white/20">
-                            <app-icon name="arrow-right" class-name="w-7 h-7" stroke-width="3.5"></app-icon>
+                        <button type="button" @click="$emit('open-profile', player.user?.uid || player.user_id)" 
+                                class="flex-1 bg-slate-50 text-slate-600 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] flex flex-col items-center justify-center gap-1 active:scale-95 transition-all">
+                            <app-icon name="user" class-name="w-4 h-4"></app-icon>
+                            主頁
                         </button>
-                    </div>
-                    <div class="flex gap-3">
-                        <button type="button" @click="$emit('open-match', player)" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all">
-                            <app-icon name="message-circle" class-name="w-5 h-5"></app-icon> 發送約打信
+                        <button type="button" @click="toggleLikeModal"
+                                :class="socialStatus.is_liked ? 'bg-red-50 text-red-500' : 'bg-slate-50 text-slate-600'"
+                                class="flex-1 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all flex flex-col items-center justify-center gap-1 active:scale-95">
+                            <app-icon name="heart" :class-name="['w-4 h-4', socialStatus.is_liked ? 'fill-current' : '']"></app-icon>
+                            @{{ socialStatus.likes_count || '讚' }}
                         </button>
                     </div>
                 </div>

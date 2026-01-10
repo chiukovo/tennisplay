@@ -1,7 +1,7 @@
 // --- useEvents Composable ---
 // 活動管理、報名/取消
 
-const useEvents = (isLoggedIn, showToast, navigateTo, formatLocalDateTime, eventForm) => {
+const useEvents = (isLoggedIn, showToast, navigateTo, formatLocalDateTime, eventForm, resetEventForm) => {
     const events = ref([]);
     const eventsLoading = ref(false);
     const eventSubmitting = ref(false);
@@ -9,18 +9,23 @@ const useEvents = (isLoggedIn, showToast, navigateTo, formatLocalDateTime, event
     const loadEvents = async () => {
         eventsLoading.value = true;
         try {
-            const response = await api.get('/events');
-            if (response.data.success) events.value = response.data.data;
+            const response = await api.get('/events?per_page=100');
+            if (response.data.success) {
+                const data = response.data.data;
+                events.value = Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []);
+            }
         } catch (error) { events.value = []; } finally { eventsLoading.value = false; }
     };
 
-    const createEvent = async (resetEventForm) => {
+    const createEvent = async () => {
         if (!isLoggedIn.value) { showToast('請先登入', 'error'); return; }
         eventSubmitting.value = true;
         try {
             const response = await api.post('/events', eventForm);
             showToast('活動建立成功！', 'success');
-            resetEventForm(); await loadEvents(); navigateTo('events');
+            if (resetEventForm) resetEventForm(); 
+            await loadEvents(); 
+            navigateTo('events');
         } catch (error) { showToast('建立失敗', 'error'); } finally { eventSubmitting.value = false; }
     };
 

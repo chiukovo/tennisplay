@@ -15,7 +15,7 @@ class PlayerController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Player::with('user')->active()
+        $query = Player::with('user')->withCount(['likes', 'comments'])->active()
             ->inRegion($request->region)
             ->atLevel($request->level)
             ->search($request->search);
@@ -38,7 +38,7 @@ class PlayerController extends Controller
      */
     public function myCards(Request $request)
     {
-        $players = Player::with('user')->where('user_id', $request->user()->id)
+        $players = Player::with('user')->withCount(['likes', 'comments'])->where('user_id', $request->user()->id)
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -125,6 +125,16 @@ class PlayerController extends Controller
     public function show($id)
     {
         $player = Player::with('user')->findOrFail($id);
+        
+        $user = Auth::guard('sanctum')->user();
+        if ($user) {
+            $player->is_liked = $player->likes()->where('user_id', $user->id)->exists();
+            // Since User ID is what we follow
+            $player->is_following = $player->user->followers()->where('follower_id', $user->id)->exists();
+        } else {
+            $player->is_liked = false;
+            $player->is_following = false;
+        }
 
         return response()->json([
             'success' => true,

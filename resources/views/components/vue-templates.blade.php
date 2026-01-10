@@ -58,6 +58,21 @@
 
                     {{-- Main Image Area --}}
                     <div class="h-[75%] relative overflow-hidden bg-slate-200 z-10 flex items-center justify-center">
+                        {{-- Social Indicators (Top Right) --}}
+                        <div v-if="!isPlaceholder" class="absolute top-[4cqw] right-[4cqw] z-20">
+                            <div class="bg-black/40 backdrop-blur-xl px-[3.5cqw] py-[2cqw] rounded-[3cqw] border border-white/20 flex items-center gap-[4cqw] shadow-2xl">
+                                <div class="flex items-center gap-[1.5cqw] group/social">
+                                    <app-icon name="heart" class-name="w-[5cqw] h-[5cqw] text-white group-hover/social:text-red-400 group-hover/social:scale-110 transition-all drop-shadow-sm"></app-icon>
+                                    <span class="text-white font-black leading-none drop-shadow-sm" style="font-size: 4.2cqw;">@{{ p?.likes_count || 0 }}</span>
+                                </div>
+                                <div class="w-[0.5cqw] h-[3cqw] bg-white/20 rounded-full"></div>
+                                <div class="flex items-center gap-[1.5cqw] group/social">
+                                    <app-icon name="message-circle" class-name="w-[5cqw] h-[5cqw] text-white group-hover/social:text-blue-400 group-hover/social:scale-110 transition-all drop-shadow-sm"></app-icon>
+                                    <span class="text-white font-black leading-none drop-shadow-sm" style="font-size: 4.2cqw;">@{{ p?.comments_count || 0 }}</span>
+                                </div>
+                            </div>
+                        </div>
+
                         <img :src="(p?.photo) || 'https://images.unsplash.com/photo-1614743758466-e569f4791116?q=80&w=650&auto=format&fit=crop'" 
                             :class="['w-full h-full object-contain transition-transform duration-1000', isAdjustingSig ? 'pointer-events-none select-none' : '']"
                             :style="{ transform: `translate(${p?.photoX || 0}%, ${p?.photoY || 0}%) scale(${p?.photoScale || 1})` }">

@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\EventCommentController;
 use App\Http\Controllers\Api\FollowController;
 use App\Http\Controllers\Api\LikeController;
+use App\Http\Controllers\Api\PlayerCommentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -34,6 +35,14 @@ Route::get('/events/{id}/share', [EventController::class, 'share']);
 Route::get('/events/{id}/comments', [EventCommentController::class, 'index']);
 Route::get('/profile/{uid}', [ProfileController::class, 'show']);
 Route::get('/profile/{uid}/events', [ProfileController::class, 'events']);
+
+// Player Comments (Public Read)
+Route::get('/players/{id}/comments', [PlayerCommentController::class, 'index']);
+
+// Personal Lists (Public Read)
+Route::get('/following/{uid}', [FollowController::class, 'following']);
+Route::get('/followers/{uid}', [FollowController::class, 'followers']);
+Route::get('/likes/{uid}', [LikeController::class, 'index']);
 
 // Protected Routes (requires LINE login)
 Route::middleware('auth:sanctum')->group(function () {
@@ -70,6 +79,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/events/{id}/leave', [EventController::class, 'leave']);
     Route::post('/events/{id}/comments', [EventCommentController::class, 'store']);
     Route::delete('/events/comments/{id}', [EventCommentController::class, 'destroy']);
+
+    // Player Comments (Authenticated Write)
+    Route::post('/players/{id}/comments', [PlayerCommentController::class, 'store']);
+    Route::delete('/players/comments/{id}', [PlayerCommentController::class, 'destroy']);
     Route::get('/my-events/organized', [EventController::class, 'myOrganized']);
     Route::get('/my-events/joined', [EventController::class, 'myJoined']);
 

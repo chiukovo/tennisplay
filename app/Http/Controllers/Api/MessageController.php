@@ -16,25 +16,32 @@ class MessageController extends Controller
     {
         $userId = $request->user()->id;
 
-        // Fetch all messages involving the user
-        $messages = Message::where(function ($q) use ($userId) {
-            $q->where('from_user_id', $userId)
-              ->orWhere('to_user_id', $userId);
-        })
-        ->with(['sender', 'receiver', 'player'])
-        ->orderBy('created_at', 'desc')
-        ->get();
+        // Fetch the latest message ID for each unique conversation pair
+        $latestIds = Message::where(function($q) use ($userId) {
+                $q->where('from_user_id', $userId)
+                  ->orWhere('to_user_id', $userId);
+            })
+            ->selectRaw('MAX(id) as id')
+            ->groupBy(\DB::raw('LEAST(from_user_id, to_user_id), GREATEST(from_user_id, to_user_id)'))
+            ->pluck('id');
 
-        // Group by the "other" user and take the first (latest) one
-        $conversations = $messages->groupBy(function ($message) use ($userId) {
-            return $message->from_user_id === $userId ? ($message->receiver->uid ?? $message->to_user_id) : ($message->sender->uid ?? $message->from_user_id);
-        })->map(function ($msgs) {
-            $latest = $msgs->first();
-            // Count unread for this conversation
-            $unreadCount = $msgs->where('to_user_id', request()->user()->id)->whereNull('read_at')->count();
-            $latest->unread_count = $unreadCount;
-            return $latest;
-        })->values();
+        // Fetch the full message details for these IDs
+        $conversations = Message::whereIn('id', $latestIds)
+            ->with(['sender', 'receiver', 'player'])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($message) use ($userId) {
+                // Determine who the other person is
+                $otherUserId = ($message->from_user_id == $userId) ? $message->to_user_id : $message->from_user_id;
+
+                // Efficiently count unread messages from that person
+                $message->unread_count = Message::where('from_user_id', $otherUserId)
+                    ->where('to_user_id', $userId)
+                    ->whereNull('read_at')
+                    ->count();
+
+                return $message;
+            });
 
         return response()->json([
             'success' => true,

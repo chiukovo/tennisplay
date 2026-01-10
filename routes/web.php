@@ -93,9 +93,34 @@ Route::get('/events', function () use ($seoData) {
     ]);
 });
 
+Route::get('/events/{id}', function ($id) use ($seoData) {
+    $event = \App\Models\Event::with('player')->find($id);
+    $seo = $seoData['events'];
+
+    if ($event) {
+        $seo = [
+            'title' => $event->title . ' | LoveTennis',
+            'description' => $event->notes ?: '查看此網球活動詳情與報名資訊',
+            'og_image' => $event->player && $event->player->photo ? $event->player->photo_url : ($seoData['events']['og_image'] ?? '/img/og-default.jpg'),
+            'type' => 'event',
+            'start_date' => optional($event->event_date)->toAtomString(),
+            'end_date' => optional($event->end_date)->toAtomString(),
+            'location' => $event->location,
+            'address' => $event->address,
+            'canonical' => url('/events/' . $event->id)
+        ];
+    }
+
+    return view('index', [
+        'seo' => $seo,
+        'initialEvents' => isset($event) && $event ? [$event] : []
+    ]);
+});
+
 Route::get('/create-event', function () use ($seoData) {
     return view('index', ['seo' => $seoData['events']]);
 });
+
 
 Route::get('/settings', function () use ($seoData) {
     return view('index', ['seo' => $seoData['settings']]);
@@ -110,7 +135,46 @@ Route::get('/profile/{uid}', function ($uid) use ($seoData) {
     ]);
 });
 
+// SEO helpers
+Route::get('/robots.txt', function () {
+    $content = "User-agent: *\nAllow: /\nSitemap: " . url('/sitemap.xml');
+    return response($content, 200)->header('Content-Type', 'text/plain');
+});
+
+Route::get('/sitemap.xml', function () {
+    $staticUrls = [
+        url('/'),
+        url('/list'),
+        url('/events'),
+        url('/create'),
+        url('/messages'),
+        url('/auth'),
+        url('/mycards'),
+        url('/create-event'),
+        url('/settings'),
+    ];
+
+    $eventUrls = \App\Models\Event::select('id', 'updated_at')
+        ->orderBy('updated_at', 'desc')
+        ->take(50)
+        ->get()
+        ->map(function ($event) {
+            return [
+                'loc' => url('/events/' . $event->id),
+                'lastmod' => optional($event->updated_at)->toAtomString(),
+            ];
+        });
+
+    $xml = view('sitemap', [
+        'staticUrls' => $staticUrls,
+        'eventUrls' => $eventUrls,
+    ])->render();
+
+    return response($xml, 200)->header('Content-Type', 'application/xml');
+});
+
 // LINE Login Routes
 Route::get('/auth/line', [AuthController::class, 'lineLogin'])->name('line.login');
 Route::get('/auth/line/callback', [AuthController::class, 'lineCallback'])->name('line.callback');
+
 

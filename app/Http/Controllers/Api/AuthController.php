@@ -64,14 +64,17 @@ class AuthController extends Controller
     {
         // Verify state to prevent CSRF
         if ($request->state !== session('line_oauth_state')) {
+            session()->forget('line_oauth_state');
             return redirect('/auth?error=' . urlencode('驗證失敗，請重試'));
         }
+        session()->forget('line_oauth_state');
 
         // Check for error from LINE
         if ($request->has('error')) {
             Log::error('LINE OAuth error: ' . $request->error_description);
             return redirect('/auth?error=' . urlencode('LINE 登入失敗：' . $request->error_description));
         }
+
 
         try {
             // Exchange code for access token
@@ -109,8 +112,12 @@ class AuthController extends Controller
             $localAvatarPath = null;
             if ($linePicture) {
                 try {
-                    $avatarResponse = Http::get($linePicture);
-                    if ($avatarResponse->successful()) {
+                    $avatarResponse = Http::timeout(5)->get($linePicture);
+                    $contentType = $avatarResponse->header('Content-Type');
+                    $isImage = $contentType && str_starts_with($contentType, 'image/');
+                    $maxBytes = 2 * 1024 * 1024; // 2MB limit
+
+                    if ($avatarResponse->successful() && $isImage && strlen($avatarResponse->body()) <= $maxBytes) {
                         $extension = 'jpg'; // LINE avatars are usually jpg
                         $filename = 'avatar_' . $lineUserId . '_' . time() . '.' . $extension;
                         $path = 'avatars/' . $filename;
@@ -123,6 +130,8 @@ class AuthController extends Controller
                         // Save to storage/app/public/avatars
                         Storage::disk('public')->put($path, $avatarResponse->body());
                         $localAvatarPath = '/storage/' . $path;
+                    } else {
+                        $localAvatarPath = $linePicture;
                     }
                 } catch (\Exception $e) {
                     Log::error('Failed to download LINE avatar: ' . $e->getMessage());
@@ -130,6 +139,7 @@ class AuthController extends Controller
                     $localAvatarPath = $linePicture;
                 }
             }
+
 
             // Find or create user
             $user = User::where('line_user_id', $lineUserId)->first();

@@ -222,13 +222,18 @@ class EventController extends Controller
             return response()->json(['error' => '您已報名此活動'], 400);
         }
 
-        // Check level requirements
-        if ($event->level_min && $player->level < $event->level_min) {
+        // Check level requirements (numeric compare if possible)
+        $playerLevel = is_numeric($player->level) ? (float) $player->level : $player->level;
+        $levelMin = is_numeric($event->level_min) ? (float) $event->level_min : $event->level_min;
+        $levelMax = is_numeric($event->level_max) ? (float) $event->level_max : $event->level_max;
+
+        if ($levelMin !== null && $levelMin !== '' && is_numeric($levelMin) && is_numeric($playerLevel) && $playerLevel < $levelMin) {
             return response()->json(['error' => '您的程度低於此活動要求'], 400);
         }
-        if ($event->level_max && $player->level > $event->level_max) {
+        if ($levelMax !== null && $levelMax !== '' && is_numeric($levelMax) && is_numeric($playerLevel) && $playerLevel > $levelMax) {
             return response()->json(['error' => '您的程度高於此活動要求'], 400);
         }
+
 
         // Create participation
         EventParticipant::create([

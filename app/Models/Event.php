@@ -91,9 +91,12 @@ class Event extends Model
      */
     public function getSpotsLeftAttribute()
     {
-        if ($this->max_participants == 0) return 999; // Unlimited
+        if ($this->max_participants == 0) {
+            return null; // Unlimited
+        }
         return max(0, $this->max_participants - $this->participants_count);
     }
+
 
     /**
      * Scope for open events.

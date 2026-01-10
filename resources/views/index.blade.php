@@ -14,7 +14,9 @@
     <meta property="og:description" content="{{ $seo['description'] ?? '全台最專業的網球約打平台' }}">
     <meta property="og:image" content="{{ url($seo['og_image'] ?? '/img/og-default.jpg') }}">
 
+    
     <!-- Twitter -->
+
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="{{ url()->current() }}">
     <meta property="twitter:title" content="{{ $seo['title'] ?? 'LoveTennis' }}">
@@ -22,7 +24,7 @@
     <meta property="twitter:image" content="{{ url($seo['og_image'] ?? '/img/og-default.jpg') }}">
     
     <!-- Canonical Link -->
-    <link rel="canonical" href="{{ url()->current() }}">
+    <link rel="canonical" href="{{ $seo['canonical'] ?? url()->current() }}">
 
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
@@ -39,8 +41,31 @@
       "description": "全台最專業的網球約打平台"
     }
     </script>
+    @if(!empty($seo['type']) && $seo['type'] === 'event')
+    <script type="application/ld+json">
+    {!! json_encode([
+        '@context' => 'https://schema.org',
+        '@type' => 'Event',
+        'name' => $seo['title'] ?? '',
+        'description' => $seo['description'] ?? '',
+        'url' => $seo['canonical'] ?? url()->current(),
+        'startDate' => $seo['start_date'] ?? '',
+        'endDate' => $seo['end_date'] ?? '',
+        'eventAttendanceMode' => 'https://schema.org/OfflineEventAttendanceMode',
+        'eventStatus' => 'https://schema.org/EventScheduled',
+        'location' => [
+            '@type' => 'Place',
+            'name' => $seo['location'] ?? '',
+            'address' => $seo['address'] ?? ''
+        ]
+    ], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) !!}
+    </script>
+    @endif
     
     {{-- Favicon --}}
+
+
+
     <link rel="icon" type="image/x-icon" href="/img/favicon/favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon/favicon-16x16.png">
@@ -51,16 +76,17 @@
         window.tennisConfig = @json(config('tennis'));
     </script>
     <style>[v-cloak] { display: none !important; }</style>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <script src="/vendor/vue/vue.global.js" defer></script>
+    <script src="/vendor/tailwind/tailwind.js" defer></script>
+    <link rel="stylesheet" href="/vendor/animate/animate.min.css"/>
     
     {{-- External Scripts (Loaded in head for reliability) --}}
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="https://unpkg.com/moveable/dist/moveable.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="/vendor/axios/axios.min.js" defer></script>
+    <script src="/vendor/moveable/moveable.min.js" defer></script>
+    <script src="/vendor/html2canvas/html2canvas.min.js" defer></script>
     
     @include('partials.styles')
+
 </head>
 <body class="bg-slate-50 text-slate-900 leading-normal">
 

@@ -45,7 +45,8 @@ Route::get('/followers/{uid}', [FollowController::class, 'followers']);
 Route::get('/likes/{uid}', [LikeController::class, 'index']);
 
 // Protected Routes (requires LINE login)
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
+
     // Auth
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);

@@ -218,11 +218,14 @@
         z-index: 10;
         touch-action: none;
         isolation: isolate;
-        transition: transform 0.5s ease, box-shadow 0.2s ease;
+        transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease;
         will-change: transform, filter;
         background-color: #040712;
-        /* Balanced persistent shadow */
-        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+        /* Premium Layered Shadow - Softer and more floating */
+        box-shadow: 
+            0 5px 15px -5px rgba(0,0,0,0.4),
+            0 20px 40px -10px rgba(0,0,0,0.6);
+        border-radius: 32px; /* Softer base */
     }
 
     .card-holo:before,
@@ -274,26 +277,28 @@
 
     /* Animated State (Initial Shine - Softened) */
     .card-holo.animated:before {
-        animation: holoGradient 12s ease 0s infinite;
+        animation: holoGradient var(--duration, 12s) ease var(--delay, 0s) infinite;
+        opacity: calc(0.1 * var(--int, 1));
     }
     .card-holo.animated:after {
-        animation: holoSparkle 12s ease 0s infinite;
+        animation: holoSparkle var(--duration, 12s) ease var(--delay, 0s) infinite;
+        opacity: calc(1 * var(--int, 1));
     }
 
     @keyframes holoSparkle {
-        0%, 100% { opacity: 0.5; background-position: 50% 50%; }
-        5%, 8% { opacity: 0.8; background-position: 40% 40%; }
-        13%, 16% { opacity: 0.35; background-position: 50% 50%; }
-        35%, 38% { opacity: 0.8; background-position: 60% 60%; }
-        55% { opacity: 0.2; background-position: 45% 45%; }
+        0%, 100% { opacity: calc(0.5 * var(--int, 1)); background-position: 50% 50%; }
+        5%, 8% { opacity: calc(0.8 * var(--int, 1)); background-position: 40% 40%; }
+        13%, 16% { opacity: calc(0.35 * var(--int, 1)); background-position: 50% 50%; }
+        35%, 38% { opacity: calc(0.8 * var(--int, 1)); background-position: 60% 60%; }
+        55% { opacity: calc(0.2 * var(--int, 1)); background-position: 45% 45%; }
     }
 
     @keyframes holoGradient {
-        0%, 100% { opacity: 0.1; background-position: 50% 50%; }
-        5%, 9% { background-position: 100% 100%; opacity: 0.25; }
-        13%, 17% { background-position: 0% 0%; opacity: 0.2; }
-        35%, 39% { background-position: 100% 100%; opacity: 0.25; }
-        55% { background-position: 0% 0%; opacity: 0.2; }
+        0%, 100% { opacity: calc(0.1 * var(--int, 1)); background-position: 50% 50%; }
+        5%, 9% { background-position: 100% 100%; opacity: calc(0.25 * var(--int, 1)); }
+        13%, 17% { background-position: 0% 0%; opacity: calc(0.2 * var(--int, 1)); }
+        35%, 39% { background-position: 100% 100%; opacity: calc(0.25 * var(--int, 1)); }
+        55% { background-position: 0% 0%; opacity: calc(0.2 * var(--int, 1)); }
     }
 
     /* Removed holoCard rotation from always-on animation to keep it stable */
@@ -307,8 +312,8 @@
     }
     .card-holo:not(.animated):before,
     .card-holo:not(.animated):after {
-        opacity: var(--opc, 0.2); /* Increased persistent base for interaction */
-        transition: opacity 0.3s ease;
+        opacity: var(--opc, 0.2); 
+        transition: opacity 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
     /* Theme Styles */

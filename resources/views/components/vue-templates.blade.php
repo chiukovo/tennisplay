@@ -39,27 +39,20 @@
         @mouseleave="handleLeave"
         :class="[size === 'sm' ? 'w-full aspect-[2.5/3.8]' : 'w-full max-w-[320px] aspect-[2.5/3.8]']">
         
-        <div :class="['holo-card-wrapper w-full h-full card-holo transition-all duration-300', 
+        <div :class="['holo-card-wrapper w-full h-full card-holo transition-all duration-300 relative', 
                       isAnimated ? 'animated' : '',
                       isHoloTheme ? 'theme-' + p.theme : '']" 
-             :style="{ 
-                 transform: `rotateX(${tilt.rX}deg) rotateY(${tilt.rY}deg)`,
-                 '--lp': `${tilt.lp}%`, 
-                 '--tp': `${tilt.tp}%`,
-                 '--spx': `${tilt.spx}%`,
-                 '--spy': `${tilt.spy}%`,
-                 '--opc': tilt.opc
-             }">
-            
-            <div :class="['group capture-target relative overflow-hidden rounded-[24px] w-full h-full shadow-2xl', 
+             :style="[{ transform: `rotateX(${tilt.rX}deg) rotateY(${tilt.rY}deg)` }, holoStyle]">
+             
+            {{-- Animated Border Glow (Moved outside overflow-hidden to prevent clipping) --}}
+            <div v-if="!isPlaceholder" :class="['absolute -inset-[3px] bg-gradient-to-br rounded-[32px] blur-[10px] transition-all duration-700 opacity-60 z-0', themeStyle.border]"></div>
+            <div v-else class="absolute -inset-[3px] bg-slate-200 rounded-[32px] opacity-30 border-2 border-dashed border-slate-300 transition-opacity z-0"></div>
+
+            <div :class="['group capture-target relative overflow-hidden rounded-[28px] w-full h-full z-10', 
                          isPlaceholder ? 'opacity-30 grayscale hover:opacity-100 hover:grayscale-0' : '']"
                  style="container-type: inline-size;">
                 
-                {{-- Animated Border Glow --}}
-                <div v-if="!isPlaceholder" :class="['absolute -inset-[2px] bg-gradient-to-br rounded-[24px] blur-[3px] transition-all duration-700 opacity-80', themeStyle.border]"></div>
-                <div v-else class="absolute -inset-[2px] bg-slate-200 rounded-[24px] opacity-30 border-2 border-dashed border-slate-300 transition-opacity"></div>
-                
-                <div :class="['relative h-full rounded-2xl overflow-hidden flex flex-col border border-white/10 transition-colors', isPlaceholder ? 'bg-slate-50' : themeStyle.bg]">
+                <div :class="['relative h-full rounded-[28px] overflow-hidden flex flex-col border border-white/20 transition-colors shadow-inner', isPlaceholder ? 'bg-slate-50' : themeStyle.bg]">
                     {{-- Noise Texture Overlay --}}
                     <div class="absolute inset-0 opacity-[0.03] pointer-events-none z-[5]" style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E');"></div>
 
@@ -75,19 +68,19 @@
                         {{-- NTRP Badge (Premium Style) --}}
                         <div class="absolute bottom-[4cqw] left-[5cqw] flex flex-col items-start gap-[1.5cqw]">
                             <div class="relative group/badge">
-                                <div class="absolute inset-0 bg-white/20 blur-md rounded-full"></div>
-                                <div :class="['relative flex items-center gap-[2cqw] p-[0.5cqw] rounded-[3cqw] shadow-[0_4px_12px_rgba(0,0,0,0.3)] border border-white/20 backdrop-blur-md overflow-hidden', isPlaceholder ? 'bg-slate-400' : themeStyle.border]">
-                                    <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50"></div>
-                                    <div class="bg-slate-900/90 px-[3.5cqw] py-[1.5cqw] rounded-[2.5cqw] flex items-center gap-[2cqw] relative z-10">
-                                        <span class="font-bold text-white/50 uppercase tracking-widest leading-none" style="font-size: 4cqw;">NTRP</span>
-                                        <span class="font-black text-white leading-none italic tracking-tighter" style="font-size: 11cqw; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">@{{ p?.level || '3.5' }}</span>
+                                <div class="absolute inset-0 bg-white/10 blur-xl rounded-full"></div>
+                                <div :class="['relative flex items-center gap-[2cqw] p-[0.6cqw] rounded-[4cqw] shadow-[0_8px_20px_rgba(0,0,0,0.4)] border border-white/30 backdrop-blur-xl overflow-hidden', isPlaceholder ? 'bg-slate-400' : themeStyle.border]">
+                                    <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-60"></div>
+                                    <div class="bg-slate-900/95 px-[4cqw] py-[2cqw] rounded-[3.5cqw] flex items-center gap-[2cqw] relative z-10">
+                                        <span class="font-bold text-white/40 uppercase tracking-widest leading-none" style="font-size: 3.5cqw;">NTRP</span>
+                                        <span class="font-black text-white leading-none italic tracking-tighter" style="font-size: 11cqw; text-shadow: 0 4px 8px rgba(0,0,0,0.6);">@{{ p?.level || '3.5' }}</span>
                                     </div>
                                 </div>
                             </div>
                             
-                            {{-- Level Tag --}}
-                            <div class="bg-white/5 backdrop-blur-md px-[3cqw] py-[1.5cqw] rounded-[1.5cqw] border border-white/10 max-w-[60cqw] shadow-lg">
-                                <p class="font-bold text-white/90 uppercase tracking-widest italic leading-tight" style="font-size: 5.5cqw;">@{{ p ? getLevelTag(p.level) : '尚未認證' }}</p>
+                            {{-- Level Tag (Softer) --}}
+                            <div class="bg-white/10 backdrop-blur-xl px-[4cqw] py-[2cqw] rounded-[2.5cqw] border border-white/20 max-w-[60cqw] shadow-xl">
+                                <p class="font-bold text-white uppercase tracking-[0.15em] italic leading-tight" style="font-size: 5.5cqw; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">@{{ p ? getLevelTag(p.level) : '尚未認證' }}</p>
                             </div>
                         </div>
                     </div>
@@ -96,8 +89,8 @@
                     
                     {{-- Bottom Info Section (Glassmorphism) --}}
                     <div class="h-[25%] px-[6cqw] py-[3cqw] flex flex-col justify-center relative overflow-hidden">
-                        {{-- Background Blur & Gradient --}}
-                        <div class="absolute inset-0 bg-white/5 backdrop-blur-xl border-t border-white/10"></div>
+                        {{-- Background Blur & Gradient (More Glassy) --}}
+                        <div class="absolute inset-0 bg-white/10 backdrop-blur-2xl border-t border-white/20"></div>
                         <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 opacity-80"></div>
                         
                         {{-- Content --}}

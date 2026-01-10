@@ -27,7 +27,7 @@
             <div class="relative z-10 flex flex-col md:flex-row gap-8 lg:gap-12">
                 <!-- Left: Player Card -->
                 <div class="w-full md:w-[260px] lg:w-[300px] shrink-0" :class="{'hidden md:block': !profileData.user?.player}">
-                    <div v-if="profileData.user.player" class="relative group">
+                    <div v-if="profileData.user.player" class="relative group transition-all duration-500 hover:-translate-y-2">
                         <player-card :player="profileData.user.player" @click="showDetail(profileData.user.player)"></player-card>
                     </div>
                     

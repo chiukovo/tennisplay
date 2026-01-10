@@ -109,7 +109,7 @@
 
                             {{-- Desktop Only Action Button --}}
                             <div class="mt-auto hidden md:flex gap-3 pt-6">
-                                <button type="button" @click="openProfile(player.user?.uid || player.user_id)" class="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-3">
+                                <button type="button" @click="$emit('open-profile', player.user?.uid || player.user_id)" class="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-3">
                                     <app-icon name="user" class-name="w-5 h-5"></app-icon> 查看個人主頁
                                 </button>
                                 <button type="button" @click="$emit('open-match', player)" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl hover:bg-blue-500 transition-all flex items-center justify-center gap-3">
@@ -126,7 +126,7 @@
                         <button v-if="hasPrev" @click="navigate(-1)" class="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-all border-2 border-white/20">
                             <app-icon name="arrow-left" class-name="w-7 h-7" stroke-width="3.5"></app-icon>
                         </button>
-                        <button type="button" @click="openProfile(player.user?.uid || player.user_id)" class="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all">
+                        <button type="button" @click="$emit('open-profile', player.user?.uid || player.user_id)" class="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all">
                             <app-icon name="user" class-name="w-4 h-4 text-blue-400"></app-icon> 查看主頁
                         </button>
                         <button v-if="hasNext" @click="navigate(1)" class="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-lg active:scale-95 transition-all border-2 border-white/20">
@@ -196,7 +196,7 @@
                     <div class="p-6 sm:p-10 space-y-8 pb-32">
                         
                         {{-- Host Section --}}
-                        <div class="flex items-center justify-between bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm hover:border-blue-200 transition-all cursor-pointer" @click="openProfile(event.user?.uid || event.user_id)">
+                        <div class="flex items-center justify-between bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm hover:border-blue-200 transition-all cursor-pointer" @click="$emit('open-profile', event.user?.uid || event.user_id)">
                             <div class="flex items-center gap-4">
                                 <div class="w-14 h-14 rounded-2xl overflow-hidden bg-slate-100 border-2 border-slate-50 shadow-md">
                                     <img v-if="event.player?.photo" :src="event.player.photo_url || event.player.photo" class="w-full h-full object-cover">

@@ -250,7 +250,27 @@ const PlayerCard = {
             return ['gold', 'platinum', 'holographic'].includes(p.value.theme);
         });
 
-        return { cardContainer, p, themeStyle, getLevelTag, tilt, handleMove, handleLeave, isHoloTheme, isAnimated };
+        const holoStyle = computed(() => {
+            if (!p.value) return {};
+            const id = p.value.id || 0;
+            // Stable "random" values based on ID
+            const delay = (id % 12) * -1.5; // -0s to -16.5s
+            const duration = 10 + (id % 6);  // 10s to 15s
+            const intensity = 0.7 + (id % 4) * 0.15; // 0.7 to 1.15 multiplier
+            
+            return {
+                '--delay': `${delay}s`,
+                '--duration': `${duration}s`,
+                '--int': intensity,
+                '--lp': `${tilt.lp}%`, 
+                '--tp': `${tilt.tp}%`,
+                '--spx': `${tilt.spx}%`,
+                '--spy': `${tilt.spy}%`,
+                '--opc': tilt.opc
+            };
+        });
+
+        return { cardContainer, p, themeStyle, getLevelTag, tilt, handleMove, handleLeave, isHoloTheme, isAnimated, holoStyle };
     }
 };
 
@@ -258,7 +278,7 @@ const PlayerDetailModal = {
     props: ['player', 'stats', 'players'],
     components: { AppIcon, PlayerCard },
     template: '#player-detail-modal-template',
-    emits: ['close', 'open-match', 'update:player'],
+    emits: ['close', 'open-match', 'update:player', 'open-profile'],
     setup(props, { emit }) {
         const currentIndex = computed(() => {
             if (!props.player || !props.players) return -1;
@@ -529,5 +549,5 @@ const EventDetailModal = {
     props: ['open', 'event', 'likes', 'comments', 'commentDraft', 'currentUser'],
     components: { AppIcon },
     template: '#event-detail-modal-template',
-    emits: ['update:open', 'like', 'join', 'comment', 'leave', 'update:comment-draft', 'delete-comment']
+    emits: ['update:open', 'like', 'join', 'comment', 'leave', 'update:comment-draft', 'delete-comment', 'open-profile']
 };

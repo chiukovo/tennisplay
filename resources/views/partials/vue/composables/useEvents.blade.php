@@ -30,18 +30,28 @@ const useEvents = (isLoggedIn, showToast, navigateTo, formatLocalDateTime, event
     };
 
     const joinEvent = async (eventId) => {
-        if (!isLoggedIn.value) { showToast('請先登入', 'error'); navigateTo('auth'); return; }
+        if (!isLoggedIn.value) { showToast('請先登入', 'error'); navigateTo('auth'); return null; }
         try {
-            await api.post(`/events/${eventId}/join`);
-            showToast('報名成功！', 'success'); await loadEvents();
-        } catch (error) { showToast('報名失敗', 'error'); }
+            const response = await api.post(`/events/${eventId}/join`);
+            showToast('報名成功！', 'success'); 
+            await loadEvents();
+            return response.data.event;
+        } catch (error) { 
+            showToast(error.response?.data?.error || '報名失敗', 'error'); 
+            return null;
+        }
     };
 
     const leaveEvent = async (eventId) => {
         try {
-            await api.post(`/events/${eventId}/leave`);
-            showToast('已取消報名', 'info'); await loadEvents();
-        } catch (error) { showToast('取消失敗', 'error'); }
+            const response = await api.post(`/events/${eventId}/leave`);
+            showToast('已取消報名', 'info'); 
+            await loadEvents();
+            return response.data.event;
+        } catch (error) { 
+            showToast(error.response?.data?.error || '取消失敗', 'error'); 
+            return null;
+        }
     };
 
     return { events, eventsLoading, eventSubmitting, loadEvents, createEvent, joinEvent, leaveEvent };

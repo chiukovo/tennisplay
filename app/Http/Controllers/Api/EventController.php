@@ -48,6 +48,28 @@ class EventController extends Controller
         }
 
         $events = $query->paginate($request->get('per_page', 12));
+
+        $user = Auth::guard('sanctum')->user();
+        if ($user) {
+            // Hydrate player social status
+            $players = $events->getCollection()->pluck('player')->filter()->concat(
+                $events->getCollection()->flatMap(fn($e) => $e->confirmedParticipants->pluck('player'))
+            )->unique('id');
+            Player::hydrateSocialStatus($players, $user);
+
+            // Hydrate event participation status
+            $joinedEventIds = EventParticipant::where('user_id', $user->id)
+                ->where('status', 'confirmed')
+                ->whereIn('event_id', $events->getCollection()->pluck('id'))
+                ->pluck('event_id')
+                ->toArray();
+            
+            foreach ($events->getCollection() as $event) {
+                $event->has_joined = in_array($event->id, $joinedEventIds);
+                $event->is_organizer = $event->user_id === $user->id;
+            }
+        }
+
         return response()->json([
             'success' => true,
             'data' => $events,
@@ -64,8 +86,14 @@ class EventController extends Controller
 
         // Check if current user has joined
         $userId = Auth::id();
+        $user = Auth::guard('sanctum')->user();
         $event->has_joined = $userId ? $event->hasParticipant($userId) : false;
         $event->is_organizer = $userId ? $event->user_id === $userId : false;
+
+        if ($user) {
+            $players = collect([$event->player])->concat($event->confirmedParticipants->pluck('player'))->filter()->unique('id');
+            Player::hydrateSocialStatus($players, $user);
+        }
 
         return response()->json([
             'success' => true,
@@ -235,20 +263,28 @@ class EventController extends Controller
         }
 
 
-        // Create participation
-        EventParticipant::create([
-            'event_id' => $event->id,
-            'user_id' => $user->id,
-            'player_id' => $player->id,
-            'status' => 'confirmed',
-            'registered_at' => now(),
-        ]);
+        // Create or update participation (handling re-joining cancelled events)
+        EventParticipant::updateOrCreate(
+            [
+                'event_id' => $event->id,
+                'user_id' => $user->id,
+            ],
+            [
+                'player_id' => $player->id,
+                'status' => 'confirmed',
+                'registered_at' => now(),
+                'cancelled_at' => null,
+            ]
+        );
 
         // Update event status if full
         $event->refresh();
         if ($event->is_full) {
             $event->update(['status' => 'full']);
         }
+
+        $event->has_joined = true;
+        $event->is_organizer = $event->user_id === $user->id;
 
         return response()->json([
             'success' => true,
@@ -292,6 +328,9 @@ class EventController extends Controller
         if ($event->status === 'full') {
             $event->update(['status' => 'open']);
         }
+
+        $event->has_joined = false;
+        $event->is_organizer = $event->user_id === $user->id;
 
         return response()->json([
             'success' => true,

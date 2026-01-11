@@ -90,19 +90,18 @@
     </main>
 
     {{-- Modal Components --}}
-    <player-detail-modal v-model:player="detailPlayer" :players="filteredPlayers" :stats="getDetailStats(detailPlayer)" :is-logged-in="isLoggedIn" :show-toast="showToast" :navigate-to="navigateTo" @close="detailPlayer = null" @open-match="p => { detailPlayer = null; openMatchModal(p); }" @open-profile="uid => { detailPlayer = null; openProfile(uid); }"></player-detail-modal>
+    <player-detail-modal :player="detailPlayer" @update:player="handlePlayerUpdate" :players="filteredPlayers" :stats="getDetailStats(detailPlayer)" :is-logged-in="isLoggedIn" :show-toast="showToast" :navigate-to="navigateTo" @close="detailPlayer = null" @open-match="p => { detailPlayer = null; openMatchModal(p); }" @open-profile="uid => { detailPlayer = null; openProfile(uid); }"></player-detail-modal>
     <match-modal v-model:open="matchModal.open" :player="matchModal.player" @submit="text => { matchModal.text = text; sendMatchRequest(); }"></match-modal>
     <ntrp-guide-modal v-model:open="showNtrpGuide" :descs="levelDescs"></ntrp-guide-modal>
     <message-detail-modal v-model:open="showMessageDetail" :target-user="selectedChatUser" :current-user="currentUser" @message-sent="onMessageSent"></message-detail-modal>
     <event-detail-modal 
         v-model:open="showEventDetail" 
         :event="activeEvent" 
-        :likes="eventLikes" 
         :comments="eventComments" 
         v-model:comment-draft="eventCommentDraft"
         :current-user="currentUser"
-        @like="toggleEventLike" 
         @join="joinEvent" 
+        @leave="leaveEvent"
         @comment="submitEventComment"
         @delete-comment="deleteEventComment"
         @open-profile="uid => { showEventDetail = false; openProfile(uid); }"

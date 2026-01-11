@@ -27,6 +27,8 @@ class PlayerController extends Controller
         $players = $query->orderBy('created_at', 'desc')
             ->paginate($request->per_page ?? 20);
 
+        Player::hydrateSocialStatus($players, $this->resolveUser($request));
+
         return response()->json([
             'success' => true,
             'data' => $players,
@@ -36,16 +38,7 @@ class PlayerController extends Controller
     public function show($id)
     {
         $player = Player::with('user')->withCount(['likes', 'comments'])->findOrFail($id);
-
-        $user = $this->resolveUser(request());
-        $player->is_liked = false;
-        $player->is_following = false;
-        if ($user) {
-            $player->is_liked = $player->likes()->where('user_id', $user->id)->exists();
-            $player->is_following = Follow::where('follower_id', $user->id)
-                ->where('following_id', $player->user_id)
-                ->exists();
-        }
+        Player::hydrateSocialStatus($player, $this->resolveUser(request()));
 
         return response()->json([
             'success' => true,
@@ -61,6 +54,8 @@ class PlayerController extends Controller
             ->where('user_id', $user ? $user->id : null)
             ->orderBy('created_at', 'desc')
             ->get();
+
+        Player::hydrateSocialStatus($players, $user);
 
         return response()->json([
             'success' => true,

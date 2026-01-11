@@ -19,9 +19,10 @@ createApp({
         const eventFilter = ref('all');
         const eventRegionFilter = ref('all');
         const eventSearchQuery = ref('');
+        const eventCurrentPage = ref(1);
+        const eventPerPage = ref(12);
         const showEventDetail = ref(false);
         const activeEvent = ref(null);
-        const eventLikes = reactive({});
         const eventComments = reactive({});
         const eventCommentDraft = ref('');
         const messageTab = ref('inbox');
@@ -117,7 +118,7 @@ createApp({
         } = usePlayers(isLoggedIn, currentUser, showToast, navigateTo, showConfirm, (id) => loadProfile(id), form);
 
         const { 
-            events, eventsLoading, eventSubmitting, loadEvents, createEvent, joinEvent, leaveEvent 
+            events, eventsLoading, eventSubmitting, loadEvents, createEvent, joinEvent: baseJoinEvent, leaveEvent: baseLeaveEvent 
         } = useEvents(isLoggedIn, showToast, navigateTo, formatLocalDateTime, eventForm, resetEventForm);
 
         const { messages, loadMessages, markMessageRead } = useMessages(isLoggedIn, currentUser, showToast);
@@ -184,12 +185,79 @@ createApp({
             detailPlayer.value = player;
         };
 
+        // Handle player state updates from modal or other components
+        const handlePlayerUpdate = (updatedPlayer) => {
+            if (!updatedPlayer || !updatedPlayer.id) return;
+            
+            // 1. Update detailPlayer if it's currently showing this player
+            if (detailPlayer.value && detailPlayer.value.id === updatedPlayer.id) {
+                detailPlayer.value = { ...detailPlayer.value, ...updatedPlayer };
+            }
+            
+            // 2. Update in players list (Lobby)
+            const pIdx = players.value.findIndex(p => p.id === updatedPlayer.id);
+            if (pIdx !== -1) {
+                players.value[pIdx] = { ...players.value[pIdx], ...updatedPlayer };
+            }
+            
+            // 3. Update in myPlayers (My Cards)
+            const mIdx = myPlayers.value.findIndex(p => p.id === updatedPlayer.id);
+            if (mIdx !== -1) {
+                myPlayers.value[mIdx] = { ...myPlayers.value[mIdx], ...updatedPlayer };
+            }
+            
+            		// 4. Update in profileData if viewing that player's profile
+		if (profileData.player && profileData.player.id === updatedPlayer.id) {
+			profileData.player = { ...profileData.player, ...updatedPlayer };
+		}
+
+		// 5. Update in profile sub-lists (Liked, Following, Followers)
+		const lIdx = likedPlayers.value.findIndex(p => p.id === updatedPlayer.id);
+		if (lIdx !== -1) {
+			likedPlayers.value[lIdx] = { ...likedPlayers.value[lIdx], ...updatedPlayer };
+		}
+		const flIdx = followingUsers.value.findIndex(p => p.id === updatedPlayer.id);
+		if (flIdx !== -1) {
+			followingUsers.value[flIdx] = { ...followingUsers.value[flIdx], ...updatedPlayer };
+		}
+		const frIdx = followerUsers.value.findIndex(p => p.id === updatedPlayer.id);
+		if (frIdx !== -1) {
+			followerUsers.value[frIdx] = { ...followerUsers.value[frIdx], ...updatedPlayer };
+		}
+
+		// 6. Update in events participants & organizers
+            events.value.forEach(event => {
+                if (event.player && event.player.id === updatedPlayer.id) {
+                    event.player = { ...event.player, ...updatedPlayer };
+                }
+                if (event.confirmedParticipants) {
+                    event.confirmedParticipants.forEach(cp => {
+                        if (cp.player && cp.player.id === updatedPlayer.id) {
+                            cp.player = { ...cp.player, ...updatedPlayer };
+                        }
+                    });
+                }
+            });
+            
+            if (activeEvent.value) {
+                if (activeEvent.value.player && activeEvent.value.player.id === updatedPlayer.id) {
+                    activeEvent.value.player = { ...activeEvent.value.player, ...updatedPlayer };
+                }
+                if (activeEvent.value.confirmedParticipants) {
+                    activeEvent.value.confirmedParticipants.forEach(cp => {
+                        if (cp.player && cp.player.id === updatedPlayer.id) {
+                            cp.player = { ...cp.player, ...updatedPlayer };
+                        }
+                    });
+                }
+            }
+        };
+
         // Get stats for player detail modal
         const getDetailStats = (player) => {
             if (!player) return { likes: 0, matches: 0 };
             return { likes: player.likes_count || 0, matches: player.matches_count || 0 };
         };
-
 
         // Message sent callback
         const onMessageSent = (data) => {
@@ -231,6 +299,12 @@ createApp({
             players.value.forEach(p => { if (p.region) counts[p.region] = (counts[p.region] || 0) + 1; });
             return Object.entries(counts).sort((a, b) => b[1] - a[1]).map(e => e[0]);
         });
+        
+        const activeEventRegions = computed(() => {
+            const counts = {};
+            events.value.forEach(e => { if (e.region) counts[e.region] = (counts[e.region] || 0) + 1; });
+            return Object.entries(counts).sort((a, b) => b[1] - a[1]).map(e => e[0]);
+        });
 
         const filteredPlayers = computed(() => {
             let result = players.value;
@@ -270,14 +344,27 @@ createApp({
             return result;
         });
 
-        const hasUnread = computed(() => Array.isArray(messages.value) && messages.value.some(m => m.unread || !m.read_at));
+        const eventTotalPages = computed(() => Math.ceil(filteredEvents.value.length / eventPerPage.value));
+        const paginatedEvents = computed(() => {
+            const start = (eventCurrentPage.value - 1) * eventPerPage.value;
+            return filteredEvents.value.slice(start, start + eventPerPage.value);
+        });
+
+        const eventDisplayPages = computed(() => {
+            const total = eventTotalPages.value;
+            if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+            const current = eventCurrentPage.value;
+            if (current <= 4) return [1, 2, 3, 4, 5, '...', total];
+            if (current >= total - 3) return [1, '...', total - 4, total - 3, total - 2, total - 1, total];
+            return [1, '...', current - 1, current, current + 1, '...', total];
+        });
+
+        const hasUnread = computed(() => Array.isArray(messages.value) && messages.value.some(m => m.unread_count > 0));
         const hasPlayerCard = computed(() => myPlayers.value && myPlayers.value.length > 0);
         const myCards = computed(() => myPlayers.value);
 
         const allConversations = computed(() => {
             if (!Array.isArray(messages.value) || !currentUser.value) return [];
-            // Backend already returns the latest message per conversation group, 
-            // sorted by activity (created_at DESC).
             return messages.value;
         });
 
@@ -289,7 +376,7 @@ createApp({
             return allConversations.value.length > messagesLimit.value;
         });
 
-        // --- 6. Methods ---
+        // --- 6. Event Handlers & API wrappers ---
         const handleFileUpload = (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -297,7 +384,7 @@ createApp({
             reader.onload = (event) => {
                 form.photo = event.target.result;
                 form.photoX = 0; form.photoY = 0; form.photoScale = 1;
-                isAdjustingPhoto.value = true; // Auto enter adjustment mode
+                isAdjustingPhoto.value = true;
                 showToast('照片上傳成功，您可以拖動調整位置', 'success');
             };
             reader.readAsDataURL(file);
@@ -315,22 +402,19 @@ createApp({
                 reader.onload = (e) => {
                     form.photo = e.target.result;
                     form.photoX = 0; form.photoY = 0; form.photoScale = 1;
-                    isAdjustingPhoto.value = true; // Auto enter adjustment mode
+                    isAdjustingPhoto.value = true;
                     showToast('已成功匯入 LINE 大頭貼', 'success');
                 };
                 reader.readAsDataURL(blob);
             } catch (error) {
                 form.photo = url;
-                isAdjustingPhoto.value = true; // Also enter adjustment mode for link fallback
+                isAdjustingPhoto.value = true;
                 showToast('無法直接匯入圖片，已使用連結代替', 'warning');
             }
         };
 
         const handleSignatureUpdate = (sigData) => {
-            if (!sigData) {
-                form.signature = null;
-                return;
-            }
+            if (!sigData) { form.signature = null; return; }
             form.signature = sigData.dataUrl;
             form.sigWidth = sigData.widthPct;
             form.sigHeight = sigData.heightPct;
@@ -339,7 +423,6 @@ createApp({
             isSigning.value = false;
             showToast('簽名已更新', 'success');
 
-            // Auto enter adjustment mode
             isAdjustingSig.value = true;
             nextTick(() => {
                 const target = document.querySelector('#target-signature');
@@ -400,6 +483,30 @@ createApp({
 
         const openMatchModal = (p) => { matchModal.player = p; matchModal.open = true; };
         const getPlayersByRegion = (region) => players.value.filter(p => p.region === region);
+        
+        const getEventsByMatchType = (type) => {
+            if (type === 'all') return events.value.length;
+            return events.value.filter(e => e.match_type === type).length;
+        };
+
+        const getEventsByRegion = (region) => {
+            return events.value.filter(e => (e.region === region) || (e.location && e.location.includes(region))).length;
+        };
+        
+        const joinEvent = async (id) => {
+            const updated = await baseJoinEvent(id);
+            if (updated && activeEvent.value && activeEvent.value.id === id) {
+                activeEvent.value = { ...activeEvent.value, ...updated };
+            }
+        };
+
+        const leaveEvent = async (id) => {
+            const updated = await baseLeaveEvent(id);
+            if (updated && activeEvent.value && activeEvent.value.id === id) {
+                activeEvent.value = { ...activeEvent.value, ...updated };
+            }
+        };
+
         const sendMatchRequest = async () => {
             if (!isLoggedIn.value) { matchModal.open = false; navigateTo('auth'); return; }
             try {
@@ -413,13 +520,6 @@ createApp({
             matchModal.open = false; matchModal.text = '';
         };
 
-        const toggleEventLike = async (eventId) => {
-            if (!isLoggedIn.value) { showToast('請先登入', 'error'); navigateTo('auth'); return; }
-            try {
-                const response = await api.post(`/events/${eventId}/like`);
-                eventLikes[eventId] = response.data.liked;
-            } catch (error) { showToast('操作失敗', 'error'); }
-        };
 
         const openEventDetail = async (event) => {
             activeEvent.value = { ...event, loading: true };
@@ -435,10 +535,8 @@ createApp({
                 activeEvent.value = { ...eventData, loading: false };
                 eventComments[targetId] = Array.isArray(commentsData) ? commentsData : [];
             } catch (error) {
-                const fallbackData = event?.data ?? event ?? {};
-                activeEvent.value = { ...fallbackData, loading: false };
+                activeEvent.value = { ...event, loading: false };
                 showToast('載入失敗', 'error');
-                showEventDetail.value = false;
             }
         };
 
@@ -470,8 +568,6 @@ createApp({
         };
 
         const openMessage = (message) => {
-
-
             const otherUser = (message.sender?.uid === currentUser.value.uid) ? message.receiver : message.sender;
             if (message.player) otherUser.player = message.player;
             selectedChatUser.value = otherUser;
@@ -514,18 +610,15 @@ createApp({
                     moveableInstance.value = null;
                 }
             }
-            if (isAdjustingPhoto.value) {
-                isAdjustingPhoto.value = false;
-            }
+            if (isAdjustingPhoto.value) isAdjustingPhoto.value = false;
         });
 
         watch(currentUser, (newVal) => {
-            if (newVal && view.value === 'create' && !form.id && !form.photo) {
-                resetForm();
-            }
+            if (newVal && view.value === 'create' && !form.id && !form.photo) resetForm();
         }, { deep: true });
 
         watch(profileTab, () => loadProfileEvents(false));
+        watch([eventRegionFilter, eventFilter, eventSearchQuery], () => eventCurrentPage.value = 1);
 
         return {
             // State
@@ -534,29 +627,30 @@ createApp({
             profileData, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm,
             form, eventForm, currentStep, stepAttempted, isAdjustingPhoto, isAdjustingSig, isCapturing,
             searchQuery, selectedRegion, currentPage, perPage, matchModal, detailPlayer,
-            eventFilter, eventRegionFilter, eventSearchQuery, showEventDetail, activeEvent, eventComments, eventCommentDraft,
-            eventLikes, showNtrpGuide, showMessageDetail, selectedChatUser, isLoading,
+            eventFilter, eventRegionFilter, eventSearchQuery, eventCurrentPage, eventPerPage, showEventDetail, activeEvent, eventComments, eventCommentDraft,
+            showNtrpGuide, showMessageDetail, selectedChatUser, isLoading,
             showPreview, showQuickEditModal, features, cardThemes,
             settingsForm, isSavingSettings, toasts, confirmDialog, dragInfo,
             profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,
             // Computed
-            hasUnread: computed(() => Array.isArray(messages.value) && messages.value.some(m => m.unread_count > 0)),
-            hasPlayerCard, myCards, activeRegions, filteredPlayers, totalPages, paginatedPlayers, displayPages, filteredEvents,
+            hasUnread, hasPlayerCard, myCards, activeRegions, activeEventRegions, filteredPlayers, totalPages, paginatedPlayers, displayPages, 
+            filteredEvents, eventTotalPages, paginatedEvents, eventDisplayPages,
             minEventDate: computed(() => formatLocalDateTime(new Date())),
             paginatedMessages, hasMoreMessages,
             canProceedStep1, canProceedStep2, canProceedStep3, canGoToStep,
-            // Methods - use navigateToWithProfile as the exported navigateTo
+            // Methods
             navigateTo: navigateToWithProfile, logout, checkAuth, saveSettings, loadPlayers, loadMyCards, saveCard: handleSaveCard, deleteCard, editCard, resetForm, resetFormFull,
             loadEvents, createEvent, joinEvent, leaveEvent, resetEventForm, openEventDetail, submitEventComment, deleteEventComment,
             loadProfile, loadProfileEvents, saveProfile, openProfile, toggleFollow, toggleLike,
             loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment,
             loadMessages, markMessageRead, openMessage, onMessageSent, loadMoreMessages,
+            handlePlayerUpdate,
             showToast, removeToast, showConfirm, hideConfirm, executeConfirm,
             formatDate, getUrl, formatLocalDateTime, formatEventDate,
             handleFileUpload, triggerUpload, useLinePhoto, handleSignatureUpdate, toggleAdjustSig, initMoveable, getPlayersByRegion,
             startDrag, handleDrag, stopDrag, captureCardImage,
             tryNextStep, tryGoToStep, openMatchModal, sendMatchRequest,
-            showDetail, getDetailStats, toggleEventLike,
+            showDetail, getDetailStats, getEventsByMatchType, getEventsByRegion,
             // Constants
             REGIONS, LEVELS, LEVEL_DESCS, LEVEL_TAGS, levelDescs, levels, regions
         };

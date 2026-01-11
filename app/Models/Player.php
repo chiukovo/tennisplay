@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use App\Models\Like;
+use App\Models\Follow;
 
 class Player extends Model
 {
@@ -166,5 +168,54 @@ class Player extends Model
             return asset('storage/' . $this->signature);
         }
         return $this->signature;
+    }
+
+    /**
+     * Hydrate social status (is_liked, is_following) for a specific user.
+     */
+    public static function hydrateSocialStatus($players, $user)
+    {
+        if (!$user) {
+            if ($players instanceof \Illuminate\Support\Collection || is_array($players)) {
+                foreach ($players as $player) {
+                    $player->is_liked = false;
+                    $player->is_following = false;
+                }
+            } else {
+                $players->is_liked = false;
+                $players->is_following = false;
+            }
+            return $players;
+        }
+
+        if ($players instanceof \Illuminate\Pagination\LengthAwarePaginator) {
+            $playerCollection = $players->getCollection();
+        } elseif ($players instanceof \Illuminate\Support\Collection) {
+            $playerCollection = $players;
+        } elseif (is_array($players)) {
+            $playerCollection = collect($players);
+        } else {
+            $playerCollection = collect([$players]);
+        }
+
+        $playerIds = $playerCollection->pluck('id')->toArray();
+        $playerUserIds = $playerCollection->pluck('user_id')->filter()->toArray();
+
+        $likedPlayerIds = Like::where('user_id', $user->id)
+            ->whereIn('player_id', $playerIds)
+            ->pluck('player_id')
+            ->toArray();
+
+        $followedUserIds = Follow::where('follower_id', $user->id)
+            ->whereIn('following_id', $playerUserIds)
+            ->pluck('following_id')
+            ->toArray();
+
+        foreach ($playerCollection as $player) {
+            $player->is_liked = in_array($player->id, $likedPlayerIds);
+            $player->is_following = in_array($player->user_id, $followedUserIds);
+        }
+
+        return $players;
     }
 }

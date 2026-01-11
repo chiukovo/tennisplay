@@ -13,6 +13,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // No seed data - users will create their own player cards
+        $this->call(DevelopmentSeeder::class);
     }
 }

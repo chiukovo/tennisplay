@@ -32,7 +32,11 @@ class ProfileController extends Controller
             'events_count' => $user->organizedEvents()->count(),
         ];
 
-        // Status for current user
+        if ($me && $user->player) {
+            \App\Models\Player::hydrateSocialStatus($user->player, $me);
+        }
+
+        // Status for current user (kept for backward compatibility or profile specific buttons)
         $status = [
             'is_following' => $me ? \App\Models\Follow::where('follower_id', $me->id)->where('following_id', $user->id)->exists() : false,
             'is_liked' => ($me && $user->player) ? \App\Models\Like::where('user_id', $me->id)->where('player_id', $user->player->id)->exists() : false,

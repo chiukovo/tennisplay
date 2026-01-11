@@ -115,11 +115,12 @@
                                             <span class="text-[11px] font-black uppercase tracking-widest">約打</span>
                                         </button>
                                         <button type="button" @click="toggleFollowModal" 
-                                                class="flex-1 py-5 flex flex-col items-center justify-center gap-2 hover:bg-slate-50 transition-all group">
+                                                :class="socialStatus.is_following ? 'bg-emerald-500 text-white' : 'hover:bg-slate-50 text-slate-400'"
+                                                class="flex-1 py-5 flex flex-col items-center justify-center gap-2 transition-all group">
                                             <app-icon :name="socialStatus.is_following ? 'check' : 'plus'" 
-                                                     :class-name="['w-5 h-5 transition-all', socialStatus.is_following ? 'text-emerald-500 scale-110' : 'text-slate-400 group-hover:text-slate-900 group-hover:scale-110']"></app-icon>
+                                                     :class-name="['w-5 h-5 transition-all', socialStatus.is_following ? 'text-white scale-110' : 'text-slate-400 group-hover:text-slate-900 group-hover:scale-110']"></app-icon>
                                             <span class="text-[11px] font-black uppercase tracking-widest transition-colors"
-                                                  :class="socialStatus.is_following ? 'text-emerald-600' : 'text-slate-400 group-hover:text-slate-900'">
+                                                  :class="socialStatus.is_following ? 'text-white' : 'text-slate-400 group-hover:text-slate-900'">
                                                 @{{ socialStatus.is_following ? '已追蹤' : '追蹤' }}
                                             </span>
                                         </button>
@@ -129,11 +130,12 @@
                                             <span class="text-[11px] font-black uppercase tracking-widest text-slate-400 group-hover:text-slate-900 transition-colors">主頁</span>
                                         </button>
                                         <button type="button" @click="toggleLikeModal" 
-                                                class="flex-1 py-5 flex flex-col items-center justify-center gap-2 hover:bg-slate-50 transition-all group">
+                                                :class="socialStatus.is_liked ? 'bg-red-500 text-white' : 'hover:bg-slate-50 text-slate-400'"
+                                                class="flex-1 py-5 flex flex-col items-center justify-center gap-2 transition-all group">
                                             <app-icon name="heart" 
-                                                     :class-name="['w-5 h-5 transition-all', socialStatus.is_liked ? 'text-red-500 fill-current scale-110' : 'text-slate-400 group-hover:text-red-500 group-hover:scale-110']"></app-icon>
+                                                     :class-name="['w-5 h-5 transition-all', socialStatus.is_liked ? 'text-white fill-current scale-110' : 'text-slate-400 group-hover:text-red-500 group-hover:scale-110']"></app-icon>
                                             <span class="text-[11px] font-black uppercase tracking-widest transition-colors"
-                                                  :class="socialStatus.is_liked ? 'text-red-600' : 'text-slate-400 group-hover:text-red-600'">
+                                                  :class="socialStatus.is_liked ? 'text-white' : 'text-slate-400 group-hover:text-red-600'">
                                                 @{{ socialStatus.likes_count || '讚' }}
                                             </span>
                                         </button>
@@ -203,10 +205,10 @@
                             約打
                         </button>
                         <button type="button" @click="toggleFollowModal" 
-                                :class="socialStatus.is_following ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-slate-600'"
+                                :class="socialStatus.is_following ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-slate-50 text-slate-600'"
                                 class="flex-1 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all flex flex-col items-center justify-center gap-1 active:scale-95">
-                            <app-icon :name="socialStatus.is_following ? 'check' : 'plus'" class-name="w-4 h-4"></app-icon>
-                            @{{ socialStatus.is_following ? '已追蹤' : '追蹤' }}
+                                <app-icon :name="socialStatus.is_following ? 'check' : 'plus'" :class-name="['w-4 h-4', socialStatus.is_following ? 'text-white' : '']"></app-icon>
+                                @{{ socialStatus.is_following ? '已追蹤' : '追蹤' }}
                         </button>
                         <button type="button" @click="$emit('open-profile', player.user?.uid || player.user_id)" 
                                 class="flex-1 bg-slate-50 text-slate-600 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] flex flex-col items-center justify-center gap-1 active:scale-95 transition-all">
@@ -214,9 +216,9 @@
                             主頁
                         </button>
                         <button type="button" @click="toggleLikeModal"
-                                :class="socialStatus.is_liked ? 'bg-red-50 text-red-500' : 'bg-slate-50 text-slate-600'"
+                                :class="socialStatus.is_liked ? 'bg-red-500 text-white shadow-lg shadow-red-200' : 'bg-slate-50 text-slate-600'"
                                 class="flex-1 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all flex flex-col items-center justify-center gap-1 active:scale-95">
-                            <app-icon name="heart" :class-name="['w-4 h-4', socialStatus.is_liked ? 'fill-current' : '']"></app-icon>
+                            <app-icon name="heart" :class-name="['w-4 h-4', socialStatus.is_liked ? 'fill-current text-white' : '']"></app-icon>
                             @{{ socialStatus.likes_count || '讚' }}
                         </button>
                     </div>
@@ -420,16 +422,29 @@
 
                 {{-- Fixed Bottom Action Bar --}}
                 <div class="shrink-0 p-6 bg-white/80 backdrop-blur-xl border-t border-slate-100 flex items-center gap-4 relative z-[10]">
-                    <button type="button" @click="$emit('like', event.id)" 
-                        :class="['w-16 h-16 rounded-3xl flex items-center justify-center transition-all border-2', 
-                            likes[event.id] ? 'bg-pink-50 border-pink-100 text-pink-500 shadow-lg shadow-pink-100' : 'bg-white border-slate-100 text-slate-300 hover:border-pink-200']">
-                        <app-icon name="heart" class-name="w-7 h-7"></app-icon>
-                    </button>
-                    <button type="button" @click="$emit('join', event.id)" 
-                        class="flex-1 h-16 bg-slate-900 hover:bg-blue-600 active:scale-95 text-white rounded-3xl font-black uppercase tracking-[0.2em] text-sm shadow-2xl transition-all flex items-center justify-center gap-3">
-                        <app-icon name="calendar-plus" class-name="w-6 h-6"></app-icon>
-                        立即報名參加 @{{ event.spots_left === 0 ? '(候補)' : '' }}
-                    </button>
+                    <template v-if="event.is_organizer">
+                        <div class="flex-1 h-16 bg-blue-50 text-blue-600 rounded-3xl font-black uppercase tracking-[0.2em] text-sm flex items-center justify-center gap-3 border border-blue-100">
+                            <app-icon name="star" class-name="w-6 h-6"></app-icon>
+                            您是此活動的主辦人
+                        </div>
+                    </template>
+                    <template v-else-if="event.has_joined">
+                        <button type="button" @click="$emit('leave', event.id)" 
+                            class="flex-1 h-16 bg-red-50 hover:bg-red-500 hover:text-white active:scale-95 text-red-500 rounded-3xl font-black uppercase tracking-[0.2em] text-sm shadow-xl shadow-red-100/50 transition-all border border-red-100 flex items-center justify-center gap-3">
+                            <app-icon name="x" class-name="w-6 h-6"></app-icon>
+                            取消報名參加
+                        </button>
+                    </template>
+                    <template v-else>
+                        <button type="button" @click="$emit('join', event.id)" 
+                            :disabled="event.status === 'completed' || event.status === 'cancelled'"
+                            class="flex-1 h-16 bg-slate-900 hover:bg-blue-600 active:scale-95 text-white rounded-3xl font-black uppercase tracking-[0.2em] text-sm shadow-2xl transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <app-icon name="calendar-plus" class-name="w-6 h-6"></app-icon>
+                            <span v-if="event.status === 'completed'">活動已結束</span>
+                            <span v-else-if="event.status === 'cancelled'">活動已取消</span>
+                            <span v-else>立即報名參加 @{{ event.spots_left === 0 ? '(候補)' : '' }}</span>
+                        </button>
+                    </template>
                 </div>
             </div>
         </div>

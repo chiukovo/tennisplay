@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Follow;
 use App\Models\User;
+use App\Models\Player;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -94,20 +95,17 @@ class FollowController extends Controller
     public function following($uid)
     {
         $user = is_numeric($uid) ? User::findOrFail($uid) : User::where('uid', $uid)->firstOrFail();
-        $me = Auth::user();
+        $me = Auth::guard('sanctum')->user();
         
-        $following = $user->following()->with('player')->get()->map(function($u) use ($me) {
-            return [
-                'uid' => $u->uid,
-                'name' => $u->player ? $u->player->name : $u->name,
-                'photo' => $u->player ? $u->player->photo_url : $u->line_picture_url,
-                'region' => $u->player ? $u->player->region : $u->region,
-                'level' => $u->player ? $u->player->level : null,
-                'is_mutual' => $me ? $u->following()->where('following_id', $me->id)->exists() : false,
-            ];
-        });
+        $followingPlayers = Player::withCount(['likes', 'comments'])->whereHas('user.followers', function($q) use ($user) {
+            $q->where('follower_id', $user->id);
+        })->get();
 
-        return response()->json($following);
+        if ($me) {
+            Player::hydrateSocialStatus($followingPlayers, $me);
+        }
+
+        return response()->json($followingPlayers);
     }
 
     /**
@@ -116,19 +114,16 @@ class FollowController extends Controller
     public function followers($uid)
     {
         $user = is_numeric($uid) ? User::findOrFail($uid) : User::where('uid', $uid)->firstOrFail();
-        $me = Auth::user();
+        $me = Auth::guard('sanctum')->user();
         
-        $followers = $user->followers()->with('player')->get()->map(function($u) use ($me) {
-            return [
-                'uid' => $u->uid,
-                'name' => $u->player ? $u->player->name : $u->name,
-                'photo' => $u->player ? $u->player->photo_url : $u->line_picture_url,
-                'region' => $u->player ? $u->player->region : $u->region,
-                'level' => $u->player ? $u->player->level : null,
-                'is_mutual' => $me ? $u->followers()->where('follower_id', $me->id)->exists() : false,
-            ];
-        });
+        $followerPlayers = Player::withCount(['likes', 'comments'])->whereHas('user.following', function($q) use ($user) {
+            $q->where('following_id', $user->id);
+        })->get();
 
-        return response()->json($followers);
+        if ($me) {
+            Player::hydrateSocialStatus($followerPlayers, $me);
+        }
+
+        return response()->json($followerPlayers);
     }
 }

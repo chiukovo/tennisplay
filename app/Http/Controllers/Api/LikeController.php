@@ -91,6 +91,11 @@ class LikeController extends Controller
             $q->where('user_id', $user->id);
         })->get();
 
+        $me = Auth::guard('sanctum')->user();
+        if ($me) {
+            Player::hydrateSocialStatus($likedPlayers, $me);
+        }
+
         return response()->json($likedPlayers);
     }
 }

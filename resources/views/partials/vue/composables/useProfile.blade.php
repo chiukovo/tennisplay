@@ -32,7 +32,10 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
             }
             profileEventsPage.value = 1;
             if (loadProfileEventsCallback) loadProfileEventsCallback(false);
-        } catch (error) { showToast('載入失敗', 'error'); }
+        } catch (error) { 
+            showToast('會員資料不存在或載入失敗', 'error');
+            navigateTo('home');
+        }
     };
 
     const loadProfileEvents = async (append = false) => {

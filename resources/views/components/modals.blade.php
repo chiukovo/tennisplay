@@ -309,11 +309,11 @@
                                 <div class="space-y-3">
                                     <div>
                                         <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">開始</div>
-                                        <div class="font-black text-slate-800">@{{ event.event_date ? event.event_date.substring(0,16).replace('T',' ') : '' }}</div>
+                                        <div class="font-black text-slate-800">@{{ formatEventDate(event.event_date) }}</div>
                                     </div>
                                     <div v-if="event.end_date">
                                         <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">結束</div>
-                                        <div class="font-black text-slate-800 opacity-60">@{{ event.end_date.substring(0,16).replace('T',' ') }}</div>
+                                        <div class="font-black text-slate-800 opacity-60">@{{ formatEventDate(event.end_date) }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -405,7 +405,7 @@
                                                     class="p-1 text-slate-400 hover:text-red-500 transition-colors">
                                                     <app-icon name="trash" class-name="w-3 h-3"></app-icon>
                                                 </button>
-                                                <span class="text-[9px] font-bold text-slate-400 uppercase">@{{ c.at?.slice(0,16).replace('T',' ') }}</span>
+                                                <span class="text-[9px] font-bold text-slate-400 uppercase">@{{ formatDate(c.at) }}</span>
                                             </div>
                                         </div>
                                         <p class="text-sm font-bold text-slate-600 leading-relaxed">@{{ c.text }}</p>

@@ -9,6 +9,13 @@ const useNavigation = (routes, routePaths, viewTitles, showToast, applyDefaultFi
     });
 
     const navigateTo = (viewName, shouldReset = true, uid = null, resetForm = null, resetEventForm = null, loadProfile = null) => {
+        // Basic protection for internal calls (though usually handled by wrapped navigateTo)
+        if (!isLoggedIn.value && (viewName === 'create' || (viewName === 'profile' && !uid))) {
+            view.value = 'auth';
+            window.history.pushState({ view: 'auth' }, '', routePaths['auth'] || '/auth');
+            return;
+        }
+
         if (viewName === 'create' && shouldReset && resetForm) resetForm();
         if (viewName === 'create-event' && shouldReset && resetEventForm) resetEventForm();
         
@@ -29,19 +36,31 @@ const useNavigation = (routes, routePaths, viewTitles, showToast, applyDefaultFi
     const parseRoute = (loadProfile, resetForm, resetEventForm) => {
         const path = window.location.pathname;
         let viewName = routes[path];
+        let derivedUid = null;
+
         if (!viewName) {
             const matchedKey = Object.keys(routes).find(r => r !== '/' && path.endsWith(r));
             if (matchedKey) viewName = routes[matchedKey];
         }
-        if (!viewName && path.includes('/profile/')) {
+
+        if (path.includes('/profile/')) {
             const parts = path.split('/');
-            const uid = parts[parts.length - 1];
-            if (uid) {
+            derivedUid = parts[parts.length - 1];
+            if (derivedUid) {
                 viewName = 'profile';
-                if (loadProfile) loadProfile(uid);
+                if (loadProfile) loadProfile(derivedUid);
             }
         }
+
         if (!viewName) viewName = 'home';
+
+        // Protection for direct URL access
+        if (!isLoggedIn.value && (viewName === 'create' || (viewName === 'profile' && !derivedUid))) {
+            if (showToast) showToast('請先登入以訪問此功能', 'warning');
+            viewName = 'home';
+            window.history.replaceState({ view: 'home' }, '', '/');
+        }
+
         view.value = viewName;
         if (viewName === 'create' && resetForm) resetForm();
         if (viewName === 'create-event' && resetEventForm) resetEventForm();

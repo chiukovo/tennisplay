@@ -19,6 +19,8 @@ createApp({
         const eventFilter = ref('all');
         const eventRegionFilter = ref('all');
         const eventSearchQuery = ref('');
+        const eventDateFilter = ref(new Date().toISOString().split('T')[0]);
+        const eventTimePeriodFilter = ref('all');
         const eventCurrentPage = ref(1);
         const eventPerPage = ref(12);
         const showEventDetail = ref(false);
@@ -143,6 +145,28 @@ createApp({
 
         // Wrapped navigateTo that handles profile loading
         const navigateToWithProfile = (viewName, shouldReset = true, uid = null) => {
+            // Unauthenticated checks for restricted views
+            if (!isLoggedIn.value) {
+                if (viewName === 'create') {
+                    showConfirm({
+                        title: '請先登入',
+                        message: '登入後即可製作專屬球友卡，開啟您的網球社群之旅！',
+                        confirmText: '去登入',
+                        onConfirm: () => navigateTo('auth')
+                    });
+                    return;
+                }
+                if (viewName === 'profile' && !uid) {
+                    showConfirm({
+                        title: '請先登入',
+                        message: '登入後即可查看您的個人檔案與活動紀錄。',
+                        confirmText: '去登入',
+                        onConfirm: () => navigateTo('auth')
+                    });
+                    return;
+                }
+            }
+
             // Check if trying to create card without basic info
             if (viewName === 'create' && isLoggedIn.value) {
                 if (!currentUser.value?.gender || !currentUser.value?.region) {
@@ -340,6 +364,24 @@ createApp({
             if (eventSearchQuery.value) {
                 const q = eventSearchQuery.value.toLowerCase();
                 result = result.filter(e => (e.title && e.title.toLowerCase().includes(q)) || (e.location && e.location.toLowerCase().includes(q)));
+            }
+            if (eventDateFilter.value) {
+                result = result.filter(e => {
+                    const localDate = new Date(e.event_date).toLocaleDateString('en-CA'); // YYYY-MM-DD
+                    return localDate === eventDateFilter.value;
+                });
+            }
+            if (eventTimePeriodFilter.value !== 'all') {
+                result = result.filter(e => {
+                    const hour = new Date(e.event_date).getHours();
+                    switch(eventTimePeriodFilter.value) {
+                        case 'morning': return hour >= 6 && hour < 12;
+                        case 'afternoon': return hour >= 12 && hour < 18;
+                        case 'evening': return hour >= 18 && hour < 24;
+                        case 'late-night': return hour >= 0 && hour < 6;
+                        default: return true;
+                    }
+                });
             }
             return result;
         });
@@ -618,7 +660,7 @@ createApp({
         }, { deep: true });
 
         watch(profileTab, () => loadProfileEvents(false));
-        watch([eventRegionFilter, eventFilter, eventSearchQuery], () => eventCurrentPage.value = 1);
+        watch([eventRegionFilter, eventFilter, eventSearchQuery, eventDateFilter, eventTimePeriodFilter], () => eventCurrentPage.value = 1);
 
         return {
             // State
@@ -627,7 +669,7 @@ createApp({
             profileData, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm,
             form, eventForm, currentStep, stepAttempted, isAdjustingPhoto, isAdjustingSig, isCapturing,
             searchQuery, selectedRegion, currentPage, perPage, matchModal, detailPlayer,
-            eventFilter, eventRegionFilter, eventSearchQuery, eventCurrentPage, eventPerPage, showEventDetail, activeEvent, eventComments, eventCommentDraft,
+            eventFilter, eventRegionFilter, eventSearchQuery, eventDateFilter, eventTimePeriodFilter, eventCurrentPage, eventPerPage, showEventDetail, activeEvent, eventComments, eventCommentDraft,
             showNtrpGuide, showMessageDetail, selectedChatUser, isLoading,
             showPreview, showQuickEditModal, features, cardThemes,
             settingsForm, isSavingSettings, toasts, confirmDialog, dragInfo,

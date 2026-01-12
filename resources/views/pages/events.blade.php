@@ -26,7 +26,7 @@
     </div>
 
     {{-- Filter Section --}}
-    <div class="mb-10">
+    <div class="space-y-6 mb-10">
         {{-- Region Filter Tabs (Scrollable) --}}
         <div class="flex items-center gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 pb-2">
             <button @click="eventRegionFilter = 'all'" 
@@ -39,6 +39,42 @@
                     eventRegionFilter === r ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-100' : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200']">
                 @{{ r }} <span class="ml-1 opacity-60">(@{{ getEventsByRegion(r) }})</span>
             </button>
+        </div>
+
+        {{-- Time & Date Search --}}
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-white p-4 rounded-[28px] border border-slate-100 shadow-sm">
+            {{-- Date Picker --}}
+            <div class="relative w-full sm:w-auto">
+                <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                    <app-icon name="calendar" class-name="w-4 h-4"></app-icon>
+                </div>
+                <input type="date" v-model="eventDateFilter" 
+                    class="w-full sm:w-48 pl-11 pr-4 py-3 bg-slate-50 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none font-black text-xs uppercase tracking-widest transition-all">
+            </div>
+
+            {{-- Time Period Tabs --}}
+            <div class="flex flex-wrap items-center gap-1.5 p-1 bg-slate-50 rounded-2xl w-full sm:w-auto">
+                <button v-for="t in [
+                    {val: 'all', label: '全部'},
+                    {val: 'morning', label: '早上'},
+                    {val: 'afternoon', label: '下午'},
+                    {val: 'evening', label: '晚上'},
+                    {val: 'late-night', label: '半夜'}
+                ]" :key="t.val" @click="eventTimePeriodFilter = t.val"
+                    :class="['px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all', 
+                        eventTimePeriodFilter === t.val ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600']">
+                    @{{ t.label }}
+                </button>
+            </div>
+
+            {{-- Search Input (Merged from previous if needed, but adding keyword search here) --}}
+            <div class="relative flex-1 w-full sm:w-auto">
+                <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                    <app-icon name="search" class-name="w-4 h-4"></app-icon>
+                </div>
+                <input type="text" v-model="eventSearchQuery" placeholder="搜尋標題或地點..."
+                    class="w-full pl-11 pr-4 py-3 bg-slate-50 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none font-bold text-xs transition-all">
+            </div>
         </div>
     </div>
 

@@ -628,5 +628,12 @@ const EventDetailModal = {
     props: ['open', 'event', 'likes', 'comments', 'commentDraft', 'currentUser'],
     components: { AppIcon },
     template: '#event-detail-modal-template',
-    emits: ['update:open', 'like', 'join', 'comment', 'leave', 'update:comment-draft', 'delete-comment', 'open-profile']
+    emits: ['update:open', 'like', 'join', 'comment', 'leave', 'update:comment-draft', 'delete-comment', 'open-profile'],
+    setup(props, { emit }) {
+        const { formatEventDate, formatDate } = useUtils();
+        
+        const openProfile = (uid) => emit('open-profile', uid);
+
+        return { formatEventDate, formatDate, openProfile };
+    }
 };

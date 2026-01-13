@@ -11,36 +11,19 @@ const useAuth = (showToast, navigateTo, initSettings, isLoggedIn, currentUser, s
 
     // 安全機制：如果在 5 秒內沒有完成驗證（可能 JS 錯誤或參數遺失），強制關閉 Loading
     if (hasLineToken) {
-        setTimeout(() => {
-            if (isAuthLoading.value) {
-                isAuthLoading.value = false;
-                console.warn('Auth loading timed out, forcing close.');
-            }
-        }, 5000);
-    }
-
-    const checkAuth = (loadMessages, loadMyCards) => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const lineToken = urlParams.get('line_token');
-        const lineUser = urlParams.get('line_user');
-        
         if (lineToken && lineUser) {
-            isAuthLoading.value = true; // 開始 Loading
+            isAuthLoading.value = true;
             try {
                 const userData = JSON.parse(lineUser);
                 localStorage.setItem('auth_token', lineToken);
                 localStorage.setItem('auth_user', lineUser);
-                isLoggedIn.value = true;
-                currentUser.value = userData;
-                if (initSettings) initSettings();
-                showToast('LINE 登入成功！', 'success');
-                if (loadMessages) loadMessages();
-                if (loadMyCards) loadMyCards();
-                window.history.replaceState({}, document.title, '/');
+                // 收到 user 指示：不用倒數，直接一直 loading，因為完成會跳轉 (重整)
+                // 使用 location.href 進行重整，讓 Loading 畫面持續直到頁面刷新
+                window.location.href = '/';
             } catch (e) {
                 console.error('Login error:', e);
-            } finally {
-                isAuthLoading.value = false; // 確保一定會結束 Loading
+                // 只有失敗時才關閉 Loading
+                isAuthLoading.value = false;
                 if (document.getElementById('auth-preloader')) document.getElementById('auth-preloader').style.display = 'none';
             }
         } else if (lineToken) {

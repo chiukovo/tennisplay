@@ -1,5 +1,5 @@
 {{-- List View --}}
-<div v-if="view === 'list'" class="space-y-6 pb-24">
+<div v-if="view === 'list'" class="space-y-6">
     {{-- SEO Content for Crawlers (SSR) --}}
     <div class="sr-only" aria-hidden="true">
         @foreach($initialPlayers ?? [] as $p)

@@ -62,7 +62,7 @@
     
     @include('partials.styles')
 </head>
-<body class="bg-slate-50 text-slate-900 leading-normal">
+<body class="bg-slate-50 text-slate-900 leading-normal min-h-screen">
 
 {{-- Vue Component Templates --}}
 @include('components.vue-templates')
@@ -88,7 +88,7 @@
     @include('partials.navigation')
 
     {{-- Main Content --}}
-    <main class="max-w-6xl mx-auto px-4 pt-6 sm:pt-10 min-h-screen pb-32 sm:pb-32">
+    <main class="max-w-6xl w-full mx-auto px-4 pt-6 sm:pt-10 pb-4 sm:pb-8">
         @include('pages.auth')
         @include('pages.home')
         @include('pages.create')
@@ -103,17 +103,17 @@
     </main>
 
     {{-- Footer --}}
-    <footer class="max-w-6xl mx-auto px-4 py-12 pb-40 sm:pb-20 border-t border-slate-200">
+    <footer class="max-w-6xl w-full mx-auto px-4 py-8 pb-16 sm:pb-12 border-t border-slate-200">
         <div class="flex flex-col sm:flex-row justify-between items-center gap-6">
             <div class="flex items-center gap-3">
                 <img src="/img/logo.png" alt="LoveTennis" class="w-8 h-8 opacity-50 grayscale">
-                <div class="text-slate-400 text-xs font-bold uppercase tracking-widest">
+                <div class="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-widest">
                     Copyright © 2026 chiuko. All rights reserved.
                 </div>
             </div>
             <div class="flex items-center gap-8">
-                <a href="/privacy" @click.prevent="navigateTo('privacy')" class="text-slate-400 hover:text-blue-600 text-xs font-bold uppercase tracking-widest transition-colors">隱私權政策</a>
-                <a href="/sitemap" @click.prevent="navigateTo('sitemap')" class="text-slate-400 hover:text-blue-600 text-xs font-bold uppercase tracking-widest transition-colors">網站地圖</a>
+                <a href="/privacy" @click.prevent="navigateTo('privacy')" class="text-slate-400 hover:text-blue-600 text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-colors">隱私權政策</a>
+                <a href="/sitemap" @click.prevent="navigateTo('sitemap')" class="text-slate-400 hover:text-blue-600 text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-colors">網站地圖</a>
             </div>
         </div>
     </footer>

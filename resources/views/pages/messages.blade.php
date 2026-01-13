@@ -1,5 +1,5 @@
 {{-- Messages View --}}
-<div v-if="view === 'messages'" class="max-w-4xl mx-auto space-y-8 pb-20 animate__animated animate__fadeIn">
+<div v-if="view === 'messages'" class="max-w-4xl mx-auto space-y-8 animate__animated animate__fadeIn">
     {{-- Header --}}
     <div class="flex items-center justify-between">
         <div>

@@ -49,6 +49,33 @@ const useEvents = (isLoggedIn, showToast, navigateTo, formatLocalDateTime, event
         } finally { eventSubmitting.value = false; }
     };
 
+    const updateEvent = async (id) => {
+        if (!isLoggedIn.value) { showToast('請先登入', 'error'); return; }
+        eventSubmitting.value = true;
+        try {
+            const response = await api.put(`/events/${id}`, eventForm);
+            showToast('活動更新成功！', 'success');
+            if (resetEventForm) resetEventForm(); 
+            await loadEvents(); 
+            navigateTo('events');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (error) {
+            const msg = error.response?.data?.error || error.response?.data?.message || '更新失敗';
+            showToast(msg, 'error');
+        } finally { eventSubmitting.value = false; }
+    };
+
+    const deleteEvent = async (id) => {
+        if (!isLoggedIn.value) return;
+        try {
+            await api.delete(`/events/${id}`);
+            showToast('活動已刪除', 'success');
+            await loadEvents();
+        } catch (error) {
+            showToast(error.response?.data?.error || '刪除失敗', 'error');
+        }
+    };
+
     const joinEvent = async (eventId) => {
         if (!isLoggedIn.value) { showToast('請先登入', 'error'); navigateTo('auth'); return null; }
         try {
@@ -74,5 +101,5 @@ const useEvents = (isLoggedIn, showToast, navigateTo, formatLocalDateTime, event
         }
     };
 
-    return { events, eventsLoading, eventSubmitting, eventsPagination, loadEvents, createEvent, joinEvent, leaveEvent };
+    return { events, eventsLoading, eventSubmitting, eventsPagination, loadEvents, createEvent, updateEvent, deleteEvent, joinEvent, leaveEvent };
 };

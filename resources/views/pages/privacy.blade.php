@@ -1,5 +1,5 @@
 {{-- Privacy Policy Page --}}
-<div v-if="view === 'privacy'" class="py-10 sm:py-20">
+<div v-if="view === 'privacy'" class="animate__animated animate__fadeIn">
     <div class="max-w-3xl mx-auto bg-white rounded-[48px] shadow-[0_20px_80px_rgba(0,0,0,0.05)] overflow-hidden border border-slate-100">
         {{-- Header --}}
         <div class="px-10 py-12 bg-slate-50/50 border-b border-slate-100 text-center relative overflow-hidden">

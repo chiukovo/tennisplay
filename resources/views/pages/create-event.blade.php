@@ -1,17 +1,23 @@
 {{-- Create Event View --}}
-<div v-if="view === 'create-event'" class="max-w-xl mx-auto pb-24 px-4 pt-4 sm:pt-0">
+<div v-if="view === 'create-event'" class="max-w-xl mx-auto px-4 pt-4 sm:pt-0">
     {{-- Simple Header --}}
     <div class="mb-8">
         <button @click="navigateTo('events')" class="flex items-center gap-1.5 text-slate-400 hover:text-blue-600 transition-colors mb-4 group">
             <app-icon name="arrow-left" class-name="w-4 h-4"></app-icon>
             <span class="font-bold text-xs uppercase tracking-widest">返回列表</span>
         </button>
-        <h2 class="text-3xl font-black text-slate-900">刊登招募</h2>
-        <p class="text-slate-400 font-bold text-sm">刊登您的活動，讓球友主動找上門</p>
+        <h2 class="text-3xl font-black text-slate-900">
+            <span v-if="eventForm.id">編輯招募</span>
+            <span v-else>刊登招募</span>
+        </h2>
+        <p class="text-slate-400 font-bold text-sm">
+            <span v-if="eventForm.id">修改您的活動資訊</span>
+            <span v-else>刊登您的活動，讓球友主動找上門</span>
+        </p>
     </div>
 
     {{-- Form --}}
-    <form @submit.prevent="createEvent" class="space-y-6">
+    <form @submit.prevent="submitEvent" class="space-y-6">
         {{-- Card 1: What & Where --}}
         <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 space-y-6">
             <div>
@@ -129,7 +135,10 @@
         <div class="pt-4 pb-12">
             <button type="submit" :disabled="eventSubmitting"
                 class="w-full py-5 bg-slate-900 text-white rounded-[24px] text-lg font-black tracking-widest hover:bg-blue-600 transition-all flex items-center justify-center gap-2 disabled:opacity-50">
-                <span v-if="!eventSubmitting">確認刊登招募</span>
+                <span v-if="!eventSubmitting">
+                    <span v-if="eventForm.id">確認更新招募</span>
+                    <span v-else>確認刊登招募</span>
+                </span>
                 <span v-else class="flex items-center gap-2">
                     <app-icon name="loader" class-name="animate-spin w-5 h-5"></app-icon>
                     處理中...

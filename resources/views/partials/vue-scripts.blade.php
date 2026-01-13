@@ -25,9 +25,20 @@ createApp({
             const now = new Date();
             return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         };
-        const eventDateShortcut = ref('today');
-        const eventStartDate = ref(getTodayStr());
-        const eventEndDate = ref(getTodayStr());
+        const eventDateShortcut = ref('week');
+        const getWeekRange = () => {
+            const now = new Date();
+            const day = now.getDay();
+            const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+            const start = new Date(now.setDate(diff));
+            const end = new Date(start);
+            end.setDate(start.getDate() + 6);
+            const format = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            return { start: format(start), end: format(end) };
+        };
+        const weekRange = getWeekRange();
+        const eventStartDate = ref(weekRange.start);
+        const eventEndDate = ref(weekRange.end);
         const eventCurrentPage = ref(1);
         const eventPerPage = ref(12);
         const showEventDetail = ref(false);
@@ -133,7 +144,7 @@ createApp({
         } = usePlayers(isLoggedIn, currentUser, showToast, navigateTo, showConfirm, (id) => loadProfile(id), form);
 
         const { 
-            events, eventsLoading, eventSubmitting, eventsPagination, loadEvents, createEvent, joinEvent: baseJoinEvent, leaveEvent: baseLeaveEvent 
+            events, eventsLoading, eventSubmitting, eventsPagination, loadEvents, createEvent, updateEvent, deleteEvent, joinEvent: baseJoinEvent, leaveEvent: baseLeaveEvent 
         } = useEvents(isLoggedIn, showToast, navigateTo, formatLocalDateTime, eventForm, resetEventForm);
 
         const { messages, loadMessages, markMessageRead } = useMessages(isLoggedIn, currentUser, showToast);
@@ -621,6 +632,44 @@ createApp({
             } catch (error) { showToast('發送失敗', 'error'); }
         };
 
+        const submitEvent = async () => {
+            if (eventForm.id) {
+                await updateEvent(eventForm.id);
+            } else {
+                await createEvent();
+            }
+        };
+
+        const editEvent = (event) => {
+            resetEventForm();
+            Object.assign(eventForm, {
+                id: event.id,
+                title: event.title,
+                region: event.region,
+                event_date: formatLocalDateTime(event.event_date),
+                end_date: event.end_date ? formatLocalDateTime(event.end_date) : '',
+                location: event.location,
+                address: event.address,
+                fee: event.fee,
+                max_participants: event.max_participants,
+                match_type: event.match_type,
+                gender: event.gender,
+                level_min: event.level_min,
+                level_max: event.level_max,
+                notes: event.notes
+            });
+            navigateTo('create-event', false);
+        };
+
+        const handleDeleteEvent = (id) => {
+            showConfirm({
+                title: '刪除活動',
+                message: '確定要刪除此活動嗎？這項操作無法復原。',
+                type: 'danger',
+                onConfirm: () => deleteEvent(id)
+            });
+        };
+
         const deleteEventComment = async (commentId, eventId) => {
             showConfirm({
                 title: '刪除留言', message: '確定要刪除嗎？', type: 'danger',
@@ -751,7 +800,7 @@ createApp({
             canProceedStep1, canProceedStep2, canProceedStep3, canGoToStep,
             // Methods
             navigateTo: navigateToWithProfile, logout, checkAuth, saveSettings, loadPlayers, loadMyCards, saveCard: handleSaveCard, deleteCard, editCard, resetForm, resetFormFull,
-            loadEvents, createEvent, joinEvent, leaveEvent, resetEventForm, openEventDetail, submitEventComment, deleteEventComment, setDateRange,
+            loadEvents, createEvent, updateEvent, deleteEvent: handleDeleteEvent, resetEventForm, openEventDetail, submitEventComment, deleteEventComment, setDateRange, editEvent, submitEvent,
             // Event modal compatibility aliases
             toggleEventLike: (eventId) => {}, // Placeholder - likes are not yet implemented for events
             postEventComment: () => submitEventComment(),

@@ -1,5 +1,4 @@
-{{-- Events List View --}}
-<div v-if="view === 'events'" class="space-y-8 pb-24">
+<div v-if="view === 'events'" class="space-y-8">
     {{-- SEO Content for Crawlers (SSR) --}}
     <div class="sr-only" aria-hidden="true">
         @foreach($initialEvents ?? [] as $e)
@@ -55,14 +54,14 @@
             </div>
 
             {{-- Date Range Picker --}}
-            <div class="flex items-center gap-3 flex-grow sm:flex-grow-0 bg-slate-50 px-4 py-1 rounded-2xl border border-slate-100 min-h-[52px]">
+            <div class="flex items-center gap-2 sm:gap-3 flex-grow lg:flex-grow-0 bg-slate-50 px-3 sm:px-4 py-1 rounded-2xl border border-slate-100 min-h-[52px]">
                 <div class="text-slate-400 shrink-0"><app-icon name="calendar" class-name="w-4 h-4"></app-icon></div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1 sm:gap-2 flex-1 min-w-0">
                     <input type="date" v-model="eventStartDate" @change="eventDateShortcut = 'custom'"
-                        class="bg-transparent py-2.5 sm:py-3 font-black text-xs sm:text-sm text-slate-700 outline-none w-[110px] sm:w-[130px] cursor-pointer">
-                    <span class="text-slate-300 font-bold">~</span>
+                        class="bg-transparent py-2.5 sm:py-3 font-black text-[11px] sm:text-sm text-slate-700 outline-none w-0 flex-1 cursor-pointer min-w-0">
+                    <span class="text-slate-300 font-bold shrink-0">~</span>
                     <input type="date" v-model="eventEndDate" @change="eventDateShortcut = 'custom'"
-                        class="bg-transparent py-2.5 sm:py-3 font-black text-xs sm:text-sm text-slate-700 outline-none w-[110px] sm:w-[130px] cursor-pointer">
+                        class="bg-transparent py-2.5 sm:py-3 font-black text-[11px] sm:text-sm text-slate-700 outline-none w-0 flex-1 cursor-pointer min-w-0">
                 </div>
             </div>
 
@@ -169,9 +168,15 @@
                 <div class="mt-auto pt-6 flex items-center justify-between gap-4">
                     <div class="flex items-center gap-2">
                         <template v-if="event.is_organizer">
-                            <div class="px-5 py-2.5 bg-blue-50 text-blue-600 rounded-xl text-[11px] font-black uppercase tracking-widest border border-blue-100 flex items-center gap-2">
-                                <app-icon name="star" class-name="w-3.5 h-3.5"></app-icon>
-                                我的活動
+                            <div class="flex items-center gap-2">
+                                <button @click.stop="editEvent(event)" class="px-4 py-2 bg-blue-600 text-white rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 flex items-center gap-1.5">
+                                    <app-icon name="edit" class-name="w-3.5 h-3.5"></app-icon>
+                                    編輯
+                                </button>
+                                <button @click.stop="deleteEvent(event.id)" class="px-4 py-2 bg-white text-red-500 rounded-xl text-[11px] font-black uppercase tracking-widest border border-red-100 hover:bg-red-50 transition-all flex items-center gap-1.5">
+                                    <app-icon name="trash" class-name="w-3.5 h-3.5"></app-icon>
+                                    刪除
+                                </button>
                             </div>
                         </template>
                         <template v-else-if="event.has_joined">

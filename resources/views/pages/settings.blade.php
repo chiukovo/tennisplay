@@ -1,5 +1,5 @@
 {{-- Settings Page --}}
-<div v-if="view === 'settings'" class="max-w-2xl mx-auto space-y-8 pb-32 animate__animated animate__fadeIn">
+<div v-if="view === 'settings'" class="max-w-2xl mx-auto space-y-8 animate__animated animate__fadeIn">
     {{-- Header --}}
     <div class="flex items-center gap-4">
         <button @click="navigateTo('home')" class="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-400 hover:text-blue-600 hover:border-blue-100 transition-all">

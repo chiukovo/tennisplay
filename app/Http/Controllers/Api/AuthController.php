@@ -51,7 +51,7 @@ class AuthController extends Controller
             'redirect_uri' => route('line.callback'),
             'state' => $state,
             'scope' => 'profile openid',
-            'bot_prompt' => 'normal',
+            'bot_prompt' => 'aggressive',
             'prompt' => 'consent', // Force consent screen to help with some mobile issues
         ]);
 

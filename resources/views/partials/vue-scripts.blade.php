@@ -222,9 +222,15 @@ createApp({
         const handlePlayerUpdate = (updatedPlayer) => {
             if (!updatedPlayer || !updatedPlayer.id) return;
             
-            // 1. Update detailPlayer if it's currently showing this player
-            if (detailPlayer.value && detailPlayer.value.id === updatedPlayer.id) {
-                detailPlayer.value = { ...detailPlayer.value, ...updatedPlayer };
+            // 1. Update detailPlayer - this handles both navigation (new player) and state updates (same player)
+            if (detailPlayer.value) {
+                if (detailPlayer.value.id === updatedPlayer.id) {
+                    // Same player - merge updates (like/follow state changes)
+                    detailPlayer.value = { ...detailPlayer.value, ...updatedPlayer };
+                } else {
+                    // Different player - navigation, replace entirely
+                    detailPlayer.value = updatedPlayer;
+                }
             }
             
             // 2. Update in players list (Lobby)

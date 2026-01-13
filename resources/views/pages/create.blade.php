@@ -1,5 +1,17 @@
 {{-- Create View (Refactored Wizard) --}}
 <div v-if="view === 'create'" class="max-w-4xl mx-auto">
+    {{-- Page Title --}}
+    <div class="mb-6 text-center">
+        <h1 class="text-3xl sm:text-4xl font-black italic uppercase tracking-tighter text-slate-900">
+            <span v-if="form.id">編輯球友卡</span>
+            <span v-else>建立球友卡</span>
+        </h1>
+        <p class="text-slate-400 font-bold text-xs uppercase tracking-[0.2em] mt-2">
+            <span v-if="form.id">Update Your Player Card</span>
+            <span v-else>Create Your Player Card</span>
+        </p>
+    </div>
+
     {{-- Clickable Progress Bar --}}
     <div class="mb-10 px-4">
         <div class="flex justify-between mb-4">

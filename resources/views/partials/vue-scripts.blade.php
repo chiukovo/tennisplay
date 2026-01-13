@@ -185,6 +185,12 @@ createApp({
                     navigateTo('profile', false, userUid, resetFormFull, resetEventForm, loadProfile);
                     return;
                 }
+                
+                // 如果用戶已有球友卡，自動進入編輯模式
+                if (myPlayers.value && myPlayers.value.length > 0) {
+                    editCard(myPlayers.value[0]); // 編輯第一張球友卡
+                    return;
+                }
             }
             
             // For profile navigation, load the profile data

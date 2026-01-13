@@ -51,7 +51,6 @@
                         {{-- Right: Detailed Stats --}}
                         <div class="w-full md:w-1/2 p-8 sm:p-14 md:overflow-y-auto bg-white flex flex-col no-scrollbar">
                             <div class="mb-6">
-                                <h3 class="text-4xl sm:text-5xl font-black italic uppercase tracking-tighter text-slate-900 leading-tight mb-4">@{{player.name}}</h3>
                                 
                                 <div class="flex flex-nowrap items-center gap-2 overflow-x-auto no-scrollbar">
                                     <span class="px-2 py-1 bg-blue-600 text-white text-[8px] font-black rounded-lg uppercase tracking-widest italic shrink-0">已認證</span>

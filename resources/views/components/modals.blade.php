@@ -16,15 +16,14 @@
                     <span class="text-xs md:text-sm font-black italic text-slate-900">@{{ currentIndex + 1 }} / @{{ players.length }}</span>
                 </div>
 
-                {{-- Navigation Arrows (All Devices - Subtle Style) --}}
-                <div class="block">
-                    <button v-if="hasPrev" @click="navigate(-1)" class="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-[120] w-10 h-10 md:w-12 md:h-12 bg-white/30 md:bg-white/50 backdrop-blur-sm hover:bg-white/70 text-slate-600 hover:text-blue-600 rounded-full shadow-sm hover:shadow-lg transition-all border border-white/50 group flex items-center justify-center">
-                        <app-icon name="chevron-left" class-name="w-5 h-5 md:w-6 md:h-6 opacity-60 group-hover:opacity-100 transition-opacity"></app-icon>
-                    </button>
-                    <button v-if="hasNext" @click="navigate(1)" class="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-[120] w-10 h-10 md:w-12 md:h-12 bg-white/30 md:bg-white/50 backdrop-blur-sm hover:bg-white/70 text-slate-600 hover:text-blue-600 rounded-full shadow-sm hover:shadow-lg transition-all border border-white/50 group flex items-center justify-center">
-                        <app-icon name="chevron-right" class-name="w-5 h-5 md:w-6 md:h-6 opacity-60 group-hover:opacity-100 transition-opacity"></app-icon>
-                    </button>
-                </div>
+                {{-- Navigation Arrows (All Devices - Subtle Pulsing Style) --}}
+                <button v-if="hasPrev" @click.stop="navigate(-1)" class="absolute left-1 sm:left-4 md:left-6 top-1/2 -translate-y-1/2 z-[130] w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-white/40 backdrop-blur-sm hover:bg-white/80 text-slate-500 hover:text-blue-600 rounded-full shadow-md hover:shadow-lg transition-all border border-white/60 flex items-center justify-center animate-subtle-pulse">
+                    <app-icon name="chevron-left" class-name="w-5 h-5 md:w-6 md:h-6"></app-icon>
+                </button>
+                <button v-if="hasNext" @click.stop="navigate(1)" class="absolute right-1 sm:right-4 md:right-6 top-1/2 -translate-y-1/2 z-[130] w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-white/40 backdrop-blur-sm hover:bg-white/80 text-slate-500 hover:text-blue-600 rounded-full shadow-md hover:shadow-lg transition-all border border-white/60 flex items-center justify-center animate-subtle-pulse">
+                    <app-icon name="chevron-right" class-name="w-5 h-5 md:w-6 md:h-6"></app-icon>
+                </button>
+
 
                 {{-- Main Scrollable Area (Mobile) / Split Layout (Desktop) --}}
                 <transition :name="transitionName" mode="out-in">

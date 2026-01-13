@@ -8,13 +8,13 @@
         @endforeach
     </div>
     {{-- Header --}}
-    <div class="flex items-center justify-between mb-8">
+    <div class="flex flex-nowrap items-center justify-between gap-4 mb-8">
         <div>
             <h2 class="text-3xl sm:text-5xl font-black italic uppercase tracking-tighter leading-tight text-slate-900">開團揪球</h2>
             <p class="text-slate-400 font-bold text-xs sm:text-base uppercase tracking-[0.2em] mt-1">Join or Create Tennis Events</p>
         </div>
         <div class="flex items-center gap-6">
-            <button v-if="isLoggedIn && hasPlayerCard" @click="navigateTo('create-event')" class="bg-blue-600 text-white px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-2xl hover:-translate-y-1 hover:bg-blue-700 transition-all flex items-center gap-2">
+            <button v-if="isLoggedIn && hasPlayerCard" @click="navigateTo('create-event')" class="bg-blue-600 text-white px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-2xl hover:-translate-y-1 hover:bg-blue-700 transition-all flex items-center gap-2 whitespace-nowrap shrink-0">
                 <app-icon name="calendar-plus" class-name="w-5 h-5"></app-icon>
                 開揪
             </button>
@@ -247,9 +247,9 @@
         </div>
         <h3 class="text-2xl font-black uppercase tracking-tight mb-2">目前沒有活動</h3>
         <p class="text-slate-500 font-medium mb-6">成為第一個開團的人吧！</p>
-        <button v-if="isLoggedIn" @click="navigateTo('create-event')" class="bg-gradient-to-r from-blue-600 to-indigo-500 text-white px-7 py-3 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl hover:-translate-y-0.5 hover:shadow-2xl transition-all">
+        <button v-if="isLoggedIn" @click="navigateTo('create-event')" class="bg-gradient-to-r from-blue-600 to-indigo-500 text-white px-7 py-3 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl hover:-translate-y-0.5 hover:shadow-2xl transition-all whitespace-nowrap">
             <app-icon name="calendar-plus" class-name="w-5 h-5 inline mr-2"></app-icon>
-            建立活動
+            開揪
         </button>
     </div>
 </div>

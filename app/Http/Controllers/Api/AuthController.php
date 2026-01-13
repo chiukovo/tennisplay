@@ -173,12 +173,22 @@ class AuthController extends Controller
             // Create Sanctum token
             $token = $user->createToken('auth-token')->plainTextToken;
 
-            // Redirect back to frontend with token
-            return redirect('/?line_token=' . $token . '&line_user=' . urlencode(json_encode([
-                'uid' => $user->uid,
-                'name' => $user->name,
-                'line_picture_url' => $user->line_picture_url,
-            ])));
+            // Return loading view instead of redirecting directly
+            // This allows the frontend to save token cleanly and provides a better UX
+            return view('pages.auth-loading', [
+                'token' => $token, 
+                'user' => urlencode(json_encode([
+                    'uid' => $user->uid,
+                    'name' => $user->name,
+                    'line_picture_url' => $user->line_picture_url,
+                    'gender' => $user->gender,
+                    'region' => $user->region,
+                    'level' => $user->level,
+                    'role' => $user->role,
+                    'id' => $user->id
+                ]))
+            ]);
+
 
         } catch (\Exception $e) {
             Log::error('LINE login error: ' . $e->getMessage());

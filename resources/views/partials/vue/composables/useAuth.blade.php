@@ -85,7 +85,10 @@ const useAuth = (showToast, navigateTo, initSettings, isLoggedIn, currentUser, s
         isSavingSettings.value = true;
         try {
             const response = await api.put('/user/settings', {
-                settings: { default_region: settingsForm.default_region }
+                settings: { 
+                    default_region: settingsForm.default_region,
+                    notify_line: settingsForm.notify_line
+                }
             });
             if (response.data.success) {
                 currentUser.value = response.data.data;

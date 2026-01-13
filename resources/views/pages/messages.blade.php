@@ -11,6 +11,30 @@
             <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">未讀</div>
         </div>
     </div>
+    
+    {{-- LINE Add Friend Promo --}}
+    <div class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-xl shadow-blue-500/20">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
+        <div class="relative z-10 flex flex-col sm:flex-row items-center gap-8">
+            <div class="bg-white p-3 rounded-2xl flex-shrink-0 shadow-lg">
+                <img src="/img/lineqrcode.png" alt="LINE QR Code" class="w-32 h-32">
+            </div>
+            <div class="flex-1 text-center sm:text-left space-y-4">
+                <div class="space-y-1">
+                    <h3 class="text-2xl font-black uppercase tracking-tight">即時收到約打通知！</h3>
+                    <p class="text-blue-100 text-sm font-bold">加入 LoveTennis 官方 LINE 好友，不再錯過任何挑戰與邀約。</p>
+                </div>
+                <div class="flex flex-wrap items-center justify-center sm:justify-start gap-3">
+                    <div class="bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl text-sm font-bold">
+                        Line ID: @344epiuj
+                    </div>
+                    <a href="https://line.me/R/ti/p/@344epiuj" target="_blank" class="bg-white text-blue-600 px-6 py-2 rounded-xl text-sm font-black uppercase tracking-wider hover:bg-blue-50 transition-colors">
+                        立即加入
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
     {{-- Login Required --}}
     <div v-if="!isLoggedIn" class="bg-white rounded-[48px] shadow-2xl border border-slate-100 p-16 text-center">

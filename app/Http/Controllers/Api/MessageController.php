@@ -135,7 +135,10 @@ class MessageController extends Controller
         // Send LINE Notification if receiver exists and has line_user_id
         try {
             $receiver = \App\Models\User::find($toUserId);
-            if ($receiver && $receiver->line_user_id) {
+            $receiverSettings = $receiver->settings ?? [];
+            $wantsNotify = $receiverSettings['notify_line'] ?? true; // Default to true
+
+            if ($receiver && $receiver->line_user_id && $wantsNotify) {
                 $lineService = new \App\Services\LineNotifyService();
                 $senderName = $user->name ?: '一位球友';
                 $senderAvatar = $user->line_picture_url;

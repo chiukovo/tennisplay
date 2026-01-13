@@ -464,63 +464,76 @@ const MessageDetailModal = {
         const hasMore = ref(false);
         const page = ref(1);
 
+        const isFetching = ref(false);
         const loadChat = async (isPolling = false) => {
-            if (!props.targetUser) return;
+            if (!props.targetUser || isFetching.value) return;
             if (!isPolling) loading.value = true;
+            isFetching.value = true;
             
             try {
                 let url = `/messages/chat/${props.targetUser.uid}`;
-                const lastMsg = messages.value.length > 0 ? messages.value[messages.value.length - 1] : null;
+                const maxId = messages.value.reduce((max, m) => Math.max(max, m.id), 0);
                 
-                if (isPolling && lastMsg) {
-                    url += `?after_id=${lastMsg.id}`;
+                if (isPolling && maxId > 0) {
+                    url += `?after_id=${maxId}`;
                 } else {
                     url += `?page=${page.value}`;
                 }
 
                 const response = await api.get(url);
                 if (response.data.success) {
-                    let newMessages = [];
+                    let newItems = [];
                     
                     if (isPolling) {
-                        // Polling returns array directly (from get())
-                        newMessages = response.data.data.map(m => ({
+                        // Polling returns array directly
+                        newItems = response.data.data.map(m => ({
                             ...m,
                             is_me: m.sender?.uid === props.currentUser.uid
                         }));
                         
-                        if (newMessages.length > 0) {
-                            messages.value = [...messages.value, ...newMessages];
-                            scrollToBottom();
+                        if (newItems.length > 0) {
+                            // Deduplicate by ID
+                            const existingIds = new Set(messages.value.map(m => m.id));
+                            const uniqueNewItems = newItems.filter(m => !existingIds.has(m.id));
+                            
+                            if (uniqueNewItems.length > 0) {
+                                messages.value = [...messages.value, ...uniqueNewItems];
+                                scrollToBottom();
+                            }
                         }
                     } else {
-                        // Pagination returns paginated object (from paginate())
+                        // Pagination returns paginated object
                         const data = response.data.data;
                         const rawMessages = data.data || [];
                         hasMore.value = data.next_page_url !== null;
                         
-                        newMessages = rawMessages.map(m => ({
+                        newItems = rawMessages.map(m => ({
                             ...m,
                             is_me: m.sender?.uid === props.currentUser.uid
                         })).reverse(); // Reverse because backend gives desc
                         
                         if (page.value === 1) {
-                            messages.value = newMessages;
+                            messages.value = newItems;
                             scrollToBottom();
                         } else {
-                            // Prepend for load more
-                            const currentHeight = chatContainer.value.scrollHeight;
-                            messages.value = [...newMessages, ...messages.value];
-                            nextTick(() => {
-                                // Restore scroll position
-                                chatContainer.value.scrollTop = chatContainer.value.scrollHeight - currentHeight;
-                            });
+                            // Prepend for load more, but also deduplicate just in case
+                            const existingIds = new Set(messages.value.map(m => m.id));
+                            const uniqueNewItems = newItems.filter(m => !existingIds.has(m.id));
+                            
+                            if (uniqueNewItems.length > 0) {
+                                const currentHeight = chatContainer.value.scrollHeight;
+                                messages.value = [...uniqueNewItems, ...messages.value];
+                                nextTick(() => {
+                                    chatContainer.value.scrollTop = chatContainer.value.scrollHeight - currentHeight;
+                                });
+                            }
                         }
                     }
                 }
             } catch (error) {
                 console.error('Load chat error:', error);
             } finally {
+                isFetching.value = false;
                 if (!isPolling) loading.value = false;
             }
         };

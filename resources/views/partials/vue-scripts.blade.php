@@ -52,7 +52,10 @@ createApp({
         const showPrivacy = ref(false);
         const showPreview = ref(false);
         const showQuickEditModal = ref(false);
-        const settingsForm = reactive({ default_region: '全部' });
+        const settingsForm = reactive({ 
+            default_region: '全部',
+            notify_line: true 
+        });
         const form = reactive({
             id: null, name: '', region: '台中市', level: '3.5', handed: '右手', backhand: '雙反', gender: '男',
             intro: '', fee: '免費 (交流為主)', photo: null, signature: null, theme: 'standard',
@@ -74,6 +77,7 @@ createApp({
             if (currentUser.value && currentUser.value.settings) {
                 const s = currentUser.value.settings;
                 settingsForm.default_region = s.default_region || '全部';
+                settingsForm.notify_line = s.notify_line !== undefined ? s.notify_line : true;
             }
         };
 
@@ -800,7 +804,7 @@ createApp({
             canProceedStep1, canProceedStep2, canProceedStep3, canGoToStep,
             // Methods
             navigateTo: navigateToWithProfile, logout, checkAuth, saveSettings, loadPlayers, loadMyCards, saveCard: handleSaveCard, deleteCard, editCard, resetForm, resetFormFull,
-            loadEvents, createEvent, updateEvent, deleteEvent: handleDeleteEvent, resetEventForm, openEventDetail, submitEventComment, deleteEventComment, setDateRange, editEvent, submitEvent,
+            loadEvents, createEvent, updateEvent, deleteEvent: handleDeleteEvent, resetEventForm, openEventDetail, submitEventComment, deleteEventComment, setDateRange, editEvent, submitEvent, joinEvent, leaveEvent,
             // Event modal compatibility aliases
             toggleEventLike: (eventId) => {}, // Placeholder - likes are not yet implemented for events
             postEventComment: () => submitEventComment(),

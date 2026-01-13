@@ -69,6 +69,7 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
                 showToast(form.id ? '球友卡已更新' : '球友卡建立成功！', 'success');
                 await loadPlayers(); await loadMyCards();
                 resetForm(); navigateTo('list');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         } catch (error) { showToast('儲存失敗', 'error'); }
     };

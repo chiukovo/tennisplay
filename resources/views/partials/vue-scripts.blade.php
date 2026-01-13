@@ -638,6 +638,9 @@ createApp({
                 }
             }
             if (isAdjustingPhoto.value) isAdjustingPhoto.value = false;
+            
+            // Scroll to top when step changes for better UX
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
         watch(currentUser, (newVal) => {

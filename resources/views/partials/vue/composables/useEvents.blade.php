@@ -42,6 +42,7 @@ const useEvents = (isLoggedIn, showToast, navigateTo, formatLocalDateTime, event
             if (resetEventForm) resetEventForm(); 
             await loadEvents(); 
             navigateTo('events');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         } catch (error) { showToast('建立失敗', 'error'); } finally { eventSubmitting.value = false; }
     };
 

@@ -16,7 +16,7 @@
         <div class="flex items-center gap-6">
             <button v-if="isLoggedIn && hasPlayerCard" @click="navigateTo('create-event')" class="bg-blue-600 text-white px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-2xl hover:-translate-y-1 hover:bg-blue-700 transition-all flex items-center gap-2">
                 <app-icon name="calendar-plus" class-name="w-5 h-5"></app-icon>
-                建立新活動
+                開揪
             </button>
             <div class="text-right hidden sm:block">
                 <div class="text-2xl font-black text-blue-600">@{{ eventsPagination.total }}</div>
@@ -28,51 +28,54 @@
     {{-- Filter Section --}}
     <div class="space-y-6 mb-10">
         {{-- Time & Date Search --}}
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 bg-white p-5 rounded-[32px] border border-slate-200 shadow-sm">
+        {{-- Filter Header --}}
+        <div class="flex flex-col lg:flex-row items-stretch lg:items-center gap-4 bg-white p-5 rounded-[32px] border border-slate-200 shadow-sm">
             {{-- Region Select --}}
-            <select v-model="eventRegionFilter" class="px-4 py-3 sm:py-4 bg-slate-50 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none font-black text-sm uppercase tracking-widest cursor-pointer appearance-none min-w-[100px] sm:min-w-[120px]">
-                <option value="all">全部地區</option>
-                <option v-for="r in activeEventRegions" :key="r" :value="r">@{{ r }}</option>
-            </select>
+            <div class="shrink-0 flex items-center bg-slate-50 px-3 py-1 rounded-2xl border border-slate-100">
+                <div class="text-slate-400 pl-1"><app-icon name="map-pin" class-name="w-4 h-4"></app-icon></div>
+                <select v-model="eventRegionFilter" class="bg-transparent pl-2 pr-4 py-3 sm:py-3.5 focus:outline-none font-black text-sm uppercase tracking-widest cursor-pointer appearance-none min-w-[100px] sm:min-w-[120px]">
+                    <option value="all">全部地區</option>
+                    <option v-for="r in activeEventRegions" :key="r" :value="r">@{{ r }}</option>
+                </select>
+            </div>
 
-            {{-- Date Picker --}}
-            <div class="relative w-full sm:w-auto">
-                <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                    <app-icon name="calendar" class-name="w-5 h-5"></app-icon>
-                </div>
-                <input type="date" v-model="eventDateFilter" 
-                    class="w-full sm:w-64 pl-12 pr-10 py-3 sm:py-4 bg-slate-50 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none font-black text-sm sm:text-base uppercase tracking-wide transition-all">
-                <button v-if="eventDateFilter" @click="eventDateFilter = ''" 
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors">
-                    <app-icon name="x" class-name="w-4 h-4"></app-icon>
+            {{-- Date Shortcuts --}}
+            <div class="flex items-center gap-1 p-1 bg-slate-50 rounded-2xl overflow-x-auto no-scrollbar scroll-smooth">
+                <button v-for="s in [
+                    {val: 'today', label: '今日'},
+                    {val: 'tomorrow', label: '明日'},
+                    {val: 'week', label: '本週'},
+                    {val: 'month', label: '本月'},
+                    {val: 'all', label: '全部'}
+                ]" :key="s.val" @click="setDateRange(s.val)"
+                    :class="['px-4 sm:px-6 py-2.5 rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all whitespace-nowrap shrink-0', 
+                        eventDateShortcut === s.val ? 'bg-white text-blue-600 shadow-sm ring-1 ring-blue-50' : 'text-slate-400 hover:text-slate-600']">
+                    @{{ s.label }}
                 </button>
             </div>
 
-            {{-- Time Period Tabs --}}
-            <div class="flex flex-nowrap items-center gap-1 p-1 bg-slate-50 rounded-2xl w-full sm:w-auto overflow-x-auto no-scrollbar">
-                <button v-for="t in [
-                    {val: 'all', label: '全部'},
-                    {val: 'morning', label: '上午'},
-                    {val: 'afternoon', label: '下午'},
-                    {val: 'evening', label: '晚上'},
-                    {val: 'late-night', label: '凌晨'}
-                ]" :key="t.val" @click="eventTimePeriodFilter = t.val"
-                    :class="['px-4 sm:px-5 py-2.5 rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all whitespace-nowrap shrink-0', 
-                        eventTimePeriodFilter === t.val ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600']">
-                    @{{ t.label }}
-                </button>
+            {{-- Date Range Picker --}}
+            <div class="flex items-center gap-3 flex-grow sm:flex-grow-0 bg-slate-50 px-4 py-1 rounded-2xl border border-slate-100 min-h-[52px]">
+                <div class="text-slate-400 shrink-0"><app-icon name="calendar" class-name="w-4 h-4"></app-icon></div>
+                <div class="flex items-center gap-2">
+                    <input type="date" v-model="eventStartDate" @change="eventDateShortcut = 'custom'"
+                        class="bg-transparent py-2.5 sm:py-3 font-black text-xs sm:text-sm text-slate-700 outline-none w-[110px] sm:w-[130px] cursor-pointer">
+                    <span class="text-slate-300 font-bold">~</span>
+                    <input type="date" v-model="eventEndDate" @change="eventDateShortcut = 'custom'"
+                        class="bg-transparent py-2.5 sm:py-3 font-black text-xs sm:text-sm text-slate-700 outline-none w-[110px] sm:w-[130px] cursor-pointer">
+                </div>
             </div>
 
             {{-- Search Input --}}
-            <div class="relative flex-1 w-full sm:w-auto flex gap-2">
+            <div class="relative flex flex-1 items-center gap-2">
                 <div class="relative flex-1">
                     <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
                         <app-icon name="search" class-name="w-5 h-5"></app-icon>
                     </div>
                     <input type="text" v-model="eventSearchDraft" @keyup.enter="handleEventSearch" placeholder="搜尋標題或地點..."
-                        class="w-full pl-12 pr-4 py-3 sm:py-4 bg-slate-50 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none font-bold text-base transition-all">
+                        class="w-full pl-12 pr-4 py-3 sm:py-3.5 bg-slate-50 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none font-bold text-base transition-all">
                 </div>
-                <button @click="handleEventSearch" class="px-5 sm:px-8 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-sm sm:text-base hover:bg-blue-600 transition-all shadow-lg active:scale-95">
+                <button @click="handleEventSearch" class="px-5 sm:px-8 py-3.5 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-sm sm:text-base hover:bg-blue-600 transition-all shadow-lg active:scale-95 shrink-0">
                     搜尋
                 </button>
             </div>

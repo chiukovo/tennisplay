@@ -25,8 +25,9 @@ createApp({
             const now = new Date();
             return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         };
-        const eventDateFilter = ref(getTodayStr());
-        const eventTimePeriodFilter = ref('all');
+        const eventDateShortcut = ref('today');
+        const eventStartDate = ref(getTodayStr());
+        const eventEndDate = ref(getTodayStr());
         const eventCurrentPage = ref(1);
         const eventPerPage = ref(12);
         const showEventDetail = ref(false);
@@ -109,7 +110,10 @@ createApp({
             showToast,
             (viewName) => applyDefaultFilters(viewName),
             isLoggedIn,
-            currentUser
+            currentUser,
+            eventDateShortcut,
+            eventStartDate,
+            eventEndDate
         );
 
         const { 
@@ -505,10 +509,43 @@ createApp({
                 search: eventSearchQuery.value, 
                 region: eventRegionFilter.value, 
                 match_type: eventFilter.value,
-                date: eventDateFilter.value,
-                time_period: eventTimePeriodFilter.value,
+                start_date: eventStartDate.value,
+                end_date: eventEndDate.value,
                 page: 1 
             });
+        };
+
+        const setDateRange = (type) => {
+            eventDateShortcut.value = type;
+            const now = new Date();
+            const format = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            
+            if (type === 'today') {
+                eventStartDate.value = format(now);
+                eventEndDate.value = format(now);
+            } else if (type === 'tomorrow') {
+                const tomorrow = new Date(now);
+                tomorrow.setDate(now.getDate() + 1);
+                eventStartDate.value = format(tomorrow);
+                eventEndDate.value = format(tomorrow);
+            } else if (type === 'week') {
+                // start of current week (Monday)
+                const day = now.getDay();
+                const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+                const start = new Date(now.setDate(diff));
+                const end = new Date(start);
+                end.setDate(start.getDate() + 6);
+                eventStartDate.value = format(start);
+                eventEndDate.value = format(end);
+            } else if (type === 'month') {
+                const start = new Date(now.getFullYear(), now.getMonth(), 1);
+                const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                eventStartDate.value = format(start);
+                eventEndDate.value = format(end);
+            } else if (type === 'all') {
+                eventStartDate.value = '';
+                eventEndDate.value = '';
+            }
         };
 
         const openMatchModal = (p) => { matchModal.player = p; matchModal.open = true; };
@@ -627,8 +664,8 @@ createApp({
                     search: eventSearchQuery.value, 
                     region: eventRegionFilter.value, 
                     match_type: eventFilter.value,
-                    date: eventDateFilter.value,
-                    time_period: eventTimePeriodFilter.value,
+                    start_date: eventStartDate.value,
+                    end_date: eventEndDate.value,
                     page: eventCurrentPage.value 
                 });
             }
@@ -672,14 +709,14 @@ createApp({
         });
 
         // Events Watchers
-        watch([eventRegionFilter, eventFilter, eventDateFilter, eventTimePeriodFilter], () => {
+        watch([eventRegionFilter, eventFilter, eventStartDate, eventEndDate], () => {
             eventCurrentPage.value = 1;
             loadEvents({ 
                 search: eventSearchQuery.value, 
                 region: eventRegionFilter.value, 
                 match_type: eventFilter.value,
-                date: eventDateFilter.value,
-                time_period: eventTimePeriodFilter.value,
+                start_date: eventStartDate.value,
+                end_date: eventEndDate.value,
                 page: 1 
             });
         });
@@ -701,7 +738,7 @@ createApp({
             profileData, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm,
             form, eventForm, currentStep, stepAttempted, isAdjustingPhoto, isAdjustingSig, isCapturing,
             searchQuery, searchDraft, selectedRegion, currentPage, perPage, matchModal, detailPlayer,
-            eventFilter, eventRegionFilter, eventSearchQuery, eventSearchDraft, eventDateFilter, eventTimePeriodFilter, eventCurrentPage, eventPerPage, showEventDetail, activeEvent, eventComments, eventCommentDraft,
+            eventFilter, eventRegionFilter, eventSearchQuery, eventSearchDraft, eventStartDate, eventEndDate, eventDateShortcut, eventCurrentPage, eventPerPage, showEventDetail, activeEvent, eventComments, eventCommentDraft,
             showNtrpGuide, showPrivacy, showMessageDetail, selectedChatUser, isLoading, isAuthLoading,
             showPreview, showQuickEditModal, features, cardThemes,
             settingsForm, isSavingSettings, toasts, confirmDialog, dragInfo,
@@ -714,7 +751,7 @@ createApp({
             canProceedStep1, canProceedStep2, canProceedStep3, canGoToStep,
             // Methods
             navigateTo: navigateToWithProfile, logout, checkAuth, saveSettings, loadPlayers, loadMyCards, saveCard: handleSaveCard, deleteCard, editCard, resetForm, resetFormFull,
-            loadEvents, createEvent, joinEvent, leaveEvent, resetEventForm, openEventDetail, submitEventComment, deleteEventComment,
+            loadEvents, createEvent, joinEvent, leaveEvent, resetEventForm, openEventDetail, submitEventComment, deleteEventComment, setDateRange,
             // Event modal compatibility aliases
             toggleEventLike: (eventId) => {}, // Placeholder - likes are not yet implemented for events
             postEventComment: () => submitEventComment(),

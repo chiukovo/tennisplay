@@ -37,8 +37,18 @@ class EventController extends Controller
             $query->where('match_type', $request->match_type);
         }
 
-        // Filter by date
-        if ($request->has('date') && $request->date) {
+        // Filter by date range
+        if ($request->has('start_date') && $request->start_date) {
+            if ($request->has('end_date') && $request->end_date) {
+                // Range
+                $query->whereDate('event_date', '>=', $request->start_date)
+                      ->whereDate('event_date', '<=', $request->end_date);
+            } else {
+                // Only start
+                $query->whereDate('event_date', '>=', $request->start_date);
+            }
+        } elseif ($request->has('date') && $request->date) {
+            // Legacy single date support
             $query->whereDate('event_date', $request->date);
         }
 

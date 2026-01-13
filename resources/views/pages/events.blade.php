@@ -27,22 +27,14 @@
 
     {{-- Filter Section --}}
     <div class="space-y-6 mb-10">
-        {{-- Region Filter Tabs (Scrollable) --}}
-        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 pb-2">
-            <button @click="eventRegionFilter = 'all'" 
-                :class="['px-5 py-2.5 rounded-full font-black text-sm uppercase tracking-widest whitespace-nowrap transition-all border-2 shrink-0', 
-                    eventRegionFilter === 'all' ? 'bg-slate-900 border-slate-900 text-white shadow-lg shadow-slate-100' : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200']">
-                全部地區
-            </button>
-            <button v-for="r in activeEventRegions" :key="r" @click="eventRegionFilter = r" 
-                :class="['px-5 py-2.5 rounded-full font-black text-sm uppercase tracking-widest whitespace-nowrap transition-all border-2 shrink-0', 
-                    eventRegionFilter === r ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-100' : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200']">
-                @{{ r }}
-            </button>
-        </div>
-
         {{-- Time & Date Search --}}
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 bg-white p-5 rounded-[32px] border border-slate-200 shadow-sm">
+            {{-- Region Select --}}
+            <select v-model="eventRegionFilter" class="px-4 py-3 sm:py-4 bg-slate-50 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none font-black text-sm uppercase tracking-widest cursor-pointer appearance-none min-w-[100px] sm:min-w-[120px]">
+                <option value="all">全部地區</option>
+                <option v-for="r in activeEventRegions" :key="r" :value="r">@{{ r }}</option>
+            </select>
+
             {{-- Date Picker --}}
             <div class="relative w-full sm:w-auto">
                 <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">

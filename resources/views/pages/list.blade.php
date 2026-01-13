@@ -20,30 +20,20 @@
             </div>
         </div>
         
-        {{-- Search Bar --}}
+        {{-- Search Bar with Region Select --}}
         <div class="relative flex gap-2">
             <div class="relative flex-1">
                 <app-icon name="search" class-name="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-5 h-5"></app-icon>
                 <input type="text" v-model="searchDraft" @keyup.enter="handleSearch" placeholder="搜尋姓名、程度或地區..." class="w-full pl-12 pr-4 py-3 sm:py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 font-bold text-base transition-all">
             </div>
+            <select v-model="selectedRegion" class="px-4 py-3 sm:py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 font-black text-sm uppercase tracking-widest cursor-pointer appearance-none min-w-[100px] sm:min-w-[120px]">
+                <option value="全部">全部地區</option>
+                <option v-for="r in activeRegions" :key="r" :value="r">@{{ r }}</option>
+            </select>
             <button @click="handleSearch" class="px-5 sm:px-8 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-sm sm:text-base hover:bg-blue-600 transition-all shadow-lg active:scale-95">
                 搜尋
             </button>
         </div>
-    </div>
-
-    {{-- Region Filter Tabs (Scrollable on Mobile) --}}
-    <div class="flex overflow-x-auto no-scrollbar gap-2 pb-2 -mx-4 px-4">
-        <button type="button" @click="selectedRegion = '全部'" 
-            :class="['px-4 py-2.5 rounded-full font-black text-sm uppercase tracking-widest whitespace-nowrap transition-all border-2', 
-            selectedRegion === '全部' ? 'bg-slate-900 text-white border-slate-900 shadow-lg' : 'bg-white text-slate-400 border-slate-200 hover:border-slate-300']">
-            全部
-        </button>
-        <button type="button" v-for="r in activeRegions" :key="r" @click="selectedRegion = r" 
-            :class="['px-4 py-2.5 rounded-full font-black text-sm uppercase tracking-widest whitespace-nowrap transition-all border-2', 
-            selectedRegion === r ? 'bg-blue-600 text-white border-blue-600 shadow-lg' : 'bg-white text-slate-400 border-slate-200 hover:border-slate-300']">
-            @{{ r }}
-        </button>
     </div>
 
     {{-- Results Info --}}

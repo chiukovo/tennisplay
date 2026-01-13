@@ -37,6 +37,28 @@ const useAuth = (showToast, navigateTo, initSettings, isLoggedIn, currentUser, s
             } catch (e) {}
             if (loadMessages) loadMessages();
             if (loadMyCards) loadMyCards();
+            
+            // 背景同步獲取最新用戶資料 (解決跨設備照片 URL 過期問題)
+            refreshUserData();
+        }
+    };
+
+    // 從後端獲取最新用戶資料並更新 localStorage
+    const refreshUserData = async () => {
+        try {
+            const response = await api.get('/user');
+            if (response.data) {
+                currentUser.value = response.data;
+                localStorage.setItem('auth_user', JSON.stringify(response.data));
+            }
+        } catch (error) {
+            // Token 無效時自動登出
+            if (error.response?.status === 401) {
+                localStorage.removeItem('auth_token');
+                localStorage.removeItem('auth_user');
+                isLoggedIn.value = false;
+                currentUser.value = null;
+            }
         }
     };
 

@@ -9,6 +9,12 @@ const useNavigation = (routes, routePaths, viewTitles, showToast, applyDefaultFi
     });
 
     const navigateTo = (viewName, shouldReset = true, uid = null, resetForm = null, resetEventForm = null, loadProfile = null) => {
+        // If already on home and clicking home, refresh the page
+        if (viewName === 'home' && view.value === 'home') {
+            window.location.href = '/';
+            return;
+        }
+
         // Basic protection for internal calls (though usually handled by wrapped navigateTo)
         if (!isLoggedIn.value && (viewName === 'create' || (viewName === 'profile' && !uid))) {
             view.value = 'auth';

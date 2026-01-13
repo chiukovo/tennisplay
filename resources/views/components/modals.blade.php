@@ -62,29 +62,27 @@
                                     <div class="flex items-center gap-1 px-2 py-1 bg-blue-50 rounded-lg text-[10px] font-black text-blue-600 italic shrink-0">
                                         <app-icon name="zap" class-name="w-3 h-3"></app-icon>
                                         NTRP @{{player.level}}
+                                        <button @click.stop="$emit('open-ntrp-guide')" class="ml-1 text-blue-400 hover:text-blue-600 transition-colors">
+                                            <app-icon name="help" class-name="w-3 h-3"></app-icon>
+                                        </button>
                                     </div>
                                     <div class="flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-lg text-[10px] font-bold text-slate-600 shrink-0">
                                         <app-icon name="gender" class-name="w-3 h-3 text-slate-400"></app-icon>
                                         @{{player.gender}}
                                     </div>
+                                    <div class="flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-lg text-[10px] font-bold text-slate-600 shrink-0">
+                                        @{{player.handed || '右手'}}
+                                    </div>
+                                    <div class="flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-lg text-[10px] font-bold text-slate-600 shrink-0">
+                                        @{{player.backhand || '雙反'}}
+                                    </div>
                                 </div>
                             </div>
 
                             <div class="space-y-6">
-                                {{-- Stats Row --}}
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                                        <div class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Handed / 慣用手</div>
-                                        <div class="text-lg font-black italic text-slate-900">@{{player.handed || '右手'}}</div>
-                                    </div>
-                                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                                        <div class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Backhand / 反手</div>
-                                        <div class="text-lg font-black italic text-slate-900">@{{player.backhand || '雙反'}}</div>
-                                    </div>
-                                </div>
-
+                                
                                 {{-- Intro Section --}}
-                                <div class="bg-slate-50 p-6 rounded-[24px] border border-slate-100 relative overflow-hidden">
+                                <div class="bg-slate-50 p-6 rounded-[24px] border border-slate-100 relative overflow-hidden mb-6">
                                     <div class="flex items-center gap-2 mb-3">
                                         <div class="w-1 h-3 bg-blue-600 rounded-full"></div>
                                         <span class="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 italic">個人特色 / 約打宣告</span>
@@ -94,17 +92,6 @@
                                     </p>
                                 </div>
 
-                                {{-- NTRP Desc Section --}}
-                                <div class="bg-blue-600/5 p-6 rounded-[24px] border border-blue-600/10">
-                                    <div class="flex items-center gap-2 mb-3">
-                                        <div class="w-1 h-3 bg-blue-600 rounded-full"></div>
-                                        <span class="text-[10px] font-black uppercase tracking-[0.1em] text-blue-600/50 italic">等級說明 / NTRP Description</span>
-                                    </div>
-                                    <p class="text-sm text-blue-900/70 font-bold leading-relaxed">
-                                        @{{getLevelDesc(player.level)}}
-                                    </p>
-                                </div>
-                                
                                 {{-- Social Action Bar --}}
                                 {{-- Action Dashboard (Desktop Only) --}}
                                 <div class="hidden md:block mt-8 rounded-[28px] border-2 border-slate-100 overflow-hidden shadow-sm bg-white">

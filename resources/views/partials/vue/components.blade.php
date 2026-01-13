@@ -278,7 +278,7 @@ const PlayerDetailModal = {
     props: ['player', 'stats', 'players', 'isLoggedIn', 'showToast', 'navigateTo'],
     components: { AppIcon, PlayerCard },
     template: '#player-detail-modal-template',
-    emits: ['close', 'open-match', 'update:player', 'open-profile'],
+    emits: ['close', 'open-match', 'update:player', 'open-profile', 'open-ntrp-guide'],
     setup(props, { emit }) {
         const currentIndex = computed(() => {
             if (!props.player || !props.players) return -1;

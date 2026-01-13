@@ -5,7 +5,9 @@ const useAuth = (showToast, navigateTo, initSettings, isLoggedIn, currentUser, s
     const isLoginMode = ref(true);
     const showUserMenu = ref(false);
     const isSavingSettings = ref(false);
-    const isAuthLoading = ref(false); // LINE 登入時的 Loading 狀態
+    // LINE 登入時的 Loading 狀態 - 初始化時就檢測 URL 參數
+    const hasLineToken = new URLSearchParams(window.location.search).has('line_token');
+    const isAuthLoading = ref(hasLineToken); // 如果有 line_token 參數，立即顯示 Loading
 
     const checkAuth = (loadMessages, loadMyCards) => {
         const urlParams = new URLSearchParams(window.location.search);

@@ -144,3 +144,84 @@
         </div>
     </div>
 </script>
+
+{{-- Privacy Policy Modal Template --}}
+<script type="text/x-template" id="privacy-modal-template">
+    <transition name="modal">
+        <div v-if="modelValue" class="fixed inset-0 z-[300] flex items-center justify-center p-4 sm:p-6" @click.self="$emit('update:modelValue', false)">
+            <div class="bg-white w-full max-w-2xl rounded-[40px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate__animated animate__zoomIn animate__faster">
+                {{-- Header --}}
+                <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                    <div>
+                        <h3 class="text-2xl font-black italic uppercase tracking-tight text-slate-900">隱私權政策</h3>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Privacy Policy & Terms</p>
+                    </div>
+                    <button @click="$emit('update:modelValue', false)" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:border-slate-300 transition-all shadow-sm">
+                        <app-icon name="x" class-name="w-5 h-5"></app-icon>
+                    </button>
+                </div>
+
+                {{-- Content --}}
+                <div class="flex-1 overflow-y-auto p-8 sm:p-10 space-y-8 custom-scrollbar">
+                    <section class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-blue-100 rounded-xl flex items-center justify-center">
+                                <app-icon name="shield" class-name="w-4 h-4 text-blue-600"></app-icon>
+                            </div>
+                            <h4 class="text-lg font-black text-slate-900">資料收集與使用</h4>
+                        </div>
+                        <p class="text-slate-500 text-sm leading-relaxed font-medium">
+                            為了提供專業的網球約打服務，我們會透過 LINE 登入收集您的公開個人檔案資訊（包含 LINE 顯示名稱、頭像圖片及唯一識別碼）。這些資訊僅用於建立您的球友卡、處理約打邀請以及發送相關通知。
+                        </p>
+                    </section>
+
+                    <section class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-green-100 rounded-xl flex items-center justify-center">
+                                <app-icon name="lock" class-name="w-4 h-4 text-green-600"></app-icon>
+                            </div>
+                            <h4 class="text-lg font-black text-slate-900">個人資料保護</h4>
+                        </div>
+                        <p class="text-slate-500 text-sm leading-relaxed font-medium">
+                            我們承諾不會在未經您許可的情況下，將您的個人資料提供給第三方，或用於非本平台服務之用途。您的球友卡資訊（如 NTRP 等級、地區）將公開顯示於平台大廳，以便其他球友與您聯繫。
+                        </p>
+                    </section>
+
+                    <section class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-amber-100 rounded-xl flex items-center justify-center">
+                                <app-icon name="user-check" class-name="w-4 h-4 text-amber-600"></app-icon>
+                            </div>
+                            <h4 class="text-lg font-black text-slate-900">使用者權利</h4>
+                        </div>
+                        <p class="text-slate-500 text-sm leading-relaxed font-medium">
+                            您可以隨時透過「個人設定」更新您的球友卡資訊。若您希望刪除帳號及所有相關資料，請聯繫系統管理員（Email: <a href="mailto:q8156697@gmail.com" class="text-blue-600 hover:underline">q8156697@gmail.com</a>），我們將在核對身分後為您處理。
+                        </p>
+                    </section>
+
+                    <section class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-purple-100 rounded-xl flex items-center justify-center">
+                                <app-icon name="alert-circle" class-name="w-4 h-4 text-purple-600"></app-icon>
+                            </div>
+                            <h4 class="text-lg font-black text-slate-900">免責聲明</h4>
+                        </div>
+                        <p class="text-slate-500 text-sm leading-relaxed font-medium">
+                            本平台僅提供約打媒合資訊，實際打球過程中的人身安全、場地糾紛或費用爭議，請由雙方自行協商解決，本平台不負法律責任。
+                        </p>
+                    </section>
+                </div>
+
+                {{-- Footer --}}
+                <div class="px-8 py-6 bg-slate-50 border-t border-slate-100 flex flex-col items-center gap-4">
+                    <button @click="$emit('update:modelValue', false)" class="w-full sm:w-auto px-10 py-3 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-blue-600 transition-all shadow-lg active:scale-95">
+                        我已瞭解
+                    </button>
+                    <a href="/privacy" @click.prevent="$emit('update:modelValue', false); navigateTo('privacy')" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-blue-600 transition-colors">
+                        查看完整版本政策
+                    </a>
+                </div>
+            </div>
+        </div>
+    </transition>
+</script>

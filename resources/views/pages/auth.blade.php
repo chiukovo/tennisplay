@@ -51,6 +51,10 @@
                         </div>
                     </div>
                 </div>
+
+                <p class="text-center text-[10px] text-slate-400 font-medium mt-4">
+                    登入即代表您同意我們的 <a href="/privacy" @click.prevent="navigateTo('privacy')" class="text-blue-500 hover:underline">隱私權政策</a>
+                </p>
             </div>
 
             <div class="mt-12 text-center">

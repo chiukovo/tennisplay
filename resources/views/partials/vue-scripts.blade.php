@@ -37,6 +37,7 @@ createApp({
         const messagesLimit = ref(20);
         const selectedChatUser = ref(null);
         const showMessageDetail = ref(false);
+        const showPrivacy = ref(false);
         const showPreview = ref(false);
         const showQuickEditModal = ref(false);
         const settingsForm = reactive({ default_region: '全部' });
@@ -100,10 +101,10 @@ createApp({
 
         // --- 3. Initialize Composables ---
         const { view, navigateTo, parseRoute } = useNavigation(
-            { '/': 'home', '/list': 'list', '/create': 'create', '/messages': 'messages', '/auth': 'auth', '/profile': 'profile', '/events': 'events', '/create-event': 'create-event' },
-            { 'home': '/', 'list': '/list', 'create': '/create', 'messages': '/messages', 'auth': '/auth', 'profile': '/profile', 'events': '/events', 'create-event': '/create-event' },
+            { '/': 'home', '/list': 'list', '/create': 'create', '/messages': 'messages', '/auth': 'auth', '/profile': 'profile', '/events': 'events', '/create-event': 'create-event', '/settings': 'settings', '/privacy': 'privacy' },
+            { 'home': '/', 'list': '/list', 'create': '/create', 'messages': '/messages', 'auth': '/auth', 'profile': '/profile', 'events': '/events', 'create-event': '/create-event', 'settings': '/settings', 'privacy': '/privacy' },
             { 
-                'home': 'LoveTennis | 全台最專業的網球約打媒合與球友卡社群', 'list': '球友大廳 | 發現您的最佳網球夥伴', 'create': '建立球友卡 | 展現您的網球風格', 'messages': '我的訊息 | 網球約打邀請管理', 'events': '揪球開團 | 搜尋全台網球場次', 'create-event': '發佈揪球 | 建立新的網球場次', 'auth': '登入/註冊 | 加入 LoveTennis 社群', 'profile': '個人主頁 | LoveTennis', 'settings': '帳號設置 | 個性化您的網球體驗' 
+                'home': 'LoveTennis | 全台最專業的網球約打媒合與球友卡社群', 'list': '球友大廳 | 發現您的最佳網球夥伴', 'create': '建立球友卡 | 展現您的網球風格', 'messages': '我的訊息 | 網球約打邀請管理', 'events': '揪球開團 | 搜尋全台網球場次', 'create-event': '發佈揪球 | 建立新的網球場次', 'auth': '登入/註冊 | 加入 LoveTennis 社群', 'profile': '個人主頁 | LoveTennis', 'settings': '帳號設置 | 個性化您的網球體驗', 'privacy': '隱私權政策 | LoveTennis' 
             },
             showToast,
             (viewName) => applyDefaultFilters(viewName),
@@ -685,7 +686,7 @@ createApp({
             form, eventForm, currentStep, stepAttempted, isAdjustingPhoto, isAdjustingSig, isCapturing,
             searchQuery, searchDraft, selectedRegion, currentPage, perPage, matchModal, detailPlayer,
             eventFilter, eventRegionFilter, eventSearchQuery, eventSearchDraft, eventDateFilter, eventTimePeriodFilter, eventCurrentPage, eventPerPage, showEventDetail, activeEvent, eventComments, eventCommentDraft,
-            showNtrpGuide, showMessageDetail, selectedChatUser, isLoading,
+            showNtrpGuide, showPrivacy, showMessageDetail, selectedChatUser, isLoading,
             showPreview, showQuickEditModal, features, cardThemes,
             settingsForm, isSavingSettings, toasts, confirmDialog, dragInfo,
             profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,

@@ -637,3 +637,9 @@ const EventDetailModal = {
         return { formatEventDate, formatDate, openProfile };
     }
 };
+const PrivacyModal = {
+    props: ['modelValue', 'navigateTo'],
+    components: { AppIcon },
+    template: '#privacy-modal-template',
+    emits: ['update:modelValue']
+};

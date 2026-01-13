@@ -41,10 +41,7 @@
     @endif
 
     {{-- Favicon --}}
-
     <link rel="icon" type="image/x-icon" href="/img/favicon/favicon.ico">
-
-
     <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon/favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/img/favicon/apple-touch-icon.png">
@@ -58,13 +55,12 @@
     <script src="/vendor/tailwind/tailwind.js"></script>
     <link rel="stylesheet" href="/vendor/animate/animate.min.css"/>
     
-    {{-- External Scripts (Loaded in head for reliability) --}}
+    {{-- External Scripts --}}
     <script src="/vendor/axios/axios.min.js"></script>
     <script src="/vendor/moveable/moveable.min.js" defer></script>
     <script src="/vendor/html2canvas/html2canvas.min.js" defer></script>
     
     @include('partials.styles')
-
 </head>
 <body class="bg-slate-50 text-slate-900 leading-normal">
 
@@ -87,7 +83,24 @@
         @include('pages.events')
         @include('pages.create-event')
         @include('pages.settings')
+        @include('pages.privacy')
     </main>
+
+    {{-- Footer --}}
+    <footer class="max-w-6xl mx-auto px-4 py-12 pb-40 sm:pb-20 border-t border-slate-200">
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-3">
+                <img src="/img/logo.png" alt="LoveTennis" class="w-8 h-8 opacity-50 grayscale">
+                <div class="text-slate-400 text-xs font-bold uppercase tracking-widest">
+                    Copyright © 2026 chiuko. All rights reserved.
+                </div>
+            </div>
+            <div class="flex items-center gap-8">
+                <a href="/privacy" @click.prevent="navigateTo('privacy')" class="text-slate-400 hover:text-blue-600 text-xs font-bold uppercase tracking-widest transition-colors">隱私權政策</a>
+                <a href="/sitemap.xml" target="_blank" class="text-slate-400 hover:text-blue-600 text-xs font-bold uppercase tracking-widest transition-colors">網站地圖</a>
+            </div>
+        </div>
+    </footer>
 
     {{-- Modal Components --}}
     <player-detail-modal :player="detailPlayer" @update:player="handlePlayerUpdate" :players="filteredPlayers" :stats="getDetailStats(detailPlayer)" :is-logged-in="isLoggedIn" :show-toast="showToast" :navigate-to="navigateTo" @close="detailPlayer = null" @open-match="p => { detailPlayer = null; openMatchModal(p); }" @open-profile="uid => { detailPlayer = null; openProfile(uid); }"></player-detail-modal>
@@ -98,14 +111,18 @@
         v-model:open="showEventDetail" 
         :event="activeEvent" 
         :comments="eventComments" 
-        v-model:comment-draft="eventCommentDraft"
+        :comment-draft="eventCommentDraft"
         :current-user="currentUser"
-        @join="joinEvent" 
+        @update:comment-draft="v => eventCommentDraft = v"
+        @like="toggleEventLike"
+        @join="joinEvent"
         @leave="leaveEvent"
-        @comment="submitEventComment"
+        @comment="postEventComment"
         @delete-comment="deleteEventComment"
-        @open-profile="uid => { showEventDetail = false; openProfile(uid); }"
-    ></event-detail-modal>
+        @open-profile="openProfile"
+        @close="showEventDetail = false">
+    </event-detail-modal>
+    <privacy-modal v-model="showPrivacy" :navigate-to="navigateTo"></privacy-modal>
 
     {{-- Global Loading Overlay --}}
     <div v-if="isLoading" class="fixed inset-0 bg-slate-950/50 backdrop-blur-sm z-[200] flex items-center justify-center">

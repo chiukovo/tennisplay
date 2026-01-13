@@ -48,6 +48,10 @@ $seoData = [
     'settings' => [
         'title' => '帳號設置 | 個性化您的網球體驗 | LoveTennis',
         'description' => '調整預設地區與帳號偏好，享受最直覺的網球媒合服務。',
+    ],
+    'privacy' => [
+        'title' => '隱私權政策 | LoveTennis',
+        'description' => '了解 LoveTennis 如何保護您的個人資料與使用規範。',
     ]
 ];
 
@@ -126,6 +130,10 @@ Route::get('/settings', function () use ($seoData) {
     return view('index', ['seo' => $seoData['settings']]);
 });
 
+Route::get('/privacy', function () use ($seoData) {
+    return view('index', ['seo' => $seoData['privacy']]);
+});
+
 Route::get('/profile/{uid}', function ($uid) use ($seoData) {
     return view('index', [
         'seo' => [
@@ -152,6 +160,7 @@ Route::get('/sitemap.xml', function () {
         url('/mycards'),
         url('/create-event'),
         url('/settings'),
+        url('/privacy'),
     ];
 
     $eventUrls = \App\Models\Event::select('id', 'updated_at')

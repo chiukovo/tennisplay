@@ -11,6 +11,19 @@ const useAuth = (showToast, navigateTo, initSettings, isLoggedIn, currentUser, s
 
     // 安全機制：如果在 5 秒內沒有完成驗證（可能 JS 錯誤或參數遺失），強制關閉 Loading
     if (hasLineToken) {
+        setTimeout(() => {
+            if (isAuthLoading.value) {
+                isAuthLoading.value = false;
+                console.warn('Auth loading timed out, forcing close.');
+            }
+        }, 5000);
+    }
+
+    const checkAuth = (loadMessages, loadMyCards) => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const lineToken = urlParams.get('line_token');
+        const lineUser = urlParams.get('line_user');
+        
         if (lineToken && lineUser) {
             isAuthLoading.value = true;
             try {

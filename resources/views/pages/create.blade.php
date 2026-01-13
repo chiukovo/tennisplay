@@ -58,7 +58,7 @@
                                         <button type="button" @click="isAdjustingPhoto = false" class="bg-blue-600 text-white px-5 py-2 rounded-full text-xs font-black uppercase tracking-widest shadow-lg hover:bg-blue-500 transition-all">✓ 完成調整</button>
                                     </div>
                                     {{-- Larger, interactive preview --}}
-                                    <div :class="['relative w-full max-w-[320px] mx-auto aspect-[2.5/3.5] rounded-2xl overflow-hidden shadow-2xl border-4 border-white cursor-move touch-none bg-slate-100', isAdjustingPhoto ? 'touch-none' : '']"
+                                    <div class="relative w-full max-w-[320px] mx-auto aspect-[2.5/3.5] rounded-2xl overflow-hidden shadow-2xl border-4 border-white cursor-move bg-slate-100"
                                         @mousedown="startDrag($event, 'photo')" @touchstart="startDrag($event, 'photo')">
                                         <img :src="getUrl(form.photo)" 
                                             class="absolute inset-0 w-full h-full object-contain pointer-events-none"

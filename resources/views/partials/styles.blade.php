@@ -222,7 +222,6 @@
         --color2: rgb(255, 0, 231);
         position: relative;
         z-index: 10;
-        touch-action: none;
         isolation: isolate;
         transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease;
         will-change: transform, filter;

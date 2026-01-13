@@ -732,6 +732,17 @@ createApp({
             }
         }, { immediate: true });
 
+        onMounted(() => {
+            checkAuth(loadMessages, loadMyCards);
+            
+            // Initial data load if viewing lobby/events
+            if (view.value === 'list') {
+                loadPlayers({ page: 1, search: '', region: selectedRegion.value !== '全部' ? selectedRegion.value : '' });
+            } else if (view.value === 'events') {
+                loadEvents({ page: 1 });
+            }
+        });
+
         watch(currentStep, () => {
             if (isAdjustingSig.value) {
                 isAdjustingSig.value = false;

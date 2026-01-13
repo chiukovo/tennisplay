@@ -19,45 +19,66 @@ const useAuth = (showToast, navigateTo, initSettings, isLoggedIn, currentUser, s
         }, 5000);
     }
 
-    const checkAuth = (loadMessages, loadMyCards) => {
+    const checkAuth = async (loadMessages, loadMyCards) => {
         const urlParams = new URLSearchParams(window.location.search);
         const lineToken = urlParams.get('line_token');
         const lineUser = urlParams.get('line_user');
         
-        if (lineToken && lineUser) {
+        if (lineToken) {
             isAuthLoading.value = true;
-            try {
-                const userData = JSON.parse(lineUser);
-                localStorage.setItem('auth_token', lineToken);
-                localStorage.setItem('auth_user', lineUser);
-                // 收到 user 指示：不用倒數，直接一直 loading，因為完成會跳轉 (重整)
-                // 使用 location.href 進行重整，讓 Loading 畫面持續直到頁面刷新
+            localStorage.setItem('auth_token', lineToken);
+            
+            let success = false;
+
+            // 1. 嘗試快速登入 (如果有 line_user 參數)
+            if (lineUser) {
+                try {
+                    const userData = JSON.parse(lineUser);
+                    localStorage.setItem('auth_user', lineUser);
+                    currentUser.value = userData;
+                    isLoggedIn.value = true;
+                    success = true;
+                } catch (e) {
+                    console.error('JSON parse error:', e);
+                }
+            }
+
+            // 2. 如果沒有 line_user 或解析失敗，嘗試從後端獲取 (Mobile Fallback)
+            if (!success) {
+                await refreshUserData(); // 這會更新 currentUser
+                if (currentUser.value) {
+                    isLoggedIn.value = true;
+                    success = true;
+                }
+            }
+
+            // 3. 結果處理
+            if (success) {
+                if (initSettings) initSettings();
+                // 登入成功，強制重整跳回首頁
                 window.location.href = '/';
-            } catch (e) {
-                console.error('Login error:', e);
-                // 只有失敗時才關閉 Loading
+            } else {
+                // 登入失敗 (Token 無效或網路錯誤)
+                console.error('Login failed after retry');
                 isAuthLoading.value = false;
+                localStorage.removeItem('auth_token'); // 清除無效 Token
                 if (document.getElementById('auth-preloader')) document.getElementById('auth-preloader').style.display = 'none';
             }
-        } else if (lineToken) {
-            // 有 Token 但沒有 User 資料 (可能是 URL 截斷或其他錯誤)
-            isAuthLoading.value = false;
-            if (document.getElementById('auth-preloader')) document.getElementById('auth-preloader').style.display = 'none';
-        }
-
-        const token = localStorage.getItem('auth_token');
-        const user = localStorage.getItem('auth_user');
-        if (token && user) {
-            isLoggedIn.value = true;
-            try {
-                currentUser.value = JSON.parse(user);
-                if (initSettings) initSettings();
-            } catch (e) {}
-            if (loadMessages) loadMessages();
-            if (loadMyCards) loadMyCards();
-            
-            // 背景同步獲取最新用戶資料 (解決跨設備照片 URL 過期問題)
-            refreshUserData();
+        } else {
+            // 一般頁面載入檢查 (無 URL 參數)
+            const token = localStorage.getItem('auth_token');
+            const user = localStorage.getItem('auth_user');
+            if (token && user) {
+                isLoggedIn.value = true;
+                try {
+                    currentUser.value = JSON.parse(user);
+                    if (initSettings) initSettings();
+                } catch (e) {}
+                if (loadMessages) loadMessages();
+                if (loadMyCards) loadMyCards();
+                
+                refreshUserData();
+            }
         }
     };
 

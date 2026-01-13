@@ -49,7 +49,7 @@
                     <app-icon name="calendar" class-name="w-5 h-5"></app-icon>
                 </div>
                 <input type="date" v-model="eventDateFilter" 
-                    class="w-full sm:w-64 pl-12 pr-10 py-4 bg-slate-50 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none font-black text-base uppercase tracking-wide transition-all">
+                    class="w-full sm:w-64 pl-12 pr-10 py-3 sm:py-4 bg-slate-50 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none font-black text-sm sm:text-base uppercase tracking-wide transition-all">
                 <button v-if="eventDateFilter" @click="eventDateFilter = ''" 
                     class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors">
                     <app-icon name="x" class-name="w-4 h-4"></app-icon>
@@ -57,15 +57,15 @@
             </div>
 
             {{-- Time Period Tabs --}}
-            <div class="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-50 rounded-2xl w-full sm:w-auto">
+            <div class="flex flex-nowrap items-center gap-1 p-1 bg-slate-50 rounded-2xl w-full sm:w-auto overflow-x-auto no-scrollbar">
                 <button v-for="t in [
                     {val: 'all', label: '全部'},
-                    {val: 'morning', label: '早上'},
+                    {val: 'morning', label: '上午'},
                     {val: 'afternoon', label: '下午'},
                     {val: 'evening', label: '晚上'},
-                    {val: 'late-night', label: '半夜'}
+                    {val: 'late-night', label: '凌晨'}
                 ]" :key="t.val" @click="eventTimePeriodFilter = t.val"
-                    :class="['px-5 py-2.5 rounded-xl font-black text-sm uppercase tracking-widest transition-all', 
+                    :class="['px-4 sm:px-5 py-2.5 rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all whitespace-nowrap shrink-0', 
                         eventTimePeriodFilter === t.val ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600']">
                     @{{ t.label }}
                 </button>

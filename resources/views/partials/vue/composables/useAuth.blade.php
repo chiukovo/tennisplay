@@ -5,6 +5,7 @@ const useAuth = (showToast, navigateTo, initSettings, isLoggedIn, currentUser, s
     const isLoginMode = ref(true);
     const showUserMenu = ref(false);
     const isSavingSettings = ref(false);
+    const isAuthLoading = ref(false); // LINE 登入時的 Loading 狀態
 
     const checkAuth = (loadMessages, loadMyCards) => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -12,6 +13,7 @@ const useAuth = (showToast, navigateTo, initSettings, isLoggedIn, currentUser, s
         const lineUser = urlParams.get('line_user');
         
         if (lineToken && lineUser) {
+            isAuthLoading.value = true; // 開始 Loading
             try {
                 const userData = JSON.parse(lineUser);
                 localStorage.setItem('auth_token', lineToken);
@@ -23,8 +25,11 @@ const useAuth = (showToast, navigateTo, initSettings, isLoggedIn, currentUser, s
                 if (loadMessages) loadMessages();
                 if (loadMyCards) loadMyCards();
                 window.history.replaceState({}, document.title, '/');
+                isAuthLoading.value = false; // 結束 Loading
                 return;
-            } catch (e) {}
+            } catch (e) {
+                isAuthLoading.value = false;
+            }
         }
 
         const token = localStorage.getItem('auth_token');
@@ -47,9 +52,10 @@ const useAuth = (showToast, navigateTo, initSettings, isLoggedIn, currentUser, s
     const refreshUserData = async () => {
         try {
             const response = await api.get('/user');
-            if (response.data) {
-                currentUser.value = response.data;
-                localStorage.setItem('auth_user', JSON.stringify(response.data));
+            // 注意：API 返回格式是 { success: true, user: {...} }
+            if (response.data?.user) {
+                currentUser.value = response.data.user;
+                localStorage.setItem('auth_user', JSON.stringify(response.data.user));
             }
         } catch (error) {
             // Token 無效時自動登出
@@ -91,5 +97,5 @@ const useAuth = (showToast, navigateTo, initSettings, isLoggedIn, currentUser, s
         }
     };
 
-    return { isLoginMode, showUserMenu, isSavingSettings, checkAuth, logout, saveSettings };
+    return { isLoginMode, showUserMenu, isSavingSettings, isAuthLoading, checkAuth, logout, saveSettings };
 };

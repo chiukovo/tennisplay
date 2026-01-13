@@ -113,7 +113,7 @@ createApp({
         );
 
         const { 
-            isLoginMode, showUserMenu, isSavingSettings, 
+            isLoginMode, showUserMenu, isSavingSettings, isAuthLoading,
             checkAuth, logout, saveSettings 
         } = useAuth(showToast, (v, s, i) => navigateTo(v, s, i), () => initSettings(), isLoggedIn, currentUser, settingsForm);
 
@@ -696,7 +696,7 @@ createApp({
             form, eventForm, currentStep, stepAttempted, isAdjustingPhoto, isAdjustingSig, isCapturing,
             searchQuery, searchDraft, selectedRegion, currentPage, perPage, matchModal, detailPlayer,
             eventFilter, eventRegionFilter, eventSearchQuery, eventSearchDraft, eventDateFilter, eventTimePeriodFilter, eventCurrentPage, eventPerPage, showEventDetail, activeEvent, eventComments, eventCommentDraft,
-            showNtrpGuide, showPrivacy, showMessageDetail, selectedChatUser, isLoading,
+            showNtrpGuide, showPrivacy, showMessageDetail, selectedChatUser, isLoading, isAuthLoading,
             showPreview, showQuickEditModal, features, cardThemes,
             settingsForm, isSavingSettings, toasts, confirmDialog, dragInfo,
             profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,

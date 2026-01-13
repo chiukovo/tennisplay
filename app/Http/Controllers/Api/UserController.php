@@ -18,6 +18,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'settings' => 'required|array',
             'settings.default_region' => 'nullable|string',
+            'settings.notify_line' => 'nullable|boolean',
         ]);
 
         $settings = $user->settings ?? [];

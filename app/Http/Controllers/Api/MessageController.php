@@ -138,11 +138,101 @@ class MessageController extends Controller
             if ($receiver && $receiver->line_user_id) {
                 $lineService = new \App\Services\LineNotifyService();
                 $senderName = $user->name ?: '一位球友';
-                $noticeText = "🎾 您收到一封新的約打邀約信！\n\n來自：{$senderName}\n內容：". \Illuminate\Support\Str::limit($request->content, 50) ."\n\n請登入 LoveTennis 查看詳情。";
-                $lineService->sendTextMessage($receiver->line_user_id, $noticeText);
+                $senderAvatar = $user->line_picture_url;
+                $shortContent = \Illuminate\Support\Str::limit($request->content, 100);
+                
+                // Construct Sender Box (Avatar + Name)
+                $senderBoxContents = [];
+                if ($senderAvatar) {
+                    $avatarUrl = str_starts_with($senderAvatar, 'http') ? $senderAvatar : asset($senderAvatar);
+                    $senderBoxContents[] = [
+                        "type" => "image",
+                        "url" => $avatarUrl,
+                        "size" => "xxs",
+                        "aspectMode" => "cover",
+                        "aspectRatio" => "1:1",
+                        "gravity" => "center",
+                        "flex" => 0,
+                        "cornerRadius" => "full"
+                    ];
+                }
+                $senderBoxContents[] = [
+                    "type" => "text",
+                    "text" => $senderName,
+                    "weight" => "bold",
+                    "size" => "sm",
+                    "gravity" => "center",
+                    "flex" => 1,
+                    "margin" => "md"
+                ];
+
+                // Flex Message Structure (Premium Card with Avatar)
+                $flexContents = [
+                    "type" => "bubble",
+                    "header" => [
+                        "type" => "box",
+                        "layout" => "vertical",
+                        "contents" => [
+                            [
+                                "type" => "text",
+                                "text" => "🎾 收到約打邀約",
+                                "weight" => "bold",
+                                "color" => "#FFFFFF",
+                                "size" => "md"
+                            ]
+                        ],
+                        "backgroundColor" => "#2563EB",
+                        "paddingAll" => "md"
+                    ],
+                    "body" => [
+                        "type" => "box",
+                        "layout" => "vertical",
+                        "contents" => [
+                            [
+                                "type" => "box",
+                                "layout" => "horizontal",
+                                "contents" => $senderBoxContents,
+                                "alignItems" => "center"
+                            ],
+                            [
+                                "type" => "separator",
+                                "margin" => "lg"
+                            ],
+                            [
+                                "type" => "text",
+                                "text" => $shortContent,
+                                "wrap" => true,
+                                "size" => "xs",
+                                "color" => "#64748B",
+                                "margin" => "lg"
+                            ]
+                        ],
+                        "paddingAll" => "lg"
+                    ],
+                    "footer" => [
+                        "type" => "box",
+                        "layout" => "vertical",
+                        "contents" => [
+                            [
+                                "type" => "button",
+                                "action" => [
+                                    "type" => "uri",
+                                    "label" => "立即查看訊息",
+                                    "uri" => "https://lovetennis.tw/messages"
+                                ],
+                                "style" => "primary",
+                                "color" => "#2563EB",
+                                "height" => "sm"
+                            ]
+                        ],
+                        "paddingAll" => "md"
+                    ]
+                ];
+
+                $lineService->sendFlexMessage($receiver->line_user_id, "🎾 您收到來自 {$senderName} 的約打邀約信", $flexContents);
             }
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Failed to send LINE notification: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Failed to send LINE Flex notification: ' . $e->getMessage());
         }
 
         return response()->json([

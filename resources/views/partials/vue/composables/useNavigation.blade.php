@@ -6,6 +6,7 @@ const useNavigation = (routes, routePaths, viewTitles, showToast, applyDefaultFi
 
     watch(view, (newView) => {
         if (viewTitles[newView]) document.title = viewTitles[newView];
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
     const navigateTo = (viewName, shouldReset = true, uid = null, resetForm = null, resetEventForm = null, loadProfile = null) => {

@@ -71,7 +71,10 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
                 resetForm(); navigateTo('list');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
-        } catch (error) { showToast('儲存失敗', 'error'); }
+        } catch (error) {
+            const msg = error.response?.data?.error || error.response?.data?.message || '儲存失敗';
+            showToast(msg, 'error');
+        }
     };
 
     const deleteCard = (cardId, view) => {
@@ -83,7 +86,10 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
                     await loadPlayers(); await loadMyCards();
                     if (view.value === 'profile' && loadProfile) loadProfile(currentUser.value.uid);
                     showToast('球友卡已刪除', 'info');
-                } catch (error) { showToast('刪除失敗', 'error'); }
+                } catch (error) {
+                    const msg = error.response?.data?.error || error.response?.data?.message || '刪除失敗';
+                    showToast(msg, 'error');
+                }
             }
         });
     };

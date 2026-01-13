@@ -313,7 +313,8 @@ const PlayerDetailModal = {
                 emit('update:player', { ...props.player, is_following: socialStatus.is_following });
                 props.showToast(response.data.message, 'success');
             } catch (error) {
-                props.showToast('操作失敗', 'error');
+                const msg = error.response?.data?.error || error.response?.data?.message || '操作失敗';
+                props.showToast(msg, 'error');
             }
         };
 
@@ -327,7 +328,8 @@ const PlayerDetailModal = {
                 emit('update:player', { ...props.player, is_liked: socialStatus.is_liked, likes_count: socialStatus.likes_count });
                 props.showToast(response.data.message, 'success');
             } catch (error) {
-                props.showToast('操作失敗', 'error');
+                const msg = error.response?.data?.error || error.response?.data?.message || '操作失敗';
+                props.showToast(msg, 'error');
             }
         };
 

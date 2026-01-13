@@ -125,7 +125,10 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
             profileData.status.is_following = !profileData.status.is_following;
             profileData.stats.followers_count = response.data.followers_count;
             showToast(response.data.message, 'success');
-        } catch (error) { showToast('操作失敗', 'error'); }
+        } catch (error) {
+            const msg = error.response?.data?.error || error.response?.data?.message || '操作失敗';
+            showToast(msg, 'error');
+        }
     };
 
     const toggleLike = async () => {
@@ -138,7 +141,10 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
             profileData.status.is_liked = !profileData.status.is_liked;
             profileData.stats.likes_count = response.data.likes_count;
             showToast(response.data.message, 'success');
-        } catch (error) { showToast('操作失敗', 'error'); }
+        } catch (error) {
+            const msg = error.response?.data?.error || error.response?.data?.message || '操作失敗';
+            showToast(msg, 'error');
+        }
     };
 
     const openProfile = (uid) => {

@@ -43,7 +43,10 @@ const useEvents = (isLoggedIn, showToast, navigateTo, formatLocalDateTime, event
             await loadEvents(); 
             navigateTo('events');
             window.scrollTo({ top: 0, behavior: 'smooth' });
-        } catch (error) { showToast('建立失敗', 'error'); } finally { eventSubmitting.value = false; }
+        } catch (error) {
+            const msg = error.response?.data?.error || error.response?.data?.message || '建立失敗';
+            showToast(msg, 'error');
+        } finally { eventSubmitting.value = false; }
     };
 
     const joinEvent = async (eventId) => {

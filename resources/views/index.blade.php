@@ -84,6 +84,7 @@
         @include('pages.create-event')
         @include('pages.settings')
         @include('pages.privacy')
+        @include('pages.sitemap')
     </main>
 
     {{-- Footer --}}
@@ -97,7 +98,7 @@
             </div>
             <div class="flex items-center gap-8">
                 <a href="/privacy" @click.prevent="navigateTo('privacy')" class="text-slate-400 hover:text-blue-600 text-xs font-bold uppercase tracking-widest transition-colors">隱私權政策</a>
-                <a href="/sitemap.xml" target="_blank" class="text-slate-400 hover:text-blue-600 text-xs font-bold uppercase tracking-widest transition-colors">網站地圖</a>
+                <a href="/sitemap" @click.prevent="navigateTo('sitemap')" class="text-slate-400 hover:text-blue-600 text-xs font-bold uppercase tracking-widest transition-colors">網站地圖</a>
             </div>
         </div>
     </footer>
@@ -136,7 +137,7 @@
     </div>
 
     {{-- Toast Notifications --}}
-    <div class="fixed bottom-28 left-4 right-4 sm:left-auto sm:right-8 sm:bottom-8 z-[180] space-y-3">
+    <div class="fixed bottom-28 left-4 right-4 sm:left-auto sm:right-8 sm:bottom-8 z-[1000] space-y-3">
         <transition-group name="toast">
             <div v-for="toast in toasts" :key="toast.id" 
                 :class="['px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 w-full sm:w-auto sm:min-w-[280px] sm:max-w-md',

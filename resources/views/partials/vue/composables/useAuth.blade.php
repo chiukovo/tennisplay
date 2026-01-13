@@ -27,11 +27,14 @@ const useAuth = (showToast, navigateTo, initSettings, isLoggedIn, currentUser, s
                 if (loadMessages) loadMessages();
                 if (loadMyCards) loadMyCards();
                 window.history.replaceState({}, document.title, '/');
-                isAuthLoading.value = false; // 結束 Loading
-                return;
             } catch (e) {
-                isAuthLoading.value = false;
+                console.error('Login error:', e);
+            } finally {
+                isAuthLoading.value = false; // 確保一定會結束 Loading
             }
+        } else if (lineToken) {
+            // 有 Token 但沒有 User 資料 (可能是 URL 截斷或其他錯誤)
+            isAuthLoading.value = false;
         }
 
         const token = localStorage.getItem('auth_token');

@@ -209,7 +209,7 @@ createApp({
                 photoScale: card.photo_scale || 1, sigX: card.sig_x ?? 50, sigY: card.sig_y ?? 50,
                 sigScale: card.sig_scale || 1, sigRotate: card.sig_rotate || 0, sigWidth: card.sig_width || 100, sigHeight: card.sig_height || 100,
             });
-            currentStep.value = 4;
+            currentStep.value = 1; // Start from step 1 when editing
             navigateTo('create', false);
         };
 
@@ -706,6 +706,8 @@ createApp({
             // Event modal compatibility aliases
             toggleEventLike: (eventId) => {}, // Placeholder - likes are not yet implemented for events
             postEventComment: () => submitEventComment(),
+            // Profile methods with edit mode support
+            openProfileWithEdit: () => { loadProfile(currentUser.value.uid, loadProfileEvents, true); navigateTo('profile', false, currentUser.value.uid); },
             loadProfile, loadProfileEvents, saveProfile, openProfile, toggleFollow, toggleLike,
             loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment,
             loadMessages, markMessageRead, openMessage, onMessageSent, loadMoreMessages,

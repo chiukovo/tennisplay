@@ -148,6 +148,13 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
     };
 
     const openProfile = (uid) => {
+        // Clear existing data to force refresh display
+        profileData.user = { player: null };
+        profileEvents.value = [];
+        profileEventsPage.value = 1;
+        isEditingProfile.value = false;
+        
+        // Load fresh data
         loadProfile(uid, loadProfileEvents);
         navigateTo('profile', true, uid);
     };

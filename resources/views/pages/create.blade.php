@@ -44,7 +44,7 @@
                                     <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">@{{ currentUser?.gender }} · @{{ currentUser?.region }}</p>
                                 </div>
                             </div>
-                            <button type="button" @click="navigateTo('profile')" class="text-blue-600 text-[10px] font-black uppercase tracking-widest hover:underline">修改基本資料</button>
+                            <button type="button" @click="openProfileWithEdit()" class="text-blue-600 text-[10px] font-black uppercase tracking-widest hover:underline">修改基本資料</button>
                         </div>
 
                         {{-- Photo Section --}}

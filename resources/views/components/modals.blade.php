@@ -618,16 +618,10 @@
                         </div>
                     </div>
 
-                    {{-- Intro & Fee --}}
-                    <div class="space-y-6">
-                        <div class="space-y-3">
-                            <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">約打宣告 / 個人特色</label>
-                            <textarea v-model="form.intro" rows="3" class="w-full px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-blue-500 outline-none font-bold text-sm leading-relaxed" placeholder="分享一下您的打法特色..."></textarea>
-                        </div>
-                        <div class="space-y-3">
-                            <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">約打費用說明</label>
-                            <input type="text" v-model="form.fee" class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-blue-500 outline-none font-black italic text-base transition-all" placeholder="例如：免費、場租均分...">
-                        </div>
+                    {{-- Intro --}}
+                    <div class="space-y-3">
+                        <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">約打宣告 / 個人特色</label>
+                        <textarea v-model="form.intro" rows="3" class="w-full px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-blue-500 outline-none font-bold text-sm leading-relaxed" placeholder="分享一下您的打法特色..."></textarea>
                     </div>
                 </div>
 

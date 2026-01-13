@@ -774,14 +774,16 @@ createApp({
             });
         });
         watch(eventCurrentPage, (newPage) => {
-            loadEvents({ 
-                search: eventSearchQuery.value, 
-                region: eventRegionFilter.value, 
-                match_type: eventFilter.value,
-                start_date: eventStartDate.value,
-                end_date: eventEndDate.value,
-                page: newPage 
-            });
+            if (typeof loadEvents === 'function') {
+                loadEvents({ 
+                    search: eventSearchQuery.value, 
+                    region: eventRegionFilter.value, 
+                    match_type: eventFilter.value,
+                    start_date: eventStartDate.value,
+                    end_date: eventEndDate.value,
+                    page: newPage 
+                });
+            }
         });
 
         return {
@@ -804,9 +806,11 @@ createApp({
             canProceedStep1, canProceedStep2, canProceedStep3, canGoToStep,
             // Methods
             navigateTo: navigateToWithProfile, logout, checkAuth, saveSettings, loadPlayers, loadMyCards, saveCard: handleSaveCard, deleteCard, editCard, resetForm, resetFormFull,
-            loadEvents, createEvent, updateEvent, deleteEvent: handleDeleteEvent, resetEventForm, openEventDetail, submitEventComment, deleteEventComment, setDateRange, editEvent, submitEvent, joinEvent, leaveEvent,
+            loadEvents, createEvent, updateEvent, deleteEvent: handleDeleteEvent, resetEventForm, openEventDetail, submitEventComment, deleteEventComment, setDateRange, editEvent, submitEvent, 
+            joinEvent, 
+            leaveEvent,
             // Event modal compatibility aliases
-            toggleEventLike: (eventId) => {}, // Placeholder - likes are not yet implemented for events
+            toggleEventLike: (eventId) => {}, 
             postEventComment: () => submitEventComment(),
             // Profile methods with edit mode support
             openProfileWithEdit: () => { loadProfile(currentUser.value.uid, loadProfileEvents, true); navigateTo('profile', false, currentUser.value.uid); },

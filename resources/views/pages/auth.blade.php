@@ -5,6 +5,16 @@
         <div class="absolute top-0 right-0 w-32 h-32 bg-green-500/5 blur-[60px] rounded-full"></div>
         <div class="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/5 blur-[60px] rounded-full"></div>
 
+        {{-- Loading Overlay --}}
+        <div v-if="isAuthLoading" class="absolute inset-0 z-50 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center animate__animated animate__fadeIn">
+            <div class="relative w-16 h-16 mb-6">
+                <div class="absolute inset-0 border-4 border-slate-100 rounded-full"></div>
+                <div class="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
+            </div>
+            <h3 class="text-xl font-black italic uppercase tracking-tighter text-slate-900 mb-2">正在登入中</h3>
+            <p class="text-slate-400 text-xs font-bold uppercase tracking-widest animate-pulse">Verifying credentials...</p>
+        </div>
+
         <div class="relative z-10">
             <div class="text-center mb-12">
                 <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-[28px] mb-6 shadow-xl border border-slate-100 overflow-hidden">

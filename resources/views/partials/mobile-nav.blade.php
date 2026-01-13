@@ -21,11 +21,14 @@
         </a>
     </div>
 
-    {{-- Events --}}
-    <a href="/events" @click.prevent="navigateTo('events')" class="flex-1 flex flex-col items-center gap-0.5 py-1.5 rounded-xl transition-all relative" :class="view === 'events' || view === 'create-event' ? 'text-blue-400' : 'text-slate-500'">
-        <app-icon name="calendar" class-name="w-4 h-4"></app-icon>
-        <span class="text-[7px] font-black uppercase tracking-widest">開團</span>
-        <div v-if="view === 'events' || view === 'create-event'" class="absolute -bottom-0.5 w-1 h-1 bg-blue-400 rounded-full"></div>
+    {{-- Messages --}}
+    <a href="/messages" @click.prevent="navigateTo('messages')" class="flex-1 flex flex-col items-center gap-0.5 py-1.5 rounded-xl transition-all relative" :class="view === 'messages' ? 'text-blue-400' : 'text-slate-500'">
+        <div class="relative">
+            <app-icon name="message-circle" class-name="w-4 h-4"></app-icon>
+            <div v-if="hasUnread" class="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-red-500 rounded-full border border-slate-950"></div>
+        </div>
+        <span class="text-[7px] font-black uppercase tracking-widest">訊息</span>
+        <div v-if="view === 'messages'" class="absolute -bottom-0.5 w-1 h-1 bg-blue-400 rounded-full"></div>
     </a>
 
     {{-- Profile / Auth --}}

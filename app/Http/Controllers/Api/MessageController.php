@@ -155,8 +155,7 @@ class MessageController extends Controller
                         "aspectMode" => "cover",
                         "aspectRatio" => "1:1",
                         "gravity" => "center",
-                        "flex" => 0,
-                        "cornerRadius" => "full"
+                        "flex" => 0
                     ];
                 }
                 $senderBoxContents[] = [

@@ -9,12 +9,22 @@
                 <h1 class="text-lg font-black italic uppercase tracking-tight text-slate-900 whitespace-nowrap">個人主頁</h1>
             </div>
             <div v-if="profileData.status?.is_me" class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                <button v-if="!isEditingProfile" @click="isEditingProfile = true" class="px-3 sm:px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm whitespace-nowrap">
-                    編輯資料
-                </button>
-                <button v-if="!isEditingProfile && profileData.user?.player" @click="editCard(profileData.user.player)" class="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-sm whitespace-nowrap">
-                    編輯卡片樣式
-                </button>
+                <template v-if="isEditingProfile">
+                    <button @click="isEditingProfile = false" class="px-3 sm:px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm whitespace-nowrap">
+                        取消
+                    </button>
+                    <button @click="saveProfile" class="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-sm whitespace-nowrap">
+                        保存
+                    </button>
+                </template>
+                <template v-else>
+                    <button @click="isEditingProfile = true" class="px-3 sm:px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm whitespace-nowrap">
+                        編輯資料
+                    </button>
+                    <button v-if="profileData.user?.player" @click="editCard(profileData.user.player)" class="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-sm whitespace-nowrap">
+                        編輯卡片樣式
+                    </button>
+                </template>
             </div>
         </div>
     </div>

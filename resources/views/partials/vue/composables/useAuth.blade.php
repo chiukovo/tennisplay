@@ -41,10 +41,12 @@ const useAuth = (showToast, navigateTo, initSettings, isLoggedIn, currentUser, s
                 console.error('Login error:', e);
             } finally {
                 isAuthLoading.value = false; // 確保一定會結束 Loading
+                if (document.getElementById('auth-preloader')) document.getElementById('auth-preloader').style.display = 'none';
             }
         } else if (lineToken) {
             // 有 Token 但沒有 User 資料 (可能是 URL 截斷或其他錯誤)
             isAuthLoading.value = false;
+            if (document.getElementById('auth-preloader')) document.getElementById('auth-preloader').style.display = 'none';
         }
 
         const token = localStorage.getItem('auth_token');

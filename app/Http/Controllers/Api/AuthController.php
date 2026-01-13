@@ -48,10 +48,11 @@ class AuthController extends Controller
         $params = http_build_query([
             'response_type' => 'code',
             'client_id' => config('services.line.client_id'),
-            'redirect_uri' => config('services.line.redirect'),
+            'redirect_uri' => route('line.callback'),
             'state' => $state,
             'scope' => 'profile openid',
             'bot_prompt' => 'normal',
+            'prompt' => 'consent', // Force consent screen to help with some mobile issues
         ]);
 
         return redirect('https://access.line.me/oauth2/v2.1/authorize?' . $params);
@@ -81,7 +82,7 @@ class AuthController extends Controller
             $tokenResponse = Http::asForm()->post('https://api.line.me/oauth2/v2.1/token', [
                 'grant_type' => 'authorization_code',
                 'code' => $request->code,
-                'redirect_uri' => config('services.line.redirect'),
+                'redirect_uri' => route('line.callback'),
                 'client_id' => config('services.line.client_id'),
                 'client_secret' => config('services.line.client_secret'),
             ]);

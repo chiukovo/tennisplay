@@ -33,8 +33,25 @@ class EventController extends Controller
         }
 
         // Filter by match type
-        if ($request->has('match_type')) {
+        if ($request->has('match_type') && $request->match_type !== 'all') {
             $query->where('match_type', $request->match_type);
+        }
+
+        // Filter by date
+        if ($request->has('date') && $request->date) {
+            $query->whereDate('event_date', $request->date);
+        }
+
+        // Filter by time period
+        if ($request->has('time_period') && $request->time_period !== 'all') {
+            $query->where(function($q) use ($request) {
+                switch($request->time_period) {
+                    case 'morning': $q->whereRaw('HOUR(event_date) >= 6 AND HOUR(event_date) < 12'); break;
+                    case 'afternoon': $q->whereRaw('HOUR(event_date) >= 12 AND HOUR(event_date) < 18'); break;
+                    case 'evening': $q->whereRaw('HOUR(event_date) >= 18 AND HOUR(event_date) < 24'); break;
+                    case 'late-night': $q->whereRaw('HOUR(event_date) >= 0 AND HOUR(event_date) < 6'); break;
+                }
+            });
         }
 
         // Search

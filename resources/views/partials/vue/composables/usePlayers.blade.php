@@ -5,15 +5,31 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
     const players = ref([]);
     const myPlayers = ref([]);
     const isPlayersLoading = ref(false);
+    const playersPagination = ref({ total: 0, current_page: 1, last_page: 1, per_page: 12 });
 
-    const loadPlayers = async () => {
+    const loadPlayers = async (params = {}) => {
         isPlayersLoading.value = true;
         try {
-            const response = await api.get('/players?per_page=1000');
+            // Default per_page to 12 for better grid layout (4x3)
+            const response = await api.get('/players', { 
+                params: { per_page: 12, ...params } 
+            });
             if (response.data.success) {
                 const data = response.data.data;
-                const rawPlayers = Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []);
-                players.value = rawPlayers.filter(p => p && p.id);
+                if (data.data) {
+                    // Paginated response
+                    players.value = data.data.filter(p => p && p.id);
+                    playersPagination.value = {
+                        total: data.total,
+                        current_page: data.current_page,
+                        last_page: data.last_page,
+                        per_page: data.per_page
+                    };
+                } else {
+                    // Non-paginated fallback
+                    players.value = (Array.isArray(data) ? data : []).filter(p => p && p.id);
+                    playersPagination.value = { total: players.value.length, current_page: 1, last_page: 1, per_page: 1000 };
+                }
             }
         } catch (error) {} finally { isPlayersLoading.value = false; }
     };
@@ -71,5 +87,5 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
         });
     };
 
-    return { players, myPlayers, isPlayersLoading, loadPlayers, loadMyCards, saveCard, deleteCard };
+    return { players, myPlayers, isPlayersLoading, playersPagination, loadPlayers, loadMyCards, saveCard, deleteCard };
 };

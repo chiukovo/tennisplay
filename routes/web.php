@@ -137,7 +137,7 @@ Route::get('/profile/{uid}', function ($uid) use ($seoData) {
 
 // SEO helpers
 Route::get('/robots.txt', function () {
-    $content = "User-agent: *\nAllow: /\nSitemap: " . url('/sitemap.xml');
+    $content = "User-agent: *\nDisallow: /";
     return response($content, 200)->header('Content-Type', 'text/plain');
 });
 

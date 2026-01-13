@@ -115,7 +115,7 @@ class Player extends Model
      */
     public function scopeInRegion($query, $region)
     {
-        if ($region && $region !== '全部') {
+        if ($region && !in_array($region, ['全部', 'all'])) {
             return $query->where('region', $region);
         }
         return $query;

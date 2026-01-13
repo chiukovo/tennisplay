@@ -37,7 +37,7 @@
         @mousemove="handleMove"
         @touchmove.passive="handleMove"
         @mouseleave="handleLeave"
-        :class="[size === 'sm' ? 'w-full aspect-[2.5/3.8]' : 'w-full max-w-[320px] aspect-[2.5/3.8]']">
+        :class="[size === 'sm' ? 'w-full aspect-[2.5/3.8]' : 'w-full max-w-[450px] aspect-[2.5/3.8]']">
         
         <div :class="['holo-card-wrapper w-full h-full card-holo transition-all duration-300 relative', 
                       isAnimated ? 'animated' : '',

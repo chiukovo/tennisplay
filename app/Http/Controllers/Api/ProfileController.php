@@ -100,12 +100,12 @@ class ProfileController extends Controller
             ->where('user_id', $user->id);
 
         if ($type === 'active') {
-            $query->where('event_date', '>=', now())
+            $query->where('event_date', '>=', now()->startOfDay())
                   ->whereIn('status', ['open', 'full'])
                   ->orderBy('event_date', 'asc');
         } else {
             $query->where(function($q) {
-                $q->where('event_date', '<', now())
+                $q->where('event_date', '<', now()->startOfDay())
                   ->orWhereIn('status', ['completed', 'cancelled']);
             })->orderBy('event_date', 'desc');
         }

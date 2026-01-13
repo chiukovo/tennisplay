@@ -15,37 +15,42 @@
                 <p class="text-slate-400 font-bold text-xs sm:text-base uppercase tracking-[0.2em] mt-1">Find your matching LoveTennis</p>
             </div>
             <div class="text-right">
-                <div class="text-2xl font-black text-blue-600">@{{ filteredPlayers.length }}</div>
+                <div class="text-2xl font-black text-blue-600">@{{ playersPagination.total }}</div>
                 <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">位球友</div>
             </div>
         </div>
         
         {{-- Search Bar --}}
-        <div class="relative">
-            <app-icon name="search" class-name="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-5 h-5"></app-icon>
-            <input type="text" v-model="searchQuery" placeholder="搜尋姓名、程度或地區..." class="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 font-bold text-base transition-all">
+        <div class="relative flex gap-2">
+            <div class="relative flex-1">
+                <app-icon name="search" class-name="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-5 h-5"></app-icon>
+                <input type="text" v-model="searchDraft" @keyup.enter="handleSearch" placeholder="搜尋姓名、程度或地區..." class="w-full pl-12 pr-4 py-3 sm:py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 font-bold text-base transition-all">
+            </div>
+            <button @click="handleSearch" class="px-5 sm:px-8 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-sm sm:text-base hover:bg-blue-600 transition-all shadow-lg active:scale-95">
+                搜尋
+            </button>
         </div>
     </div>
 
     {{-- Region Filter Tabs (Scrollable on Mobile) --}}
     <div class="flex overflow-x-auto no-scrollbar gap-2 pb-2 -mx-4 px-4">
         <button type="button" @click="selectedRegion = '全部'" 
-            :class="['px-4 py-2.5 rounded-full font-black text-xs uppercase tracking-widest whitespace-nowrap transition-all border-2', 
+            :class="['px-4 py-2.5 rounded-full font-black text-sm uppercase tracking-widest whitespace-nowrap transition-all border-2', 
             selectedRegion === '全部' ? 'bg-slate-900 text-white border-slate-900 shadow-lg' : 'bg-white text-slate-400 border-slate-200 hover:border-slate-300']">
-            全部 <span class="ml-1 opacity-60">(@{{ players.length }})</span>
+            全部
         </button>
         <button type="button" v-for="r in activeRegions" :key="r" @click="selectedRegion = r" 
-            :class="['px-4 py-2.5 rounded-full font-black text-xs uppercase tracking-widest whitespace-nowrap transition-all border-2', 
+            :class="['px-4 py-2.5 rounded-full font-black text-sm uppercase tracking-widest whitespace-nowrap transition-all border-2', 
             selectedRegion === r ? 'bg-blue-600 text-white border-blue-600 shadow-lg' : 'bg-white text-slate-400 border-slate-200 hover:border-slate-300']">
-            @{{ r }} <span class="ml-1 opacity-60">(@{{ getPlayersByRegion(r).length }})</span>
+            @{{ r }}
         </button>
     </div>
 
     {{-- Results Info --}}
     <div v-if="searchQuery || selectedRegion !== '全部'" class="flex items-center gap-3 text-sm">
         <span class="text-slate-400">搜尋結果:</span>
-        <span class="font-black text-slate-900">@{{ filteredPlayers.length }} 位球友</span>
-        <button type="button" v-if="searchQuery || selectedRegion !== '全部'" @click="searchQuery = ''; selectedRegion = '全部'" class="text-blue-600 text-xs font-bold underline">清除篩選</button>
+        <span class="font-black text-slate-900">@{{ playersPagination.total }} 位球友</span>
+        <button type="button" v-if="searchQuery || selectedRegion !== '全部'" @click="searchDraft = ''; searchQuery = ''; selectedRegion = '全部'" class="text-blue-600 text-xs font-bold underline">清除篩選</button>
     </div>
 
     {{-- Skeleton Loading --}}
@@ -91,8 +96,8 @@
     {{-- Pagination --}}
     <div v-if="totalPages > 1" class="flex items-center justify-center gap-2 pt-8">
         {{-- Previous Button --}}
-        <button type="button" @click="currentPage = Math.max(1, currentPage - 1)" :disabled="currentPage === 1"
-            :class="['w-10 h-10 rounded-xl font-black text-sm transition-all', currentPage === 1 ? 'bg-slate-100 text-slate-300 cursor-not-allowed' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50']">
+        <button type="button" @click="currentPage = Math.max(1, playersPagination.current_page - 1)" :disabled="playersPagination.current_page === 1"
+            :class="['w-10 h-10 rounded-xl font-black text-sm transition-all', playersPagination.current_page === 1 ? 'bg-slate-100 text-slate-300 cursor-not-allowed' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50']">
             ←
         </button>
         
@@ -100,14 +105,14 @@
         <div v-for="(page, idx) in displayPages" :key="'p-' + idx" class="inline-flex">
             <span v-if="page === '...'" class="w-10 h-10 flex items-center justify-center text-slate-400">...</span>
             <button v-else type="button" @click="currentPage = page"
-                :class="['w-10 h-10 rounded-xl font-black text-sm transition-all', currentPage === page ? 'bg-blue-600 text-white shadow-lg' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50']">
+                :class="['w-10 h-10 rounded-xl font-black text-sm transition-all', playersPagination.current_page === page ? 'bg-blue-600 text-white shadow-lg' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50']">
                 @{{ page }}
             </button>
         </div>
         
         {{-- Next Button --}}
-        <button type="button" @click="currentPage = Math.min(totalPages, currentPage + 1)" :disabled="currentPage === totalPages"
-            :class="['w-10 h-10 rounded-xl font-black text-sm transition-all', currentPage === totalPages ? 'bg-slate-100 text-slate-300 cursor-not-allowed' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50']">
+        <button type="button" @click="currentPage = Math.min(totalPages, playersPagination.current_page + 1)" :disabled="playersPagination.current_page === totalPages"
+            :class="['w-10 h-10 rounded-xl font-black text-sm transition-all', playersPagination.current_page === totalPages ? 'bg-slate-100 text-slate-300 cursor-not-allowed' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50']">
             →
         </button>
     </div>

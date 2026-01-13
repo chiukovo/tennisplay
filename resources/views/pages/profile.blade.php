@@ -26,7 +26,7 @@
             
             <div class="relative z-10 flex flex-col md:flex-row gap-8 lg:gap-12">
                 <!-- Left: Player Card -->
-                <div class="w-full md:w-[260px] lg:w-[300px] shrink-0" :class="{'hidden md:block': !profileData.user?.player}">
+                <div class="w-full md:w-[350px] lg:w-[420px] shrink-0" :class="{'hidden md:block': !profileData.user?.player}">
                     <div v-if="profileData.user.player" class="relative group transition-all duration-500 hover:-translate-y-2">
                         <player-card :player="profileData.user.player" @click="showDetail(profileData.user.player)"></player-card>
                     </div>
@@ -34,7 +34,7 @@
                     <!-- Empty State -->
                     <!-- Placeholder Card for Empty State -->
                     <div v-else-if="profileData.status?.is_me" class="relative group">
-                        <player-card :is-placeholder="true" size="sm"></player-card>
+                        <player-card :is-placeholder="true"></player-card>
                         <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-[80]">
                             <div class="bg-white/80 backdrop-blur-md p-6 rounded-[32px] shadow-2xl border border-white/20 transform group-hover:scale-105 transition-all duration-500">
                                 <div class="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg shadow-blue-500/30">
@@ -127,7 +127,7 @@
                             </div>
                             <div class="bg-slate-50/50 p-7 rounded-[32px] border border-slate-100">
                                 <p class="text-lg text-slate-700 font-bold leading-relaxed italic whitespace-pre-line">
-                                    「@{{ profileData.user?.bio || '這位球友很低調，什麼都沒留下... 邀請他一起打球吧！' }}」
+                                    「@{{ profileData.user?.bio || '尚未填寫' }}」
                                 </p>
                             </div>
                         </div>

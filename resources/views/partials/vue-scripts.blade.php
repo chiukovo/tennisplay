@@ -9,6 +9,7 @@ createApp({
         const isLoggedIn = ref(false);
         const currentUser = ref(null);
         const searchQuery = ref('');
+        const searchDraft = ref('');
         const selectedRegion = ref('全部');
         const currentPage = ref(1);
         const perPage = ref(12);
@@ -19,7 +20,12 @@ createApp({
         const eventFilter = ref('all');
         const eventRegionFilter = ref('all');
         const eventSearchQuery = ref('');
-        const eventDateFilter = ref(new Date().toISOString().split('T')[0]);
+        const eventSearchDraft = ref('');
+        const getTodayStr = () => {
+            const now = new Date();
+            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        };
+        const eventDateFilter = ref(getTodayStr());
         const eventTimePeriodFilter = ref('all');
         const eventCurrentPage = ref(1);
         const eventPerPage = ref(12);
@@ -62,7 +68,9 @@ createApp({
             const defRegion = settingsForm.default_region;
             if (!defRegion || defRegion === '全部') return;
             if (viewName === 'list' && selectedRegion.value === '全部') selectedRegion.value = defRegion;
-            else if (viewName === 'events' && eventRegionFilter.value === 'all') eventRegionFilter.value = defRegion;
+            else if (viewName === 'events' && eventRegionFilter.value === 'all') {
+                // eventRegionFilter.value = defRegion; // Disable auto-filter for events to avoid confusion
+            }
         };
 
         const resetForm = () => {
@@ -116,11 +124,11 @@ createApp({
         } = useProfile(isLoggedIn, currentUser, showToast, navigateTo);
 
         const { 
-            players, myPlayers, isPlayersLoading, loadPlayers, loadMyCards, saveCard, deleteCard
+            players, myPlayers, isPlayersLoading, playersPagination, loadPlayers, loadMyCards, saveCard, deleteCard
         } = usePlayers(isLoggedIn, currentUser, showToast, navigateTo, showConfirm, (id) => loadProfile(id), form);
 
         const { 
-            events, eventsLoading, eventSubmitting, loadEvents, createEvent, joinEvent: baseJoinEvent, leaveEvent: baseLeaveEvent 
+            events, eventsLoading, eventSubmitting, eventsPagination, loadEvents, createEvent, joinEvent: baseJoinEvent, leaveEvent: baseLeaveEvent 
         } = useEvents(isLoggedIn, showToast, navigateTo, formatLocalDateTime, eventForm, resetEventForm);
 
         const { messages, loadMessages, markMessageRead } = useMessages(isLoggedIn, currentUser, showToast);
@@ -230,26 +238,26 @@ createApp({
                 myPlayers.value[mIdx] = { ...myPlayers.value[mIdx], ...updatedPlayer };
             }
             
-            		// 4. Update in profileData if viewing that player's profile
-		if (profileData.player && profileData.player.id === updatedPlayer.id) {
-			profileData.player = { ...profileData.player, ...updatedPlayer };
-		}
+            // 4. Update in profileData if viewing that player's profile
+            if (profileData.player && profileData.player.id === updatedPlayer.id) {
+                profileData.player = { ...profileData.player, ...updatedPlayer };
+            }
 
-		// 5. Update in profile sub-lists (Liked, Following, Followers)
-		const lIdx = likedPlayers.value.findIndex(p => p.id === updatedPlayer.id);
-		if (lIdx !== -1) {
-			likedPlayers.value[lIdx] = { ...likedPlayers.value[lIdx], ...updatedPlayer };
-		}
-		const flIdx = followingUsers.value.findIndex(p => p.id === updatedPlayer.id);
-		if (flIdx !== -1) {
-			followingUsers.value[flIdx] = { ...followingUsers.value[flIdx], ...updatedPlayer };
-		}
-		const frIdx = followerUsers.value.findIndex(p => p.id === updatedPlayer.id);
-		if (frIdx !== -1) {
-			followerUsers.value[frIdx] = { ...followerUsers.value[frIdx], ...updatedPlayer };
-		}
+            // 5. Update in profile sub-lists (Liked, Following, Followers)
+            const lIdx = likedPlayers.value.findIndex(p => p.id === updatedPlayer.id);
+            if (lIdx !== -1) {
+                likedPlayers.value[lIdx] = { ...likedPlayers.value[lIdx], ...updatedPlayer };
+            }
+            const flIdx = followingUsers.value.findIndex(p => p.id === updatedPlayer.id);
+            if (flIdx !== -1) {
+                followingUsers.value[flIdx] = { ...followingUsers.value[flIdx], ...updatedPlayer };
+            }
+            const frIdx = followerUsers.value.findIndex(p => p.id === updatedPlayer.id);
+            if (frIdx !== -1) {
+                followerUsers.value[frIdx] = { ...followerUsers.value[frIdx], ...updatedPlayer };
+            }
 
-		// 6. Update in events participants & organizers
+            // 6. Update in events participants & organizers
             events.value.forEach(event => {
                 if (event.player && event.player.id === updatedPlayer.id) {
                     event.player = { ...event.player, ...updatedPlayer };
@@ -318,84 +326,31 @@ createApp({
         };
 
         // --- 5. Computed Properties ---
-        const activeRegions = computed(() => {
-            const counts = {};
-            players.value.forEach(p => { if (p.region) counts[p.region] = (counts[p.region] || 0) + 1; });
-            return Object.entries(counts).sort((a, b) => b[1] - a[1]).map(e => e[0]);
-        });
+        const activeRegions = computed(() => REGIONS);
         
-        const activeEventRegions = computed(() => {
-            const counts = {};
-            events.value.forEach(e => { if (e.region) counts[e.region] = (counts[e.region] || 0) + 1; });
-            return Object.entries(counts).sort((a, b) => b[1] - a[1]).map(e => e[0]);
-        });
+        const activeEventRegions = computed(() => REGIONS);
 
-        const filteredPlayers = computed(() => {
-            let result = players.value;
-            if (selectedRegion.value !== '全部') result = result.filter(p => p.region === selectedRegion.value);
-            if (searchQuery.value) {
-                const q = searchQuery.value.toLowerCase();
-                result = result.filter(p => p.name.toLowerCase().includes(q) || (p.intro && p.intro.toLowerCase().includes(q)));
-            }
-            return result;
-        });
-
-        const totalPages = computed(() => Math.ceil(filteredPlayers.value.length / perPage.value));
-        const paginatedPlayers = computed(() => {
-            const start = (currentPage.value - 1) * perPage.value;
-            return filteredPlayers.value.slice(start, start + perPage.value);
-        });
+        const filteredPlayers = computed(() => players.value);
+        const totalPages = computed(() => playersPagination.value.last_page);
+        const paginatedPlayers = computed(() => players.value);
 
         const displayPages = computed(() => {
             const total = totalPages.value;
             if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
-            const current = currentPage.value;
+            const current = playersPagination.value.current_page;
             if (current <= 4) return [1, 2, 3, 4, 5, '...', total];
             if (current >= total - 3) return [1, '...', total - 4, total - 3, total - 2, total - 1, total];
             return [1, '...', current - 1, current, current + 1, '...', total];
         });
 
-        const filteredEvents = computed(() => {
-            let result = events.value;
-            if (eventFilter.value !== 'all') result = result.filter(e => e.match_type === eventFilter.value);
-            if (eventRegionFilter.value !== 'all') {
-                result = result.filter(e => (e.region === eventRegionFilter.value) || (e.location && e.location.includes(eventRegionFilter.value)));
-            }
-            if (eventSearchQuery.value) {
-                const q = eventSearchQuery.value.toLowerCase();
-                result = result.filter(e => (e.title && e.title.toLowerCase().includes(q)) || (e.location && e.location.toLowerCase().includes(q)));
-            }
-            if (eventDateFilter.value) {
-                result = result.filter(e => {
-                    const localDate = new Date(e.event_date).toLocaleDateString('en-CA'); // YYYY-MM-DD
-                    return localDate === eventDateFilter.value;
-                });
-            }
-            if (eventTimePeriodFilter.value !== 'all') {
-                result = result.filter(e => {
-                    const hour = new Date(e.event_date).getHours();
-                    switch(eventTimePeriodFilter.value) {
-                        case 'morning': return hour >= 6 && hour < 12;
-                        case 'afternoon': return hour >= 12 && hour < 18;
-                        case 'evening': return hour >= 18 && hour < 24;
-                        case 'late-night': return hour >= 0 && hour < 6;
-                        default: return true;
-                    }
-                });
-            }
-            return result;
-        });
-
-        const eventTotalPages = computed(() => Math.ceil(filteredEvents.value.length / eventPerPage.value));
-        const paginatedEvents = computed(() => {
-            const start = (eventCurrentPage.value - 1) * eventPerPage.value;
-            return filteredEvents.value.slice(start, start + eventPerPage.value);
-        });
+        const filteredEvents = computed(() => events.value);
+        const eventTotalPages = computed(() => eventsPagination.value.last_page);
+        const paginatedEvents = computed(() => events.value);
 
         const eventDisplayPages = computed(() => {
             const total = eventTotalPages.value;
             if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
-            const current = eventCurrentPage.value;
+            const current = eventsPagination.value.current_page;
             if (current <= 4) return [1, 2, 3, 4, 5, '...', total];
             if (current >= total - 3) return [1, '...', total - 4, total - 3, total - 2, total - 1, total];
             return [1, '...', current - 1, current, current + 1, '...', total];
@@ -523,6 +478,25 @@ createApp({
             saveCard(resetFormFull);
         };
 
+        const handleSearch = () => {
+            searchQuery.value = searchDraft.value;
+            currentPage.value = 1;
+            loadPlayers({ search: searchQuery.value, region: selectedRegion.value, page: 1 });
+        };
+
+        const handleEventSearch = () => {
+            eventSearchQuery.value = eventSearchDraft.value;
+            eventCurrentPage.value = 1;
+            loadEvents({ 
+                search: eventSearchQuery.value, 
+                region: eventRegionFilter.value, 
+                match_type: eventFilter.value,
+                date: eventDateFilter.value,
+                time_period: eventTimePeriodFilter.value,
+                page: 1 
+            });
+        };
+
         const openMatchModal = (p) => { matchModal.player = p; matchModal.open = true; };
         const getPlayersByRegion = (region) => players.value.filter(p => p.region === region);
         
@@ -632,8 +606,18 @@ createApp({
 
         let messagePollInterval;
         watch(view, (newView) => {
-            if (newView === 'home' || newView === 'list') loadPlayers();
-            else if (newView === 'events' || newView === 'create-event') loadEvents();
+            if (newView === 'home' || newView === 'list') {
+                loadPlayers({ search: searchQuery.value, region: selectedRegion.value, page: currentPage.value });
+            } else if (newView === 'events' || newView === 'create-event') {
+                loadEvents({ 
+                    search: eventSearchQuery.value, 
+                    region: eventRegionFilter.value, 
+                    match_type: eventFilter.value,
+                    date: eventDateFilter.value,
+                    time_period: eventTimePeriodFilter.value,
+                    page: eventCurrentPage.value 
+                });
+            }
             
             if (newView === 'messages') {
                 loadMessages();
@@ -660,16 +644,47 @@ createApp({
         }, { deep: true });
 
         watch(profileTab, () => loadProfileEvents(false));
-        watch([eventRegionFilter, eventFilter, eventSearchQuery, eventDateFilter, eventTimePeriodFilter], () => eventCurrentPage.value = 1);
+        
+        // Players Watchers
+        watch(selectedRegion, (newRegion) => {
+            currentPage.value = 1;
+            loadPlayers({ search: searchQuery.value, region: newRegion, page: 1 });
+        });
+        watch(currentPage, (newPage) => {
+            loadPlayers({ search: searchQuery.value, region: selectedRegion.value, page: newPage });
+        });
+
+        // Events Watchers
+        watch([eventRegionFilter, eventFilter, eventDateFilter, eventTimePeriodFilter], () => {
+            eventCurrentPage.value = 1;
+            loadEvents({ 
+                search: eventSearchQuery.value, 
+                region: eventRegionFilter.value, 
+                match_type: eventFilter.value,
+                date: eventDateFilter.value,
+                time_period: eventTimePeriodFilter.value,
+                page: 1 
+            });
+        });
+        watch(eventCurrentPage, (newPage) => {
+            loadEvents({ 
+                search: eventSearchQuery.value, 
+                region: eventRegionFilter.value, 
+                match_type: eventFilter.value,
+                date: eventDateFilter.value,
+                time_period: eventTimePeriodFilter.value,
+                page: newPage 
+            });
+        });
 
         return {
             // State
             view, isLoggedIn, currentUser, isLoginMode, showUserMenu, isSigning, messageTab,
-            players, myPlayers, isPlayersLoading, messages, events, eventsLoading, eventSubmitting,
+            players, myPlayers, isPlayersLoading, playersPagination, messages, events, eventsLoading, eventSubmitting, eventsPagination,
             profileData, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm,
             form, eventForm, currentStep, stepAttempted, isAdjustingPhoto, isAdjustingSig, isCapturing,
-            searchQuery, selectedRegion, currentPage, perPage, matchModal, detailPlayer,
-            eventFilter, eventRegionFilter, eventSearchQuery, eventDateFilter, eventTimePeriodFilter, eventCurrentPage, eventPerPage, showEventDetail, activeEvent, eventComments, eventCommentDraft,
+            searchQuery, searchDraft, selectedRegion, currentPage, perPage, matchModal, detailPlayer,
+            eventFilter, eventRegionFilter, eventSearchQuery, eventSearchDraft, eventDateFilter, eventTimePeriodFilter, eventCurrentPage, eventPerPage, showEventDetail, activeEvent, eventComments, eventCommentDraft,
             showNtrpGuide, showMessageDetail, selectedChatUser, isLoading,
             showPreview, showQuickEditModal, features, cardThemes,
             settingsForm, isSavingSettings, toasts, confirmDialog, dragInfo,
@@ -692,6 +707,7 @@ createApp({
             handleFileUpload, triggerUpload, useLinePhoto, handleSignatureUpdate, toggleAdjustSig, initMoveable, getPlayersByRegion,
             startDrag, handleDrag, stopDrag, captureCardImage,
             tryNextStep, tryGoToStep, openMatchModal, sendMatchRequest,
+            handleSearch, handleEventSearch,
             showDetail, getDetailStats, getEventsByMatchType, getEventsByRegion,
             // Constants
             REGIONS, LEVELS, LEVEL_DESCS, LEVEL_TAGS, levelDescs, levels, regions

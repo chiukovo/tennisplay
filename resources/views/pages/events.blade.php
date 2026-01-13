@@ -19,7 +19,7 @@
                 建立新活動
             </button>
             <div class="text-right hidden sm:block">
-                <div class="text-2xl font-black text-blue-600">@{{ filteredEvents.length }}</div>
+                <div class="text-2xl font-black text-blue-600">@{{ eventsPagination.total }}</div>
                 <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">場活動</div>
             </div>
         </div>
@@ -30,30 +30,34 @@
         {{-- Region Filter Tabs (Scrollable) --}}
         <div class="flex items-center gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 pb-2">
             <button @click="eventRegionFilter = 'all'" 
-                :class="['px-5 py-2.5 rounded-full font-black text-xs uppercase tracking-widest whitespace-nowrap transition-all border-2 shrink-0', 
+                :class="['px-5 py-2.5 rounded-full font-black text-sm uppercase tracking-widest whitespace-nowrap transition-all border-2 shrink-0', 
                     eventRegionFilter === 'all' ? 'bg-slate-900 border-slate-900 text-white shadow-lg shadow-slate-100' : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200']">
-                全部地區 <span class="ml-1 opacity-60">(@{{ events.length }})</span>
+                全部地區
             </button>
             <button v-for="r in activeEventRegions" :key="r" @click="eventRegionFilter = r" 
-                :class="['px-5 py-2.5 rounded-full font-black text-xs uppercase tracking-widest whitespace-nowrap transition-all border-2 shrink-0', 
+                :class="['px-5 py-2.5 rounded-full font-black text-sm uppercase tracking-widest whitespace-nowrap transition-all border-2 shrink-0', 
                     eventRegionFilter === r ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-100' : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200']">
-                @{{ r }} <span class="ml-1 opacity-60">(@{{ getEventsByRegion(r) }})</span>
+                @{{ r }}
             </button>
         </div>
 
         {{-- Time & Date Search --}}
-        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-white p-4 rounded-[28px] border border-slate-100 shadow-sm">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 bg-white p-5 rounded-[32px] border border-slate-200 shadow-sm">
             {{-- Date Picker --}}
             <div class="relative w-full sm:w-auto">
                 <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                    <app-icon name="calendar" class-name="w-4 h-4"></app-icon>
+                    <app-icon name="calendar" class-name="w-5 h-5"></app-icon>
                 </div>
                 <input type="date" v-model="eventDateFilter" 
-                    class="w-full sm:w-48 pl-11 pr-4 py-3 bg-slate-50 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none font-black text-xs uppercase tracking-widest transition-all">
+                    class="w-full sm:w-64 pl-12 pr-10 py-4 bg-slate-50 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none font-black text-base uppercase tracking-wide transition-all">
+                <button v-if="eventDateFilter" @click="eventDateFilter = ''" 
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors">
+                    <app-icon name="x" class-name="w-4 h-4"></app-icon>
+                </button>
             </div>
 
             {{-- Time Period Tabs --}}
-            <div class="flex flex-wrap items-center gap-1.5 p-1 bg-slate-50 rounded-2xl w-full sm:w-auto">
+            <div class="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-50 rounded-2xl w-full sm:w-auto">
                 <button v-for="t in [
                     {val: 'all', label: '全部'},
                     {val: 'morning', label: '早上'},
@@ -61,19 +65,24 @@
                     {val: 'evening', label: '晚上'},
                     {val: 'late-night', label: '半夜'}
                 ]" :key="t.val" @click="eventTimePeriodFilter = t.val"
-                    :class="['px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all', 
+                    :class="['px-5 py-2.5 rounded-xl font-black text-sm uppercase tracking-widest transition-all', 
                         eventTimePeriodFilter === t.val ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600']">
                     @{{ t.label }}
                 </button>
             </div>
 
-            {{-- Search Input (Merged from previous if needed, but adding keyword search here) --}}
-            <div class="relative flex-1 w-full sm:w-auto">
-                <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                    <app-icon name="search" class-name="w-4 h-4"></app-icon>
+            {{-- Search Input --}}
+            <div class="relative flex-1 w-full sm:w-auto flex gap-2">
+                <div class="relative flex-1">
+                    <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                        <app-icon name="search" class-name="w-5 h-5"></app-icon>
+                    </div>
+                    <input type="text" v-model="eventSearchDraft" @keyup.enter="handleEventSearch" placeholder="搜尋標題或地點..."
+                        class="w-full pl-12 pr-4 py-3 sm:py-4 bg-slate-50 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none font-bold text-base transition-all">
                 </div>
-                <input type="text" v-model="eventSearchQuery" placeholder="搜尋標題或地點..."
-                    class="w-full pl-11 pr-4 py-3 bg-slate-50 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none font-bold text-xs transition-all">
+                <button @click="handleEventSearch" class="px-5 sm:px-8 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-sm sm:text-base hover:bg-blue-600 transition-all shadow-lg active:scale-95">
+                    搜尋
+                </button>
             </div>
         </div>
     </div>
@@ -214,8 +223,8 @@
         {{-- Pagination --}}
         <div v-if="eventTotalPages > 1" class="flex items-center justify-center gap-2 pt-12">
             {{-- Previous Button --}}
-            <button type="button" @click="eventCurrentPage = Math.max(1, eventCurrentPage - 1)" :disabled="eventCurrentPage === 1"
-                :class="['w-10 h-10 rounded-xl font-black text-sm transition-all', eventCurrentPage === 1 ? 'bg-slate-100 text-slate-300 cursor-not-allowed' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50']">
+            <button type="button" @click="eventCurrentPage = Math.max(1, eventsPagination.current_page - 1)" :disabled="eventsPagination.current_page === 1"
+                :class="['w-10 h-10 rounded-xl font-black text-sm transition-all', eventsPagination.current_page === 1 ? 'bg-slate-100 text-slate-300 cursor-not-allowed' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50']">
                 ←
             </button>
             
@@ -223,14 +232,14 @@
             <div v-for="(page, idx) in eventDisplayPages" :key="'ep-' + idx" class="inline-flex">
                 <span v-if="page === '...'" class="w-10 h-10 flex items-center justify-center text-slate-400">...</span>
                 <button v-else type="button" @click="eventCurrentPage = page"
-                    :class="['w-10 h-10 rounded-xl font-black text-sm transition-all', eventCurrentPage === page ? 'bg-blue-600 text-white shadow-lg' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50']">
+                    :class="['w-10 h-10 rounded-xl font-black text-sm transition-all', eventsPagination.current_page === page ? 'bg-blue-600 text-white shadow-lg' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50']">
                     @{{ page }}
                 </button>
             </div>
             
             {{-- Next Button --}}
-            <button type="button" @click="eventCurrentPage = Math.min(eventTotalPages, eventCurrentPage + 1)" :disabled="eventCurrentPage === eventTotalPages"
-                :class="['w-10 h-10 rounded-xl font-black text-sm transition-all', eventCurrentPage === eventTotalPages ? 'bg-slate-100 text-slate-300 cursor-not-allowed' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50']">
+            <button type="button" @click="eventCurrentPage = Math.min(eventTotalPages, eventsPagination.current_page + 1)" :disabled="eventsPagination.current_page === eventTotalPages"
+                :class="['w-10 h-10 rounded-xl font-black text-sm transition-all', eventsPagination.current_page === eventTotalPages ? 'bg-slate-100 text-slate-300 cursor-not-allowed' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50']">
                 →
             </button>
         </div>

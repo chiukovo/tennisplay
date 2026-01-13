@@ -5,14 +5,30 @@ const useEvents = (isLoggedIn, showToast, navigateTo, formatLocalDateTime, event
     const events = ref([]);
     const eventsLoading = ref(false);
     const eventSubmitting = ref(false);
+    const eventsPagination = ref({ total: 0, current_page: 1, last_page: 1, per_page: 12 });
 
-    const loadEvents = async () => {
+    const loadEvents = async (params = {}) => {
         eventsLoading.value = true;
         try {
-            const response = await api.get('/events?per_page=100');
+            const response = await api.get('/events', {
+                params: { per_page: 12, ...params }
+            });
             if (response.data.success) {
                 const data = response.data.data;
-                events.value = Array.isArray(data.data) ? data.data : (Array.isArray(data) ? data : []);
+                if (data.data) {
+                    // Paginated response
+                    events.value = Array.isArray(data.data) ? data.data : [];
+                    eventsPagination.value = {
+                        total: data.total,
+                        current_page: data.current_page,
+                        last_page: data.last_page,
+                        per_page: data.per_page
+                    };
+                } else {
+                    // Non-paginated fallback
+                    events.value = Array.isArray(data) ? data : [];
+                    eventsPagination.value = { total: events.value.length, current_page: 1, last_page: 1, per_page: 100 };
+                }
             }
         } catch (error) { events.value = []; } finally { eventsLoading.value = false; }
     };
@@ -54,5 +70,5 @@ const useEvents = (isLoggedIn, showToast, navigateTo, formatLocalDateTime, event
         }
     };
 
-    return { events, eventsLoading, eventSubmitting, loadEvents, createEvent, joinEvent, leaveEvent };
+    return { events, eventsLoading, eventSubmitting, eventsPagination, loadEvents, createEvent, joinEvent, leaveEvent };
 };

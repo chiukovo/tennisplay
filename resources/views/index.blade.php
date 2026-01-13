@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{{ $seo['title'] ?? 'LoveTennis | 專業網球約打媒合與球友卡社群' }}</title>
     <!-- SEO Meta Tags -->
     <meta name="description" content="{{ $seo['description'] ?? 'LoveTennis 是全台最專業的網球約打平台，提供職業級球友卡製作、透明約打費用與安全站內信媒合系統。' }}">
@@ -136,10 +136,10 @@
     </div>
 
     {{-- Toast Notifications --}}
-    <div class="fixed bottom-28 sm:bottom-8 right-4 sm:right-8 z-[180] space-y-3">
+    <div class="fixed bottom-28 left-4 right-4 sm:left-auto sm:right-8 sm:bottom-8 z-[180] space-y-3">
         <transition-group name="toast">
             <div v-for="toast in toasts" :key="toast.id" 
-                :class="['px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 min-w-[280px] max-w-md',
+                :class="['px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 w-full sm:w-auto sm:min-w-[280px] sm:max-w-md',
                     toast.type === 'success' ? 'bg-green-600 text-white' : 
                     toast.type === 'error' ? 'bg-red-600 text-white' : 
                     'bg-slate-900 text-white']">

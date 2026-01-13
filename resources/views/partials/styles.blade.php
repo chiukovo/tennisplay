@@ -1,11 +1,17 @@
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Noto+Sans+TC:wght@400;700;900&display=swap');
-    body { 
+    *, ::before, ::after {
+        box-sizing: border-box;
+    }
+    html, body { 
         font-family: 'Noto Sans TC', 'Inter', sans-serif; 
         font-size: 16px;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         text-rendering: optimizeLegibility;
+        overflow-x: hidden;
+        width: 100%;
+        position: relative;
     }
     
     .card-shadow {

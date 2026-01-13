@@ -109,6 +109,9 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
                 await loadProfile(currentUser.value.uid, loadProfileEvents);
                 isEditingProfile.value = false;
                 showToast('個人資料已更新', 'success');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
             }
         } catch (error) { showToast('儲存失敗', 'error'); }
     };

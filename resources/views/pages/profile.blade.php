@@ -29,6 +29,12 @@
                 <div class="w-full md:w-[350px] lg:w-[420px] shrink-0" :class="{'hidden md:block': !profileData.user?.player}">
                     <div v-if="profileData.user.player" class="relative group transition-all duration-500 hover:-translate-y-2">
                         <player-card :player="profileData.user.player" @click="showDetail(profileData.user.player)"></player-card>
+                        
+                        <!-- Quick Edit Overlay for Me -->
+                        <div v-if="profileData.status?.is_me" class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3 z-20 rounded-2xl">
+                            <button @click="editCard(profileData.user.player)" class="px-6 py-3 bg-white text-slate-900 rounded-xl font-black text-xs uppercase tracking-widest shadow-xl hover:scale-105 transition-all">更換照片/樣式</button>
+                            <button @click="isEditingProfile = true" class="px-6 py-3 bg-blue-600 text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-xl hover:scale-105 transition-all">修改文字資訊</button>
+                        </div>
                     </div>
                     
                     <!-- Empty State -->
@@ -162,8 +168,57 @@
                             </div>
                         </div>
                         <div class="space-y-2">
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">個人簡介</label>
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">個人簡介 (Bio)</label>
                             <textarea v-model="profileForm.bio" rows="3" class="w-full px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-blue-500 outline-none font-bold text-sm leading-relaxed" placeholder="介紹一下你的網球經歷吧..."></textarea>
+                        </div>
+
+                        {{-- Player Card Specific Fields --}}
+                        <div v-if="profileData.user?.player" class="pt-6 border-t border-slate-100 space-y-6">
+                            <h4 class="text-xs font-black text-slate-900 uppercase tracking-widest">球友卡詳細設定</h4>
+                            
+                            <div class="space-y-4">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">NTRP 程度</label>
+                                <div class="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                                    <button v-for="l in levels" :key="l" @click="profileForm.level = l"
+                                            :class="profileForm.level === l ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-50 text-slate-400'"
+                                            class="py-2.5 rounded-xl font-black text-[10px] transition-all">
+                                        @{{ l }}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-6">
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">持拍手</label>
+                                    <div class="flex gap-2">
+                                        <button v-for="h in ['右手', '左手']" :key="h" @click="profileForm.handed = h"
+                                                :class="profileForm.handed === h ? 'bg-slate-900 text-white shadow-lg' : 'bg-slate-50 text-slate-400'"
+                                                class="flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all">
+                                            @{{ h }}
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">反手類型</label>
+                                    <div class="flex gap-2">
+                                        <button v-for="b in ['單反', '雙反']" :key="b" @click="profileForm.backhand = b"
+                                                :class="profileForm.backhand === b ? 'bg-slate-900 text-white shadow-lg' : 'bg-slate-50 text-slate-400'"
+                                                class="flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all">
+                                            @{{ b }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">約打宣告 (Intro)</label>
+                                <textarea v-model="profileForm.intro" rows="3" class="w-full px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-blue-500 outline-none font-bold text-sm leading-relaxed" placeholder="分享一下您的打法特色..."></textarea>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">約打費用說明</label>
+                                <input v-model="profileForm.fee" type="text" class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-blue-500 outline-none font-black italic text-base transition-all">
+                            </div>
                         </div>
 
                         <div class="pt-4 flex gap-3">
@@ -285,7 +340,7 @@
                                 class="w-full bg-slate-50 border-2 border-transparent rounded-[24px] px-6 py-4 text-sm font-bold focus:bg-white focus:border-blue-500 outline-none transition-all placeholder:text-slate-300 resize-none"></textarea>
                             <button @click="submitPlayerComment(profileData.user.player.id)" 
                                 :disabled="!playerCommentDraft.trim()"
-                                class="absolute right-3 bottom-3 w-10 h-10 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:hover:scale-100 transition-all">
+                                class="absolute right-3 bottom-3 w-10 h-10 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:hover:scale-100">
                                 <app-icon name="send" class-name="w-5 h-5"></app-icon>
                             </button>
                         </div>

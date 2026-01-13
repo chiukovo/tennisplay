@@ -68,7 +68,15 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
             if (response.data.success) {
                 showToast(form.id ? '球友卡已更新' : '球友卡建立成功！', 'success');
                 await loadPlayers(); await loadMyCards();
-                resetForm(); navigateTo('list');
+                
+                if (resetForm) resetForm();
+                
+                // If we were editing from profile, go back to profile
+                if (form.id) {
+                    navigateTo('profile', false, currentUser.value.uid);
+                } else {
+                    navigateTo('list');
+                }
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         } catch (error) {

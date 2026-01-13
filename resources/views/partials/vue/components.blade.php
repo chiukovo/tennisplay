@@ -623,7 +623,11 @@ const QuickEditModal = {
     props: ['open', 'form', 'levels', 'regions'],
     components: { AppIcon },
     template: '#quick-edit-modal-template',
-    emits: ['update:open']
+    emits: ['update:open', 'save', 'trigger-upload'],
+    setup(props) {
+        const { getUrl } = useUtils();
+        return { getUrl };
+    }
 };
 
 const EventDetailModal = {

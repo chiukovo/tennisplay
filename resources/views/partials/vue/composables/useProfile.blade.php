@@ -12,7 +12,7 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
     const profileEventsPage = ref(1);
     const profileEventsHasMore = ref(false);
     const isEditingProfile = ref(false);
-    const profileForm = reactive({ name: '', gender: '', region: '', bio: '' });
+    const profileForm = reactive({ name: '', gender: '', region: '', bio: '', level: '', handed: '', backhand: '', intro: '', fee: '' });
     const profileComments = ref([]);
     const followingUsers = ref([]);
     const followerUsers = ref([]);
@@ -24,9 +24,12 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
             const response = await api.get(`/profile/${userId}`);
             Object.assign(profileData, response.data);
             if (response.data.status.is_me) {
+                const p = response.data.user.player || {};
                 Object.assign(profileForm, {
                     name: response.data.user.name, gender: response.data.user.gender,
-                    region: response.data.user.region, bio: response.data.user.bio
+                    region: response.data.user.region, bio: response.data.user.bio,
+                    level: p.level || '', handed: p.handed || '', backhand: p.backhand || '',
+                    intro: p.intro || '', fee: p.fee || ''
                 });
                 if (autoEdit) isEditingProfile.value = true;
             }
@@ -109,9 +112,6 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
                 await loadProfile(currentUser.value.uid, loadProfileEvents);
                 isEditingProfile.value = false;
                 showToast('個人資料已更新', 'success');
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
             }
         } catch (error) { showToast('儲存失敗', 'error'); }
     };

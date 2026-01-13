@@ -263,4 +263,4 @@
 {{-- </transition> --}}
 
 {{-- Quick Edit Modal --}}
-<quick-edit-modal v-model:open="showQuickEditModal" :form="form" :levels="levels" :regions="regions"></quick-edit-modal>
+<quick-edit-modal v-model:open="showQuickEditModal" :form="form" :levels="levels" :regions="regions" @save="saveCard" @trigger-upload="triggerUpload"></quick-edit-modal>

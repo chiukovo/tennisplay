@@ -65,9 +65,19 @@ class ProfileController extends Controller
             'gender' => 'nullable|string',
             'region' => 'nullable|string',
             'bio' => 'nullable|string|max:1000',
+            'level' => 'nullable|string',
+            'handed' => 'nullable|string',
+            'backhand' => 'nullable|string',
+            'intro' => 'nullable|string',
+            'fee' => 'nullable|string',
         ]);
 
-        $user->update($data);
+        $user->update([
+            'name' => $data['name'],
+            'gender' => $data['gender'],
+            'region' => $data['region'],
+            'bio' => $data['bio'],
+        ]);
 
         // Sync to player card if it exists
         if ($user->player) {
@@ -75,6 +85,11 @@ class ProfileController extends Controller
                 'name' => $data['name'],
                 'gender' => $data['gender'],
                 'region' => $data['region'],
+                'level' => $data['level'] ?? $user->player->level,
+                'handed' => $data['handed'] ?? $user->player->handed,
+                'backhand' => $data['backhand'] ?? $user->player->backhand,
+                'intro' => $data['intro'] ?? $user->player->intro,
+                'fee' => $data['fee'] ?? $user->player->fee,
             ]);
         }
 

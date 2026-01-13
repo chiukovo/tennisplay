@@ -105,6 +105,13 @@ class PlayerController extends Controller
                 ['user_id' => $data['user_id']],
                 $data
             );
+            
+            // Sync back to user
+            $user->update([
+                'name' => $data['name'],
+                'gender' => $data['gender'],
+                'region' => $data['region'],
+            ]);
         } else {
             $player = Player::create($data);
         }
@@ -112,7 +119,7 @@ class PlayerController extends Controller
         return response()->json([
             'success' => true,
             'message' => '球友卡建立成功！',
-            'data' => $player->fresh(),
+            'data' => $player->fresh(['user']),
         ], 201);
     }
 
@@ -144,7 +151,9 @@ class PlayerController extends Controller
             }
             $data['photo'] = $this->saveBase64Image($request->photo, 'players/photos');
         } elseif ($request->photo && Str::startsWith($request->photo, 'http')) {
-            if ($request->photo !== $player->photo) {
+            // Only download if it's NOT our own storage URL
+            $storageUrl = asset('storage/');
+            if (!Str::startsWith($request->photo, $storageUrl)) {
                 $data['photo'] = $this->downloadRemoteImage($request->photo, 'players/photos');
             }
         }
@@ -158,10 +167,19 @@ class PlayerController extends Controller
 
         $player->update($data);
 
+        // Sync back to user
+        if ($user && $player->user_id == $user->id) {
+            $user->update([
+                'name' => $player->name,
+                'gender' => $player->gender,
+                'region' => $player->region,
+            ]);
+        }
+
         return response()->json([
             'success' => true,
             'message' => '球友卡已更新',
-            'data' => $player->fresh(),
+            'data' => $player->fresh(['user']),
         ]);
     }
 

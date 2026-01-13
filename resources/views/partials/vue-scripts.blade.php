@@ -475,8 +475,9 @@ createApp({
                 });
         };
 
-        const handleSaveCard = () => {
-            saveCard(resetFormFull);
+        const handleSaveCard = async () => {
+            await saveCard(resetFormFull);
+            showQuickEditModal.value = false;
         };
 
         const handleSearch = () => {

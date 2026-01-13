@@ -516,7 +516,7 @@
                         <div class="bg-blue-600 p-2 rounded-xl">
                             <app-icon name="edit-3" class-name="w-5 h-5 text-white"></app-icon>
                         </div>
-                        <h3 class="font-black italic uppercase text-xl tracking-tight">快速修改資料</h3>
+                        <h3 class="font-black italic uppercase text-xl tracking-tight">編輯球友卡資訊</h3>
                     </div>
                     <button type="button" @click="$emit('update:open', false)" class="p-2 hover:bg-white/10 rounded-full transition-all">
                         <app-icon name="x" class-name="w-6 h-6 opacity-50"></app-icon>
@@ -524,6 +524,39 @@
                 </div>
                 
                 <div class="p-8 overflow-y-auto no-scrollbar space-y-8">
+                    {{-- Photo Section --}}
+                    <div class="flex flex-col items-center gap-4 pb-4 border-b border-slate-100">
+                        <div class="relative group">
+                            <div class="w-32 h-40 rounded-2xl overflow-hidden border-4 border-white shadow-xl bg-slate-50">
+                                <img :src="getUrl(form.photo)" class="w-full h-full object-contain" :style="{ transform: `translate(${form.photoX}%, ${form.photoY}%) scale(${form.photoScale})` }">
+                            </div>
+                            <button type="button" @click="$emit('trigger-upload')" class="absolute -bottom-2 -right-2 w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center shadow-lg hover:scale-110 transition-all">
+                                <app-icon name="upload" class-name="w-5 h-5"></app-icon>
+                            </button>
+                        </div>
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">點擊按鈕更換形象照片</p>
+                        
+                        {{-- Photo Adjustments --}}
+                        <div v-if="form.photo" class="w-full max-w-xs space-y-3 pt-2">
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-[9px] font-black uppercase tracking-widest text-slate-400">
+                                    <span>縮放大小</span>
+                                    <span class="text-blue-600">@{{ Math.round(form.photoScale * 100) }}%</span>
+                                </div>
+                                <input type="range" v-model.number="form.photoScale" min="0.5" max="3" step="0.01" class="w-full h-1.5 bg-slate-100 rounded-full appearance-none cursor-pointer accent-blue-600">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="space-y-1">
+                                    <div class="text-[9px] font-black uppercase tracking-widest text-slate-400">水平位置</div>
+                                    <input type="range" v-model.number="form.photoX" min="-100" max="100" step="1" class="w-full h-1.5 bg-slate-100 rounded-full appearance-none cursor-pointer accent-slate-600">
+                                </div>
+                                <div class="space-y-1">
+                                    <div class="text-[9px] font-black uppercase tracking-widest text-slate-400">垂直位置</div>
+                                    <input type="range" v-model.number="form.photoY" min="-100" max="100" step="1" class="w-full h-1.5 bg-slate-100 rounded-full appearance-none cursor-pointer accent-slate-600">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     {{-- Name & Gender --}}
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div class="space-y-3">
@@ -584,11 +617,26 @@
                             </button>
                         </div>
                     </div>
+
+                    {{-- Intro & Fee --}}
+                    <div class="space-y-6">
+                        <div class="space-y-3">
+                            <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">約打宣告 / 個人特色</label>
+                            <textarea v-model="form.intro" rows="3" class="w-full px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-blue-500 outline-none font-bold text-sm leading-relaxed" placeholder="分享一下您的打法特色..."></textarea>
+                        </div>
+                        <div class="space-y-3">
+                            <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">約打費用說明</label>
+                            <input type="text" v-model="form.fee" class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-blue-500 outline-none font-black italic text-base transition-all" placeholder="例如：免費、場租均分...">
+                        </div>
+                    </div>
                 </div>
 
-                <div class="p-6 border-t border-slate-100 bg-slate-50 shrink-0">
-                    <button type="button" @click="$emit('update:open', false)" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-500 transition-all shadow-xl text-sm">
-                        確認修改並返回
+                <div class="p-6 border-t border-slate-100 bg-slate-50 shrink-0 flex gap-3">
+                    <button type="button" @click="$emit('save')" class="flex-[2] bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-500 transition-all shadow-xl text-sm">
+                        儲存並發佈
+                    </button>
+                    <button type="button" @click="$emit('update:open', false)" class="flex-1 bg-white border border-slate-200 text-slate-400 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-50 transition-all text-sm">
+                        取消
                     </button>
                 </div>
             </div>

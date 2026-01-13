@@ -778,8 +778,8 @@ createApp({
                 search: eventSearchQuery.value, 
                 region: eventRegionFilter.value, 
                 match_type: eventFilter.value,
-                date: eventDateFilter.value,
-                time_period: eventTimePeriodFilter.value,
+                start_date: eventStartDate.value,
+                end_date: eventEndDate.value,
                 page: newPage 
             });
         });

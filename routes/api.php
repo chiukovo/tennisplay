@@ -10,7 +10,8 @@ use App\Http\Controllers\Api\EventCommentController;
 use App\Http\Controllers\Api\FollowController;
 use App\Http\Controllers\Api\LikeController;
 use App\Http\Controllers\Api\PlayerCommentController;
-use Illuminate\Support\Facades\Route;
+// LINE Webhook
+Route::post('/line/webhook', [AuthController::class, 'handleWebhook']);
 
 // Public Player Routes
 Route::get('/players', [PlayerController::class, 'index']);

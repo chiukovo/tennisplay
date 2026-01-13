@@ -132,6 +132,19 @@ class MessageController extends Controller
 
         $message->load(['sender', 'player']);
 
+        // Send LINE Notification if receiver exists and has line_user_id
+        try {
+            $receiver = \App\Models\User::find($toUserId);
+            if ($receiver && $receiver->line_user_id) {
+                $lineService = new \App\Services\LineNotifyService();
+                $senderName = $user->name ?: '一位球友';
+                $noticeText = "🎾 您收到一封新的約打邀約信！\n\n來自：{$senderName}\n內容：". \Illuminate\Support\Str::limit($request->content, 50) ."\n\n請登入 LoveTennis 查看詳情。";
+                $lineService->sendTextMessage($receiver->line_user_id, $noticeText);
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send LINE notification: ' . $e->getMessage());
+        }
+
         return response()->json([
             'success' => true,
             'message' => '訊息已發送',

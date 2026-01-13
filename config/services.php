@@ -33,6 +33,7 @@ return [
     'line' => [
         'client_id' => env('LINE_CHANNEL_ID'),
         'client_secret' => env('LINE_CHANNEL_SECRET'),
+        'message_token' => env('LINE_MESSAGE_TOKEN'),
         'redirect' => env('LINE_REDIRECT_URI', 'http://localhost/auth/line/callback'),
     ],
 

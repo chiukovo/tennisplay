@@ -185,5 +185,18 @@ class AuthController extends Controller
             return redirect('/auth?error=' . urlencode('LINE 登入發生錯誤，請稍後再試'));
         }
     }
+    /**
+     * Handle LINE Webhook.
+     */
+    public function handleWebhook(Request $request)
+    {
+        // LINE sends a POST request with events. 
+        // We just need to return 200 to acknowledge.
+        // You can add signature verification here for security.
+        
+        Log::info('LINE Webhook received', ['payload' => $request->all()]);
+        
+        return response('OK', 200);
+    }
 }
 

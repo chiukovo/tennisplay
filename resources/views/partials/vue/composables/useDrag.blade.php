@@ -21,8 +21,8 @@ const useDrag = (form) => {
         const dy = clientY - dragInfo.startY;
         
         if (dragInfo.target === 'photo') {
-            form.photoX = dragInfo.initialX + (dx / 3); // Better sensitivity for ~300px container
-            form.photoY = dragInfo.initialY + (dy / 3);
+            form.photoX = dragInfo.initialX + (dx / 6); // Lower sensitivity for smoother dragging
+            form.photoY = dragInfo.initialY + (dy / 6);
         } else {
             form.sigX = dragInfo.initialX + dx;
             form.sigY = dragInfo.initialY + dy;

@@ -703,6 +703,9 @@ createApp({
             // Methods
             navigateTo: navigateToWithProfile, logout, checkAuth, saveSettings, loadPlayers, loadMyCards, saveCard: handleSaveCard, deleteCard, editCard, resetForm, resetFormFull,
             loadEvents, createEvent, joinEvent, leaveEvent, resetEventForm, openEventDetail, submitEventComment, deleteEventComment,
+            // Event modal compatibility aliases
+            toggleEventLike: (eventId) => {}, // Placeholder - likes are not yet implemented for events
+            postEventComment: () => submitEventComment(),
             loadProfile, loadProfileEvents, saveProfile, openProfile, toggleFollow, toggleLike,
             loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment,
             loadMessages, markMessageRead, openMessage, onMessageSent, loadMoreMessages,
@@ -726,7 +729,8 @@ createApp({
         'ntrp-guide-modal': NtrpGuideModal,
         'quick-edit-modal': QuickEditModal,
         'message-detail-modal': MessageDetailModal,
-        'event-detail-modal': EventDetailModal
+        'event-detail-modal': EventDetailModal,
+        'privacy-modal': PrivacyModal
     }
 }).mount('#app');
 </script>

@@ -67,6 +67,15 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
             let response = form.id ? await api.put(`/players/${form.id}`, payload) : await api.post('/players', payload);
             if (response.data.success) {
                 showToast(form.id ? '球友卡已更新' : '球友卡建立成功！', 'success');
+                
+                // Sync user info back to currentUser (連動更新個人資料)
+                if (currentUser.value) {
+                    currentUser.value.name = form.name;
+                    currentUser.value.gender = form.gender;
+                    currentUser.value.region = form.region;
+                    localStorage.setItem('auth_user', JSON.stringify(currentUser.value));
+                }
+                
                 await loadPlayers(); await loadMyCards();
                 
                 if (resetForm) resetForm();

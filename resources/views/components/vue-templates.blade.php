@@ -114,9 +114,16 @@
                                 @{{ p?.name || '請更新卡片' }}
                             </h3>
                             <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-[1.5cqw] text-white/80">
-                                    <app-icon name="map-pin" class-name="w-[5cqw] h-[5cqw]" :class="themeStyle.accent"></app-icon>
-                                    <span class="font-bold uppercase tracking-wider italic" style="font-size: 6cqw;">@{{ p?.region || '全台' }}</span>
+                                <div class="flex items-center gap-[3cqw] text-white/80">
+                                    <div class="flex items-center gap-[1.5cqw]">
+                                        <app-icon name="map-pin" class-name="w-[5cqw] h-[5cqw]" :class="themeStyle.accent"></app-icon>
+                                        <span class="font-bold uppercase tracking-wider italic" style="font-size: 6cqw;">@{{ p?.region || '全台' }}</span>
+                                    </div>
+                                    <div class="w-[0.5cqw] h-[4cqw] bg-white/30 rounded-full"></div>
+                                    <div class="flex items-center gap-[1.5cqw]">
+                                        <app-icon :name="p?.gender === '女' ? 'female' : 'male'" class-name="w-[5cqw] h-[5cqw]" :class="themeStyle.accent"></app-icon>
+                                        <span class="font-bold uppercase tracking-wider italic" style="font-size: 6cqw;">@{{ p?.gender || '男' }}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>

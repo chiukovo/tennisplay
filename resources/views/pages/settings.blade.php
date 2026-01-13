@@ -47,7 +47,7 @@
                 </div>
             </div>
 
-            </div>
+
             
             {{-- Notification Settings --}}
             <div class="border-t border-slate-100 pt-8 space-y-4">

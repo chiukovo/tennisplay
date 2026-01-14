@@ -250,7 +250,7 @@
                 </div>
 
                 {{-- Content --}}
-                <div class="p-6 space-y-6 relative overflow-y-auto max-h-[75vh] custom-scrollbar">
+                <div class="p-6 space-y-6 relative overflow-y-auto max-h-[80vh] custom-scrollbar">
                     {{-- Loading Overlay --}}
                     <div v-if="isCapturing" class="absolute inset-0 z-[100] bg-white/90 backdrop-blur-md flex flex-col items-center justify-center gap-4 animate__animated animate__fadeIn">
                         <div class="relative">
@@ -260,22 +260,20 @@
                         <p class="text-[10px] font-black text-slate-900 uppercase tracking-widest">正在生成圖片...</p>
                     </div>
 
-                    {{-- Compact Preview & Download --}}
-                    <div class="flex items-center gap-6 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                        <div class="w-24 aspect-[2.5/3.8] relative shrink-0">
+                    {{-- Large Preview & Download --}}
+                    <div class="flex flex-col items-center gap-5">
+                        <div class="w-44 aspect-[2.5/3.8] relative group">
                             <player-card :player="player" size="sm" :is-capturing="isCapturing" class="pointer-events-none"></player-card>
                         </div>
-                        <div class="flex-1 space-y-3">
-                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">球員卡圖檔</p>
-                            <button @click="downloadCard" class="w-full py-3 bg-blue-600 text-white rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-all active:scale-95 flex items-center justify-center gap-2">
-                                <app-icon name="upload" class-name="w-4 h-4"></app-icon>
-                                下載圖片
-                            </button>
-                        </div>
+                        
+                        <button @click="downloadCard" class="w-full py-3.5 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-blue-500/20 hover:bg-blue-700 transition-all active:scale-95 flex items-center justify-center gap-2.5">
+                            <app-icon name="upload" class-name="w-4 h-4"></app-icon>
+                            下載球員卡圖片
+                        </button>
                     </div>
 
-                    {{-- Share Options Grid (More Compact) --}}
-                    <div class="grid grid-cols-4 gap-x-2 gap-y-4">
+                    {{-- Share Options Grid (Compact) --}}
+                    <div class="grid grid-cols-4 gap-x-2 gap-y-5">
                         {{-- LINE --}}
                         <button @click="shareToLine" class="flex flex-col items-center gap-1.5 group">
                             <div class="w-11 h-11 bg-[#06C755] rounded-xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-all">

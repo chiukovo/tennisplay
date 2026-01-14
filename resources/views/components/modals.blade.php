@@ -100,10 +100,15 @@
                                                 @{{ socialStatus.is_following ? '已追蹤' : '追蹤' }}
                                             </span>
                                         </button>
-                                        <button type="button" @click="$emit('open-profile', player.user?.uid || player.user_id)" 
+                                        <button type="button" @click="$emit('open-profile', player.user_uid || player.user?.uid || player.user_id)" 
                                                 class="flex-1 py-5 flex flex-col items-center justify-center gap-2 hover:bg-slate-50 transition-all group">
                                             <app-icon name="user" class-name="w-5 h-5 text-slate-400 group-hover:text-slate-900 group-hover:scale-110 transition-all"></app-icon>
                                             <span class="text-[11px] font-black uppercase tracking-widest text-slate-400 group-hover:text-slate-900 transition-colors">主頁</span>
+                                        </button>
+                                        <button type="button" @click="$emit('share', player)" 
+                                                class="flex-1 py-5 flex flex-col items-center justify-center gap-2 hover:bg-slate-50 text-slate-400 transition-all group">
+                                            <app-icon name="share-2" class-name="w-5 h-5 group-hover:text-blue-600 group-hover:scale-110 transition-all"></app-icon>
+                                            <span class="text-[11px] font-black uppercase tracking-widest text-slate-400 group-hover:text-blue-600 transition-colors">分享</span>
                                         </button>
                                         <button type="button" @click="toggleLikeModal" 
                                                 :class="socialStatus.is_liked ? 'bg-red-500 text-white' : 'hover:bg-slate-50 text-slate-400'"
@@ -186,10 +191,15 @@
                                 <app-icon :name="socialStatus.is_following ? 'check' : 'plus'" :class-name="['w-4 h-4', socialStatus.is_following ? 'text-white' : '']"></app-icon>
                                 @{{ socialStatus.is_following ? '已追蹤' : '追蹤' }}
                         </button>
-                        <button type="button" @click="$emit('open-profile', player.user?.uid || player.user_id)" 
+                        <button type="button" @click="$emit('open-profile', player.user_uid || player.user?.uid || player.user_id)" 
                                 class="flex-1 bg-slate-50 text-slate-600 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] flex flex-col items-center justify-center gap-1 active:scale-95 transition-all">
                             <app-icon name="user" class-name="w-4 h-4"></app-icon>
                             主頁
+                        </button>
+                        <button type="button" @click="$emit('share', player)" 
+                                class="flex-1 bg-slate-50 text-slate-600 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] flex flex-col items-center justify-center gap-1 active:scale-95 transition-all">
+                            <app-icon name="share-2" class-name="w-4 h-4"></app-icon>
+                            分享
                         </button>
                         <button type="button" @click="toggleLikeModal"
                                 :class="socialStatus.is_liked ? 'bg-red-500 text-white shadow-lg shadow-red-200' : 'bg-slate-50 text-slate-600'"
@@ -256,7 +266,7 @@
                     <div class="p-6 sm:p-10 space-y-8 pb-32">
                         
                         {{-- Host Section --}}
-                        <div class="flex items-center justify-between bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm hover:border-blue-200 transition-all cursor-pointer" @click="$emit('open-profile', event.user?.uid || event.user_id)">
+                        <div class="flex items-center justify-between bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm hover:border-blue-200 transition-all cursor-pointer" @click="$emit('open-profile', event.user_uid || event.user?.uid || event.user_id)">
                             <div class="flex items-center gap-4">
                                 <div class="w-14 h-14 rounded-2xl overflow-hidden bg-slate-100 border-2 border-slate-50 shadow-md">
                                     <img v-if="event.player?.photo" :src="event.player.photo_url || event.player.photo" class="w-full h-full object-cover">

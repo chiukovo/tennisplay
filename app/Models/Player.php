@@ -52,7 +52,15 @@ class Player extends Model
         'is_verified' => 'boolean',
     ];
 
-    protected $appends = ['photo_url', 'signature_url', 'likes_count', 'comments_count'];
+    protected $appends = ['photo_url', 'signature_url', 'likes_count', 'comments_count', 'user_uid'];
+
+    /**
+     * Get user UID.
+     */
+    public function getUserUidAttribute()
+    {
+        return $this->user ? $this->user->uid : null;
+    }
 
     /**
      * Get the user that owns the player card.
@@ -126,8 +134,55 @@ class Player extends Model
      */
     public function scopeAtLevel($query, $level)
     {
-        if ($level) {
+        if ($level && $level !== '全部') {
             return $query->where('level', $level);
+        }
+        return $query;
+    }
+
+    /**
+     * Scope for filtering by level range.
+     */
+    public function scopeBetweenLevels($query, $min, $max)
+    {
+        if ($min && $min !== '全部') {
+            $query->where('level', '>=', $min);
+        }
+        if ($max && $max !== '全部') {
+            $query->where('level', '<=', $max);
+        }
+        return $query;
+    }
+
+    /**
+     * Scope for filtering by gender.
+     */
+    public function scopeOfGender($query, $gender)
+    {
+        if ($gender && !in_array($gender, ['全部', 'all'])) {
+            return $query->where('gender', $gender);
+        }
+        return $query;
+    }
+
+    /**
+     * Scope for filtering by handedness.
+     */
+    public function scopeOfHanded($query, $handed)
+    {
+        if ($handed && !in_array($handed, ['全部', 'all'])) {
+            return $query->where('handed', $handed);
+        }
+        return $query;
+    }
+
+    /**
+     * Scope for filtering by backhand type.
+     */
+    public function scopeOfBackhand($query, $backhand)
+    {
+        if ($backhand && !in_array($backhand, ['全部', 'all'])) {
+            return $query->where('backhand', $backhand);
         }
         return $query;
     }

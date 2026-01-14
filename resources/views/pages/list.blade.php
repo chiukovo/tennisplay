@@ -21,26 +21,104 @@
         </div>
         
         {{-- Search Bar with Region Select --}}
-        <div class="relative flex gap-2">
+        <div class="relative flex flex-col sm:flex-row gap-3">
             <div class="relative flex-1">
                 <app-icon name="search" class-name="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-5 h-5"></app-icon>
-                <input type="text" v-model="searchDraft" @keyup.enter="handleSearch" placeholder="搜尋姓名、程度或地區..." class="w-full pl-12 pr-4 py-3 sm:py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 font-bold text-base transition-all">
+                <input type="text" v-model="searchDraft" @keyup.enter="handleSearch" placeholder="搜尋姓名、程度或地區..." class="w-full pl-12 pr-4 py-3 sm:py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 font-bold text-base transition-all shadow-sm">
             </div>
-            <select v-model="selectedRegion" class="px-4 py-3 sm:py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 font-black text-sm uppercase tracking-widest cursor-pointer appearance-none min-w-[100px] sm:min-w-[120px]">
-                <option value="全部">全部地區</option>
-                <option v-for="r in activeRegions" :key="r" :value="r">@{{ r }}</option>
-            </select>
-            <button @click="handleSearch" class="px-5 sm:px-8 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-sm sm:text-base hover:bg-blue-600 transition-all shadow-lg active:scale-95">
-                搜尋
-            </button>
+            <div class="flex gap-2">
+                <select v-model="regionDraft" class="flex-1 sm:flex-none px-4 py-3 sm:py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 font-black text-sm uppercase tracking-widest cursor-pointer appearance-none min-w-[100px] sm:min-w-[120px] shadow-sm">
+                    <option value="全部">全部地區</option>
+                    <option v-for="r in activeRegions" :key="r" :value="r">@{{ r }}</option>
+                </select>
+                <button @click="showAdvancedFilters = !showAdvancedFilters" :class="['px-4 rounded-2xl border transition-all flex items-center justify-center gap-2 shadow-sm', showAdvancedFilters ? 'bg-blue-50 border-blue-200 text-blue-600' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50']">
+                    <app-icon name="filter" class-name="w-5 h-5"></app-icon>
+                    <span class="hidden sm:inline font-black text-sm uppercase tracking-widest">篩選</span>
+                </button>
+                <button @click="handleSearch" class="px-6 sm:px-8 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-sm sm:text-base hover:bg-blue-600 transition-all shadow-lg active:scale-95">
+                    搜尋
+                </button>
+            </div>
         </div>
+
+        {{-- Advanced Filters Panel --}}
+        <transition name="fade-slide">
+            <div v-if="showAdvancedFilters" class="bg-white border border-slate-100 rounded-[32px] p-6 sm:p-8 shadow-xl shadow-slate-200/50 space-y-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {{-- Gender Filter --}}
+                    <div class="space-y-3">
+                        <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">生理性別</label>
+                        <div class="flex gap-2">
+                            <button v-for="g in ['全部', '男', '女']" :key="g" @click="genderDraft = g" 
+                                :class="['flex-1 py-3 rounded-xl font-black text-xs transition-all border-2', genderDraft === g ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-slate-50 text-slate-400 border-transparent hover:border-slate-200']">
+                                @{{ g }}
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- Handedness Filter --}}
+                    <div class="space-y-3">
+                        <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">持拍手</label>
+                        <div class="flex gap-2">
+                            <button v-for="h in ['全部', '右手', '左手']" :key="h" @click="handedDraft = h" 
+                                :class="['flex-1 py-3 rounded-xl font-black text-xs transition-all border-2', handedDraft === h ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-slate-50 text-slate-400 border-transparent hover:border-slate-200']">
+                                @{{ h }}
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- Backhand Filter --}}
+                    <div class="space-y-3">
+                        <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">反手類型</label>
+                        <div class="flex gap-2">
+                            <button v-for="b in ['全部', '單反', '雙反']" :key="b" @click="backhandDraft = b" 
+                                :class="['flex-1 py-3 rounded-xl font-black text-xs transition-all border-2', backhandDraft === b ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-slate-50 text-slate-400 border-transparent hover:border-slate-200']">
+                                @{{ b }}
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- NTRP Range Filter --}}
+                    <div class="space-y-3">
+                        <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">NTRP 程度範圍</label>
+                        <div class="flex items-center gap-2">
+                            <select v-model="levelMinDraft" class="flex-1 px-3 py-3 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:border-blue-500 font-black text-xs transition-all appearance-none">
+                                <option value="">Min</option>
+                                <option v-for="l in levels" :key="'min-'+l" :value="l">@{{ l }}</option>
+                            </select>
+                            <span class="text-slate-300 font-black text-xs">~</span>
+                            <select v-model="levelMaxDraft" class="flex-1 px-3 py-3 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:border-blue-500 font-black text-xs transition-all appearance-none">
+                                <option value="">Max</option>
+                                <option v-for="l in levels" :key="'max-'+l" :value="l">@{{ l }}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Action Buttons --}}
+                <div class="flex justify-end pt-4 border-t border-slate-50">
+                    <button @click="handleSearch" class="w-full sm:w-auto px-12 py-4 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95">
+                        確認篩選
+                    </button>
+                </div>
+            </div>
+        </transition>
     </div>
 
     {{-- Results Info --}}
-    <div v-if="searchQuery || selectedRegion !== '全部'" class="flex items-center gap-3 text-sm">
-        <span class="text-slate-400">搜尋結果:</span>
-        <span class="font-black text-slate-900">@{{ playersPagination.total }} 位球友</span>
-        <button type="button" v-if="searchQuery || selectedRegion !== '全部'" @click="searchDraft = ''; searchQuery = ''; selectedRegion = '全部'" class="text-blue-600 text-xs font-bold underline">清除篩選</button>
+    <div v-if="searchQuery || selectedRegion !== '全部' || selectedGender !== '全部' || selectedLevelMin || selectedLevelMax || selectedHanded !== '全部' || selectedBackhand !== '全部'" class="flex items-center gap-3 text-sm">
+        <span class="text-slate-400">篩選條件:</span>
+        <div class="flex flex-wrap gap-2">
+            <span v-if="searchQuery" class="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-wider">關鍵字: @{{ searchQuery }}</span>
+            <span v-if="selectedRegion !== '全部'" class="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-wider">地區: @{{ selectedRegion }}</span>
+            <span v-if="selectedGender !== '全部'" class="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-wider">性別: @{{ selectedGender }}</span>
+            <span v-if="selectedHanded !== '全部'" class="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-wider">持拍: @{{ selectedHanded }}</span>
+            <span v-if="selectedBackhand !== '全部'" class="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-wider">反手: @{{ selectedBackhand }}</span>
+            <span v-if="selectedLevelMin || selectedLevelMax" class="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-wider">
+                程度: @{{ selectedLevelMin || '1.0' }} - @{{ selectedLevelMax || '7.0' }}
+            </span>
+        </div>
+        <button type="button" @click="searchDraft = ''; searchQuery = ''; regionDraft = '全部'; selectedRegion = '全部'; genderDraft = '全部'; selectedGender = '全部'; levelMinDraft = ''; selectedLevelMin = ''; levelMaxDraft = ''; selectedLevelMax = ''; handedDraft = '全部'; selectedHanded = '全部'; backhandDraft = '全部'; selectedBackhand = '全部'; handleSearch();" class="text-red-500 text-xs font-black uppercase tracking-widest hover:underline ml-auto">清除全部</button>
     </div>
 
     {{-- Skeleton Loading --}}

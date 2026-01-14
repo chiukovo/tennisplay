@@ -68,6 +68,7 @@
     <script src="/vendor/axios/axios.min.js"></script>
     <script src="/vendor/moveable/moveable.min.js" defer></script>
     <script src="/vendor/html2canvas/html2canvas.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@2.9.5/dist/dom-to-image-more.min.js"></script>
     
     @include('partials.styles')
 </head>
@@ -129,22 +130,32 @@
 
     {{-- Footer --}}
     <footer class="max-w-6xl w-full mx-auto px-4 py-8 pb-16 sm:pb-12 border-t border-slate-200">
-        <div class="flex flex-col sm:flex-row justify-between items-center gap-6">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            {{-- Left: Logo & Copyright --}}
             <div class="flex items-center gap-3">
                 <img src="/img/logo.png" alt="LoveTennis" class="w-8 h-8 opacity-50 grayscale">
                 <div class="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-widest">
                     Copyright © 2026 chiuko. All rights reserved.
                 </div>
             </div>
-            <div class="flex items-center gap-8">
-                <a href="/privacy" @click.prevent="navigateTo('privacy')" class="text-slate-400 hover:text-blue-600 text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-colors">隱私權政策</a>
-                <a href="/sitemap" @click.prevent="navigateTo('sitemap')" class="text-slate-400 hover:text-blue-600 text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-colors">網站地圖</a>
+            
+            {{-- Right: Contact & Links --}}
+            <div class="flex flex-wrap justify-center md:justify-end items-center gap-x-6 gap-y-2 text-slate-400 text-[10px] sm:text-xs font-bold tracking-widest">
+                <div class="flex items-center gap-1">
+                    <span class="opacity-60">建議來信：</span>
+                    <a href="mailto:q8156697@gmail.com" class="text-blue-600/80 hover:text-blue-600 transition-colors lowercase">q8156697@gmail.com</a>
+                </div>
+                <div class="flex items-center gap-6">
+                    <a href="/privacy" @click.prevent="navigateTo('privacy')" class="hover:text-blue-600 uppercase transition-colors">隱私權政策</a>
+                    <a href="/sitemap" @click.prevent="navigateTo('sitemap')" class="hover:text-blue-600 uppercase transition-colors">網站地圖</a>
+                </div>
             </div>
         </div>
     </footer>
 
     {{-- Modal Components --}}
-    <player-detail-modal :player="detailPlayer" @update:player="handlePlayerUpdate" :players="filteredPlayers" :stats="getDetailStats(detailPlayer)" :is-logged-in="isLoggedIn" :show-toast="showToast" :navigate-to="navigateTo" @close="detailPlayer = null" @open-match="p => { detailPlayer = null; openMatchModal(p); }" @open-profile="uid => { detailPlayer = null; openProfile(uid); }" @open-ntrp-guide="showNtrpGuide = true"></player-detail-modal>
+    <player-detail-modal :player="detailPlayer" @update:player="handlePlayerUpdate" :players="filteredPlayers" :stats="getDetailStats(detailPlayer)" :is-logged-in="isLoggedIn" :show-toast="showToast" :navigate-to="navigateTo" @close="detailPlayer = null" @open-match="p => { detailPlayer = null; openMatchModal(p); }" @open-profile="uid => { detailPlayer = null; openProfile(uid); }" @open-ntrp-guide="showNtrpGuide = true" @share="p => { shareModal.player = p; shareModal.open = true; }"></player-detail-modal>
+    <share-modal v-model="shareModal.open" :player="shareModal.player"></share-modal>
     <match-modal v-model:open="matchModal.open" :player="matchModal.player" @submit="text => { matchModal.text = text; sendMatchRequest(); }"></match-modal>
     <ntrp-guide-modal v-model:open="showNtrpGuide" :descs="levelDescs"></ntrp-guide-modal>
     <message-detail-modal v-model:open="showMessageDetail" :target-user="selectedChatUser" :current-user="currentUser" @message-sent="onMessageSent" @navigate-to-profile="uid => openProfile(uid)"></message-detail-modal>

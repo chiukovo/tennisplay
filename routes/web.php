@@ -145,7 +145,7 @@ Route::get('/profile/{uid}', function ($uid) use ($seoData) {
 
 // SEO helpers
 Route::get('/robots.txt', function () {
-    $content = "User-agent: *\nDisallow: /";
+    $content = "User-agent: *\nAllow: /\nSitemap: " . url('/sitemap.xml');
     return response($content, 200)->header('Content-Type', 'text/plain');
 });
 
@@ -165,7 +165,7 @@ Route::get('/sitemap.xml', function () {
 
     $eventUrls = \App\Models\Event::select('id', 'updated_at')
         ->orderBy('updated_at', 'desc')
-        ->take(50)
+        ->take(100)
         ->get()
         ->map(function ($event) {
             return [
@@ -174,9 +174,23 @@ Route::get('/sitemap.xml', function () {
             ];
         });
 
+    $playerUrls = \App\Models\Player::active()
+        ->with('user:id,uid')
+        ->select('id', 'user_id', 'updated_at')
+        ->orderBy('updated_at', 'desc')
+        ->take(100)
+        ->get()
+        ->map(function ($player) {
+            return [
+                'loc' => url('/profile/' . $player->user->uid),
+                'lastmod' => optional($player->updated_at)->toAtomString(),
+            ];
+        });
+
     $xml = view('sitemap', [
         'staticUrls' => $staticUrls,
         'eventUrls' => $eventUrls,
+        'playerUrls' => $playerUrls,
     ])->render();
 
     return response($xml, 200)->header('Content-Type', 'application/xml');

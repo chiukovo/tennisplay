@@ -11,10 +11,23 @@ createApp({
         const searchQuery = ref('');
         const searchDraft = ref('');
         const selectedRegion = ref('全部');
+        const regionDraft = ref('全部');
         const currentPage = ref(1);
         const perPage = ref(12);
+        const selectedGender = ref('全部');
+        const genderDraft = ref('全部');
+        const selectedLevelMin = ref('');
+        const levelMinDraft = ref('');
+        const selectedLevelMax = ref('');
+        const levelMaxDraft = ref('');
+        const selectedHanded = ref('全部');
+        const handedDraft = ref('全部');
+        const selectedBackhand = ref('全部');
+        const backhandDraft = ref('全部');
+        const showAdvancedFilters = ref(false);
         const matchModal = reactive({ open: false, player: null, text: '' });
         const detailPlayer = ref(null);
+        const shareModal = reactive({ open: false, player: null });
         const isSigning = ref(false);
         const showNtrpGuide = ref(false);
         const eventFilter = ref('all');
@@ -85,9 +98,9 @@ createApp({
         const applyDefaultFilters = (viewName) => {
             const defRegion = settingsForm.default_region;
             if (!defRegion || defRegion === '全部') return;
-            if (viewName === 'list' && selectedRegion.value === '全部') selectedRegion.value = defRegion;
-            else if (viewName === 'events' && eventRegionFilter.value === 'all') {
-                // eventRegionFilter.value = defRegion; // Disable auto-filter for events to avoid confusion
+            if (viewName === 'list' && selectedRegion.value === '全部') {
+                selectedRegion.value = defRegion;
+                regionDraft.value = defRegion;
             }
         };
 
@@ -514,8 +527,25 @@ createApp({
 
         const handleSearch = () => {
             searchQuery.value = searchDraft.value;
+            selectedRegion.value = regionDraft.value;
+            selectedGender.value = genderDraft.value;
+            selectedLevelMin.value = levelMinDraft.value;
+            selectedLevelMax.value = levelMaxDraft.value;
+            selectedHanded.value = handedDraft.value;
+            selectedBackhand.value = backhandDraft.value;
+            
             currentPage.value = 1;
-            loadPlayers({ search: searchQuery.value, region: selectedRegion.value, page: 1 });
+            loadPlayers({ 
+                search: searchQuery.value, 
+                region: selectedRegion.value, 
+                gender: selectedGender.value,
+                level_min: selectedLevelMin.value,
+                level_max: selectedLevelMax.value,
+                handed: selectedHanded.value,
+                backhand: selectedBackhand.value,
+                page: 1 
+            });
+            showAdvancedFilters.value = false;
         };
 
         const handleEventSearch = () => {
@@ -765,12 +795,17 @@ createApp({
         watch(profileTab, () => loadProfileEvents(false));
         
         // Players Watchers
-        watch(selectedRegion, (newRegion) => {
-            currentPage.value = 1;
-            loadPlayers({ search: searchQuery.value, region: newRegion, page: 1 });
-        });
         watch(currentPage, (newPage) => {
-            loadPlayers({ search: searchQuery.value, region: selectedRegion.value, page: newPage });
+            loadPlayers({ 
+                search: searchQuery.value, 
+                region: selectedRegion.value, 
+                gender: selectedGender.value,
+                level_min: selectedLevelMin.value,
+                level_max: selectedLevelMax.value,
+                handed: selectedHanded.value,
+                backhand: selectedBackhand.value,
+                page: newPage 
+            });
         });
 
         // Events Watchers
@@ -804,10 +839,11 @@ createApp({
             players, myPlayers, isPlayersLoading, playersPagination, messages, events, eventsLoading, eventSubmitting, eventsPagination,
             profileData, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm,
             form, eventForm, currentStep, stepAttempted, isAdjustingPhoto, isAdjustingSig, isCapturing,
-            searchQuery, searchDraft, selectedRegion, currentPage, perPage, matchModal, detailPlayer,
+            searchQuery, searchDraft, selectedRegion, regionDraft, selectedGender, genderDraft, selectedLevelMin, levelMinDraft, selectedLevelMax, levelMaxDraft, selectedHanded, handedDraft, selectedBackhand, backhandDraft, showAdvancedFilters, currentPage, perPage, matchModal, detailPlayer,
             eventFilter, eventRegionFilter, eventSearchQuery, eventSearchDraft, eventStartDate, eventEndDate, eventDateShortcut, eventCurrentPage, eventPerPage, showEventDetail, activeEvent, eventComments, eventCommentDraft,
             showNtrpGuide, showPrivacy, showLinePromo, showMessageDetail, selectedChatUser, isLoading, isAuthLoading,
             showPreview, showQuickEditModal, features, cardThemes,
+            shareModal,
             settingsForm, isSavingSettings, toasts, confirmDialog, dragInfo,
             profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,
             // Computed
@@ -845,6 +881,7 @@ createApp({
         'app-icon': AppIcon,
         'player-card': PlayerCard,
         'player-detail-modal': PlayerDetailModal,
+        'share-modal': ShareModal,
         'match-modal': MatchModal,
         'ntrp-guide-modal': NtrpGuideModal,
         'quick-edit-modal': QuickEditModal,

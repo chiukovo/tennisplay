@@ -17,14 +17,17 @@ class PlayerController extends Controller
     {
         $query = Player::with('user')->withCount(['likes', 'comments'])->active()
             ->inRegion($request->region)
-            ->atLevel($request->level)
+            ->betweenLevels($request->level_min, $request->level_max)
+            ->ofGender($request->gender)
+            ->ofHanded($request->handed)
+            ->ofBackhand($request->backhand)
             ->search($request->search);
 
-        if ($request->gender) {
-            $query->where('gender', $request->gender);
+        if ($request->level && !$request->level_min && !$request->level_max) {
+            $query->atLevel($request->level);
         }
 
-        $players = $query->orderBy('created_at', 'desc')
+        $players = $query->orderBy('updated_at', 'desc')
             ->paginate($request->per_page ?? 20);
 
         Player::hydrateSocialStatus($players, $this->resolveUser($request));

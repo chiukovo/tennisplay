@@ -40,16 +40,17 @@
         :class="[size === 'sm' ? 'w-full aspect-[2.5/3.8]' : 'w-full max-w-[450px] aspect-[2.5/3.8]']">
         
         <div :class="['holo-card-wrapper w-full h-full card-holo transition-all duration-300 relative', 
-                      isAnimated ? 'animated' : '',
+                      (isAnimated && !isCapturing) ? 'animated' : '',
                       isHoloTheme ? 'theme-' + p.theme : '']" 
-             :style="[{ transform: `rotateX(${tilt.rX}deg) rotateY(${tilt.rY}deg)` }, holoStyle]">
+             :style="[(!isCapturing ? { transform: `rotateX(${tilt.rX}deg) rotateY(${tilt.rY}deg)` } : {}), holoStyle]">
              
             {{-- Animated Border Glow (Moved outside overflow-hidden to prevent clipping) --}}
             <div v-if="!isPlaceholder" :class="['absolute -inset-[3px] bg-gradient-to-br rounded-[32px] blur-[8px] transition-all duration-700 opacity-50 z-0', themeStyle.border]"></div>
             <div v-else class="absolute -inset-[3px] bg-slate-200 rounded-[32px] opacity-30 border-2 border-dashed border-slate-300 transition-opacity z-0"></div>
 
             <div :class="['group capture-target relative overflow-hidden rounded-[28px] w-full h-full z-10', 
-                         isPlaceholder ? 'opacity-30 grayscale hover:opacity-100 hover:grayscale-0' : '']"
+                         isPlaceholder ? 'opacity-30 grayscale hover:opacity-100 hover:grayscale-0' : '',
+                         isCapturing ? 'is-capturing' : '']"
                  style="container-type: inline-size;">
                 
                 <div :class="['relative h-full rounded-[28px] overflow-hidden flex flex-col border border-white/20 transition-colors shadow-inner', isPlaceholder ? 'bg-slate-50' : themeStyle.bg]">
@@ -227,6 +228,102 @@
                     <a href="/privacy" @click.prevent="$emit('update:modelValue', false); navigateTo('privacy')" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-blue-600 transition-colors">
                         查看完整版本政策
                     </a>
+                </div>
+            </div>
+        </div>
+    </transition>
+</script>
+{{-- Share Modal Template --}}
+<script type="text/x-template" id="share-modal-template">
+    <transition name="modal">
+        <div v-if="modelValue" class="fixed inset-0 z-[400] flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-sm modal-content" @click.self="$emit('update:modelValue', false)">
+            <div class="bg-white w-full max-w-md rounded-[40px] shadow-2xl overflow-hidden flex flex-col animate__animated animate__zoomIn animate__faster">
+                {{-- Header --}}
+                <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                    <div>
+                        <h3 class="text-2xl font-black italic uppercase tracking-tight text-slate-900">分享個人資料</h3>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Share Profile</p>
+                    </div>
+                    <button @click="$emit('update:modelValue', false)" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:border-slate-300 transition-all shadow-sm">
+                        <app-icon name="x" class-name="w-5 h-5"></app-icon>
+                    </button>
+                </div>
+
+                {{-- Content --}}
+                <div class="p-8 space-y-8 relative min-h-[400px]">
+                    {{-- Loading Overlay --}}
+                    <div v-if="isCapturing" class="absolute inset-0 z-[100] bg-white/90 backdrop-blur-md flex flex-col items-center justify-center gap-6 animate__animated animate__fadeIn">
+                        <div class="relative">
+                            <div class="w-16 h-16 border-4 border-slate-100 rounded-full"></div>
+                            <div class="absolute top-0 left-0 w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                        <div class="text-center space-y-2">
+                            <p class="text-sm font-black text-slate-900 uppercase tracking-widest">正在生成高畫質圖片</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest animate-pulse">請稍候...</p>
+                        </div>
+                    </div>
+
+                    {{-- Preview Area (Small Card) --}}
+                    <div class="flex flex-col items-center gap-6">
+                        <div class="w-48 aspect-[2.5/3.8] relative group">
+                            <player-card :player="player" size="sm" :is-capturing="isCapturing" class="pointer-events-none"></player-card>
+                        </div>
+                        
+                        <button @click="downloadCard" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-blue-500/20 hover:bg-blue-700 transition-all active:scale-95 flex items-center justify-center gap-3">
+                            <app-icon name="upload" class-name="w-5 h-5"></app-icon>
+                            下載球員卡圖片
+                        </button>
+                    </div>
+
+                    {{-- Share Options Grid --}}
+                    <div class="grid grid-cols-4 gap-4">
+                        {{-- LINE --}}
+                        <button @click="shareToLine" class="flex flex-col items-center gap-2 group">
+                            <div class="w-14 h-14 bg-[#06C755] rounded-2xl flex items-center justify-center shadow-lg shadow-green-100 group-hover:scale-110 transition-all">
+                                <app-icon name="message-circle" class-name="w-7 h-7 text-white"></app-icon>
+                            </div>
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">LINE</span>
+                        </button>
+
+                        {{-- Instagram --}}
+                        <button @click="shareToInstagram" class="flex flex-col items-center gap-2 group">
+                            <div class="w-14 h-14 bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] rounded-2xl flex items-center justify-center shadow-lg shadow-pink-100 group-hover:scale-110 transition-all">
+                                <app-icon name="instagram" class-name="w-7 h-7 text-white"></app-icon>
+                            </div>
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">IG</span>
+                        </button>
+
+                        {{-- Threads --}}
+                        <button @click="shareToThreads" class="flex flex-col items-center gap-2 group">
+                            <div class="w-14 h-14 bg-black rounded-2xl flex items-center justify-center shadow-lg shadow-slate-200 group-hover:scale-110 transition-all">
+                                <app-icon name="at-sign" class-name="w-7 h-7 text-white"></app-icon>
+                            </div>
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Threads</span>
+                        </button>
+
+                        {{-- Native Share / More --}}
+                        <button @click="shareNative" class="flex flex-col items-center gap-2 group">
+                            <div class="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center shadow-lg shadow-slate-100 group-hover:scale-110 transition-all">
+                                <app-icon name="share-2" class-name="w-7 h-7 text-slate-600"></app-icon>
+                            </div>
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">更多</span>
+                        </button>
+                    </div>
+
+                    {{-- Copy Link --}}
+                    <div class="relative">
+                        <input type="text" readonly :value="shareUrl" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-4 text-xs font-bold text-slate-500 focus:outline-none pr-24">
+                        <button @click="copyLink" class="absolute right-2 top-2 bottom-2 px-4 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all">
+                            複製連結
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Footer Hint --}}
+                <div class="px-8 py-6 bg-slate-50 border-t border-slate-100">
+                    <p class="text-[10px] font-bold text-slate-400 text-center leading-relaxed">
+                        提示：您可以直接複製連結分享給好友，或使用上方的社群按鈕快速傳送。
+                    </p>
                 </div>
             </div>
         </div>

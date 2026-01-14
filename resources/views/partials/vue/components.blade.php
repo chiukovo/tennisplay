@@ -118,7 +118,7 @@ const SignaturePad = {
 };
 
 const PlayerCard = {
-    props: ['player', 'size', 'isSigning', 'isAdjustingSig', 'isPlaceholder'],
+    props: ['player', 'size', 'isSigning', 'isAdjustingSig', 'isPlaceholder', 'isCapturing'],
     components: { AppIcon, SignaturePad },
     template: '#player-card-template',
     setup(props) {
@@ -253,6 +253,15 @@ const PlayerCard = {
         const holoStyle = computed(() => {
             if (!p.value) return {};
             const id = p.value.id || 0;
+
+            if (props.isCapturing) {
+                // Fixed "perfect" light for capture
+                return {
+                    '--lp': '50%', '--tp': '50%', '--spx': '50%', '--spy': '50%',
+                    '--opc': '0.4', '--int': '1.2', '--delay': '0s', '--duration': '10s'
+                };
+            }
+
             // Stable "random" values based on ID
             const delay = (id % 12) * -1.5; // -0s to -16.5s
             const duration = 10 + (id % 6);  // 10s to 15s
@@ -278,7 +287,7 @@ const PlayerDetailModal = {
     props: ['player', 'stats', 'players', 'isLoggedIn', 'showToast', 'navigateTo'],
     components: { AppIcon, PlayerCard },
     template: '#player-detail-modal-template',
-    emits: ['close', 'open-match', 'update:player', 'open-profile', 'open-ntrp-guide'],
+    emits: ['close', 'open-match', 'update:player', 'open-profile', 'open-ntrp-guide', 'share'],
     setup(props, { emit }) {
         const currentIndex = computed(() => {
             if (!props.player || !props.players) return -1;
@@ -650,6 +659,132 @@ const MessageDetailModal = {
         });
 
         return { messages, loading, sending, newMessage, chatContainer, formatDate, sendMessage, handleEnterKey, hasMore, loadMore, goToProfile };
+    }
+};
+
+const ShareModal = {
+    props: ['modelValue', 'player'],
+    components: { AppIcon, PlayerCard },
+    template: '#share-modal-template',
+    emits: ['update:modelValue'],
+    setup(props, { emit }) {
+        const { showToast } = useUtils();
+        const isCapturing = ref(false);
+        
+        const shareUrl = computed(() => {
+            if (!props.player) return window.location.origin;
+            const uid = props.player.user_uid || props.player.user?.uid || props.player.user_id;
+            return `${window.location.origin}/profile/${uid}`;
+        });
+
+        const copyLink = () => {
+            navigator.clipboard.writeText(shareUrl.value);
+            showToast('連結已複製到剪貼簿', 'success');
+        };
+
+        const captureCardImage = async () => {
+            isCapturing.value = true;
+            await nextTick();
+            // Wait for Vue to update and styles to apply (increased for safety)
+            await new Promise(resolve => setTimeout(resolve, 800));
+
+            let container = null;
+            try {
+                // 1. Find the original card element
+                const originalCard = document.querySelector('.modal-content .capture-target');
+                if (!originalCard) throw new Error('找不到卡片元素');
+
+                // 2. Create a hidden container with standard card width (450px)
+                container = document.createElement('div');
+                container.id = 'capture-temp-container';
+                container.style.position = 'fixed';
+                container.style.left = '-9999px';
+                container.style.top = '0';
+                container.style.width = '450px';
+                container.style.height = '684px';
+                container.style.containerType = 'inline-size';
+                container.style.backgroundColor = 'transparent';
+                document.body.appendChild(container);
+
+                // 3. Clone the card into the container
+                const clonedCard = originalCard.cloneNode(true);
+                clonedCard.style.width = '450px';
+                clonedCard.style.height = '684px';
+                clonedCard.style.transform = 'none';
+                clonedCard.style.margin = '0';
+                clonedCard.style.padding = '0';
+                container.appendChild(clonedCard);
+
+                // 4. Capture using dom-to-image-more
+                // We use a higher scale via style if needed, but dom-to-image-more 
+                // usually produces good quality. For even higher quality, we can scale the container.
+                const dataUrl = await domtoimage.toPng(container, {
+                    width: 450,
+                    height: 684,
+                    style: {
+                        transform: 'none',
+                        left: '0',
+                        top: '0',
+                        visibility: 'visible'
+                    },
+                    cacheBust: true,
+                    imagePlaceholder: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=='
+                });
+
+                return dataUrl;
+            } catch (error) {
+                console.error('Capture error:', error);
+                showToast('圖片生成失敗，請稍後再試', 'error');
+                return null;
+            } finally {
+                if (container && container.parentNode) {
+                    document.body.removeChild(container);
+                }
+                isCapturing.value = false;
+            }
+        };
+
+        const downloadCard = async () => {
+            const dataUrl = await captureCardImage();
+            if (dataUrl) {
+                const link = document.createElement('a');
+                link.download = `player-card-${props.player.name}.png`;
+                link.href = dataUrl;
+                link.click();
+                showToast('圖片已開始下載', 'success');
+            }
+        };
+
+        const shareToLine = () => {
+            const text = `🎾 來看我的網球球友卡！\n${shareUrl.value}`;
+            window.open(`https://line.me/R/msg/text/?${encodeURIComponent(text)}`, '_blank');
+        };
+
+        const shareNative = async () => {
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'LoveTennis 球友個人資料',
+                        text: `🎾 這是 ${props.player.name} 的網球個人資料，快來跟我約打吧！`,
+                        url: shareUrl.value
+                    });
+                } catch (err) {}
+            } else {
+                copyLink();
+            }
+        };
+
+        const shareToInstagram = () => {
+            copyLink();
+            showToast('連結已複製，您可以開啟 IG 發布限時動態', 'info');
+        };
+
+        const shareToThreads = () => {
+            copyLink();
+            showToast('連結已複製，您可以開啟 Threads 發布貼文', 'info');
+        };
+
+        return { shareUrl, copyLink, shareToLine, shareNative, shareToInstagram, shareToThreads, isCapturing, downloadCard };
     }
 };
 

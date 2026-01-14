@@ -2,29 +2,40 @@
     <!-- Sticky Header -->
     <div class="bg-white/80 backdrop-blur-xl border-b sticky top-20 z-[90]">
         <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 sm:gap-4">
                 <button @click="navigateTo('home')" class="p-2 hover:bg-slate-100 rounded-xl transition-colors">
                     <app-icon name="arrow-left" class-name="w-5 h-5 text-slate-600"></app-icon>
                 </button>
-                <h1 class="text-lg font-black italic uppercase tracking-tight text-slate-900 whitespace-nowrap">個人主頁</h1>
+                <h1 class="text-base sm:text-lg font-black italic uppercase tracking-tight text-slate-900 whitespace-nowrap">個人主頁</h1>
             </div>
-            <div v-if="profileData.status?.is_me" class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                <template v-if="isEditingProfile">
-                    <button @click="isEditingProfile = false" class="px-3 sm:px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm whitespace-nowrap">
-                        取消
-                    </button>
-                    <button @click="saveProfile" class="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-sm whitespace-nowrap">
-                        保存
-                    </button>
-                </template>
-                <template v-else>
-                    <button @click="isEditingProfile = true" class="px-3 sm:px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm whitespace-nowrap">
-                        編輯資料
-                    </button>
-                    <button v-if="profileData.user?.player" @click="editCard(profileData.user.player)" class="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-sm whitespace-nowrap">
-                        編輯卡片樣式
-                    </button>
-                </template>
+            <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                {{-- Share Button (For everyone if player card exists) --}}
+                <button v-if="profileData.user?.player" 
+                        @click="shareModal.player = profileData.user.player; shareModal.open = true"
+                        class="p-2 bg-white border border-slate-200 text-slate-400 hover:text-blue-600 rounded-xl transition-all shadow-sm group">
+                    <app-icon name="share-2" class-name="w-5 h-5 group-hover:scale-110 transition-transform"></app-icon>
+                </button>
+
+                <div v-if="profileData.status?.is_me" class="flex items-center gap-1.5 sm:gap-2">
+                    <template v-if="isEditingProfile">
+                        <button @click="isEditingProfile = false" class="px-3 sm:px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm whitespace-nowrap">
+                            取消
+                        </button>
+                        <button @click="saveProfile" class="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-sm whitespace-nowrap">
+                            保存
+                        </button>
+                    </template>
+                    <template v-else>
+                        <button @click="isEditingProfile = true" class="p-2 sm:px-4 sm:py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm whitespace-nowrap flex items-center gap-2 group" title="編輯資料">
+                            <app-icon name="edit-3" class-name="w-5 h-5 sm:w-4 sm:h-4 text-slate-600 group-hover:text-blue-600 transition-colors"></app-icon>
+                            <span class="hidden sm:inline">編輯資料</span>
+                        </button>
+                        <button v-if="profileData.user?.player" @click="editCard(profileData.user.player)" class="p-2 sm:px-4 sm:py-2 bg-blue-600 text-white rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-sm whitespace-nowrap flex items-center gap-2 group" title="編輯卡片樣式">
+                            <app-icon name="zap" class-name="w-5 h-5 sm:w-4 sm:h-4 text-white"></app-icon>
+                            <span class="hidden sm:inline">編輯卡片樣式</span>
+                        </button>
+                    </template>
+                </div>
             </div>
         </div>
     </div>
@@ -90,6 +101,11 @@
                                 </button>
                                 <button @click="openMessage({from_user_id: profileData.user.id, sender: profileData.user})" class="px-5 sm:px-6 py-3.5 bg-white border border-slate-200 text-slate-700 rounded-2xl font-black uppercase tracking-widest text-[10px] sm:text-xs hover:bg-slate-50 transition-all flex items-center gap-2 shrink-0">
                                     <app-icon name="mail" class-name="w-4 h-4"></app-icon>
+                                </button>
+                                <button v-if="profileData.user?.player" 
+                                        @click="shareModal.player = profileData.user.player; shareModal.open = true"
+                                        class="px-5 sm:px-6 py-3.5 bg-white border border-slate-200 text-slate-400 rounded-2xl font-black uppercase tracking-widest text-[10px] sm:text-xs hover:text-blue-600 transition-all flex items-center gap-2 shrink-0">
+                                    <app-icon name="share-2" class-name="w-4 h-4"></app-icon>
                                 </button>
                             </div>
                         </div>

@@ -1,215 +1,242 @@
 /* Disable pinch zoom on mobile */
 html,
 body {
-	touch-action: pan-x pan-y;
-	-ms-touch-action: pan-x pan-y;
+    touch-action: pan-x pan-y;
+    -ms-touch-action: pan-x pan-y;
 }
 
 /* Prevent double-tap zoom */
 * {
-	touch-action: manipulation;
+    touch-action: manipulation;
 }
 
 /* Custom styling for events page polish */
 .no-scrollbar::-webkit-scrollbar {
-	display: none;
+    display: none;
 }
 
 .no-scrollbar {
-	-ms-overflow-style: none;
-	scrollbar-width: none;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 .pill-tab {
-	display: inline-flex;
-	align-items: center;
-	gap: 8px;
-	padding: 10px 16px;
-	border-radius: 9999px;
-	font-weight: 800;
-	font-size: 13px;
-	letter-spacing: 0.08em;
-	transition: all 0.2s ease;
-	border: 1px solid transparent;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 9999px;
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
 }
 
 .pill-tab-active {
-	background: linear-gradient(135deg, #2563eb, #4f46e5);
-	color: #fff;
-	box-shadow: 0 12px 30px -16px rgba(37, 99, 235, 0.8);
+    background: linear-gradient(135deg, #2563eb, #4f46e5);
+    color: #fff;
+    box-shadow: 0 12px 30px -16px rgba(37, 99, 235, 0.8);
 }
 
 .pill-tab-muted {
-	background: #fff;
-	color: #334155;
-	border-color: #e2e8f0;
+    background: #fff;
+    color: #334155;
+    border-color: #e2e8f0;
 }
 
 .pill-tab-muted:hover {
-	border-color: #cbd5e1;
-	box-shadow: 0 10px 24px -18px rgba(51, 65, 85, 0.4);
+    border-color: #cbd5e1;
+    box-shadow: 0 10px 24px -18px rgba(51, 65, 85, 0.4);
 }
 
 .chip {
-	padding: 4px 10px;
-	border-radius: 999px;
-	font-size: 10px;
-	font-weight: 800;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
 .chip-green {
-	background: #ecfdf3;
-	color: #15803d;
+    background: #ecfdf3;
+    color: #15803d;
 }
 
 .chip-amber {
-	background: #fef7e7;
-	color: #b45309;
+    background: #fef7e7;
+    color: #b45309;
 }
 
 .chip-gray {
-	background: #f1f5f9;
-	color: #475569;
+    background: #f1f5f9;
+    color: #475569;
 }
 
 .chip-ghost {
-	background: #eef2ff;
-	color: #4338ca;
+    background: #eef2ff;
+    color: #4338ca;
 }
 
 .chip-pink {
-	background: #fdf2f8;
-	color: #c026d3;
+    background: #fdf2f8;
+    color: #c026d3;
 }
 
 .info-row {
-	display: inline-flex;
-	align-items: center;
-	gap: 10px;
-	padding: 10px 12px;
-	border-radius: 14px;
-	background: #f8fafc;
-	color: #1f2937;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: #f8fafc;
+    color: #1f2937;
 }
 
 .stat-tile {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	padding: 12px;
-	border-radius: 20px;
-	background: #f8fafc;
-	border: 1px solid #f1f5f9;
-	transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 20px;
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    transition: all 0.2s ease;
 }
 
 .stat-tile:hover {
-	background: #fff;
-	border-color: #e2e8f0;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    background: #fff;
+    border-color: #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
 .stat-icon {
-	width: 38px;
-	height: 38px;
-	border-radius: 14px;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	background: linear-gradient(135deg, #f0f7ff, #e0eaff);
-	color: #2563eb;
-	flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f0f7ff, #e0eaff);
+    color: #2563eb;
+    flex-shrink: 0;
 }
 
 .stat-label {
-	font-size: 9px;
-	letter-spacing: 0.12em;
-	text-transform: uppercase;
-	color: #94a3b8;
-	font-weight: 900;
-	margin-bottom: 2px;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    font-weight: 900;
+    margin-bottom: 2px;
 }
 
 .stat-value {
-	font-weight: 800;
-	color: #1e293b;
-	line-height: 1.2;
-	letter-spacing: -0.02em;
+    font-weight: 800;
+    color: #1e293b;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
 }
 
 @media (max-width: 640px) {
-	.stat-tile {
-		padding: 10px;
-		gap: 8px;
-	}
+    .stat-tile {
+        padding: 10px;
+        gap: 8px;
+    }
 
-	.stat-icon {
-		width: 32px;
-		height: 32px;
-		border-radius: 10px;
-	}
+    .stat-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+    }
 
-	.stat-label {
-		font-size: 8px;
-	}
+    .stat-label {
+        font-size: 8px;
+    }
 }
 
 .modal-content {
-	animation: fadeIn 0.18s ease-out;
+    animation: fadeIn 0.18s ease-out;
 }
 
 @keyframes fadeIn {
-	from {
-		opacity: 0;
-		transform: translateY(8px);
-	}
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
 
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .skeleton-shimmer {
-	position: relative;
-	overflow: hidden;
+    position: relative;
+    overflow: hidden;
 }
 
 .skeleton-shimmer::after {
-	content: '';
-	position: absolute;
-	inset: 0;
-	background: linear-gradient(90deg, rgba(241, 245, 249, 0) 0%, rgba(241, 245, 249, 0.8) 50%, rgba(241, 245, 249, 0) 100%);
-	animation: shimmer 1.2s infinite;
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        90deg,
+        rgba(241, 245, 249, 0) 0%,
+        rgba(241, 245, 249, 0.8) 50%,
+        rgba(241, 245, 249, 0) 100%
+    );
+    animation: shimmer 1.2s infinite;
 }
 
 @keyframes shimmer {
-	0% {
-		transform: translateX(-100%);
-	}
+    0% {
+        transform: translateX(-100%);
+    }
 
-	100% {
-		transform: translateX(100%);
-	}
+    100% {
+        transform: translateX(100%);
+    }
 }
 
 /* Subtle pulsing animation for navigation arrows */
 .animate-subtle-pulse {
-	animation: subtlePulse 2s ease-in-out infinite;
+    animation: subtlePulse 2s ease-in-out infinite;
 }
 
 @keyframes subtlePulse {
+    0%,
+    100% {
+        opacity: 0.5;
+        transform: translateY(-50%) scale(1);
+    }
 
-	0%,
-	100% {
-		opacity: 0.5;
-		transform: translateY(-50%) scale(1);
-	}
+    50% {
+        opacity: 0.9;
+        transform: translateY(-50%) scale(1.05);
+    }
+}
 
-	50% {
-		opacity: 0.9;
-		transform: translateY(-50%) scale(1.05);
-	}
+/* Vue Transitions */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+/* Capture Mode Fixes */
+.is-capturing .bg-clip-text {
+    /* dom-to-image-more usually handles bg-clip-text better than html2canvas */
+    /* but we add a text-shadow to ensure readability if blur is slightly off */
+    text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+.capture-target {
+    transform-origin: center center;
 }

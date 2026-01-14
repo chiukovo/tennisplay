@@ -107,11 +107,19 @@ class Event extends Model
     }
 
     /**
-     * Scope for upcoming events.
+     * Scope for upcoming events (not yet ended).
      */
     public function scopeUpcoming($query)
     {
-        return $query->where('event_date', '>=', now()->startOfDay());
+        return $query->where(function($q) {
+            $q->where(function($sq) {
+                $sq->whereNotNull('end_date')
+                   ->where('end_date', '>', now());
+            })->orWhere(function($sq) {
+                $sq->whereNull('end_date')
+                   ->where('event_date', '>', now());
+            });
+        });
     }
 
     /**

@@ -714,29 +714,34 @@ const ShareModal = {
                     }
                 }));
 
-                // 2. 使用 html2canvas 進行擷取 (它對 cqw 與複雜排版的支援較好)
-                const canvas = await html2canvas(cardElement, {
-                    useCORS: true,
+                // 2. 使用 dom-to-image-more 進行擷取 (它對 cqw 與現代 CSS 支援度極高)
+                // 為了確保 cqw 計算正確，我們需要確保擷取時的寬度是固定的
+                const originalWidth = cardElement.style.width;
+                const originalHeight = cardElement.style.height;
+                
+                // 強制設定為標準寬度以確保 cqw 比例正確
+                cardElement.style.width = '450px';
+                cardElement.style.height = '684px';
+
+                const dataUrl = await domtoimage.toPng(cardElement, {
+                    width: 450,
+                    height: 684,
                     scale: 2, // 高清
-                    backgroundColor: null,
-                    logging: false,
-                    allowTaint: true,
-                    onclone: (clonedDoc) => {
-                        // 在複製的 DOM 中微調樣式（不影響原畫面）
-                        const clonedCard = clonedDoc.querySelector('.capture-target');
-                        if (clonedCard) {
-                            clonedCard.style.transform = 'none';
-                            clonedCard.style.borderRadius = '28px';
-                        }
+                    style: {
+                        transform: 'none',
+                        borderRadius: '28px',
+                        margin: '0'
                     }
                 });
 
-                // 3. 還原原始圖片路徑（避免影響頁面顯示）
+                // 3. 還原原始樣式與圖片路徑
+                cardElement.style.width = originalWidth;
+                cardElement.style.height = originalHeight;
                 originalSrcs.forEach((src, img) => {
                     img.src = src;
                 });
 
-                return canvas.toDataURL('image/png');
+                return dataUrl;
             } catch (error) {
                 console.error('Capture error:', error);
                 showToast('圖片生成失敗，請稍後再試', 'error');

@@ -7,28 +7,33 @@
 
 {{-- Signature Pad Template --}}
 <script type="text/x-template" id="signature-pad-template">
-    <div v-if="active" @click.stop class="absolute inset-0 z-[100] bg-black/40 backdrop-blur-[4px] cursor-crosshair overflow-hidden rounded-2xl animate__animated animate__fadeIn animate__faster">
-        <canvas ref="canvas" @mousedown="start" @mousemove="draw" @mouseup="stop" @mouseleave="stop" @touchstart="startTouch" @touchmove="moveTouch" @touchend="stop" class="w-full h-full touch-none"></canvas>
+    <div v-if="active" @click.stop class="absolute inset-0 z-[100] cursor-crosshair overflow-hidden rounded-2xl animate__animated animate__fadeIn animate__faster">
+        {{-- Blur background layer --}}
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-[4px]"></div>
         
-        {{-- Controls --}}
-        <div class="absolute top-4 right-4 flex flex-col gap-3">
-            <button type="button" @click.stop="$emit('close')" class="p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md border border-white/20 transition-all shadow-xl" title="取消">
+        {{-- Canvas layer (on top of blur) --}}
+        <canvas ref="canvas" @mousedown="start" @mousemove="draw" @mouseup="stop" @mouseleave="stop" @touchstart="startTouch" @touchmove="moveTouch" @touchend="stop" class="absolute inset-0 w-full h-full touch-none"></canvas>
+        
+        {{-- Controls (above blur, with solid background) --}}
+        <div class="absolute top-4 right-4 flex flex-col gap-3 z-10">
+            <button type="button" @click.stop="$emit('close')" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-full border border-slate-600 transition-all shadow-xl" title="取消">
                 <app-icon name="x" class-name="w-5 h-5"></app-icon>
             </button>
-            <button type="button" @click.stop="clear" class="p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md border border-white/20 transition-all shadow-xl" title="清除">
+            <button type="button" @click.stop="clear" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-full border border-slate-600 transition-all shadow-xl" title="清除">
                 <app-icon name="eraser" class-name="w-5 h-5"></app-icon>
             </button>
         </div>
         
-        {{-- Bottom Hint and Confirm --}}
-        <div class="absolute bottom-6 left-0 right-0 flex flex-col items-center gap-4 pointer-events-none">
-            <span class="bg-black/60 text-white text-[10px] font-black px-5 py-2 rounded-full uppercase tracking-[0.2em] italic border border-white/10">請在此處手寫簽名</span>
+        {{-- Bottom Hint and Confirm (above blur, with solid background) --}}
+        <div class="absolute bottom-6 left-0 right-0 flex flex-col items-center gap-4 pointer-events-none z-10">
+            <span class="bg-slate-900 text-white text-[10px] font-black px-5 py-2 rounded-full uppercase tracking-[0.2em] italic border border-slate-700">請在此處手寫簽名</span>
             <button type="button" @click.stop="confirm" class="pointer-events-auto bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl transition-all hover:scale-105">
                 確認簽名並保存
             </button>
         </div>
     </div>
 </script>
+
 
 {{-- Player Card Template --}}
 <script type="text/x-template" id="player-card-template">
@@ -132,8 +137,8 @@
                         </div>
                     </div>
                     
-                    {{-- Signature Display --}}
-                    <div v-if="p?.signature" :class="['absolute inset-0 z-[70] group/sig signature-layer', isAdjustingSig ? 'pointer-events-auto' : 'pointer-events-none']">
+                    {{-- Signature Display (Must be on top of everything) --}}
+                    <div v-if="p?.signature" :class="['absolute inset-0 z-[100] group/sig signature-layer', isAdjustingSig ? 'pointer-events-auto' : 'pointer-events-none']">
                         <div class="relative w-full h-full">
                             <img :src="p.signature" 
                                 id="target-signature"

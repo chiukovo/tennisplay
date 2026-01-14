@@ -42,7 +42,21 @@ const SignaturePad = {
             const rect = canvas.value.getBoundingClientRect();
             const clientX = e.clientX || (e.touches && e.touches[0].clientX);
             const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-            return { x: clientX - rect.left, y: clientY - rect.top };
+            
+            // Calculate position relative to canvas
+            const rawX = clientX - rect.left;
+            const rawY = clientY - rect.top;
+            
+            // Account for CSS transform scale by comparing actual vs rendered size
+            // canvas.offsetWidth is the CSS width before transform
+            // rect.width is the rendered width after transform
+            const scaleX = canvas.value.offsetWidth / rect.width;
+            const scaleY = canvas.value.offsetHeight / rect.height;
+            
+            return { 
+                x: rawX * scaleX, 
+                y: rawY * scaleY 
+            };
         };
         const start = (e) => { if (!ctx) return; isDrawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); };
         const draw = (e) => { if (!isDrawing || !ctx) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
@@ -50,6 +64,7 @@ const SignaturePad = {
         const startTouch = (e) => { e.preventDefault(); start(e); };
         const moveTouch = (e) => { e.preventDefault(); draw(e); };
         const clear = () => { if (ctx) ctx.clearRect(0, 0, canvas.value.width, canvas.value.height); };
+
         
         const getTrimmedCanvas = (sourceCanvas) => {
             const tempCtx = sourceCanvas.getContext('2d');

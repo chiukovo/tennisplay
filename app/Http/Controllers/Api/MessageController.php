@@ -133,105 +133,117 @@ class MessageController extends Controller
         $message->load(['sender', 'player']);
 
         // Send LINE Notification if receiver exists and has line_user_id
+        // 使用節流機制：同一對用戶在 3 分鐘內只發送一次通知
         try {
             $receiver = \App\Models\User::find($toUserId);
             $receiverSettings = $receiver->settings ?? [];
             $wantsNotify = $receiverSettings['notify_line'] ?? true; // Default to true
 
             if ($receiver && $receiver->line_user_id && $wantsNotify) {
-                $lineService = new \App\Services\LineNotifyService();
-                $senderName = $user->name ?: '一位球友';
-                $senderAvatar = $user->line_picture_url;
-                $shortContent = \Illuminate\Support\Str::limit($request->content, 100);
+                // 節流 key：使用雙方用戶 ID 的組合
+                $throttleKey = 'line_notify:' . min($user->id, $toUserId) . ':' . max($user->id, $toUserId);
+                $throttleMinutes = 3; // 3 分鐘內只發送一次
                 
-                // Construct Sender Box (Avatar + Name)
-                $senderBoxContents = [];
-                if ($senderAvatar) {
-                    $avatarUrl = str_starts_with($senderAvatar, 'http') ? $senderAvatar : asset($senderAvatar);
+                // 檢查是否在節流時間內
+                if (!\Illuminate\Support\Facades\Cache::has($throttleKey)) {
+                    // 設置節流標記
+                    \Illuminate\Support\Facades\Cache::put($throttleKey, true, now()->addMinutes($throttleMinutes));
+                    
+                    $lineService = new \App\Services\LineNotifyService();
+                    $senderName = $user->name ?: '一位球友';
+                    $senderAvatar = $user->line_picture_url;
+                    $shortContent = \Illuminate\Support\Str::limit($request->content, 100);
+                    
+                    // Construct Sender Box (Avatar + Name)
+                    $senderBoxContents = [];
+                    if ($senderAvatar) {
+                        $avatarUrl = str_starts_with($senderAvatar, 'http') ? $senderAvatar : asset($senderAvatar);
+                        $senderBoxContents[] = [
+                            "type" => "image",
+                            "url" => $avatarUrl,
+                            "size" => "xxs",
+                            "aspectMode" => "cover",
+                            "aspectRatio" => "1:1",
+                            "gravity" => "center",
+                            "flex" => 0
+                        ];
+                    }
                     $senderBoxContents[] = [
-                        "type" => "image",
-                        "url" => $avatarUrl,
-                        "size" => "xxs",
-                        "aspectMode" => "cover",
-                        "aspectRatio" => "1:1",
+                        "type" => "text",
+                        "text" => $senderName,
+                        "weight" => "bold",
+                        "size" => "sm",
                         "gravity" => "center",
-                        "flex" => 0
+                        "flex" => 1,
+                        "margin" => "md"
                     ];
-                }
-                $senderBoxContents[] = [
-                    "type" => "text",
-                    "text" => $senderName,
-                    "weight" => "bold",
-                    "size" => "sm",
-                    "gravity" => "center",
-                    "flex" => 1,
-                    "margin" => "md"
-                ];
 
-                // Flex Message Structure (Premium Card with Avatar)
-                $flexContents = [
-                    "type" => "bubble",
-                    "header" => [
-                        "type" => "box",
-                        "layout" => "vertical",
-                        "contents" => [
-                            [
-                                "type" => "text",
-                                "text" => "🎾 收到約打邀約",
-                                "weight" => "bold",
-                                "color" => "#FFFFFF",
-                                "size" => "md"
-                            ]
-                        ],
-                        "backgroundColor" => "#2563EB",
-                        "paddingAll" => "md"
-                    ],
-                    "body" => [
-                        "type" => "box",
-                        "layout" => "vertical",
-                        "contents" => [
-                            [
-                                "type" => "box",
-                                "layout" => "horizontal",
-                                "contents" => $senderBoxContents,
-                                "alignItems" => "center"
+                    // Flex Message Structure (Premium Card with Avatar)
+                    $flexContents = [
+                        "type" => "bubble",
+                        "header" => [
+                            "type" => "box",
+                            "layout" => "vertical",
+                            "contents" => [
+                                [
+                                    "type" => "text",
+                                    "text" => "🎾 收到約打邀約",
+                                    "weight" => "bold",
+                                    "color" => "#FFFFFF",
+                                    "size" => "md"
+                                ]
                             ],
-                            [
-                                "type" => "separator",
-                                "margin" => "lg"
-                            ],
-                            [
-                                "type" => "text",
-                                "text" => $shortContent,
-                                "wrap" => true,
-                                "size" => "xs",
-                                "color" => "#64748B",
-                                "margin" => "lg"
-                            ]
+                            "backgroundColor" => "#2563EB",
+                            "paddingAll" => "md"
                         ],
-                        "paddingAll" => "lg"
-                    ],
-                    "footer" => [
-                        "type" => "box",
-                        "layout" => "vertical",
-                        "contents" => [
-                            [
-                                "type" => "button",
-                                "action" => [
-                                    "type" => "uri",
-                                    "label" => "立即查看訊息",
-                                    "uri" => "https://lovetennis.tw/messages"
+                        "body" => [
+                            "type" => "box",
+                            "layout" => "vertical",
+                            "contents" => [
+                                [
+                                    "type" => "box",
+                                    "layout" => "horizontal",
+                                    "contents" => $senderBoxContents,
+                                    "alignItems" => "center"
                                 ],
-                                "style" => "primary",
-                                "color" => "#2563EB",
-                                "height" => "sm"
-                            ]
+                                [
+                                    "type" => "separator",
+                                    "margin" => "lg"
+                                ],
+                                [
+                                    "type" => "text",
+                                    "text" => $shortContent,
+                                    "wrap" => true,
+                                    "size" => "xs",
+                                    "color" => "#64748B",
+                                    "margin" => "lg"
+                                ]
+                            ],
+                            "paddingAll" => "lg"
                         ],
-                        "paddingAll" => "md"
-                    ]
-                ];
+                        "footer" => [
+                            "type" => "box",
+                            "layout" => "vertical",
+                            "contents" => [
+                                [
+                                    "type" => "button",
+                                    "action" => [
+                                        "type" => "uri",
+                                        "label" => "立即查看訊息",
+                                        "uri" => "https://lovetennis.tw/messages"
+                                    ],
+                                    "style" => "primary",
+                                    "color" => "#2563EB",
+                                    "height" => "sm"
+                                ]
+                            ],
+                            "paddingAll" => "md"
+                        ]
+                    ];
 
-                $lineService->sendFlexMessage($receiver->line_user_id, "🎾 您收到來自 {$senderName} 的約打邀約信", $flexContents);
+                    $lineService->sendFlexMessage($receiver->line_user_id, "🎾 您收到來自 {$senderName} 的約打邀約信", $flexContents);
+                }
+                // 如果在節流時間內，則不發送通知（訊息仍會正常儲存）
             }
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to send LINE Flex notification: ' . $e->getMessage());

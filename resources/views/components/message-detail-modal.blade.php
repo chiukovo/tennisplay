@@ -55,9 +55,12 @@
                 <div class="p-2.5 sm:p-6 bg-white border-t border-slate-100 shrink-0" style="padding-bottom: max(0.625rem, env(safe-area-inset-bottom));">
                     <form @submit.prevent="sendMessage" class="flex gap-2 sm:gap-3 items-end">
                         <div class="flex-1 relative">
-                            <input v-model="newMessage" type="text" placeholder="輸入訊息..." 
-                                class="w-full bg-slate-100 border-0 rounded-2xl px-4 py-2.5 sm:py-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
-                                :disabled="sending">
+                            <textarea v-model="newMessage" placeholder="輸入訊息..." rows="1"
+                                @keydown.enter="handleEnterKey"
+                                @input="$event.target.style.height = 'auto'; $event.target.style.height = Math.min($event.target.scrollHeight, 120) + 'px'"
+                                class="w-full bg-slate-100 border-0 rounded-2xl px-4 py-2.5 sm:py-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all resize-none overflow-hidden"
+                                style="min-height: 42px; max-height: 120px;"
+                                :disabled="sending"></textarea>
                         </div>
                         <button type="submit" :disabled="!newMessage.trim() || sending" 
                             class="bg-blue-600 text-white w-10 h-10 sm:w-auto sm:h-auto sm:px-6 sm:py-3 rounded-xl sm:rounded-xl font-black uppercase tracking-widest shadow-lg shadow-blue-600/20 hover:bg-blue-700 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shrink-0">
@@ -66,6 +69,7 @@
                             <app-icon v-if="sending" name="loader" class-name="w-5 h-5 animate-spin"></app-icon>
                         </button>
                     </form>
+                    <p class="text-[9px] text-slate-400 text-center mt-1.5 hidden sm:block">按 Enter 發送 · Shift+Enter 換行</p>
                 </div>
             </div>
         </div>

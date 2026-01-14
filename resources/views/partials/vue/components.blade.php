@@ -570,6 +570,11 @@ const MessageDetailModal = {
                         is_me: true
                     });
                     newMessage.value = '';
+                    // Reset textarea height
+                    nextTick(() => {
+                        const textarea = document.querySelector('.message-textarea');
+                        if (textarea) textarea.style.height = '42px';
+                    });
                     scrollToBottom();
                     // Emit but specify this is a chat-reply to avoid closing modal
                     emit('message-sent', { type: 'chat-reply' });
@@ -579,6 +584,24 @@ const MessageDetailModal = {
                 alert('發送失敗，請稍後再試');
             } finally {
                 sending.value = false;
+            }
+        };
+
+        // 處理 Enter 鍵：手機版換行，桌面版發送（Shift+Enter 換行）
+        const handleEnterKey = (e) => {
+            const isMobile = window.matchMedia('(max-width: 640px)').matches || 
+                            ('ontouchstart' in window) || 
+                            (navigator.maxTouchPoints > 0);
+            
+            if (isMobile) {
+                // 手機版：Enter 換行，讓預設行為發生（不做任何事）
+                return;
+            } else {
+                // 桌面版：Enter 發送，Shift+Enter 換行
+                if (!e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
             }
         };
 
@@ -603,7 +626,7 @@ const MessageDetailModal = {
             if (pollInterval) clearInterval(pollInterval);
         });
 
-        return { messages, loading, sending, newMessage, chatContainer, formatDate, sendMessage, hasMore, loadMore };
+        return { messages, loading, sending, newMessage, chatContainer, formatDate, sendMessage, handleEnterKey, hasMore, loadMore };
     }
 };
 

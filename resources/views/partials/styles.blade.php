@@ -321,8 +321,25 @@
         transition: opacity 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
-    /* Theme Styles */
-    .theme-gold { --color1: #fac; --color2: #ddccaa; }
-    .theme-platinum { --color1: #54a29e; --color2: #a79d66; }
     .theme-holographic { --color1: #efb2fb; --color2: #acc6f8; }
+
+    /* Capture Stability */
+    .is-capturing {
+        transform: none !important;
+        animation: none !important;
+        transition: none !important;
+    }
+    .is-capturing * {
+        animation: none !important;
+        transition: none !important;
+        /* Force text rendering to be stable */
+        -webkit-background-clip: border-box !important;
+        background-clip: border-box !important;
+        -webkit-text-fill-color: currentColor !important;
+        text-fill-color: currentColor !important;
+    }
+    /* Ensure signature maintains its transform but without transitions */
+    .is-capturing .signature-layer img {
+        transition: none !important;
+    }
 </style>

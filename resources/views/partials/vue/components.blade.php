@@ -731,6 +731,9 @@ const ShareModal = {
                 clonedCard.style.height = '684px';
                 clonedCard.style.display = 'block';
                 clonedCard.style.visibility = 'visible';
+                clonedCard.style.fontFamily = "'Inter', sans-serif"; // 強制字體
+                clonedCard.style.textRendering = "optimizeLegibility";
+                clonedCard.style.webkitFontSmoothing = "antialiased";
                 container.appendChild(clonedCard);
 
                 const imgs = Array.from(clonedCard.querySelectorAll('img'));

@@ -99,8 +99,8 @@
                             </div>
                             
                             {{-- Level Tag --}}
-                            <div class="bg-white/10 backdrop-blur-xl px-[18px] py-[9px] rounded-[11px] border border-white/20 max-w-[270px] shadow-xl">
-                                <p class="font-bold text-white uppercase tracking-[0.15em] italic leading-tight text-[25px]" style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">@{{ p ? getLevelTag(p.level) : '尚未認證' }}</p>
+                            <div class="bg-white/10 backdrop-blur-xl px-[18px] py-[9px] rounded-[11px] border border-white/20 max-w-[350px] shadow-xl">
+                                <p class="font-bold text-white uppercase tracking-[0.15em] italic leading-none text-[25px]" style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">@{{ p ? getLevelTag(p.level) : '尚未認證' }}</p>
                             </div>
                         </div>
                     </div>
@@ -108,12 +108,12 @@
                     <signature-pad :active="isSigning" @save="sig => $emit('update-signature', sig)" @close="$emit('close-signing')"></signature-pad>
                     
                     {{-- Bottom Info Section --}}
-                    <div class="h-[171px] px-[27px] py-[14px] flex flex-col justify-center relative overflow-hidden">
+                    <div class="h-[171px] px-[27px] py-[14px] flex flex-col justify-center relative overflow-hidden z-[80]">
                         <div class="absolute inset-0 bg-white/10 backdrop-blur-2xl border-t border-white/20"></div>
                         <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 opacity-80"></div>
                         
                         <div class="relative z-10">
-                            <h3 :class="['font-black uppercase tracking-tighter italic leading-[0.9] whitespace-nowrap pb-[7px] bg-gradient-to-r bg-clip-text text-transparent text-left drop-shadow-sm', isPlaceholder ? 'bg-slate-400' : themeStyle.border]" style="font-size: 50px;">
+                            <h3 :class="['font-black uppercase tracking-tighter italic leading-[1.1] whitespace-nowrap pb-[5px] text-white text-left drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]']" style="font-size: 50px;">
                                 @{{ p?.name || '請更新卡片' }}
                             </h3>
                             <div class="flex items-center justify-between">

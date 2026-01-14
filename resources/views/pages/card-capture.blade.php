@@ -171,20 +171,21 @@
             <div class="absolute inset-0 bg-white/10 backdrop-blur-2xl border-t border-white/20"></div>
             <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 opacity-80"></div>
             
-            <div class="relative z-10" style="margin-bottom: 8px;">
-                <svg width="400" height="60" viewBox="0 0 400 60" style="display: block;">
-                    <defs>
-                        <linearGradient id="nameGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" style="stop-color:{{ $currentGradient[0] }};stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:{{ $currentGradient[1] }};stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
-                    <text x="0" y="48" class="name-svg" font-size="50" fill="url(#nameGradient)" style="font-style: italic; font-weight: 900;">
-                        {{ $player->name ?? 'TENNIS PLAYER' }}
-                    </text>
-                </svg>
-            </div>
-                <div class="flex items-center gap-[14px] text-white/80">
+            <div class="relative z-10">
+                <div style="margin-bottom: 8px;">
+                    <svg width="400" height="60" viewBox="0 0 400 60" style="display: block;">
+                        <defs>
+                            <linearGradient id="nameGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:{{ $currentGradient[0] }};stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:{{ $currentGradient[1] }};stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <text x="0" y="48" class="name-svg" font-size="50" fill="url(#nameGradient)" style="font-style: italic; font-weight: 900;">
+                            {{ $player->name ?? 'TENNIS PLAYER' }}
+                        </text>
+                    </svg>
+                </div>
+                <div class="flex items-center gap-[14px] text-white/95">
                     <div class="flex items-center gap-[7px]">
                         <svg class="w-[22px] h-[22px] accent" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                         <span class="font-bold uppercase tracking-wider italic text-[27px]">{{ $player->region ?? '全台' }}</span>
@@ -199,6 +200,7 @@
                         <span class="font-bold uppercase tracking-wider italic text-[27px]">{{ $player->gender ?? '男' }}</span>
                     </div>
                 </div>
+            </div>
             </div>
         </div>
         

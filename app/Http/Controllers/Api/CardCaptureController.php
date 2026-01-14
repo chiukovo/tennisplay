@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Player;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 use Spatie\Browsershot\Browsershot;
 
 class CardCaptureController extends Controller
@@ -21,10 +23,27 @@ class CardCaptureController extends Controller
         try {
             $player = Player::with('user')->findOrFail($id);
             
-            // Generate the internal render URL
+            // 1. Prepare Cache Path
+            $cacheDir = 'public/player-cards';
+            $updateHash = md5($player->updated_at);
+            $filename = "card_{$id}_{$updateHash}.png";
+            $cachePath = "{$cacheDir}/{$filename}";
+
+            // 2. Check if cached version exists
+            if (Storage::exists($cachePath)) {
+                $screenshot = Storage::get($cachePath);
+                return response()->json([
+                    'success' => true,
+                    'image' => 'data:image/png;base64,' . base64_encode($screenshot),
+                    'filename' => 'player-card-' . ($player->name ?? 'tennis') . '.png',
+                    'cached' => true
+                ]);
+            }
+            
+            // 3. Generate the internal render URL
             $renderUrl = route('card.render', ['id' => $player->id]);
             
-            // Configure Browsershot
+            // 4. Configure Browsershot
             $browsershot = Browsershot::url($renderUrl)
                 ->windowSize(450, 684)
                 ->deviceScaleFactor(2) // Retina quality (900x1368 output)
@@ -36,8 +55,12 @@ class CardCaptureController extends Controller
             // Configure paths for Windows/Linux
             $this->configureBrowserPaths($browsershot);
             
-            // Take screenshot
+            // 5. Take screenshot
             $screenshot = $browsershot->screenshot();
+            
+            // 6. Save to Cache (Cleanup old versions first)
+            $this->cleanupOldCache($id, $cacheDir);
+            Storage::put($cachePath, $screenshot);
             
             // Return as base64 JSON response for frontend consumption
             $base64 = base64_encode($screenshot);
@@ -45,7 +68,8 @@ class CardCaptureController extends Controller
             return response()->json([
                 'success' => true,
                 'image' => 'data:image/png;base64,' . $base64,
-                'filename' => 'player-card-' . ($player->name ?? 'tennis') . '.png'
+                'filename' => 'player-card-' . ($player->name ?? 'tennis') . '.png',
+                'cached' => false
             ]);
             
         } catch (\Exception $e) {
@@ -212,6 +236,25 @@ class CardCaptureController extends Controller
     }
 
     
+    /**
+     * Cleanup old cached cards for a player.
+     */
+    protected function cleanupOldCache($playerId, $cacheDir)
+    {
+        if (!Storage::exists($cacheDir)) {
+            Storage::makeDirectory($cacheDir);
+            return;
+        }
+
+        $files = Storage::files($cacheDir);
+        foreach ($files as $file) {
+            $basename = basename($file);
+            if (Str::startsWith($basename, "card_{$playerId}_")) {
+                Storage::delete($file);
+            }
+        }
+    }
+
     /**
      * Find an executable from a list of possible paths (supports glob patterns).
      */

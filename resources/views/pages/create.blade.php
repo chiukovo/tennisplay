@@ -224,14 +224,7 @@
                                     點擊此處開始簽名 (推薦)
                                 </button>
 
-                                {{-- Utility Actions --}}
-                                <div class="flex flex-col items-center gap-4 pt-2">
-                                    <button type="button" @click="showQuickEditModal = true" class="text-slate-400 hover:text-blue-600 font-black text-[10px] uppercase tracking-widest flex items-center gap-1.5 transition-colors group">
-                                        <app-icon name="edit-3" class-name="w-3.5 h-3.5 transition-transform group-hover:rotate-12"></app-icon>
-                                        快速修改資料
-                                    </button>
-                                    <p class="text-[9px] text-slate-400 font-bold italic text-center uppercase tracking-widest">確認內容無誤後，即可點擊下方發佈</p>
-                                </div>
+
                             </div>
                         </div>
                     </div>

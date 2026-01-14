@@ -179,19 +179,25 @@ class CardCaptureController extends Controller
         }
         
         // Common Chrome/Chromium paths on Linux
+        // Priority: Direct binary paths first (not wrapper scripts)
         $possibleChromePaths = [
-            // Puppeteer's downloaded Chrome in node_modules
-            $npmPath . '/puppeteer/.local-chromium/linux-*/chrome-linux/chrome',
-            // Puppeteer cache directory
+            // Puppeteer's downloaded Chrome (highest priority)
             getenv('HOME') . '/.cache/puppeteer/chrome/linux-*/chrome-linux64/chrome',
             '/root/.cache/puppeteer/chrome/linux-*/chrome-linux64/chrome',
-            // System Chrome/Chromium
+            $npmPath . '/puppeteer/.local-chromium/linux-*/chrome-linux/chrome',
+            // Direct Chromium binary paths (not wrapper scripts)
+            '/usr/lib64/chromium-browser/chromium-browser',
+            '/usr/lib/chromium-browser/chromium-browser',
+            '/usr/lib/chromium/chromium',
+            '/opt/chromium/chrome',
+            // Google Chrome direct paths
+            '/opt/google/chrome/chrome',
+            '/opt/google/chrome/google-chrome',
+            // System wrapper scripts (last resort - requires PATH)
             '/usr/bin/google-chrome',
             '/usr/bin/google-chrome-stable',
             '/usr/bin/chromium',
-            '/usr/bin/chromium-browser',
             '/snap/bin/chromium',
-            '/opt/google/chrome/chrome',
         ];
         
         $chromePath = $this->findExecutable($possibleChromePaths);
@@ -199,9 +205,10 @@ class CardCaptureController extends Controller
             $browsershot->setChromePath($chromePath);
         }
         
-        // Don't rely on system PATH for security and reliability
-        $browsershot->setIncludePath(false);
+        // Note: We do NOT set setIncludePath(false) because some Chromium installations
+        // use wrapper scripts that require system PATH to work properly
     }
+
     
     /**
      * Find an executable from a list of possible paths (supports glob patterns).

@@ -546,6 +546,7 @@ createApp({
                 page: 1 
             });
             showAdvancedFilters.value = false;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
         const handleEventSearch = () => {
@@ -559,6 +560,7 @@ createApp({
                 end_date: eventEndDate.value,
                 page: 1 
             });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
         const setDateRange = (type) => {
@@ -795,6 +797,17 @@ createApp({
         }, { deep: true });
 
         watch(profileTab, () => loadProfileEvents(false));
+
+        // Disable body scroll when adjustment modes are active
+        watch([isAdjustingPhoto, isAdjustingSig, isSigning], ([photo, sig, signing]) => {
+            if (photo || sig || signing) {
+                document.body.style.overflow = 'hidden';
+                document.body.style.touchAction = 'none';
+            } else {
+                document.body.style.overflow = '';
+                document.body.style.touchAction = '';
+            }
+        });
         
         // Players Watchers
         watch(currentPage, (newPage) => {
@@ -808,6 +821,7 @@ createApp({
                 backhand: selectedBackhand.value,
                 page: newPage 
             });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
         // Events Watchers
@@ -821,6 +835,7 @@ createApp({
                 end_date: eventEndDate.value,
                 page: 1 
             });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
         watch(eventCurrentPage, (newPage) => {
             if (typeof loadEvents === 'function') {
@@ -832,6 +847,7 @@ createApp({
                     end_date: eventEndDate.value,
                     page: newPage 
                 });
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         });
 

@@ -63,34 +63,65 @@
                         <div class="flex flex-col items-center gap-6">
                             {{-- If photo exists, show preview with controls --}}
                             <div v-if="form.photo" class="w-full">
-                                {{-- Photo Adjustment Mode --}}
-                                <div v-if="isAdjustingPhoto" class="space-y-4 animate__animated animate__fadeIn">
-                                    <div class="flex items-center justify-between px-2">
-                                        <h4 class="text-sm font-black uppercase tracking-widest text-slate-900">調整相片版面</h4>
-                                        <button type="button" @click="isAdjustingPhoto = false" class="bg-blue-600 text-white px-5 py-2 rounded-full text-xs font-black uppercase tracking-widest shadow-lg hover:bg-blue-500 transition-all">✓ 完成調整</button>
-                                    </div>
-                                    {{-- Larger, interactive preview --}}
-                                    <div class="relative w-full max-w-[320px] mx-auto aspect-[2.5/3.5] rounded-2xl overflow-hidden shadow-2xl border-4 border-white cursor-move bg-slate-100"
-                                        @mousedown="startDrag($event, 'photo')" @touchstart="startDrag($event, 'photo')">
-                                        <img :src="getUrl(form.photo)" 
-                                            class="absolute inset-0 w-full h-full object-contain pointer-events-none"
-                                            :style="{ transform: `translate(${form.photoX}%, ${form.photoY}%) scale(${form.photoScale})` }">
-                                        <div class="absolute inset-0 border-2 border-blue-500/50 pointer-events-none"></div>
-                                        <div class="absolute bottom-3 left-0 right-0 text-center">
-                                            <span class="bg-blue-600 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg">拖動調整位置</span>
+                                {{-- Photo Adjustment Mode (Full Screen Focused) --}}
+                                <teleport to="body">
+                                    <transition name="fade">
+                                        <div v-if="isAdjustingPhoto" class="fixed inset-0 z-[1000] bg-slate-950/95 backdrop-blur-2xl flex flex-col items-center justify-center p-6 animate__animated animate__fadeIn">
+                                            {{-- Header --}}
+                                            <div class="w-full max-w-[400px] flex items-center justify-between mb-8">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="w-1.5 h-6 bg-blue-600 rounded-full"></div>
+                                                    <h4 class="text-lg font-black uppercase tracking-widest text-white italic">調整照片版面</h4>
+                                                </div>
+                                                <button type="button" @click="isAdjustingPhoto = false" class="bg-blue-600 text-white px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest shadow-xl shadow-blue-600/30 hover:bg-blue-500 transition-all active:scale-95">✓ 完成調整</button>
+                                            </div>
+
+                                            {{-- Larger, interactive preview --}}
+                                            <div class="relative w-full max-w-[340px] aspect-[2.5/3.5] rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20 cursor-move bg-slate-900 touch-none"
+                                                @mousedown="startDrag($event, 'photo')" @touchstart.passive="startDrag($event, 'photo')">
+                                                <img :src="getUrl(form.photo)" 
+                                                    class="absolute inset-0 w-full h-full object-contain pointer-events-none"
+                                                    :style="{ transform: `translate(${form.photoX}%, ${form.photoY}%) scale(${form.photoScale})` }">
+                                                
+                                                {{-- Grid Guide --}}
+                                                <div class="absolute inset-0 border border-white/10 pointer-events-none">
+                                                    <div class="absolute top-1/3 left-0 w-full h-px bg-white/10"></div>
+                                                    <div class="absolute top-2/3 left-0 w-full h-px bg-white/10"></div>
+                                                    <div class="absolute left-1/3 top-0 w-px h-full bg-white/10"></div>
+                                                    <div class="absolute left-2/3 top-0 w-px h-full bg-white/10"></div>
+                                                </div>
+
+                                                <div class="absolute bottom-6 left-0 right-0 text-center">
+                                                    <span class="bg-white/10 backdrop-blur-md text-white text-[10px] font-black px-5 py-2 rounded-full uppercase tracking-widest border border-white/10">按住並拖動調整位置</span>
+                                                </div>
+                                            </div>
+
+                                            {{-- Zoom Slider --}}
+                                            <div class="mt-10 w-full max-w-[340px] space-y-4">
+                                                <div class="flex justify-between items-end">
+                                                    <div>
+                                                        <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Scale Multiplier</p>
+                                                        <h5 class="text-white text-sm font-black italic uppercase">縮放大小</h5>
+                                                    </div>
+                                                    <span class="text-blue-500 font-black text-xl italic leading-none">@{{ Math.round(form.photoScale * 100) }}%</span>
+                                                </div>
+                                                <div class="relative flex items-center">
+                                                    <div class="absolute left-0 right-0 h-1.5 bg-white/10 rounded-full"></div>
+                                                    <input type="range" v-model.number="form.photoScale" min="0.5" max="3" step="0.01" class="relative w-full h-2 bg-transparent rounded-full appearance-none cursor-pointer accent-blue-600 z-10">
+                                                </div>
+                                            </div>
+
+                                            {{-- Tips --}}
+                                            <div class="mt-12 text-center text-slate-500">
+                                                <p class="text-[10px] font-bold uppercase tracking-widest leading-relaxed">
+                                                    提示：雙手縮放可快速調整大小，單指拖動調整位置
+                                                </p>
+                                            </div>
                                         </div>
-                                    </div>
-                                    {{-- Zoom Slider --}}
-                                    <div class="space-y-2 px-4 max-w-[320px] mx-auto">
-                                        <div class="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-400">
-                                            <span>縮放大小</span>
-                                            <span class="text-blue-600">@{{ Math.round(form.photoScale * 100) }}%</span>
-                                        </div>
-                                        <input type="range" v-model.number="form.photoScale" min="0.5" max="3" step="0.01" class="w-full h-2 bg-slate-100 rounded-full appearance-none cursor-pointer accent-blue-600">
-                                    </div>
-                                </div>
+                                    </transition>
+                                </teleport>
                                 {{-- Normal Photo Preview (smaller) --}}
-                                <div v-else class="flex flex-col items-center gap-4">
+                                <div v-if="!isAdjustingPhoto" class="flex flex-col items-center gap-4">
                                     <div class="relative group">
                                         <div class="w-40 h-52 rounded-[28px] overflow-hidden border-4 border-white shadow-2xl bg-slate-100">
                                             <img :src="getUrl(form.photo)" class="w-full h-full object-contain" :style="{ transform: `translate(${form.photoX}%, ${form.photoY}%) scale(${form.photoScale})` }">

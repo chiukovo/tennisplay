@@ -375,6 +375,17 @@ const PlayerDetailModal = {
             if (e.key === 'Escape') emit('close');
         };
 
+        const touchStartX = ref(0);
+        const handleTouchStart = (e) => { touchStartX.value = e.touches[0].clientX; };
+        const handleTouchEnd = (e) => {
+            const touchEndX = e.changedTouches[0].clientX;
+            const diff = touchStartX.value - touchEndX;
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) navigate(1);
+                else navigate(-1);
+            }
+        };
+
         onMounted(() => window.addEventListener('keydown', handleKeydown));
         onUnmounted(() => window.removeEventListener('keydown', handleKeydown));
 
@@ -395,7 +406,7 @@ const PlayerDetailModal = {
             return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
         };
 
-        return { currentIndex, hasPrev, hasNext, transitionName, navigate, backStats, formatDate, comments, commentDraft, isLoadingComments, socialStatus, toggleFollowModal, toggleLikeModal, postComment };
+        return { currentIndex, hasPrev, hasNext, transitionName, navigate, handleTouchStart, handleTouchEnd, backStats, formatDate, comments, commentDraft, isLoadingComments, socialStatus, toggleFollowModal, toggleLikeModal, postComment };
     }
 };
 

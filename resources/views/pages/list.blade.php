@@ -162,7 +162,7 @@
     </div>
 
     {{-- Pagination --}}
-    <div v-if="totalPages > 1" class="flex items-center justify-center gap-2 pt-8">
+    <div v-if="totalPages > 1" class="flex flex-wrap items-center justify-center gap-2 pt-8">
         {{-- Previous Button --}}
         <button type="button" @click="currentPage = Math.max(1, playersPagination.current_page - 1)" :disabled="playersPagination.current_page === 1"
             :class="['w-10 h-10 rounded-xl font-black text-sm transition-all', playersPagination.current_page === 1 ? 'bg-slate-100 text-slate-300 cursor-not-allowed' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50']">
@@ -170,7 +170,7 @@
         </button>
         
         {{-- Page Numbers --}}
-        <div v-for="(page, idx) in displayPages" :key="'p-' + idx" class="inline-flex">
+        <div v-for="(page, idx) in displayPages" :key="'p-' + idx" class="flex">
             <span v-if="page === '...'" class="w-10 h-10 flex items-center justify-center text-slate-400">...</span>
             <button v-else type="button" @click="currentPage = page"
                 :class="['w-10 h-10 rounded-xl font-black text-sm transition-all', playersPagination.current_page === page ? 'bg-blue-600 text-white shadow-lg' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50']">

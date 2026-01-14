@@ -28,7 +28,7 @@
                 {{-- Main Scrollable Area (Mobile) / Split Layout (Desktop) --}}
                 <transition :name="transitionName" mode="out-in">
                     <div :key="player.id" 
-                        @touchstart="handleTouchStart" 
+                        @touchstart.passive="handleTouchStart" 
                         @touchend="handleTouchEnd"
                         class="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden no-scrollbar pb-24 md:pb-0">
                         {{-- Left: Card Display --}}

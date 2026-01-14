@@ -52,15 +52,16 @@
         
         /* Text gradient for name */
         .theme-gold .name-gradient { background: linear-gradient(90deg, #f59e0b, #fde68a, #d97706); }
-        .theme-platinum .name-gradient { background: linear-gradient(90deg, #94a3b8, #ffffff, #64748b); }
+        .theme-platinum .name-gradient { background: linear-gradient(90deg, #e2e8f0, #ffffff, #cbd5e1); }
         .theme-holographic .name-gradient { background: linear-gradient(90deg, #ec4899, #06b6d4, #fde047, #a855f7); }
-        .theme-onyx .name-gradient { background: linear-gradient(90deg, #1e293b, #475569, #0f172a); }
+        .theme-onyx .name-gradient { background: linear-gradient(90deg, #cbd5e1, #f1f5f9, #94a3b8); }
         .theme-sakura .name-gradient { background: linear-gradient(90deg, #f472b6, #fbcfe8, #ec4899); }
-        .theme-standard .name-gradient { background: linear-gradient(90deg, #3b82f6, #38bdf8, #6366f1); }
+        .theme-standard .name-gradient { background: linear-gradient(90deg, #3b82f6, #60a5fa, #6366f1); }
         
         .name-gradient {
             -webkit-background-clip: text;
             background-clip: text;
+            -webkit-text-fill-color: transparent;
             color: transparent;
         }
         

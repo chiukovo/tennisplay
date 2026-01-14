@@ -30,7 +30,7 @@ class CardCaptureController extends Controller
                 ->deviceScaleFactor(2) // Retina quality (900x1368 output)
                 ->hideBackground()
                 ->waitUntilNetworkIdle()
-                ->delay(500)
+                ->waitForFunction('document.fonts.ready')
                 ->timeout(30);
             
             // Configure paths for Windows/Linux

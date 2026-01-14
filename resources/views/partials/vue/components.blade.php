@@ -281,21 +281,35 @@ const PlayerCard = {
 
         const cardScale = ref(1);
         const containerHeight = ref(684);
+        let resizeObserver = null;
         
         const updateScale = () => {
             if (cardContainer.value) {
                 const containerWidth = cardContainer.value.offsetWidth;
-                cardScale.value = containerWidth / 450;
-                containerHeight.value = 684 * cardScale.value;
+                if (containerWidth > 0) {
+                    cardScale.value = containerWidth / 450;
+                    containerHeight.value = 684 * cardScale.value;
+                }
             }
         };
 
         onMounted(() => {
             updateScale();
             window.addEventListener('resize', updateScale);
+            
+            // 使用 ResizeObserver 處理彈窗動畫期間的尺寸變化
+            if (window.ResizeObserver && cardContainer.value) {
+                resizeObserver = new ResizeObserver(() => {
+                    updateScale();
+                });
+                resizeObserver.observe(cardContainer.value);
+            }
         });
         onUnmounted(() => {
             window.removeEventListener('resize', updateScale);
+            if (resizeObserver) {
+                resizeObserver.disconnect();
+            }
         });
 
         return { 

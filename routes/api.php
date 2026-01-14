@@ -10,12 +10,16 @@ use App\Http\Controllers\Api\EventCommentController;
 use App\Http\Controllers\Api\FollowController;
 use App\Http\Controllers\Api\LikeController;
 use App\Http\Controllers\Api\PlayerCommentController;
+use App\Http\Controllers\Api\CardCaptureController;
+
 // LINE Webhook
 Route::post('/line/webhook', [AuthController::class, 'handleWebhook']);
 
 // Public Player Routes
 Route::get('/players', [PlayerController::class, 'index']);
 Route::get('/players/{id}', [PlayerController::class, 'show'])->withoutMiddleware(['auth:sanctum', 'throttle:60,1']);
+Route::get('/players/{id}/card-image', [CardCaptureController::class, 'capture']);
+
 
 // Public Event Routes
 Route::get('/events', [EventController::class, 'index']);

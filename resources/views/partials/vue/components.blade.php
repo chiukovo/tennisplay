@@ -479,166 +479,67 @@ const ShareModal = {
 
         const copyLink = () => { navigator.clipboard.writeText(shareUrl.value); showToast('連結已複製', 'success'); };
 
-        const captureCardImage = async () => {
+        /**
+         * 使用後端 API 生成高保真卡片圖片
+         * 透過 Browsershot (Puppeteer) 渲染，確保 100% 保真度
+         */
+        const downloadCard = async () => {
+            if (!props.player?.id) {
+                showToast('無法取得球員資料', 'error');
+                return;
+            }
+            
             isCapturing.value = true;
-            await nextTick();
-            await document.fonts.ready;
-            await new Promise(resolve => setTimeout(resolve, 800));
-
-            let container = null;
+            
             try {
-                const originalCard = document.querySelector('.modal-content .capture-target');
-                if (!originalCard) throw new Error('找不到卡片元素');
-
-                // 1. 建立隱藏容器
-                container = document.createElement('div');
-                container.style.position = 'fixed';
-                container.style.left = '-9999px';
-                container.style.top = '0';
-                container.style.width = '450px';
-                container.style.zIndex = '-1000';
-                document.body.appendChild(container);
-
-                // 2. 克隆並強制樣式
-                const clonedCard = originalCard.cloneNode(true);
-                clonedCard.style.transform = 'none';
-                clonedCard.style.width = '450px';
-                clonedCard.style.height = '684px';
-                clonedCard.style.display = 'block';
-                clonedCard.style.visibility = 'visible';
-                clonedCard.style.fontFamily = "'Inter', sans-serif";
-                clonedCard.style.letterSpacing = "normal";
-                container.appendChild(clonedCard);
-
-                // 3. 全 Base64 預處理 (加入快取與超時機制)
-                const imageCache = new Map();
+                // 呼叫後端 API 生成圖片
+                const response = await api.get(`/players/${props.player.id}/card-image`);
                 
-                const toBase64 = async (url) => {
-                    if (!url || url.startsWith('data:')) return url;
-                    if (imageCache.has(url)) return imageCache.get(url);
-
-                    const promise = (async () => {
-                        const controller = new AbortController();
-                        const id = setTimeout(() => controller.abort(), 3000); // 3秒超時
-                        try {
-                            const response = await fetch(url, { mode: 'cors', signal: controller.signal });
-                            clearTimeout(id);
-                            const blob = await response.blob();
-                            return new Promise((resolve) => {
-                                const reader = new FileReader();
-                                reader.onloadend = () => resolve(reader.result);
-                                reader.readAsDataURL(blob);
-                            });
-                        } catch (e) {
-                            console.warn('Base64 conversion failed or timed out:', url, e);
-                            return url; // 失敗時回傳原網址，讓引擎自己嘗試
-                        }
-                    })();
-
-                    imageCache.set(url, promise);
-                    return promise;
-                };
-
-                // 處理所有 <img>
-                const imgs = Array.from(clonedCard.querySelectorAll('img'));
-                await Promise.all(imgs.map(async (img) => {
-                    if (img.src) {
-                        img.src = await toBase64(img.src);
-                        img.removeAttribute('srcset'); // 防止瀏覽器下載其他尺寸
-                    }
-                }));
-
-                // 處理所有帶有 background-image 的元素
-                const allElements = Array.from(clonedCard.querySelectorAll('*'));
-                await Promise.all(allElements.map(async (el) => {
-                    const style = window.getComputedStyle(el);
-                    const bg = style.backgroundImage;
-                    if (bg && bg !== 'none' && bg.includes('url(')) {
-                        const match = bg.match(/url\(["']?([^"']+)["']?\)/);
-                        if (match && match[1]) {
-                            const url = match[1];
-                            const b64 = await toBase64(url);
-                            el.style.backgroundImage = `url("${b64}")`;
-                        }
-                    }
-                }));
-
-                // 4. 雙引擎擷取策略
-                try {
-                    // Engine A: html-to-image (High Fidelity)
-                    const filter = (node) => {
-                        return (node.tagName !== 'SCRIPT' && 
-                               !node.classList?.contains('no-capture'));
-                    };
-
-                    // 使用 Promise.race 實作渲染超時機制
-                    const dataUrl = await Promise.race([
-                        htmlToImage.toPng(clonedCard, {
-                            width: 450,
-                            height: 684,
-                            style: { transform: 'none', left: '0', top: '0' },
-                            quality: 1.0,
-                            cacheBust: false, // 關閉以避免額外請求
-                            filter: filter,
-                            pixelRatio: 2 // 降低解析度以提升速度 (3 -> 2)
-                        }),
-                        new Promise((_, reject) => setTimeout(() => reject(new Error('Render Timeout')), 5000)) // 5秒強制超時
-                    ]);
-                    return dataUrl;
-
-                } catch (engineAError) {
-                    console.warn('html-to-image failed or timed out, falling back to html2canvas:', engineAError);
-                    
-                    // Engine B: html2canvas (Fallback)
-                    const canvas = await html2canvas(clonedCard, {
-                        useCORS: true,
-                        scale: 2, // 配合 Engine A 保持一致
-                        backgroundColor: null,
-                        logging: false,
-                        width: 450,
-                        height: 684,
-                        allowTaint: true,
-                        onclone: (doc) => {
-                            const el = doc.querySelector('.capture-target');
-                            if (el) {
-                                el.style.transform = 'none';
-                                el.style.boxShadow = 'none';
-                            }
-                        }
-                    });
-                    return canvas.toDataURL('image/png');
+                if (!response.data.success) {
+                    throw new Error(response.data.message || '圖片生成失敗');
                 }
-
+                
+                const dataUrl = response.data.image;
+                const fileName = response.data.filename || `player-card-${props.player.name || 'tennis'}.png`;
+                const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+                
+                // 處理下載/分享
+                if (!isMobile) {
+                    // 桌面環境：直接下載
+                    const link = document.createElement('a');
+                    link.download = fileName;
+                    link.href = dataUrl;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    showToast('圖片已開始下載', 'success');
+                    return;
+                }
+                
+                // 行動裝置：嘗試使用 Web Share API
+                const res = await fetch(dataUrl);
+                const blob = await res.blob();
+                const file = new File([blob], fileName, { type: 'image/png' });
+                
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    try {
+                        await navigator.share({ files: [file], title: '我的球員卡' });
+                        return;
+                    } catch (e) {
+                        // 使用者取消分享或不支援，fallback 到開新視窗
+                    }
+                }
+                
+                // Fallback: 開新視窗顯示圖片
+                window.open(dataUrl, '_blank');
+                showToast('請長按圖片儲存', 'info');
+                
             } catch (error) {
-                console.error('Capture error:', error);
-                showToast('圖片生成失敗，請稍後再試', 'error');
-                return null;
+                console.error('Card download error:', error);
+                showToast(error.response?.data?.message || '圖片生成失敗，請稍後再試', 'error');
             } finally {
-                if (container && container.parentNode) {
-                    document.body.removeChild(container);
-                }
                 isCapturing.value = false;
             }
-        };
-
-        const downloadCard = async () => {
-            const dataUrl = await captureCardImage();
-            if (!dataUrl) return;
-            const fileName = `player-card-${props.player.name || 'tennis'}.png`;
-            const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
-            try {
-                if (!isMobile) {
-                    const link = document.createElement('a'); link.download = fileName; link.href = dataUrl;
-                    document.body.appendChild(link); link.click(); document.body.removeChild(link);
-                    showToast('圖片已開始下載', 'success'); return;
-                }
-                const res = await fetch(dataUrl); const blob = await res.blob();
-                const file = new File([blob], fileName, { type: 'image/png' });
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    try { await navigator.share({ files: [file], title: '我的球員卡' }); return; } catch (e) {}
-                }
-                window.open(dataUrl, '_blank'); showToast('請長按圖片儲存', 'info');
-            } catch (error) { window.open(dataUrl, '_blank'); }
         };
 
         const shareToLine = () => {
@@ -696,6 +597,7 @@ const ShareModal = {
         };
     }
 };
+
 
 const MatchModal = {
     props: ['open', 'player'],

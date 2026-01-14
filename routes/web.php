@@ -143,7 +143,14 @@ Route::get('/profile/{uid}', function ($uid) use ($seoData) {
     ]);
 });
 
+// Internal card render route (for Browsershot capture)
+Route::get('/internal/card-render/{id}', function ($id) {
+    $player = \App\Models\Player::with('user')->findOrFail($id);
+    return view('pages.card-capture', ['player' => $player]);
+})->name('card.render');
+
 // SEO helpers
+
 Route::get('/robots.txt', function () {
     $content = "User-agent: *\nAllow: /\nSitemap: " . url('/sitemap.xml');
     return response($content, 200)->header('Content-Type', 'text/plain');

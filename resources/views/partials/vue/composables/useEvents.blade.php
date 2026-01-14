@@ -35,6 +35,14 @@ const useEvents = (isLoggedIn, showToast, navigateTo, formatLocalDateTime, event
 
     const createEvent = async () => {
         if (!isLoggedIn.value) { showToast('請先登入', 'error'); return; }
+        
+        // 前端防呆：驗證日期必須是未來時間
+        const eventDate = new Date(eventForm.event_date);
+        if (eventDate <= new Date()) {
+            showToast('活動日期必須是未來的時間', 'error');
+            return;
+        }
+        
         eventSubmitting.value = true;
         try {
             const response = await api.post('/events', eventForm);
@@ -51,6 +59,14 @@ const useEvents = (isLoggedIn, showToast, navigateTo, formatLocalDateTime, event
 
     const updateEvent = async (id) => {
         if (!isLoggedIn.value) { showToast('請先登入', 'error'); return; }
+        
+        // 前端防呆：驗證日期必須是未來時間
+        const eventDate = new Date(eventForm.event_date);
+        if (eventDate <= new Date()) {
+            showToast('活動日期必須是未來的時間', 'error');
+            return;
+        }
+        
         eventSubmitting.value = true;
         try {
             const response = await api.put(`/events/${id}`, eventForm);

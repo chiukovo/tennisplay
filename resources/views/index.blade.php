@@ -156,6 +156,55 @@
     </event-detail-modal>
     <privacy-modal v-model="showPrivacy" :navigate-to="navigateTo"></privacy-modal>
 
+    {{-- LINE Promo Modal --}}
+    <transition name="modal">
+        <div v-if="showLinePromo" class="fixed inset-0 z-[500] flex items-center justify-center p-4 sm:p-6 bg-slate-900/80 backdrop-blur-md modal-content" @click.self="showLinePromo = false">
+            <div class="bg-gradient-to-br from-blue-600 to-blue-700 w-full max-w-md rounded-[40px] overflow-hidden shadow-2xl relative animate__animated animate__zoomIn animate__faster">
+                {{-- Decorative Background --}}
+                <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
+                <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-2xl -ml-24 -mb-24"></div>
+                
+                {{-- Close Button --}}
+                <button type="button" @click="showLinePromo = false" class="absolute top-5 right-5 z-20 p-2 bg-white/10 hover:bg-white/20 backdrop-blur rounded-xl transition-all border border-white/10">
+                    <app-icon name="x" class-name="w-5 h-5 text-white/70"></app-icon>
+                </button>
+
+                {{-- Content --}}
+                <div class="relative z-10 p-8 sm:p-10 text-white text-center space-y-6">
+                    {{-- QR Code --}}
+                    <div class="bg-white p-4 rounded-3xl inline-block shadow-2xl shadow-blue-900/30 mx-auto">
+                        <img src="/img/lineqrcode.png" alt="LINE QR Code" class="w-40 h-40 sm:w-48 sm:h-48">
+                    </div>
+
+                    {{-- Title & Description --}}
+                    <div class="space-y-2">
+                        <h3 class="text-2xl sm:text-3xl font-black uppercase tracking-tight">即時收到約打通知！</h3>
+                        <p class="text-blue-100 text-sm sm:text-base font-bold leading-relaxed">
+                            加入 LoveTennis 官方 LINE 好友，<br class="hidden sm:block">不再錯過任何挑戰與邀約。
+                        </p>
+                    </div>
+
+                    {{-- LINE ID Badge --}}
+                    <div class="bg-white/20 backdrop-blur-md px-5 py-3 rounded-2xl inline-block">
+                        <span class="text-[10px] font-bold text-blue-200 uppercase tracking-widest block mb-1">LINE ID</span>
+                        <span class="text-lg font-black tracking-wider">@344epiuj</span>
+                    </div>
+
+                    {{-- Action Button --}}
+                    <a href="https://line.me/R/ti/p/@344epiuj" target="_blank" 
+                       class="block w-full bg-white text-blue-600 py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-sm hover:bg-blue-50 transition-all shadow-xl shadow-blue-900/20">
+                        立即加入好友
+                    </a>
+
+                    {{-- Subtle Hint --}}
+                    <p class="text-[11px] text-blue-200/60 font-medium">
+                        掃描 QR Code 或點擊按鈕即可加入
+                    </p>
+                </div>
+            </div>
+        </div>
+    </transition>
+
     {{-- Global Loading Overlay --}}
     <div v-if="isLoading" class="fixed inset-0 bg-slate-950/50 backdrop-blur-sm z-[200] flex items-center justify-center">
         <div class="bg-white rounded-3xl p-8 shadow-2xl flex items-center gap-4">

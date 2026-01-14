@@ -1,40 +1,30 @@
 {{-- Messages View --}}
-<div v-if="view === 'messages'" class="max-w-4xl mx-auto space-y-8 animate__animated animate__fadeIn">
+<div v-if="view === 'messages'" class="max-w-4xl mx-auto space-y-4 sm:space-y-8 animate__animated animate__fadeIn">
     {{-- Header --}}
     <div class="flex items-center justify-between">
         <div>
-            <h2 class="text-4xl sm:text-5xl font-black italic uppercase tracking-tighter">約打訊息</h2>
-            <p class="text-slate-400 font-bold text-sm uppercase tracking-[0.2em] mt-2">My Messages</p>
+            <h2 class="text-2xl sm:text-5xl font-black italic uppercase tracking-tighter">約打訊息</h2>
+            <p class="text-slate-400 font-bold text-xs sm:text-sm uppercase tracking-[0.2em] mt-1 sm:mt-2">My Messages</p>
         </div>
         <div v-if="messages.length > 0" class="text-right">
-            <div class="text-2xl font-black text-blue-600">@{{ messages.filter(m => m.unread || !m.read_at).length }}</div>
-            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">未讀</div>
+            <div class="text-xl sm:text-2xl font-black text-blue-600">@{{ messages.filter(m => m.unread || !m.read_at).length }}</div>
+            <div class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">未讀</div>
         </div>
     </div>
     
-    {{-- LINE Add Friend Promo --}}
-    <div class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-xl shadow-blue-500/20">
-        <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
-        <div class="relative z-10 flex flex-col sm:flex-row items-center gap-8">
-            <div class="bg-white p-3 rounded-2xl flex-shrink-0 shadow-lg">
-                <img src="/img/lineqrcode.png" alt="LINE QR Code" class="w-32 h-32">
+    {{-- LINE Add Friend Button --}}
+    <button @click="showLinePromo = true" class="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white rounded-xl sm:rounded-2xl px-4 py-2.5 sm:px-5 sm:py-3.5 flex items-center justify-between gap-3 shadow-lg shadow-blue-500/20 transition-all group">
+        <div class="flex items-center gap-2.5 sm:gap-3">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 backdrop-blur rounded-lg sm:rounded-xl flex items-center justify-center">
+                <app-icon name="bell" class-name="w-4 h-4 sm:w-5 sm:h-5"></app-icon>
             </div>
-            <div class="flex-1 text-center sm:text-left space-y-4">
-                <div class="space-y-1">
-                    <h3 class="text-2xl font-black uppercase tracking-tight">即時收到約打通知！</h3>
-                    <p class="text-blue-100 text-sm font-bold">加入 LoveTennis 官方 LINE 好友，不再錯過任何挑戰與邀約。</p>
-                </div>
-                <div class="flex flex-wrap items-center justify-center sm:justify-start gap-3">
-                    <div class="bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl text-sm font-bold">
-                        Line ID: @344epiuj
-                    </div>
-                    <a href="https://line.me/R/ti/p/@344epiuj" target="_blank" class="bg-white text-blue-600 px-6 py-2 rounded-xl text-sm font-black uppercase tracking-wider hover:bg-blue-50 transition-colors">
-                        立即加入
-                    </a>
-                </div>
+            <div class="text-left">
+                <div class="font-black text-xs sm:text-sm uppercase tracking-tight">加入好友 立即收到通知</div>
+                <div class="text-[9px] sm:text-[10px] text-blue-100 font-bold hidden sm:block">加入 LINE 官方帳號，約打邀請即時推播</div>
             </div>
         </div>
-    </div>
+        <app-icon name="chevron-right" class-name="w-4 h-4 sm:w-5 sm:h-5 opacity-60 group-hover:translate-x-1 transition-transform"></app-icon>
+    </button>
 
     {{-- Login Required --}}
     <div v-if="!isLoggedIn" class="bg-white rounded-[48px] shadow-2xl border border-slate-100 p-16 text-center">
@@ -49,41 +39,41 @@
     </div>
 
     {{-- Messages List (LINE-Style) --}}
-    <div v-else-if="messages.length > 0" class="bg-white rounded-[40px] shadow-2xl border border-slate-100 overflow-hidden">
+    <div v-else-if="messages.length > 0" class="bg-white rounded-[24px] sm:rounded-[40px] shadow-2xl border border-slate-100 overflow-hidden">
         <div class="divide-y divide-slate-50">
-            <div v-for="m in paginatedMessages" :key="m.id" @click="openMessage(m)" class="p-5 sm:p-6 hover:bg-slate-50 transition-all cursor-pointer relative group flex items-center gap-4 border-l-4 border-transparent" :class="m.unread_count > 0 ? 'bg-blue-50/20 border-l-blue-600' : ''">
+            <div v-for="m in paginatedMessages" :key="m.id" @click="openMessage(m)" class="p-3.5 sm:p-6 hover:bg-slate-50 transition-all cursor-pointer relative group flex items-center gap-3 sm:gap-4 border-l-4 border-transparent" :class="m.unread_count > 0 ? 'bg-blue-50/20 border-l-blue-600' : ''">
                 {{-- Avatar with Unread Dot --}}
                 <div class="relative shrink-0">
-                    <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-500 text-xl font-black uppercase shadow-inner border-2 border-white">
+                    <div class="w-11 h-11 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-500 text-base sm:text-xl font-black uppercase shadow-inner border-2 border-white">
                         @{{ (m.sender?.uid === currentUser.uid ? m.receiver?.name : m.sender?.name)?.[0] || '?' }}
                     </div>
-                    <div v-if="m.unread_count > 0" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 border-2 border-white rounded-full shadow-sm animate-pulse"></div>
+                    <div v-if="m.unread_count > 0" class="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 border-2 border-white rounded-full shadow-sm animate-pulse"></div>
                 </div>
                 
                 {{-- Content --}}
                 <div class="flex-1 min-w-0">
-                    <div class="flex justify-between items-center mb-1">
-                        <h4 class="font-black italic uppercase tracking-tight text-base sm:text-lg text-slate-800 truncate pr-2">
+                    <div class="flex justify-between items-center mb-0.5 sm:mb-1">
+                        <h4 class="font-black italic uppercase tracking-tight text-sm sm:text-lg text-slate-800 truncate pr-2">
                             @{{ m.sender?.uid === currentUser.uid ? m.receiver?.name : m.sender?.name }}
                         </h4>
-                        <span class="text-[11px] font-bold text-slate-400 whitespace-nowrap">@{{ formatDate(m.created_at) }}</span>
+                        <span class="text-[10px] sm:text-[11px] font-bold text-slate-400 whitespace-nowrap">@{{ formatDate(m.created_at) }}</span>
                     </div>
-                    <div class="flex items-center justify-between gap-4">
-                        <p class="text-sm font-medium text-slate-500 truncate group-hover:text-slate-900 transition-colors leading-snug">
+                    <div class="flex items-center justify-between gap-2 sm:gap-4">
+                        <p class="text-xs sm:text-sm font-medium text-slate-500 truncate group-hover:text-slate-900 transition-colors leading-snug">
                             <span v-if="m.sender?.uid === currentUser.uid" class="text-blue-500 font-bold mr-1">您:</span>
                             @{{ m.content }}
                         </p>
-                        <div v-if="m.unread_count > 0" class="bg-blue-600 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-md shrink-0">
+                        <div v-if="m.unread_count > 0" class="bg-blue-600 text-white text-[9px] sm:text-[10px] font-black px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full shadow-md shrink-0">
                             @{{ m.unread_count }}
                         </div>
                     </div>
                     <div v-if="m.player" class="mt-1 flex items-center gap-1">
-                        <span class="text-[10px] bg-slate-100 text-slate-400 font-black px-2 py-0.5 rounded-md uppercase tracking-tighter italic">關於卡片: @{{ m.player.name }}</span>
+                        <span class="text-[9px] sm:text-[10px] bg-slate-100 text-slate-400 font-black px-1.5 sm:px-2 py-0.5 rounded-md uppercase tracking-tighter italic">關於卡片: @{{ m.player.name }}</span>
                     </div>
                 </div>
 
-                {{-- Hover Indicator --}}
-                <div class="absolute right-4 text-slate-200 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0">
+                {{-- Hover Indicator (hidden on mobile) --}}
+                <div class="absolute right-3 sm:right-4 text-slate-200 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0 hidden sm:block">
                     <app-icon name="chevron-right" class-name="w-5 h-5"></app-icon>
                 </div>
             </div>

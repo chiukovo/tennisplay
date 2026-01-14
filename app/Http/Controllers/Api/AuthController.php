@@ -120,7 +120,7 @@ class AuthController extends Controller
 
                     if ($avatarResponse->successful() && $isImage && strlen($avatarResponse->body()) <= $maxBytes) {
                         $extension = 'jpg'; // LINE avatars are usually jpg
-                        $filename = 'avatar_' . $lineUserId . '_' . time() . '.' . $extension;
+                        $filename = 'avatar_' . $lineUserId . '.' . $extension;
                         $path = 'avatars/' . $filename;
                         
                         // Ensure directory exists
@@ -128,9 +128,12 @@ class AuthController extends Controller
                             Storage::disk('public')->makeDirectory('avatars');
                         }
 
-                        // Save to storage/app/public/avatars
+                        // Save to storage/app/public/avatars (overwrites existing file)
                         Storage::disk('public')->put($path, $avatarResponse->body());
-                        $localAvatarPath = '/storage/' . $path;
+                        
+                        // Add version query string to bust cache
+                        $avatarVersion = time();
+                        $localAvatarPath = '/storage/' . $path . '?v=' . $avatarVersion;
                     } else {
                         $localAvatarPath = $linePicture;
                     }
@@ -154,12 +157,7 @@ class AuthController extends Controller
                 ]);
             } else {
                 // Update existing user's LINE info
-                // If we have a new local avatar, we might want to delete the old one
-                $oldRawPath = $user->getRawOriginal('line_picture_url');
-                if ($localAvatarPath && $oldRawPath && Str::startsWith($oldRawPath, '/storage/avatars/')) {
-                    $oldPath = str_replace('/storage/', '', $oldRawPath);
-                    Storage::disk('public')->delete($oldPath);
-                }
+                // Avatar file is now overwritten with the same filename, no need to delete old file
 
                 $updateData = [
                     'line_picture_url' => $localAvatarPath ?: $user->line_picture_url,

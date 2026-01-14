@@ -62,44 +62,44 @@
             <p class="text-slate-400 font-medium text-sm sm:text-lg max-w-xl mx-auto">從建立球友卡到找到球伴，只需要簡單三步驟</p>
         </div>
         
-        {{-- Mobile: Horizontal Scroll / Desktop: Grid --}}
-        <div class="flex overflow-x-auto no-scrollbar snap-x snap-mandatory gap-4 pb-4 pt-6 -mx-4 px-4 sm:mx-0 sm:px-0 md:grid md:grid-cols-3 md:gap-8">
-            <div class="relative bg-white rounded-[28px] sm:rounded-[40px] p-6 sm:p-10 border border-slate-100 shadow-lg text-center min-w-[240px] sm:min-w-0 snap-center shrink-0 group hover:-translate-y-2 transition-all">
-                <div class="absolute -top-4 sm:-top-6 left-1/2 -translate-x-1/2 w-8 h-8 sm:w-12 sm:h-12 bg-blue-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-white font-black text-sm sm:text-xl shadow-xl shadow-blue-600/30">1</div>
-                <div class="pt-2 sm:pt-6">
-                    <div class="w-12 h-12 sm:w-20 sm:h-20 bg-blue-50 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-3 sm:mb-6 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6 sm:w-10 sm:h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        {{-- Mobile: Vertical Stack / Desktop: Grid --}}
+        <div class="grid grid-cols-1 gap-4 pt-6 sm:grid-cols-3 sm:gap-8">
+            <div class="relative bg-white rounded-[24px] sm:rounded-[40px] p-4 sm:p-10 border border-slate-100 shadow-lg flex items-center gap-4 sm:block sm:text-center group hover:-translate-y-1 sm:hover:-translate-y-2 transition-all">
+                <div class="sm:absolute sm:-top-6 sm:left-1/2 sm:-translate-x-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-blue-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-white font-black text-base sm:text-xl shadow-xl shadow-blue-600/30 shrink-0">1</div>
+                <div class="flex-1 sm:pt-6">
+                    <div class="hidden sm:flex w-20 h-20 bg-blue-50 rounded-3xl items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                        <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-sm sm:text-xl font-black italic uppercase tracking-tight mb-1 sm:mb-3">建立球友卡</h3>
-                    <p class="text-slate-400 font-medium text-[11px] sm:text-base leading-relaxed">上傳照片、設定等級，30秒完成</p>
+                    <h3 class="text-sm sm:text-xl font-black italic uppercase tracking-tight mb-0.5 sm:mb-3">建立球友卡</h3>
+                    <p class="text-slate-400 font-medium text-xs sm:text-base leading-relaxed">上傳照片、設定等級，30秒完成</p>
                 </div>
             </div>
             
-            <div class="relative bg-white rounded-[28px] sm:rounded-[40px] p-6 sm:p-10 border border-slate-100 shadow-lg text-center min-w-[240px] sm:min-w-0 snap-center shrink-0 group hover:-translate-y-2 transition-all">
-                <div class="absolute -top-4 sm:-top-6 left-1/2 -translate-x-1/2 w-8 h-8 sm:w-12 sm:h-12 bg-slate-900 rounded-xl sm:rounded-2xl flex items-center justify-center text-white font-black text-sm sm:text-xl shadow-xl">2</div>
-                <div class="pt-2 sm:pt-6">
-                    <div class="w-12 h-12 sm:w-20 sm:h-20 bg-slate-100 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-3 sm:mb-6 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6 sm:w-10 sm:h-10 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="relative bg-white rounded-[24px] sm:rounded-[40px] p-4 sm:p-10 border border-slate-100 shadow-lg flex items-center gap-4 sm:block sm:text-center group hover:-translate-y-1 sm:hover:-translate-y-2 transition-all">
+                <div class="sm:absolute sm:-top-6 sm:left-1/2 sm:-translate-x-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-slate-900 rounded-xl sm:rounded-2xl flex items-center justify-center text-white font-black text-base sm:text-xl shadow-xl shrink-0">2</div>
+                <div class="flex-1 sm:pt-6">
+                    <div class="hidden sm:flex w-20 h-20 bg-slate-100 rounded-3xl items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                        <svg class="w-10 h-10 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-sm sm:text-xl font-black italic uppercase tracking-tight mb-1 sm:mb-3">瀏覽球友列表</h3>
-                    <p class="text-slate-400 font-medium text-[11px] sm:text-base leading-relaxed">依地區、等級篩選球伴</p>
+                    <h3 class="text-sm sm:text-xl font-black italic uppercase tracking-tight mb-0.5 sm:mb-3">瀏覽球友列表</h3>
+                    <p class="text-slate-400 font-medium text-xs sm:text-base leading-relaxed">依地區、等級篩選球伴</p>
                 </div>
             </div>
             
-            <div class="relative bg-white rounded-[28px] sm:rounded-[40px] p-6 sm:p-10 border border-slate-100 shadow-lg text-center min-w-[240px] sm:min-w-0 snap-center shrink-0 group hover:-translate-y-2 transition-all">
-                <div class="absolute -top-4 sm:-top-6 left-1/2 -translate-x-1/2 w-8 h-8 sm:w-12 sm:h-12 bg-green-500 rounded-xl sm:rounded-2xl flex items-center justify-center text-white font-black text-sm sm:text-xl shadow-xl shadow-green-500/30">3</div>
-                <div class="pt-2 sm:pt-6">
-                    <div class="w-12 h-12 sm:w-20 sm:h-20 bg-green-50 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-3 sm:mb-6 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6 sm:w-10 sm:h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="relative bg-white rounded-[24px] sm:rounded-[40px] p-4 sm:p-10 border border-slate-100 shadow-lg flex items-center gap-4 sm:block sm:text-center group hover:-translate-y-1 sm:hover:-translate-y-2 transition-all">
+                <div class="sm:absolute sm:-top-6 sm:left-1/2 sm:-translate-x-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-green-500 rounded-xl sm:rounded-2xl flex items-center justify-center text-white font-black text-base sm:text-xl shadow-xl shadow-green-500/30 shrink-0">3</div>
+                <div class="flex-1 sm:pt-6">
+                    <div class="hidden sm:flex w-20 h-20 bg-green-50 rounded-3xl items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                        <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-sm sm:text-xl font-black italic uppercase tracking-tight mb-1 sm:mb-3">發送約打邀請</h3>
-                    <p class="text-slate-400 font-medium text-[11px] sm:text-base leading-relaxed">站內訊息，安全有保障</p>
+                    <h3 class="text-sm sm:text-xl font-black italic uppercase tracking-tight mb-0.5 sm:mb-3">發送約打邀請</h3>
+                    <p class="text-slate-400 font-medium text-xs sm:text-base leading-relaxed">站內訊息，安全有保障</p>
                 </div>
             </div>
         </div>

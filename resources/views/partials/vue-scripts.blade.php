@@ -50,6 +50,7 @@ createApp({
         const selectedChatUser = ref(null);
         const showMessageDetail = ref(false);
         const showPrivacy = ref(false);
+        const showLinePromo = ref(false);
         const showPreview = ref(false);
         const showQuickEditModal = ref(false);
         const settingsForm = reactive({ 
@@ -805,7 +806,7 @@ createApp({
             form, eventForm, currentStep, stepAttempted, isAdjustingPhoto, isAdjustingSig, isCapturing,
             searchQuery, searchDraft, selectedRegion, currentPage, perPage, matchModal, detailPlayer,
             eventFilter, eventRegionFilter, eventSearchQuery, eventSearchDraft, eventStartDate, eventEndDate, eventDateShortcut, eventCurrentPage, eventPerPage, showEventDetail, activeEvent, eventComments, eventCommentDraft,
-            showNtrpGuide, showPrivacy, showMessageDetail, selectedChatUser, isLoading, isAuthLoading,
+            showNtrpGuide, showPrivacy, showLinePromo, showMessageDetail, selectedChatUser, isLoading, isAuthLoading,
             showPreview, showQuickEditModal, features, cardThemes,
             settingsForm, isSavingSettings, toasts, confirmDialog, dragInfo,
             profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,

@@ -136,9 +136,12 @@ class User extends Authenticatable
     public function getLinePictureUrlAttribute($value)
     {
         if ($value && Str::startsWith($value, '/storage/')) {
-            return asset(ltrim($value, '/'));
+            // Separate path and query string (version)
+            $parts = explode('?', $value, 2);
+            $path = $parts[0];
+            $query = isset($parts[1]) ? '?' . $parts[1] : '';
+            return asset(ltrim($path, '/')) . $query;
         }
         return $value;
     }
 }
-

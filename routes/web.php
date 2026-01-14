@@ -186,4 +186,8 @@ Route::get('/sitemap.xml', function () {
 Route::get('/auth/line', [AuthController::class, 'lineLogin'])->name('line.login');
 Route::get('/auth/line/callback', [AuthController::class, 'lineCallback'])->name('line.callback');
 
-
+// Dev Login Routes (local environment only)
+if (app()->environment('local')) {
+    Route::get('/dev-login', [\App\Http\Controllers\Api\DevAuthController::class, 'showLoginForm'])->name('dev.login');
+    Route::post('/dev-login', [\App\Http\Controllers\Api\DevAuthController::class, 'devLogin'])->name('dev.login.submit');
+}

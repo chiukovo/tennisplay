@@ -746,12 +746,70 @@ const ShareModal = {
 
         const downloadCard = async () => {
             const dataUrl = await captureCardImage();
-            if (dataUrl) {
+            if (!dataUrl) return;
+
+            try {
+                // Convert dataUrl to Blob and File for sharing
+                const res = await fetch(dataUrl);
+                const blob = await res.blob();
+                const fileName = `player-card-${props.player.name || 'tennis'}.png`;
+                const file = new File([blob], fileName, { type: 'image/png' });
+
+                // 1. Try Web Share API (Best for Mobile)
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    try {
+                        await navigator.share({
+                            files: [file],
+                            title: '我的球員卡',
+                            text: '🎾 這是我的網球球員卡！'
+                        });
+                        return; // Success
+                    } catch (shareErr) {
+                        if (shareErr.name !== 'AbortError') {
+                            console.error('Share failed:', shareErr);
+                        } else {
+                            return; // User cancelled share
+                        }
+                    }
+                }
+
+                // 2. Fallback for Mobile (especially iOS)
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                             (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+                if (isIOS || isMobile) {
+                    // Open in new tab for manual save
+                    const newTab = window.open();
+                    if (newTab) {
+                        newTab.document.write(`
+                            <html>
+                                <head><title>儲存球員卡</title></head>
+                                <body style="margin:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#f1f5f9; font-family:sans-serif;">
+                                    <img src="${dataUrl}" style="max-width:90%; max-height:80vh; border-radius:20px; shadow:0 20px 25px -5px rgb(0 0 0 / 0.1);">
+                                    <p style="margin-top:20px; font-weight:bold; color:#64748b;">請長按圖片並選擇「儲存圖片」</p>
+                                    <button onclick="window.close()" style="margin-top:20px; padding:10px 20px; background:#2563eb; color:white; border:none; border-radius:10px; font-weight:bold;">關閉視窗</button>
+                                </body>
+                            </html>
+                        `);
+                        showToast('請長按圖片儲存', 'info');
+                        return;
+                    }
+                }
+
+                // 3. Standard Download for Desktop
                 const link = document.createElement('a');
-                link.download = `player-card-${props.player.name}.png`;
+                link.download = fileName;
                 link.href = dataUrl;
+                document.body.appendChild(link);
                 link.click();
+                document.body.removeChild(link);
                 showToast('圖片已開始下載', 'success');
+            } catch (error) {
+                console.error('Download error:', error);
+                // Last resort fallback
+                window.open(dataUrl, '_blank');
+                showToast('請長按圖片儲存', 'info');
             }
         };
 

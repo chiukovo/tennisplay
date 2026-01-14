@@ -217,6 +217,14 @@ class PlayerController extends Controller
     {
         $player = Player::findOrFail($id);
 
+        $user = $this->resolveUser($request);
+        if ($user && $player->user_id && $player->user_id != $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => '無權限修改此照片',
+            ], 403);
+        }
+
         $request->validate([
             'photo' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
@@ -239,9 +247,26 @@ class PlayerController extends Controller
 
     private function saveBase64Image($base64, $folder)
     {
-        preg_match('/^data:image\/(\w+);base64,/', $base64, $matches);
-        $extension = $matches[1] ?? 'png';
+        // 1. Validate Base64 Format and Extract MIME
+        if (!preg_match('/^data:image\/(\w+);base64,/', $base64, $matches)) {
+            throw new \Exception('無效的圖片格式');
+        }
+        
+        $extension = strtolower($matches[1]);
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+        
+        if (!in_array($extension, $allowedExtensions)) {
+            throw new \Exception('不支援的圖片類型（僅限 jpg, png, webp）');
+        }
+
         $imageData = base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $base64));
+        
+        // 2. Security Check: Validate actual image content
+        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo->buffer($imageData);
+        if (!Str::startsWith($mimeType, 'image/') || str_contains($mimeType, 'gif')) {
+            throw new \Exception('非法的文件內容');
+        }
 
         $filename = Str::uuid() . '.' . $extension;
         $path = $folder . '/' . $filename;
@@ -254,13 +279,30 @@ class PlayerController extends Controller
     private function downloadRemoteImage($url, $folder)
     {
         try {
-            $response = \Illuminate\Support\Facades\Http::get($url);
+            // SSRF Protection: Parse URL and check host
+            $host = parse_url($url, PHP_URL_HOST);
+            if (!$host || $host === 'localhost' || $host === '127.0.0.1' || $host === '::1') {
+                return $url;
+            }
+
+            // Block private IP ranges
+            if (filter_var($host, FILTER_VALIDATE_IP)) {
+                if (!filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+                    return $url;
+                }
+            }
+
+            $response = \Illuminate\Support\Facades\Http::timeout(5)->get($url);
             if ($response->successful()) {
-                $extension = 'jpg';
                 $contentType = $response->header('Content-Type');
-                if (str_contains($contentType, 'png')) $extension = 'png';
-                elseif (str_contains($contentType, 'webp')) $extension = 'webp';
-                elseif (str_contains($contentType, 'gif')) $extension = 'gif';
+                
+                // Only allow specific non-gif image types
+                $extension = null;
+                if (str_contains($contentType, 'image/jpeg')) $extension = 'jpg';
+                elseif (str_contains($contentType, 'image/png')) $extension = 'png';
+                elseif (str_contains($contentType, 'image/webp')) $extension = 'webp';
+                
+                if (!$extension) return $url;
 
                 $filename = Str::uuid() . '.' . $extension;
                 $path = $folder . '/' . $filename;

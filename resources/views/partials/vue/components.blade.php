@@ -510,21 +510,31 @@ const ShareModal = {
                 clonedCard.style.letterSpacing = "normal";
                 container.appendChild(clonedCard);
 
-                // 3. 全 Base64 預處理 (共用邏輯)
+                // 3. 全 Base64 預處理 (加入快取機制，解決重複請求與卡頓)
+                const imageCache = new Map();
+                
                 const toBase64 = async (url) => {
                     if (!url || url.startsWith('data:')) return url;
-                    try {
-                        const response = await fetch(url, { mode: 'cors' });
-                        const blob = await response.blob();
-                        return new Promise((resolve) => {
-                            const reader = new FileReader();
-                            reader.onloadend = () => resolve(reader.result);
-                            reader.readAsDataURL(blob);
-                        });
-                    } catch (e) {
-                        console.warn('Base64 conversion failed:', url, e);
-                        return url;
-                    }
+                    if (imageCache.has(url)) return imageCache.get(url); // 回傳已存在的 Promise 或結果
+
+                    // 建立請求 Promise 並存入快取
+                    const promise = (async () => {
+                        try {
+                            const response = await fetch(url, { mode: 'cors' });
+                            const blob = await response.blob();
+                            return new Promise((resolve) => {
+                                const reader = new FileReader();
+                                reader.onloadend = () => resolve(reader.result);
+                                reader.readAsDataURL(blob);
+                            });
+                        } catch (e) {
+                            console.warn('Base64 conversion failed:', url, e);
+                            return url;
+                        }
+                    })();
+
+                    imageCache.set(url, promise);
+                    return promise;
                 };
 
                 // 處理所有 <img>
@@ -539,16 +549,18 @@ const ShareModal = {
                     const style = window.getComputedStyle(el);
                     const bg = style.backgroundImage;
                     if (bg && bg !== 'none' && bg.includes('url(')) {
-                        const url = bg.match(/url\(["']?([^"']+)["']?\)/)[1];
-                        const b64 = await toBase64(url);
-                        el.style.backgroundImage = `url("${b64}")`;
+                        const match = bg.match(/url\(["']?([^"']+)["']?\)/);
+                        if (match && match[1]) {
+                            const url = match[1];
+                            const b64 = await toBase64(url);
+                            el.style.backgroundImage = `url("${b64}")`;
+                        }
                     }
                 }));
 
                 // 4. 雙引擎擷取策略
                 try {
-                    // Engine A: html-to-image (High Fidelity, 支援漸層/毛玻璃)
-                    // 使用 filter 排除干擾元素
+                    // Engine A: html-to-image (High Fidelity)
                     const filter = (node) => {
                         return (node.tagName !== 'SCRIPT' && 
                                !node.classList?.contains('no-capture'));
@@ -561,14 +573,14 @@ const ShareModal = {
                         quality: 1.0,
                         cacheBust: true,
                         filter: filter,
-                        pixelRatio: 3 // 3x 高解析度
+                        pixelRatio: 3
                     });
                     return dataUrl;
 
                 } catch (engineAError) {
                     console.warn('html-to-image failed, falling back to html2canvas:', engineAError);
                     
-                    // Engine B: html2canvas (High Compatibility, 備援)
+                    // Engine B: html2canvas (Fallback)
                     const canvas = await html2canvas(clonedCard, {
                         useCORS: true,
                         scale: 3,

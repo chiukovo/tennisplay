@@ -685,86 +685,63 @@ const ShareModal = {
         const captureCardImage = async () => {
             isCapturing.value = true;
             await nextTick();
-            // Wait for any pending renders
-            await new Promise(resolve => setTimeout(resolve, 600));
+            // 給予足夠時間讓動畫與樣式穩定
+            await new Promise(resolve => setTimeout(resolve, 800));
 
-            let container = null;
             try {
-                const originalCard = document.querySelector('.modal-content .capture-target');
-                if (!originalCard) throw new Error('找不到卡片元素');
+                const cardElement = document.querySelector('.modal-content .capture-target');
+                if (!cardElement) throw new Error('找不到卡片元素');
 
-                // Create a container off-screen
-                container = document.createElement('div');
-                container.style.position = 'fixed';
-                container.style.left = '-9999px';
-                container.style.top = '0';
-                container.style.width = '450px';
-                container.style.height = '684px';
-                container.style.zIndex = '-1000';
-                container.style.backgroundColor = 'transparent';
-                document.body.appendChild(container);
+                // 1. 預處理圖片：將所有圖片轉為 Base64 以徹底解決 CORS 問題
+                const imgs = Array.from(cardElement.querySelectorAll('img'));
+                const originalSrcs = new Map();
 
-                // Wrap in a div that preserves the CSS context (important for styles)
-                const contextWrapper = document.createElement('div');
-                contextWrapper.className = 'modal-content'; // Preserve modal styles
-                contextWrapper.style.width = '450px';
-                contextWrapper.style.height = '684px';
-                
-                const clonedCard = originalCard.cloneNode(true);
-                clonedCard.style.width = '450px';
-                clonedCard.style.height = '684px';
-                clonedCard.style.transform = 'none';
-                clonedCard.style.margin = '0';
-                clonedCard.style.padding = '0';
-                clonedCard.style.visibility = 'visible';
-                clonedCard.style.opacity = '1';
-                clonedCard.style.containerType = 'inline-size'; // Ensure container query works
-                
-                // Ensure all images have crossorigin
-                const imgs = Array.from(clonedCard.querySelectorAll('img'));
-                imgs.forEach(img => {
+                await Promise.all(imgs.map(async (img) => {
                     if (img.src && !img.src.startsWith('data:')) {
-                        img.setAttribute('crossorigin', 'anonymous');
+                        try {
+                            originalSrcs.set(img, img.src);
+                            const response = await fetch(img.src, { mode: 'cors' });
+                            const blob = await response.blob();
+                            const reader = new FileReader();
+                            const dataUrl = await new Promise((resolve) => {
+                                reader.onloadend = () => resolve(reader.result);
+                                reader.readAsDataURL(blob);
+                            });
+                            img.src = dataUrl;
+                        } catch (e) {
+                            console.warn('Image pre-process failed:', img.src, e);
+                        }
+                    }
+                }));
+
+                // 2. 使用 html2canvas 進行擷取 (它對 cqw 與複雜排版的支援較好)
+                const canvas = await html2canvas(cardElement, {
+                    useCORS: true,
+                    scale: 2, // 高清
+                    backgroundColor: null,
+                    logging: false,
+                    allowTaint: true,
+                    onclone: (clonedDoc) => {
+                        // 在複製的 DOM 中微調樣式（不影響原畫面）
+                        const clonedCard = clonedDoc.querySelector('.capture-target');
+                        if (clonedCard) {
+                            clonedCard.style.transform = 'none';
+                            clonedCard.style.borderRadius = '28px';
+                        }
                     }
                 });
 
-                contextWrapper.appendChild(clonedCard);
-                container.appendChild(contextWrapper);
-
-                // Wait for images to load
-                await Promise.all(imgs.map(img => {
-                    if (img.complete) return Promise.resolve();
-                    return new Promise(resolve => {
-                        img.onload = resolve;
-                        img.onerror = resolve;
-                    });
-                }));
-
-                // Wait for layout to settle
-                await new Promise(resolve => setTimeout(resolve, 400));
-
-                const dataUrl = await domtoimage.toPng(container, {
-                    width: 450,
-                    height: 684,
-                    style: {
-                        transform: 'none',
-                        left: '0',
-                        top: '0',
-                        visibility: 'visible',
-                        opacity: '1'
-                    },
-                    cacheBust: true
+                // 3. 還原原始圖片路徑（避免影響頁面顯示）
+                originalSrcs.forEach((src, img) => {
+                    img.src = src;
                 });
 
-                return dataUrl;
+                return canvas.toDataURL('image/png');
             } catch (error) {
                 console.error('Capture error:', error);
                 showToast('圖片生成失敗，請稍後再試', 'error');
                 return null;
             } finally {
-                if (container && container.parentNode) {
-                    document.body.removeChild(container);
-                }
                 isCapturing.value = false;
             }
         };

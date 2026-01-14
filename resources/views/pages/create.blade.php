@@ -220,7 +220,43 @@
                         </div>
 
                         <div class="w-full max-w-[300px] transform hover:scale-[1.02] transition-all duration-500 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] rounded-2xl relative">
-                            <player-card :player="form" :is-signing="isSigning" :is-adjusting-sig="isAdjustingSig"
+                            {{-- Signature Adjustment Overlay (Teleported) --}}
+                            <teleport to="body">
+                                <transition name="fade">
+                                    <div v-if="isAdjustingSig" class="fixed inset-0 z-[1000] bg-slate-950/95 backdrop-blur-2xl flex flex-col items-center justify-center p-6">
+                                        {{-- Header --}}
+                                        <div class="w-full max-w-[400px] flex items-center justify-between mb-8">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-1.5 h-6 bg-blue-600 rounded-full"></div>
+                                                <h4 class="text-lg font-black uppercase tracking-widest text-white italic">調整簽名版面</h4>
+                                            </div>
+                                            <button type="button" @click="toggleAdjustSig" class="bg-blue-600 text-white px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest shadow-xl shadow-blue-600/30 hover:bg-blue-500 transition-all active:scale-95">✓ 完成調整</button>
+                                        </div>
+
+                                        {{-- Interactive Card Area --}}
+                                        <div class="relative w-full max-w-[340px] aspect-[2.5/3.5] rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20 bg-slate-900 touch-none">
+                                            <player-card :player="form" :is-signing="false" :is-adjusting-sig="true"
+                                                @update-signature="handleSignatureUpdate" 
+                                                @sig-ready="initMoveable"></player-card>
+                                            
+                                            {{-- Grid Guide Overlay --}}
+                                            <div class="absolute inset-0 pointer-events-none opacity-20 z-[200]">
+                                                <div class="absolute inset-0 grid grid-cols-3 grid-rows-3 h-full w-full">
+                                                    <div v-for="i in 9" :key="i" class="border-[0.5px] border-white/30"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {{-- Footer Instructions --}}
+                                        <div class="mt-10 text-center space-y-2">
+                                            <p class="text-white font-black uppercase tracking-[0.2em] text-xs">自由拖動、縮放或旋轉簽名</p>
+                                            <p class="text-white/40 font-bold text-[10px]">您可以隨意放置在卡片的任何位置</p>
+                                        </div>
+                                    </div>
+                                </transition>
+                            </teleport>
+
+                            <player-card v-if="!isAdjustingSig" :player="form" :is-signing="isSigning" :is-adjusting-sig="false"
                                 @update-signature="handleSignatureUpdate" 
                                 @edit-signature="isSigning = true"
                                 @close-signing="isSigning = false" 
@@ -237,7 +273,7 @@
                             <div class="space-y-4 w-full">
                                 {{-- Signature Actions Grid --}}
                                 <div v-if="form.signature" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    <button type="button" @click="isSigning = true" class="bg-slate-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-800 transition-all shadow-lg active:scale-95">
+                                    <button type="button" @click="isSigning = true; isAdjustingSig = false" class="bg-slate-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-800 transition-all shadow-lg active:scale-95">
                                         <app-icon name="eraser" class-name="w-4 h-4 text-blue-400"></app-icon>
                                         重新手寫簽名
                                     </button>
@@ -245,7 +281,7 @@
                                     <button type="button" @click="toggleAdjustSig" 
                                         :class="['py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95', isAdjustingSig ? 'bg-blue-600 text-white shadow-blue-500/30' : 'bg-white text-slate-900 border border-slate-100 hover:bg-slate-50']">
                                         <app-icon :name="isAdjustingSig ? 'check' : 'move'" class-name="w-4 h-4" :class="isAdjustingSig ? 'text-white' : 'text-blue-600'"></app-icon>
-                                        @{{ isAdjustingSig ? '✓ 完成調整' : '調整簽名位置' }}
+                                        調整簽名位置
                                     </button>
                                 </div>
 

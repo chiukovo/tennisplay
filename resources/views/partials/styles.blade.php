@@ -19,8 +19,8 @@
     }
 
     .premium-blur {
-        backdrop-filter: blur(12px);
-        background: rgba(15, 23, 42, 0.75);
+        backdrop-filter: blur(8px);
+        background: rgba(15, 23, 42, 0.7);
         will-change: opacity;
     }
 
@@ -29,13 +29,21 @@
     ::-webkit-scrollbar-track { background: #f1f5f9; }
     ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
 
+    /* 輕量級漸變效果 */
+    .fade-enter-active, .fade-leave-active {
+        transition: opacity 0.2s ease-out;
+    }
+    .fade-enter-from, .fade-leave-to {
+        opacity: 0;
+    }
+
     /* 動畫優化 */
     .modal-enter-active, .modal-leave-active {
-        transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .modal-enter-from, .modal-leave-to {
         opacity: 0;
-        transform: scale(0.95) translateY(10px);
+        transform: scale(0.98) translateY(5px);
     }
     
     .modal-content {

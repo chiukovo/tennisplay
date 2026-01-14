@@ -7,31 +7,52 @@
 
 {{-- Signature Pad Template --}}
 <script type="text/x-template" id="signature-pad-template">
-    <div v-if="active" @click.stop class="absolute inset-0 z-[100] cursor-crosshair overflow-hidden rounded-2xl animate__animated animate__fadeIn animate__faster">
-        {{-- Blur background layer --}}
-        <div class="absolute inset-0 bg-black/40 backdrop-blur-[4px]"></div>
-        
-        {{-- Canvas layer (on top of blur) --}}
-        <canvas ref="canvas" @mousedown="start" @mousemove="draw" @mouseup="stop" @mouseleave="stop" @touchstart="startTouch" @touchmove="moveTouch" @touchend="stop" class="absolute inset-0 w-full h-full touch-none"></canvas>
-        
-        {{-- Controls (above blur, with solid background) --}}
-        <div class="absolute top-4 right-4 flex flex-col gap-3 z-10">
-            <button type="button" @click.stop="$emit('close')" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-full border border-slate-600 transition-all shadow-xl" title="取消">
-                <app-icon name="x" class-name="w-5 h-5"></app-icon>
-            </button>
-            <button type="button" @click.stop="clear" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-full border border-slate-600 transition-all shadow-xl" title="清除">
-                <app-icon name="eraser" class-name="w-5 h-5"></app-icon>
-            </button>
-        </div>
-        
-        {{-- Bottom Hint and Confirm (above blur, with solid background) --}}
-        <div class="absolute bottom-6 left-0 right-0 flex flex-col items-center gap-4 pointer-events-none z-10">
-            <span class="bg-slate-900 text-white text-[10px] font-black px-5 py-2 rounded-full uppercase tracking-[0.2em] italic border border-slate-700">請在此處手寫簽名</span>
-            <button type="button" @click.stop="confirm" class="pointer-events-auto bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl transition-all hover:scale-105">
-                確認簽名並保存
-            </button>
-        </div>
-    </div>
+    <teleport to="body">
+        <transition name="fade">
+            <div v-if="active" @click.stop class="fixed inset-0 z-[1000] bg-slate-950/95 backdrop-blur-2xl flex flex-col items-center justify-center p-6">
+                {{-- Header --}}
+                <div class="w-full max-w-[400px] flex items-center justify-between mb-8">
+                    <div class="flex items-center gap-3">
+                        <div class="w-1.5 h-6 bg-blue-600 rounded-full"></div>
+                        <h4 class="text-lg font-black uppercase tracking-widest text-white italic">手寫簽名</h4>
+                    </div>
+                    <button type="button" @click.stop="$emit('close')" class="p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all border border-white/10">
+                        <app-icon name="x" class-name="w-5 h-5"></app-icon>
+                    </button>
+                </div>
+
+                {{-- Interactive Pad Area --}}
+                <div class="relative w-full max-w-[500px] aspect-video rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20 bg-slate-900/50 touch-none">
+                    <canvas ref="canvas" 
+                        @mousedown="start" @mousemove="draw" @mouseup="stop" @mouseleave="stop" 
+                        @touchstart="startTouch" @touchmove="moveTouch" @touchend="stop" 
+                        class="absolute inset-0 w-full h-full"></canvas>
+                    
+                    {{-- Grid Guide Overlay (Subtle) --}}
+                    <div class="absolute inset-0 pointer-events-none opacity-5 flex items-center justify-center">
+                        <div class="w-full h-px bg-white"></div>
+                    </div>
+                </div>
+
+                {{-- Footer Instructions & Actions --}}
+                <div class="mt-10 flex flex-col items-center gap-6 w-full max-w-[400px]">
+                    <div class="text-center space-y-2">
+                        <p class="text-white font-black uppercase tracking-[0.2em] text-xs">請在上方區域橫向簽名</p>
+                        <p class="text-white/40 font-bold text-[10px]">完成後點擊確認儲存</p>
+                    </div>
+
+                    <div class="flex gap-4 w-full">
+                        <button type="button" @click.stop="clear" class="flex-1 py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl font-black uppercase tracking-widest text-xs border border-white/10 transition-all">
+                            清除重寫
+                        </button>
+                        <button type="button" @click.stop="confirm" class="flex-[2] py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-blue-500/30 transition-all hover:scale-[1.02] active:scale-95">
+                            確認簽名並保存
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </transition>
+    </teleport>
 </script>
 
 

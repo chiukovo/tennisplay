@@ -476,6 +476,7 @@ createApp({
         const toggleAdjustSig = () => {
             isAdjustingSig.value = !isAdjustingSig.value;
             if (isAdjustingSig.value) {
+                isSigning.value = false; // 強制關閉簽名板防止衝突
                 nextTick(() => {
                     const target = document.querySelector('#target-signature');
                     if (target) initMoveable(target);
@@ -595,6 +596,16 @@ createApp({
                 eventEndDate.value = '';
             }
         };
+
+        watch(isSigning, (newVal) => {
+            if (newVal) {
+                isAdjustingSig.value = false;
+                if (moveableInstance.value) {
+                    moveableInstance.value.destroy();
+                    moveableInstance.value = null;
+                }
+            }
+        });
 
         const openMatchModal = (p) => { matchModal.player = p; matchModal.open = true; };
         const getPlayersByRegion = (region) => players.value.filter(p => p.region === region);

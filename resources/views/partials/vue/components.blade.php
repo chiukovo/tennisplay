@@ -17,12 +17,22 @@ const SignaturePad = {
         const canvas = ref(null); let ctx = null; let isDrawing = false;
         
         const initCanvas = async () => {
+            // Wait for teleport and transition (multiple frames to be safe)
             await nextTick();
+            await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+            
             if (canvas.value) {
-                ctx = canvas.value.getContext('2d');
-                const ratio = window.devicePixelRatio || 1;
                 const width = canvas.value.offsetWidth;
                 const height = canvas.value.offsetHeight;
+                
+                if (width <= 0 || height <= 0) {
+                    console.warn('Canvas dimensions are 0, retrying init...');
+                    setTimeout(initCanvas, 100);
+                    return;
+                }
+
+                ctx = canvas.value.getContext('2d');
+                const ratio = window.devicePixelRatio || 1;
                 
                 canvas.value.width = width * ratio;
                 canvas.value.height = height * ratio;
@@ -67,6 +77,7 @@ const SignaturePad = {
 
         
         const getTrimmedCanvas = (sourceCanvas) => {
+            if (!sourceCanvas || sourceCanvas.width <= 0 || sourceCanvas.height <= 0) return null;
             const tempCtx = sourceCanvas.getContext('2d');
             const width = sourceCanvas.width;
             const height = sourceCanvas.height;

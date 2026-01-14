@@ -33,105 +33,106 @@
 {{-- Player Card Template --}}
 <script type="text/x-template" id="player-card-template">
     <div v-if="p || isPlaceholder" ref="cardContainer"
-        class="holo-container overflow-visible"
+        class="holo-container overflow-visible relative"
         @mousemove="handleMove"
         @touchmove.passive="handleMove"
         @mouseleave="handleLeave"
-        :class="[size === 'sm' ? 'w-full aspect-[2.5/3.8]' : 'w-full max-w-[450px] aspect-[2.5/3.8]']">
+        :style="{ height: containerHeight + 'px' }">
         
-        <div :class="['holo-card-wrapper w-full h-full card-holo transition-all duration-300 relative', 
+        {{-- Internal Scalable Card --}}
+        <div :class="['holo-card-wrapper card-holo transition-all duration-300 absolute top-0 left-0 origin-top-left', 
                       (isAnimated && !isCapturing) ? 'animated' : '',
                       isHoloTheme ? 'theme-' + p.theme : '']" 
-             :style="[(!isCapturing ? { transform: `rotateX(${tilt.rX}deg) rotateY(${tilt.rY}deg)` } : {}), holoStyle]">
+             :style="[{ width: '450px', height: '684px', transform: `scale(${cardScale}) rotateX(${!isCapturing ? tilt.rX : 0}deg) rotateY(${!isCapturing ? tilt.rY : 0}deg)` }, holoStyle]">
              
-            {{-- Animated Border Glow (Moved outside overflow-hidden to prevent clipping) --}}
+            {{-- Animated Border Glow --}}
             <div v-if="!isPlaceholder" :class="['absolute -inset-[3px] bg-gradient-to-br rounded-[32px] blur-[8px] transition-all duration-700 opacity-50 z-0', themeStyle.border]"></div>
             <div v-else class="absolute -inset-[3px] bg-slate-200 rounded-[32px] opacity-30 border-2 border-dashed border-slate-300 transition-opacity z-0"></div>
 
             <div :class="['group capture-target relative overflow-hidden rounded-[28px] w-full h-full z-10', 
                          isPlaceholder ? 'opacity-30 grayscale hover:opacity-100 hover:grayscale-0' : '',
-                         isCapturing ? 'is-capturing' : '']"
-                 style="container-type: inline-size;">
+                         isCapturing ? 'is-capturing' : '']">
                 
                 <div :class="['relative h-full rounded-[28px] overflow-hidden flex flex-col border border-white/20 transition-colors shadow-inner', isPlaceholder ? 'bg-slate-50' : themeStyle.bg]">
                     {{-- Noise Texture Overlay --}}
                     <div class="absolute inset-0 opacity-[0.03] pointer-events-none z-[5]" style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E');"></div>
 
                     {{-- Main Image Area --}}
-                    <div class="h-[75%] relative overflow-hidden bg-slate-200 z-10 flex items-center justify-center">
+                    <div class="h-[513px] relative overflow-hidden bg-slate-200 z-10 flex items-center justify-center">
                         {{-- Social Indicators (Top Right) --}}
-                        <div v-if="!isPlaceholder" class="absolute top-[4cqw] right-[4cqw] z-20">
-                            <div class="bg-black/40 backdrop-blur-xl px-[3.5cqw] py-[2cqw] rounded-[3cqw] border border-white/20 flex items-center gap-[4cqw] shadow-2xl">
-                                <div class="flex items-center gap-[1.5cqw] group/social">
-                                    <app-icon name="heart" class-name="w-[5cqw] h-[5cqw] text-white group-hover/social:text-red-400 group-hover/social:scale-110 transition-all drop-shadow-sm"></app-icon>
-                                    <span class="text-white font-black leading-none drop-shadow-sm" style="font-size: 4.2cqw;">@{{ p?.likes_count || 0 }}</span>
+                        <div v-if="!isPlaceholder" class="absolute top-[18px] right-[18px] z-20">
+                            <div class="bg-black/40 backdrop-blur-xl px-[16px] py-[9px] rounded-[14px] border border-white/20 flex items-center gap-[18px] shadow-2xl">
+                                <div class="flex items-center gap-[7px] group/social">
+                                    <app-icon name="heart" class-name="w-[22px] h-[22px] text-white group-hover/social:text-red-400 group-hover/social:scale-110 transition-all drop-shadow-sm"></app-icon>
+                                    <span class="text-white font-black leading-none drop-shadow-sm text-[19px]">@{{ p?.likes_count || 0 }}</span>
                                 </div>
-                                <div class="w-[0.5cqw] h-[3cqw] bg-white/20 rounded-full"></div>
-                                <div class="flex items-center gap-[1.5cqw] group/social">
-                                    <app-icon name="message-circle" class-name="w-[5cqw] h-[5cqw] text-white group-hover/social:text-blue-400 group-hover/social:scale-110 transition-all drop-shadow-sm"></app-icon>
-                                    <span class="text-white font-black leading-none drop-shadow-sm" style="font-size: 4.2cqw;">@{{ p?.comments_count || 0 }}</span>
+                                <div class="w-[2px] h-[14px] bg-white/20 rounded-full"></div>
+                                <div class="flex items-center gap-[7px] group/social">
+                                    <app-icon name="message-circle" class-name="w-[22px] h-[22px] text-white group-hover/social:text-blue-400 group-hover/social:scale-110 transition-all drop-shadow-sm"></app-icon>
+                                    <span class="text-white font-black leading-none drop-shadow-sm text-[19px]">@{{ p?.comments_count || 0 }}</span>
                                 </div>
                             </div>
                         </div>
 
-                        <img :src="(p?.photo) || 'https://images.unsplash.com/photo-1614743758466-e569f4791116?q=80&w=650&auto=format&fit=crop'" 
-                            crossorigin="anonymous"
-                            :class="['w-full h-full object-contain transition-transform duration-1000', isAdjustingSig ? 'pointer-events-none select-none' : '']"
-                            :style="{ transform: `translate(${p?.photoX || 0}%, ${p?.photoY || 0}%) scale(${p?.photoScale || 1})` }">
+                        {{-- Player Photo as Background for better html2canvas support --}}
+                        <div :class="['absolute inset-0 transition-transform duration-1000 bg-no-repeat bg-center bg-contain', isAdjustingSig ? 'pointer-events-none select-none' : '']"
+                             :style="{ 
+                                backgroundImage: `url(${(p?.photo) || 'https://images.unsplash.com/photo-1614743758466-e569f4791116?q=80&w=650&auto=format&fit=crop'})`,
+                                transform: `translate(${p?.photoX || 0}%, ${p?.photoY || 0}%) scale(${p?.photoScale || 1})` 
+                             }">
+                        </div>
                         
                         {{-- Gradient Overlay --}}
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80 pointer-events-none"></div>
                         
-                        {{-- NTRP Badge (Premium Style) --}}
-                        <div class="absolute bottom-[4cqw] left-[5cqw] flex flex-col items-start gap-[1.5cqw]">
+                        {{-- NTRP Badge --}}
+                        <div class="absolute bottom-[18px] left-[22px] flex flex-col items-start gap-[7px]">
                             <div class="relative group/badge">
                                 <div class="absolute inset-0 bg-white/10 blur-xl rounded-full"></div>
-                                <div :class="['relative flex items-center gap-[2cqw] p-[0.6cqw] rounded-[4cqw] shadow-[0_8px_20px_rgba(0,0,0,0.4)] border border-white/30 backdrop-blur-xl overflow-hidden', isPlaceholder ? 'bg-slate-400' : themeStyle.border]">
+                                <div :class="['relative flex items-center gap-[9px] p-[3px] rounded-[18px] shadow-[0_8px_20px_rgba(0,0,0,0.4)] border border-white/30 backdrop-blur-xl overflow-hidden', isPlaceholder ? 'bg-slate-400' : themeStyle.border]">
                                     <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-60"></div>
-                                    <div class="bg-slate-900/95 px-[4cqw] py-[2cqw] rounded-[3.5cqw] flex items-center gap-[2cqw] relative z-10">
-                                        <span class="font-bold text-white/40 uppercase tracking-widest leading-none" style="font-size: 3.5cqw;">NTRP</span>
-                                        <span class="font-black text-white leading-none italic tracking-tighter" style="font-size: 11cqw; text-shadow: 0 4px 8px rgba(0,0,0,0.6);">@{{ p?.level || '3.5' }}</span>
+                                    <div class="bg-slate-900/95 px-[18px] py-[9px] rounded-[16px] flex items-center gap-[9px] relative z-10">
+                                        <span class="font-bold text-white/40 uppercase tracking-widest leading-none text-[16px]">NTRP</span>
+                                        <span class="font-black text-white leading-none italic tracking-tighter text-[50px]" style="text-shadow: 0 4px 8px rgba(0,0,0,0.6);">@{{ p?.level || '3.5' }}</span>
                                     </div>
                                 </div>
                             </div>
                             
-                            {{-- Level Tag (Softer) --}}
-                            <div class="bg-white/10 backdrop-blur-xl px-[4cqw] py-[2cqw] rounded-[2.5cqw] border border-white/20 max-w-[60cqw] shadow-xl">
-                                <p class="font-bold text-white uppercase tracking-[0.15em] italic leading-tight" style="font-size: 5.5cqw; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">@{{ p ? getLevelTag(p.level) : '尚未認證' }}</p>
+                            {{-- Level Tag --}}
+                            <div class="bg-white/10 backdrop-blur-xl px-[18px] py-[9px] rounded-[11px] border border-white/20 max-w-[270px] shadow-xl">
+                                <p class="font-bold text-white uppercase tracking-[0.15em] italic leading-tight text-[25px]" style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">@{{ p ? getLevelTag(p.level) : '尚未認證' }}</p>
                             </div>
                         </div>
                     </div>
 
                     <signature-pad :active="isSigning" @save="sig => $emit('update-signature', sig)" @close="$emit('close-signing')"></signature-pad>
                     
-                    {{-- Bottom Info Section (Glassmorphism) --}}
-                    <div class="h-[25%] px-[6cqw] py-[3cqw] flex flex-col justify-center relative overflow-hidden">
-                        {{-- Background Blur & Gradient (More Glassy) --}}
+                    {{-- Bottom Info Section --}}
+                    <div class="h-[171px] px-[27px] py-[14px] flex flex-col justify-center relative overflow-hidden">
                         <div class="absolute inset-0 bg-white/10 backdrop-blur-2xl border-t border-white/20"></div>
                         <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 opacity-80"></div>
                         
-                        {{-- Content --}}
                         <div class="relative z-10">
-                            <h3 :class="['font-black uppercase tracking-tighter italic leading-[0.9] whitespace-nowrap pb-[1.5cqw] bg-gradient-to-r bg-clip-text text-transparent text-left drop-shadow-sm', isPlaceholder ? 'bg-slate-400' : themeStyle.border]" style="font-size: 11cqw;">
+                            <h3 :class="['font-black uppercase tracking-tighter italic leading-[0.9] whitespace-nowrap pb-[7px] bg-gradient-to-r bg-clip-text text-transparent text-left drop-shadow-sm', isPlaceholder ? 'bg-slate-400' : themeStyle.border]" style="font-size: 50px;">
                                 @{{ p?.name || '請更新卡片' }}
                             </h3>
                             <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-[3cqw] text-white/80">
-                                    <div class="flex items-center gap-[1.5cqw]">
-                                        <app-icon name="map-pin" class-name="w-[5cqw] h-[5cqw]" :class="themeStyle.accent"></app-icon>
-                                        <span class="font-bold uppercase tracking-wider italic" style="font-size: 6cqw;">@{{ p?.region || '全台' }}</span>
+                                <div class="flex items-center gap-[14px] text-white/80">
+                                    <div class="flex items-center gap-[7px]">
+                                        <app-icon name="map-pin" class-name="w-[22px] h-[22px]" :class="themeStyle.accent"></app-icon>
+                                        <span class="font-bold uppercase tracking-wider italic text-[27px]">@{{ p?.region || '全台' }}</span>
                                     </div>
-                                    <div class="w-[0.5cqw] h-[4cqw] bg-white/30 rounded-full"></div>
-                                    <div class="flex items-center gap-[1.5cqw]">
-                                        <app-icon :name="p?.gender === '女' ? 'female' : 'male'" class-name="w-[5cqw] h-[5cqw]" :class="themeStyle.accent"></app-icon>
-                                        <span class="font-bold uppercase tracking-wider italic" style="font-size: 6cqw;">@{{ p?.gender || '男' }}</span>
+                                    <div class="w-[2px] h-[18px] bg-white/30 rounded-full"></div>
+                                    <div class="flex items-center gap-[7px]">
+                                        <app-icon :name="p?.gender === '女' ? 'female' : 'male'" class-name="w-[22px] h-[22px]" :class="themeStyle.accent"></app-icon>
+                                        <span class="font-bold uppercase tracking-wider italic text-[27px]">@{{ p?.gender || '男' }}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    {{-- Signature Display (Promoted Layer) --}}
+                    {{-- Signature Display --}}
                     <div v-if="p?.signature" :class="['absolute inset-0 z-[70] group/sig signature-layer', isAdjustingSig ? 'pointer-events-auto' : 'pointer-events-none']">
                         <div class="relative w-full h-full">
                             <img :src="p.signature" 
@@ -235,6 +236,7 @@
         </div>
     </transition>
 </script>
+
 {{-- Share Modal Template --}}
 <script type="text/x-template" id="share-modal-template">
     <transition name="modal">

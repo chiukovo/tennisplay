@@ -279,7 +279,29 @@ const PlayerCard = {
             };
         });
 
-        return { cardContainer, p, themeStyle, getLevelTag, tilt, handleMove, handleLeave, isHoloTheme, isAnimated, holoStyle };
+        const cardScale = ref(1);
+        const containerHeight = ref(684);
+        
+        const updateScale = () => {
+            if (cardContainer.value) {
+                const containerWidth = cardContainer.value.offsetWidth;
+                cardScale.value = containerWidth / 450;
+                containerHeight.value = 684 * cardScale.value;
+            }
+        };
+
+        onMounted(() => {
+            updateScale();
+            window.addEventListener('resize', updateScale);
+        });
+        onUnmounted(() => {
+            window.removeEventListener('resize', updateScale);
+        });
+
+        return { 
+            cardContainer, p, themeStyle, getLevelTag, tilt, handleMove, handleLeave, 
+            isHoloTheme, isAnimated, holoStyle, cardScale, containerHeight 
+        };
     }
 };
 
@@ -685,7 +707,6 @@ const ShareModal = {
         const captureCardImage = async () => {
             isCapturing.value = true;
             await nextTick();
-            // 等待字體與樣式完全就緒
             await document.fonts.ready;
             await new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -694,8 +715,7 @@ const ShareModal = {
                 const originalCard = document.querySelector('.modal-content .capture-target');
                 if (!originalCard) throw new Error('找不到卡片元素');
 
-                // 1. 建立一個隱藏的標準寬度容器 (450px)
-                // 這是為了確保 cqw 換算 px 時有統一的基準 (1cqw = 4.5px)
+                // 1. 建立隱藏容器
                 container = document.createElement('div');
                 container.style.position = 'fixed';
                 container.style.left = '-9999px';
@@ -704,78 +724,74 @@ const ShareModal = {
                 container.style.zIndex = '-1000';
                 document.body.appendChild(container);
 
-                // 2. 克隆元素並進行「單位轉換」預處理
-                // html2canvas 不認識 cqw，所以我們手動將其替換為 px
+                // 2. 克隆並處理圖片
                 const clonedCard = originalCard.cloneNode(true);
-                
-                // 核心邏輯：將 HTML 字串中的所有 cqw 替換為計算後的 px
-                const fixCqw = (html) => {
-                    return html.replace(/(\d+(\.\d+)?)cqw/g, (match, p1) => {
-                        return (parseFloat(p1) * 4.5) + 'px';
-                    });
-                };
-                clonedCard.innerHTML = fixCqw(clonedCard.innerHTML);
-                
-                // 強制設定克隆體的尺寸
+                clonedCard.style.transform = 'none'; // 確保擷取時縮放比例為 1
                 clonedCard.style.width = '450px';
                 clonedCard.style.height = '684px';
-                clonedCard.style.transform = 'none';
-                clonedCard.style.borderRadius = '28px';
                 clonedCard.style.display = 'block';
                 clonedCard.style.visibility = 'visible';
-                
                 container.appendChild(clonedCard);
 
-                // 3. 預處理圖片：直接從畫面上已載入的圖片轉 Base64 (最穩定)
                 const imgs = Array.from(clonedCard.querySelectorAll('img'));
                 const originalImgs = Array.from(originalCard.querySelectorAll('img'));
 
+                // 處理背景圖片 (照片)
+                const bgDivs = Array.from(clonedCard.querySelectorAll('[style*="background-image"]'));
+                const originalBgDivs = Array.from(originalCard.querySelectorAll('[style*="background-image"]'));
+                
+                await Promise.all(bgDivs.map(async (div, idx) => {
+                    const style = div.style.backgroundImage;
+                    if (style && style.includes('url(')) {
+                        const url = style.match(/url\(["']?([^"']+)["']?\)/)[1];
+                        if (!url.startsWith('data:')) {
+                            try {
+                                const response = await fetch(url, { mode: 'cors' });
+                                const blob = await response.blob();
+                                const dataUrl = await new Promise(r => {
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => r(reader.result);
+                                    reader.readAsDataURL(blob);
+                                });
+                                div.style.backgroundImage = `url(${dataUrl})`;
+                            } catch (e) { console.warn('BG Image failed:', e); }
+                        }
+                    }
+                }));
+
+                // 處理一般圖片 (簽名)
                 await Promise.all(imgs.map(async (img, idx) => {
                     if (img.src && !img.src.startsWith('data:')) {
                         try {
                             const sourceImg = originalImgs[idx];
-                            if (sourceImg && sourceImg.complete && sourceImg.naturalWidth > 0) {
+                            if (sourceImg && sourceImg.complete) {
                                 const canvas = document.createElement('canvas');
                                 canvas.width = sourceImg.naturalWidth;
                                 canvas.height = sourceImg.naturalHeight;
                                 canvas.getContext('2d').drawImage(sourceImg, 0, 0);
                                 img.src = canvas.toDataURL('image/png');
-                            } else {
-                                // 備援方案：fetch
-                                const response = await fetch(img.src, { mode: 'cors' });
-                                const blob = await response.blob();
-                                img.src = await new Promise(r => {
-                                    const reader = new FileReader();
-                                    reader.onloadend = () => r(reader.result);
-                                    reader.readAsDataURL(blob);
-                                });
                             }
-                        } catch (e) {
-                            console.warn('Image pre-process failed:', img.src, e);
-                        }
+                        } catch (e) { console.warn('Img failed:', e); }
                     }
                 }));
 
-                // 4. 使用 html2canvas 進行最終擷取 (此時所有單位已是 px，圖片已是 Base64)
+                // 3. 擷取
                 const canvas = await html2canvas(clonedCard, {
                     useCORS: true,
-                    scale: 2, // 高清
+                    scale: 2,
                     backgroundColor: null,
                     logging: false,
                     width: 450,
-                    height: 684,
-                    allowTaint: true
+                    height: 684
                 });
 
                 return canvas.toDataURL('image/png');
             } catch (error) {
                 console.error('Capture error:', error);
-                showToast('圖片生成失敗，請稍後再試', 'error');
+                showToast('圖片生成失敗', 'error');
                 return null;
             } finally {
-                if (container && container.parentNode) {
-                    document.body.removeChild(container);
-                }
+                if (container) document.body.removeChild(container);
                 isCapturing.value = false;
             }
         };

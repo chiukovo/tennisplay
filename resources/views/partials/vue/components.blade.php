@@ -510,17 +510,19 @@ const ShareModal = {
                 clonedCard.style.letterSpacing = "normal";
                 container.appendChild(clonedCard);
 
-                // 3. 全 Base64 預處理 (加入快取機制，解決重複請求與卡頓)
+                // 3. 全 Base64 預處理 (加入快取與超時機制)
                 const imageCache = new Map();
                 
                 const toBase64 = async (url) => {
                     if (!url || url.startsWith('data:')) return url;
-                    if (imageCache.has(url)) return imageCache.get(url); // 回傳已存在的 Promise 或結果
+                    if (imageCache.has(url)) return imageCache.get(url);
 
-                    // 建立請求 Promise 並存入快取
                     const promise = (async () => {
+                        const controller = new AbortController();
+                        const id = setTimeout(() => controller.abort(), 3000); // 3秒超時
                         try {
-                            const response = await fetch(url, { mode: 'cors' });
+                            const response = await fetch(url, { mode: 'cors', signal: controller.signal });
+                            clearTimeout(id);
                             const blob = await response.blob();
                             return new Promise((resolve) => {
                                 const reader = new FileReader();
@@ -528,8 +530,8 @@ const ShareModal = {
                                 reader.readAsDataURL(blob);
                             });
                         } catch (e) {
-                            console.warn('Base64 conversion failed:', url, e);
-                            return url;
+                            console.warn('Base64 conversion failed or timed out:', url, e);
+                            return url; // 失敗時回傳原網址，讓引擎自己嘗試
                         }
                     })();
 
@@ -540,7 +542,10 @@ const ShareModal = {
                 // 處理所有 <img>
                 const imgs = Array.from(clonedCard.querySelectorAll('img'));
                 await Promise.all(imgs.map(async (img) => {
-                    if (img.src) img.src = await toBase64(img.src);
+                    if (img.src) {
+                        img.src = await toBase64(img.src);
+                        img.removeAttribute('srcset'); // 防止瀏覽器下載其他尺寸
+                    }
                 }));
 
                 // 處理所有帶有 background-image 的元素
@@ -566,24 +571,28 @@ const ShareModal = {
                                !node.classList?.contains('no-capture'));
                     };
 
-                    const dataUrl = await htmlToImage.toPng(clonedCard, {
-                        width: 450,
-                        height: 684,
-                        style: { transform: 'none', left: '0', top: '0' },
-                        quality: 1.0,
-                        cacheBust: true,
-                        filter: filter,
-                        pixelRatio: 3
-                    });
+                    // 使用 Promise.race 實作渲染超時機制
+                    const dataUrl = await Promise.race([
+                        htmlToImage.toPng(clonedCard, {
+                            width: 450,
+                            height: 684,
+                            style: { transform: 'none', left: '0', top: '0' },
+                            quality: 1.0,
+                            cacheBust: false, // 關閉以避免額外請求
+                            filter: filter,
+                            pixelRatio: 2 // 降低解析度以提升速度 (3 -> 2)
+                        }),
+                        new Promise((_, reject) => setTimeout(() => reject(new Error('Render Timeout')), 5000)) // 5秒強制超時
+                    ]);
                     return dataUrl;
 
                 } catch (engineAError) {
-                    console.warn('html-to-image failed, falling back to html2canvas:', engineAError);
+                    console.warn('html-to-image failed or timed out, falling back to html2canvas:', engineAError);
                     
                     // Engine B: html2canvas (Fallback)
                     const canvas = await html2canvas(clonedCard, {
                         useCORS: true,
-                        scale: 3,
+                        scale: 2, // 配合 Engine A 保持一致
                         backgroundColor: null,
                         logging: false,
                         width: 450,

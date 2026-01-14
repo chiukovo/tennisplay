@@ -47,8 +47,14 @@
             
             <div class="relative z-10 flex flex-col md:flex-row gap-8 lg:gap-12">
                 <!-- Left: Player Card -->
-                <div class="w-full md:w-[350px] lg:w-[420px] shrink-0" :class="{'hidden md:block': !profileData.user?.player}">
-                    <div v-if="profileData.user.player" class="relative group transition-all duration-500 hover:-translate-y-2">
+                <div class="w-full md:w-[350px] lg:w-[420px] shrink-0" :class="{'hidden md:block': !isProfileLoading && !profileData.user?.player}">
+                    <!-- Loading Skeleton -->
+                    <div v-if="isProfileLoading" class="animate-pulse">
+                        <div class="aspect-[450/684] bg-slate-200 rounded-[28px]"></div>
+                    </div>
+                    
+                    <!-- Player Card (only show after loading) -->
+                    <div v-else-if="profileData.user.player" class="relative group transition-all duration-500 hover:-translate-y-2">
                         <player-card :player="profileData.user.player" @click="showDetail(profileData.user.player)"></player-card>
                         
                         <!-- Quick Edit Overlay for Me -->
@@ -58,7 +64,7 @@
                         </div>
                     </div>
                     
-                    <!-- Empty State -->
+                    <!-- Empty State (only show after loading confirms no player card) -->
                     <!-- Placeholder Card for Empty State -->
                     <div v-else-if="profileData.status?.is_me" class="relative group">
                         <player-card :is-placeholder="true"></player-card>

@@ -151,7 +151,7 @@ createApp({
         } = useAuth(showToast, (v, s, i) => navigateTo(v, s, i), () => initSettings(), isLoggedIn, currentUser, settingsForm);
 
         const { 
-            profileData, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm, 
+            profileData, isProfileLoading, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm, 
             profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,
             loadProfile, loadProfileEvents, saveProfile, openProfile, toggleFollow, toggleLike,
             loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment
@@ -839,7 +839,7 @@ createApp({
             // State
             view, isLoggedIn, currentUser, isLoginMode, showUserMenu, isSigning, messageTab,
             players, myPlayers, isPlayersLoading, playersPagination, messages, events, eventsLoading, eventSubmitting, eventsPagination,
-            profileData, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm,
+            profileData, isProfileLoading, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm,
             form, eventForm, currentStep, stepAttempted, isAdjustingPhoto, isAdjustingSig, isCapturing,
             searchQuery, searchDraft, selectedRegion, regionDraft, selectedGender, genderDraft, selectedLevelMin, levelMinDraft, selectedLevelMax, levelMaxDraft, selectedHanded, handedDraft, selectedBackhand, backhandDraft, showAdvancedFilters, currentPage, perPage, matchModal, detailPlayer,
             eventFilter, eventRegionFilter, eventSearchQuery, eventSearchDraft, eventStartDate, eventEndDate, eventDateShortcut, eventCurrentPage, eventPerPage, showEventDetail, activeEvent, eventComments, eventCommentDraft,

@@ -7,6 +7,7 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
         stats: { followers_count: 0, following_count: 0, likes_count: 0, events_count: 0 },
         status: { is_following: false, is_liked: false, is_me: false }
     });
+    const isProfileLoading = ref(true); // Added: loading state to prevent flash
     const profileTab = ref('active');
     const profileEvents = ref([]);
     const profileEventsPage = ref(1);
@@ -19,7 +20,9 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
     const likedPlayers = ref([]);
     const playerCommentDraft = ref('');
 
+
     const loadProfile = async (userId, loadProfileEventsCallback, autoEdit = false) => {
+        isProfileLoading.value = true;
         try {
             const response = await api.get(`/profile/${userId}`);
             Object.assign(profileData, response.data);
@@ -38,6 +41,8 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
         } catch (error) { 
             showToast('會員資料不存在或載入失敗', 'error');
             navigateTo('home');
+        } finally {
+            isProfileLoading.value = false;
         }
     };
 
@@ -148,6 +153,9 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
     };
 
     const openProfile = (uid) => {
+        // Set loading state before clearing data
+        isProfileLoading.value = true;
+        
         // Clear existing data to force refresh display
         profileData.user = { player: null };
         profileEvents.value = [];
@@ -160,7 +168,7 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
     };
 
     return { 
-        profileData, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm, 
+        profileData, isProfileLoading, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm, 
         profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,
         loadProfile, loadProfileEvents, saveProfile, openProfile, toggleFollow, toggleLike,
         loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment

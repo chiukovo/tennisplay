@@ -492,7 +492,42 @@ const ShareModal = {
             return `${window.location.origin}/profile/${uid}`;
         });
 
-        const copyLink = () => { navigator.clipboard.writeText(shareUrl.value); showToast('連結已複製', 'success'); };
+        const copyToClipboard = async (text) => {
+            // Try modern API first
+            if (navigator.clipboard && window.isSecureContext) {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    return true;
+                } catch (err) {}
+            }
+
+            // Fallback for older browsers or non-secure contexts
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                textArea.remove();
+                return true;
+            } catch (err) {
+                textArea.remove();
+                return false;
+            }
+        };
+
+        const copyLink = async () => { 
+            const success = await copyToClipboard(shareUrl.value); 
+            if (success) {
+                showToast('連結已複製', 'success'); 
+            } else {
+                showToast('複製失敗，請手動選取連結', 'error');
+            }
+        };
 
         /**
          * 使用後端 API 生成高保真卡片圖片
@@ -576,14 +611,20 @@ const ShareModal = {
             }
         };
 
-        const shareToInstagram = () => {
-            copyLink();
-            showToast('連結已複製，您可以開啟 IG 發布限時動態', 'info');
+        const shareToInstagram = async () => {
+            await copyToClipboard(shareUrl.value);
+            showToast('連結已複製，請至 IG 發布限時動態', 'info');
+            // Instagram doesn't support direct URL sharing via web intent, 
+            // the best we can do is copy and suggest opening the app.
+            setTimeout(() => {
+                window.location.href = "instagram://camera";
+            }, 1500);
         };
 
         const shareToThreads = () => {
-            copyLink();
-            showToast('連結已複製，您可以開啟 Threads 發布貼文', 'info');
+            const text = `🎾 來看我的網球球友卡！`;
+            const url = `https://www.threads.net/intent/post?text=${encodeURIComponent(text + '\n' + shareUrl.value)}`;
+            window.open(url, '_blank');
         };
 
         const shareToFacebook = () => {

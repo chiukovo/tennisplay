@@ -784,7 +784,30 @@ const ShareModal = {
             showToast('連結已複製，您可以開啟 Threads 發布貼文', 'info');
         };
 
-        return { shareUrl, copyLink, shareToLine, shareNative, shareToInstagram, shareToThreads, isCapturing, downloadCard };
+        const shareToFacebook = () => {
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl.value)}`, '_blank');
+        };
+
+        const shareToX = () => {
+            const text = `🎾 來看我的網球個人資料！`;
+            window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl.value)}&text=${encodeURIComponent(text)}`, '_blank');
+        };
+
+        const shareToWhatsApp = () => {
+            const text = `🎾 來看我的網球個人資料！\n${shareUrl.value}`;
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+        };
+
+        const shareToTelegram = () => {
+            const text = `🎾 來看我的網球個人資料！`;
+            window.open(`https://t.me/share/url?url=${encodeURIComponent(shareUrl.value)}&text=${encodeURIComponent(text)}`, '_blank');
+        };
+
+        return { 
+            shareUrl, copyLink, shareToLine, shareNative, shareToInstagram, shareToThreads, 
+            shareToFacebook, shareToX, shareToWhatsApp, shareToTelegram,
+            isCapturing, downloadCard 
+        };
     }
 };
 

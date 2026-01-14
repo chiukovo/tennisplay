@@ -239,90 +239,124 @@
         <div v-if="modelValue" class="fixed inset-0 z-[400] flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-sm modal-content" @click.self="$emit('update:modelValue', false)">
             <div class="bg-white w-full max-w-md rounded-[40px] shadow-2xl overflow-hidden flex flex-col animate__animated animate__zoomIn animate__faster">
                 {{-- Header --}}
-                <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                     <div>
-                        <h3 class="text-2xl font-black italic uppercase tracking-tight text-slate-900">分享個人資料</h3>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Share Profile</p>
+                        <h3 class="text-xl font-black italic uppercase tracking-tight text-slate-900">分享個人資料</h3>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Share Profile</p>
                     </div>
-                    <button @click="$emit('update:modelValue', false)" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:border-slate-300 transition-all shadow-sm">
-                        <app-icon name="x" class-name="w-5 h-5"></app-icon>
+                    <button @click="$emit('update:modelValue', false)" class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:border-slate-300 transition-all shadow-sm">
+                        <app-icon name="x" class-name="w-4 h-4"></app-icon>
                     </button>
                 </div>
 
                 {{-- Content --}}
-                <div class="p-8 space-y-8 relative min-h-[400px]">
+                <div class="p-6 space-y-6 relative overflow-y-auto max-h-[75vh] custom-scrollbar">
                     {{-- Loading Overlay --}}
-                    <div v-if="isCapturing" class="absolute inset-0 z-[100] bg-white/90 backdrop-blur-md flex flex-col items-center justify-center gap-6 animate__animated animate__fadeIn">
+                    <div v-if="isCapturing" class="absolute inset-0 z-[100] bg-white/90 backdrop-blur-md flex flex-col items-center justify-center gap-4 animate__animated animate__fadeIn">
                         <div class="relative">
-                            <div class="w-16 h-16 border-4 border-slate-100 rounded-full"></div>
-                            <div class="absolute top-0 left-0 w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                            <div class="w-12 h-12 border-4 border-slate-100 rounded-full"></div>
+                            <div class="absolute top-0 left-0 w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
                         </div>
-                        <div class="text-center space-y-2">
-                            <p class="text-sm font-black text-slate-900 uppercase tracking-widest">正在生成高畫質圖片</p>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest animate-pulse">請稍候...</p>
-                        </div>
+                        <p class="text-[10px] font-black text-slate-900 uppercase tracking-widest">正在生成圖片...</p>
                     </div>
 
-                    {{-- Preview Area (Small Card) --}}
-                    <div class="flex flex-col items-center gap-6">
-                        <div class="w-48 aspect-[2.5/3.8] relative group">
+                    {{-- Compact Preview & Download --}}
+                    <div class="flex items-center gap-6 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <div class="w-24 aspect-[2.5/3.8] relative shrink-0">
                             <player-card :player="player" size="sm" :is-capturing="isCapturing" class="pointer-events-none"></player-card>
                         </div>
-                        
-                        <button @click="downloadCard" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-blue-500/20 hover:bg-blue-700 transition-all active:scale-95 flex items-center justify-center gap-3">
-                            <app-icon name="upload" class-name="w-5 h-5"></app-icon>
-                            下載球員卡圖片
-                        </button>
+                        <div class="flex-1 space-y-3">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">球員卡圖檔</p>
+                            <button @click="downloadCard" class="w-full py-3 bg-blue-600 text-white rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-all active:scale-95 flex items-center justify-center gap-2">
+                                <app-icon name="upload" class-name="w-4 h-4"></app-icon>
+                                下載圖片
+                            </button>
+                        </div>
                     </div>
 
-                    {{-- Share Options Grid --}}
-                    <div class="grid grid-cols-4 gap-4">
+                    {{-- Share Options Grid (More Compact) --}}
+                    <div class="grid grid-cols-4 gap-x-2 gap-y-4">
                         {{-- LINE --}}
-                        <button @click="shareToLine" class="flex flex-col items-center gap-2 group">
-                            <div class="w-14 h-14 bg-[#06C755] rounded-2xl flex items-center justify-center shadow-lg shadow-green-100 group-hover:scale-110 transition-all">
-                                <app-icon name="message-circle" class-name="w-7 h-7 text-white"></app-icon>
+                        <button @click="shareToLine" class="flex flex-col items-center gap-1.5 group">
+                            <div class="w-11 h-11 bg-[#06C755] rounded-xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-all">
+                                <app-icon name="line" class-name="w-5 h-5 text-white"></app-icon>
                             </div>
-                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">LINE</span>
+                            <span class="text-[8px] font-bold text-slate-500 uppercase tracking-wider">LINE</span>
                         </button>
 
                         {{-- Instagram --}}
-                        <button @click="shareToInstagram" class="flex flex-col items-center gap-2 group">
-                            <div class="w-14 h-14 bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] rounded-2xl flex items-center justify-center shadow-lg shadow-pink-100 group-hover:scale-110 transition-all">
-                                <app-icon name="instagram" class-name="w-7 h-7 text-white"></app-icon>
+                        <button @click="shareToInstagram" class="flex flex-col items-center gap-1.5 group">
+                            <div class="w-11 h-11 bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] rounded-xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-all">
+                                <app-icon name="instagram" class-name="w-5 h-5 text-white"></app-icon>
                             </div>
-                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">IG</span>
+                            <span class="text-[8px] font-bold text-slate-500 uppercase tracking-wider">IG</span>
                         </button>
 
                         {{-- Threads --}}
-                        <button @click="shareToThreads" class="flex flex-col items-center gap-2 group">
-                            <div class="w-14 h-14 bg-black rounded-2xl flex items-center justify-center shadow-lg shadow-slate-200 group-hover:scale-110 transition-all">
-                                <app-icon name="at-sign" class-name="w-7 h-7 text-white"></app-icon>
+                        <button @click="shareToThreads" class="flex flex-col items-center gap-1.5 group">
+                            <div class="w-11 h-11 bg-black rounded-xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-all">
+                                <app-icon name="at-sign" class-name="w-5 h-5 text-white"></app-icon>
                             </div>
-                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Threads</span>
+                            <span class="text-[8px] font-bold text-slate-500 uppercase tracking-wider">Threads</span>
+                        </button>
+
+                        {{-- Facebook --}}
+                        <button @click="shareToFacebook" class="flex flex-col items-center gap-1.5 group">
+                            <div class="w-11 h-11 bg-[#1877F2] rounded-xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-all">
+                                <app-icon name="facebook" class-name="w-5 h-5 text-white"></app-icon>
+                            </div>
+                            <span class="text-[8px] font-bold text-slate-500 uppercase tracking-wider">FB</span>
+                        </button>
+
+                        {{-- X (Twitter) --}}
+                        <button @click="shareToX" class="flex flex-col items-center gap-1.5 group">
+                            <div class="w-11 h-11 bg-slate-900 rounded-xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-all">
+                                <app-icon name="twitter" class-name="w-4 h-4 text-white"></app-icon>
+                            </div>
+                            <span class="text-[8px] font-bold text-slate-500 uppercase tracking-wider">X</span>
+                        </button>
+
+                        {{-- WhatsApp --}}
+                        <button @click="shareToWhatsApp" class="flex flex-col items-center gap-1.5 group">
+                            <div class="w-11 h-11 bg-[#25D366] rounded-xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-all">
+                                <app-icon name="whatsapp" class-name="w-5 h-5 text-white"></app-icon>
+                            </div>
+                            <span class="text-[8px] font-bold text-slate-500 uppercase tracking-wider">WhatsApp</span>
+                        </button>
+
+                        {{-- Telegram --}}
+                        <button @click="shareToTelegram" class="flex flex-col items-center gap-1.5 group">
+                            <div class="w-11 h-11 bg-[#0088cc] rounded-xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-all">
+                                <app-icon name="telegram" class-name="w-5 h-5 text-white"></app-icon>
+                            </div>
+                            <span class="text-[8px] font-bold text-slate-500 uppercase tracking-wider">Telegram</span>
                         </button>
 
                         {{-- Native Share / More --}}
-                        <button @click="shareNative" class="flex flex-col items-center gap-2 group">
-                            <div class="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center shadow-lg shadow-slate-100 group-hover:scale-110 transition-all">
-                                <app-icon name="share-2" class-name="w-7 h-7 text-slate-600"></app-icon>
+                        <button @click="shareNative" class="flex flex-col items-center gap-1.5 group">
+                            <div class="w-11 h-11 bg-slate-100 rounded-xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-all">
+                                <app-icon name="share-2" class-name="w-5 h-5 text-slate-600"></app-icon>
                             </div>
-                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">更多</span>
+                            <span class="text-[8px] font-bold text-slate-500 uppercase tracking-wider">更多</span>
                         </button>
                     </div>
 
-                    {{-- Copy Link --}}
-                    <div class="relative">
-                        <input type="text" readonly :value="shareUrl" class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-4 text-xs font-bold text-slate-500 focus:outline-none pr-24">
-                        <button @click="copyLink" class="absolute right-2 top-2 bottom-2 px-4 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all">
-                            複製連結
-                        </button>
+                    {{-- Link Display & Copy Area --}}
+                    <div class="pt-4 border-t border-slate-100">
+                        <div class="flex items-center gap-2 p-1.5 bg-slate-50 rounded-xl border border-slate-100 group">
+                            <div class="flex-1 px-2 py-1 overflow-hidden">
+                                <p class="text-[10px] font-bold text-slate-500 truncate select-all">@{{ shareUrl }}</p>
+                            </div>
+                            <button @click="copyLink" class="px-4 py-2 bg-white text-blue-600 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-sm border border-slate-100 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all active:scale-95">
+                                複製連結
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                {{-- Footer Hint --}}
-                <div class="px-8 py-6 bg-slate-50 border-t border-slate-100">
-                    <p class="text-[10px] font-bold text-slate-400 text-center leading-relaxed">
-                        提示：您可以直接複製連結分享給好友，或使用上方的社群按鈕快速傳送。
+                <div class="px-6 py-4 bg-slate-50 border-t border-slate-100">
+                    <p class="text-[9px] font-bold text-slate-400 text-center leading-relaxed">
+                        提示：您可以複製連結或使用社群按鈕快速分享。
                     </p>
                 </div>
             </div>

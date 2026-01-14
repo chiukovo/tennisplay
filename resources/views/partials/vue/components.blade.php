@@ -42,7 +42,6 @@ const SignaturePad = {
             const rect = canvas.value.getBoundingClientRect();
             const clientX = e.clientX || (e.touches && e.touches[0].clientX);
             const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-            // rect.left/top are in CSS pixels, which matches getPos's return expectations
             return { x: clientX - rect.left, y: clientY - rect.top };
         };
         const start = (e) => { if (!ctx) return; isDrawing = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); };
@@ -77,7 +76,6 @@ const SignaturePad = {
 
             if (!found) return null;
 
-            // Add padding
             const padding = 10;
             minX = Math.max(0, minX - padding);
             minY = Math.max(0, minY - padding);
@@ -108,7 +106,6 @@ const SignaturePad = {
                 if (trimmed) {
                     emit('save', trimmed); 
                 } else {
-                    // If empty, just close or show warning
                     emit('close');
                 }
             } 
@@ -150,7 +147,6 @@ const PlayerCard = {
             }
         };
         
-        // Normalize player data (snake_case to camelCase)
         const p = computed(() => {
             const raw = props.player;
             if (!raw) return null;
@@ -183,15 +179,9 @@ const PlayerCard = {
             if (!p.value) return themes.standard;
             return themes[p.value.theme || 'standard'] || themes.standard;
         });
-        const getLevelTag = (lvl) => LEVEL_TAGS[lvl] || '網球愛愛好者';
+        const getLevelTag = (lvl) => LEVEL_TAGS[lvl] || '網球愛好者';
 
-        // Holo Effect Logic (Refined Math & Auto-Animation)
-        const tilt = reactive({ 
-            lp: 50, tp: 50,    // Light position
-            spx: 50, spy: 50,  // Sparkle position
-            opc: 0,            // Opacity
-            rX: 0, rY: 0       // Rotation
-        });
+        const tilt = reactive({ lp: 50, tp: 50, spx: 50, spy: 50, opc: 0, rX: 0, rY: 0 });
         const isAnimated = ref(true);
         let rafId = null;
         let resumeTimeout = null;
@@ -206,7 +196,6 @@ const PlayerCard = {
                 if (!card) return;
                 const rect = card.getBoundingClientRect();
                 let x, y;
-
                 if (e.type === 'touchmove') {
                     x = e.touches[0].clientX - rect.left;
                     y = e.touches[0].clientY - rect.top;
@@ -214,20 +203,14 @@ const PlayerCard = {
                     x = e.clientX - rect.left;
                     y = e.clientY - rect.top;
                 }
-
-                // Normalise mouse position (0-100)
                 const px = Math.abs(Math.floor(100 / rect.width * x) - 100);
                 const py = Math.abs(Math.floor(100 / rect.height * y) - 100);
                 const pa = (50 - px) + (50 - py);
-
-                // Math for light / sparkle positions
                 tilt.lp = (50 + (px - 50) / 1.5);
                 tilt.tp = (50 + (py - 50) / 1.5);
                 tilt.spx = (50 + (px - 50) / 7);
                 tilt.spy = (50 + (py - 50) / 7);
-                tilt.opc = (15 + (Math.abs(pa) * 0.5)) / 100; // Subtler baseline
-
-                // Math for rotation (Softer tilt for non-aggressive look)
+                tilt.opc = (15 + (Math.abs(pa) * 0.5)) / 100;
                 tilt.rX = ((tilt.tp - 50) / 6) * -1; 
                 tilt.rY = ((tilt.lp - 50) / 4.5) * 0.5;
             });
@@ -235,14 +218,8 @@ const PlayerCard = {
 
         const handleLeave = () => {
             if (rafId) cancelAnimationFrame(rafId);
-            tilt.rX = 0;
-            tilt.rY = 0;
-            tilt.opc = 0;
-            
-            // Resume animation after delay
-            resumeTimeout = setTimeout(() => {
-                isAnimated.value = true;
-            }, 2500);
+            tilt.rX = 0; tilt.rY = 0; tilt.opc = 0;
+            resumeTimeout = setTimeout(() => { isAnimated.value = true; }, 2500);
         };
 
         const isHoloTheme = computed(() => {
@@ -253,30 +230,13 @@ const PlayerCard = {
         const holoStyle = computed(() => {
             if (!p.value) return {};
             const id = p.value.id || 0;
-
             if (props.isCapturing) {
-                // Fixed "perfect" light for capture
-                return {
-                    '--lp': '50%', '--tp': '50%', '--spx': '50%', '--spy': '50%',
-                    '--opc': '0.4', '--int': '1.2', '--delay': '0s', '--duration': '10s'
-                };
+                return { '--lp': '50%', '--tp': '50%', '--spx': '50%', '--spy': '50%', '--opc': '0.4', '--int': '1.2', '--delay': '0s', '--duration': '10s' };
             }
-
-            // Stable "random" values based on ID
-            const delay = (id % 12) * -1.5; // -0s to -16.5s
-            const duration = 10 + (id % 6);  // 10s to 15s
-            const intensity = 0.7 + (id % 4) * 0.15; // 0.7 to 1.15 multiplier
-            
-            return {
-                '--delay': `${delay}s`,
-                '--duration': `${duration}s`,
-                '--int': intensity,
-                '--lp': `${tilt.lp}%`, 
-                '--tp': `${tilt.tp}%`,
-                '--spx': `${tilt.spx}%`,
-                '--spy': `${tilt.spy}%`,
-                '--opc': tilt.opc
-            };
+            const delay = (id % 12) * -1.5;
+            const duration = 10 + (id % 6);
+            const intensity = 0.7 + (id % 4) * 0.15;
+            return { '--delay': `${delay}s`, '--duration': `${duration}s`, '--int': intensity, '--lp': `${tilt.lp}%`, '--tp': `${tilt.tp}%`, '--spx': `${tilt.spx}%`, '--spy': `${tilt.spy}%`, '--opc': tilt.opc };
         });
 
         const cardScale = ref(1);
@@ -296,26 +256,17 @@ const PlayerCard = {
         onMounted(() => {
             updateScale();
             window.addEventListener('resize', updateScale);
-            
-            // 使用 ResizeObserver 處理彈窗動畫期間的尺寸變化
             if (window.ResizeObserver && cardContainer.value) {
-                resizeObserver = new ResizeObserver(() => {
-                    updateScale();
-                });
+                resizeObserver = new ResizeObserver(() => { updateScale(); });
                 resizeObserver.observe(cardContainer.value);
             }
         });
         onUnmounted(() => {
             window.removeEventListener('resize', updateScale);
-            if (resizeObserver) {
-                resizeObserver.disconnect();
-            }
+            if (resizeObserver) resizeObserver.disconnect();
         });
 
-        return { 
-            cardContainer, p, themeStyle, getLevelTag, tilt, handleMove, handleLeave, 
-            isHoloTheme, isAnimated, holoStyle, cardScale, containerHeight 
-        };
+        return { cardContainer, p, themeStyle, getLevelTag, tilt, handleMove, handleLeave, isHoloTheme, isAnimated, holoStyle, cardScale, containerHeight };
     }
 };
 
@@ -329,7 +280,6 @@ const PlayerDetailModal = {
             if (!props.player || !props.players) return -1;
             return props.players.findIndex(p => p.id === props.player.id);
         });
-
         const hasPrev = computed(() => props.players && props.players.length > 1);
         const hasNext = computed(() => props.players && props.players.length > 1);
         const transitionName = ref('slide-next');
@@ -357,10 +307,7 @@ const PlayerDetailModal = {
                 socialStatus.is_following = !socialStatus.is_following;
                 emit('update:player', { ...props.player, is_following: socialStatus.is_following });
                 props.showToast(response.data.message, 'success');
-            } catch (error) {
-                const msg = error.response?.data?.error || error.response?.data?.message || '操作失敗';
-                props.showToast(msg, 'error');
-            }
+            } catch (error) { props.showToast(error.response?.data?.message || '操作失敗', 'error'); }
         };
 
         const toggleLikeModal = async () => {
@@ -372,10 +319,7 @@ const PlayerDetailModal = {
                 socialStatus.likes_count = response.data.likes_count;
                 emit('update:player', { ...props.player, is_liked: socialStatus.is_liked, likes_count: socialStatus.likes_count });
                 props.showToast(response.data.message, 'success');
-            } catch (error) {
-                const msg = error.response?.data?.error || error.response?.data?.message || '操作失敗';
-                props.showToast(msg, 'error');
-            }
+            } catch (error) { props.showToast(error.response?.data?.message || '操作失敗', 'error'); }
         };
 
         const postComment = async () => {
@@ -388,9 +332,7 @@ const PlayerDetailModal = {
                 commentDraft.value = '';
                 emit('update:player', { ...props.player, comments_count: (props.player.comments_count || 0) + 1 });
                 props.showToast('留言成功', 'success');
-            } catch (error) {
-                props.showToast('發送失敗', 'error');
-            }
+            } catch (error) { props.showToast('發送失敗', 'error'); }
         };
 
         watch(() => props.player, (newP) => {
@@ -404,32 +346,13 @@ const PlayerDetailModal = {
 
         const navigate = (direction) => {
             if (!props.players || props.players.length <= 1) return;
-            
-            // Set transition direction
             transitionName.value = direction > 0 ? 'slide-next' : 'slide-prev';
-            
             let nextIndex = currentIndex.value + direction;
-            
-            // Loop logic
             if (nextIndex < 0) nextIndex = props.players.length - 1;
             if (nextIndex >= props.players.length) nextIndex = 0;
-            
             emit('update:player', props.players[nextIndex]);
         };
 
-        // Swipe Support
-        let touchStartX = 0;
-        const handleTouchStart = (e) => { touchStartX = e.touches[0].clientX; };
-        const handleTouchEnd = (e) => {
-            const touchEndX = e.changedTouches[0].clientX;
-            const diff = touchStartX - touchEndX;
-            if (Math.abs(diff) > 50) { // Threshold
-                if (diff > 0) navigate(1); // Swipe left -> next
-                else navigate(-1); // Swipe right -> prev
-            }
-        };
-
-        // Keyboard support
         const handleKeydown = (e) => {
             if (!props.player) return;
             if (e.key === 'ArrowLeft') navigate(-1);
@@ -451,32 +374,13 @@ const PlayerDetailModal = {
             ];
         });
 
-        const getThemeStyle = (theme) => {
-            const themes = {
-                gold: { bg: 'bg-slate-900', logoBg: 'bg-yellow-500/10' },
-                platinum: { bg: 'bg-slate-900', logoBg: 'bg-white/10' },
-                holographic: { bg: 'bg-slate-900', logoBg: 'bg-cyan-500/10' },
-                onyx: { bg: 'bg-black', logoBg: 'bg-white/5' },
-                sakura: { bg: 'bg-slate-900', logoBg: 'bg-pink-500/10' },
-                standard: { bg: 'bg-slate-900', logoBg: 'bg-blue-500/10' }
-            };
-            return themes[theme] || themes.standard;
-        };
-
         const formatDate = (dateStr) => {
             if (!dateStr) return '';
             const d = new Date(dateStr);
             return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
         };
 
-        const getLevelDesc = (lvl) => LEVEL_DESCS[lvl] || '享受網球樂趣，持續精進球技。';
-
-        return { 
-            currentIndex, hasPrev, hasNext, transitionName, navigate, 
-            handleTouchStart, handleTouchEnd, backStats, getThemeStyle, formatDate, getLevelDesc,
-            comments, commentDraft, isLoadingComments, socialStatus,
-            toggleFollowModal, toggleLikeModal, postComment
-        };
+        return { currentIndex, hasPrev, hasNext, transitionName, navigate, backStats, formatDate, comments, commentDraft, isLoadingComments, socialStatus, toggleFollowModal, toggleLikeModal, postComment };
     }
 };
 
@@ -486,214 +390,75 @@ const MessageDetailModal = {
     template: '#message-detail-modal-template',
     emits: ['update:open', 'message-sent', 'navigate-to-profile'],
     setup(props, { emit }) {
-        const messages = ref([]);
-        const loading = ref(false);
-        const sending = ref(false);
-        const newMessage = ref('');
-        const chatContainer = ref(null);
+        const messages = ref([]); const loading = ref(false); const sending = ref(false); const newMessage = ref(''); const chatContainer = ref(null);
+        const hasMore = ref(false); const page = ref(1); const isFetching = ref(false);
 
-        // 導航到用戶個人頁面
-        const goToProfile = () => {
-            if (props.targetUser?.uid) {
-                emit('update:open', false);
-                emit('navigate-to-profile', props.targetUser.uid);
-            }
-        };
+        const goToProfile = () => { if (props.targetUser?.uid) { emit('update:open', false); emit('navigate-to-profile', props.targetUser.uid); } };
+        const formatDate = (dateString) => { if (!dateString) return ''; const date = new Date(dateString); return date.toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }); };
+        const scrollToBottom = () => { nextTick(() => { if (chatContainer.value) chatContainer.value.scrollTop = chatContainer.value.scrollHeight; }); };
 
-        const formatDate = (dateString) => {
-            if (!dateString) return '';
-            const date = new Date(dateString);
-            return date.toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-        };
-
-        const scrollToBottom = () => {
-            nextTick(() => {
-                if (chatContainer.value) {
-                    chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
-                }
-            });
-        };
-
-        const hasMore = ref(false);
-        const page = ref(1);
-
-        const isFetching = ref(false);
         const loadChat = async (isPolling = false) => {
             if (!props.targetUser || isFetching.value) return;
             if (!isPolling) loading.value = true;
             isFetching.value = true;
-            
             try {
                 let url = `/messages/chat/${props.targetUser.uid}`;
                 const maxId = messages.value.reduce((max, m) => Math.max(max, m.id), 0);
-                
-                if (isPolling && maxId > 0) {
-                    url += `?after_id=${maxId}`;
-                } else {
-                    url += `?page=${page.value}`;
-                }
-
+                if (isPolling && maxId > 0) url += `?after_id=${maxId}`;
+                else url += `?page=${page.value}`;
                 const response = await api.get(url);
                 if (response.data.success) {
                     let newItems = [];
-                    
                     if (isPolling) {
-                        // Polling returns array directly
-                        newItems = response.data.data.map(m => ({
-                            ...m,
-                            is_me: m.sender?.uid === props.currentUser.uid
-                        }));
-                        
+                        newItems = response.data.data.map(m => ({ ...m, is_me: m.sender?.uid === props.currentUser.uid }));
                         if (newItems.length > 0) {
-                            // Deduplicate by ID
                             const existingIds = new Set(messages.value.map(m => m.id));
                             const uniqueNewItems = newItems.filter(m => !existingIds.has(m.id));
-                            
-                            if (uniqueNewItems.length > 0) {
-                                messages.value = [...messages.value, ...uniqueNewItems];
-                                scrollToBottom();
-                            }
+                            if (uniqueNewItems.length > 0) { messages.value = [...messages.value, ...uniqueNewItems]; scrollToBottom(); }
                         }
                     } else {
-                        // Pagination returns paginated object
-                        const data = response.data.data;
-                        const rawMessages = data.data || [];
-                        hasMore.value = data.next_page_url !== null;
-                        
-                        newItems = rawMessages.map(m => ({
-                            ...m,
-                            is_me: m.sender?.uid === props.currentUser.uid
-                        })).reverse(); // Reverse because backend gives desc
-                        
-                        if (page.value === 1) {
-                            messages.value = newItems;
-                            scrollToBottom();
-                        } else {
-                            // Prepend for load more, but also deduplicate just in case
+                        const data = response.data.data; const rawMessages = data.data || []; hasMore.value = data.next_page_url !== null;
+                        newItems = rawMessages.map(m => ({ ...m, is_me: m.sender?.uid === props.currentUser.uid })).reverse();
+                        if (page.value === 1) { messages.value = newItems; scrollToBottom(); }
+                        else {
                             const existingIds = new Set(messages.value.map(m => m.id));
                             const uniqueNewItems = newItems.filter(m => !existingIds.has(m.id));
-                            
                             if (uniqueNewItems.length > 0) {
                                 const currentHeight = chatContainer.value.scrollHeight;
                                 messages.value = [...uniqueNewItems, ...messages.value];
-                                nextTick(() => {
-                                    chatContainer.value.scrollTop = chatContainer.value.scrollHeight - currentHeight;
-                                });
+                                nextTick(() => { chatContainer.value.scrollTop = chatContainer.value.scrollHeight - currentHeight; });
                             }
                         }
                     }
                 }
-            } catch (error) {
-                console.error('Load chat error:', error);
-            } finally {
-                isFetching.value = false;
-                if (!isPolling) loading.value = false;
-            }
+            } catch (error) {} finally { isFetching.value = false; if (!isPolling) loading.value = false; }
         };
 
-        const loadMore = () => {
-            if (!hasMore.value || loading.value) return;
-            page.value++;
-            loadChat(false);
-        };
-
+        const loadMore = () => { if (!hasMore.value || loading.value) return; page.value++; loadChat(false); };
         const sendMessage = async () => {
             if (!newMessage.value.trim() || sending.value) return;
             sending.value = true;
             try {
-                const payload = {
-                    content: newMessage.value
-                };
-                
-                // Use both id and uid if available for maximum resilience
+                const payload = { content: newMessage.value };
                 if (props.targetUser.id) payload.to_user_id = props.targetUser.id;
                 if (props.targetUser.uid) payload.to_user_uid = props.targetUser.uid;
-                
-                // If this is a conversation about a specific player, include it
-                if (props.targetUser.player?.id) {
-                    payload.to_player_id = props.targetUser.player.id;
-                }
-
+                if (props.targetUser.player?.id) payload.to_player_id = props.targetUser.player.id;
                 const response = await api.post('/messages', payload);
-
                 if (response.data.success) {
-                    const msg = response.data.data;
-                    messages.value.push({
-                        ...msg,
-                        is_me: true
-                    });
-                    newMessage.value = '';
-                    // Reset textarea height
-                    nextTick(() => {
-                        const textarea = document.querySelector('.message-textarea');
-                        if (textarea) textarea.style.height = '42px';
-                    });
-                    scrollToBottom();
-                    // Emit but specify this is a chat-reply to avoid closing modal
+                    messages.value.push({ ...response.data.data, is_me: true });
+                    newMessage.value = ''; scrollToBottom();
                     emit('message-sent', { type: 'chat-reply' });
                 }
-            } catch (error) {
-                console.error('Send message error:', error);
-                alert('發送失敗，請稍後再試');
-            } finally {
-                sending.value = false;
-            }
+            } catch (error) { alert('發送失敗'); } finally { sending.value = false; }
         };
 
-        // 處理 Enter 鍵：手機版換行，桌面版發送（Shift+Enter 換行）
-        const handleEnterKey = (e) => {
-            const isMobile = window.matchMedia('(max-width: 640px)').matches || 
-                            ('ontouchstart' in window) || 
-                            (navigator.maxTouchPoints > 0);
-            
-            if (isMobile) {
-                // 手機版：Enter 換行，讓預設行為發生（不做任何事）
-                return;
-            } else {
-                // 桌面版：Enter 發送，Shift+Enter 換行
-                if (!e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
-                }
-            }
-        };
-
+        const handleEnterKey = (e) => { if (!e.shiftKey && !(/Android|iPhone/i.test(navigator.userAgent))) { e.preventDefault(); sendMessage(); } };
         let pollInterval;
-
-        // 處理手機返回鍵
-        const handlePopState = (e) => {
-            if (props.open) {
-                emit('update:open', false);
-            }
-        };
-
         watch(() => props.open, (newVal) => {
-            if (newVal) {
-                document.body.style.overflow = 'hidden';
-                page.value = 1;
-                loadChat(false);
-                pollInterval = setInterval(() => loadChat(true), 5000);
-                
-                // 加入 history state 以支援手機返回鍵
-                history.pushState({ modal: 'message-detail' }, '');
-                window.addEventListener('popstate', handlePopState);
-            } else {
-                document.body.style.overflow = '';
-                messages.value = [];
-                page.value = 1;
-                if (pollInterval) clearInterval(pollInterval);
-                
-                // 移除返回鍵監聽
-                window.removeEventListener('popstate', handlePopState);
-            }
+            if (newVal) { document.body.style.overflow = 'hidden'; page.value = 1; loadChat(false); pollInterval = setInterval(() => loadChat(true), 5000); }
+            else { document.body.style.overflow = ''; messages.value = []; if (pollInterval) clearInterval(pollInterval); }
         });
-
-        onUnmounted(() => {
-            document.body.style.overflow = '';
-            if (pollInterval) clearInterval(pollInterval);
-            window.removeEventListener('popstate', handlePopState);
-        });
-
+        onUnmounted(() => { if (pollInterval) clearInterval(pollInterval); });
         return { messages, loading, sending, newMessage, chatContainer, formatDate, sendMessage, handleEnterKey, hasMore, loadMore, goToProfile };
     }
 };
@@ -706,173 +471,90 @@ const ShareModal = {
     setup(props, { emit }) {
         const { showToast } = useUtils();
         const isCapturing = ref(false);
-        
         const shareUrl = computed(() => {
             if (!props.player) return window.location.origin;
             const uid = props.player.user_uid || props.player.user?.uid || props.player.user_id;
             return `${window.location.origin}/profile/${uid}`;
         });
 
-        const copyLink = () => {
-            navigator.clipboard.writeText(shareUrl.value);
-            showToast('連結已複製到剪貼簿', 'success');
-        };
+        const copyLink = () => { navigator.clipboard.writeText(shareUrl.value); showToast('連結已複製', 'success'); };
 
         const captureCardImage = async () => {
             isCapturing.value = true;
             await nextTick();
             await document.fonts.ready;
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 800));
 
             let container = null;
             try {
                 const originalCard = document.querySelector('.modal-content .capture-target');
                 if (!originalCard) throw new Error('找不到卡片元素');
 
-                // 1. 建立隱藏容器
                 container = document.createElement('div');
-                container.style.position = 'fixed';
-                container.style.left = '-9999px';
-                container.style.top = '0';
-                container.style.width = '450px';
-                container.style.zIndex = '-1000';
+                container.style.position = 'fixed'; container.style.left = '-9999px'; container.style.top = '0';
+                container.style.width = '450px'; container.style.zIndex = '-1000';
                 document.body.appendChild(container);
 
-                // 2. 克隆並處理圖片
                 const clonedCard = originalCard.cloneNode(true);
-                clonedCard.style.transform = 'none'; // 確保擷取時縮放比例為 1
-                clonedCard.style.width = '450px';
-                clonedCard.style.height = '684px';
-                clonedCard.style.display = 'block';
-                clonedCard.style.visibility = 'visible';
-                clonedCard.style.fontFamily = "'Inter', sans-serif"; // 強制字體
-                clonedCard.style.textRendering = "optimizeLegibility";
-                clonedCard.style.webkitFontSmoothing = "antialiased";
+                clonedCard.style.transform = 'none'; clonedCard.style.width = '450px'; clonedCard.style.height = '684px';
+                clonedCard.style.display = 'block'; clonedCard.style.visibility = 'visible';
                 container.appendChild(clonedCard);
 
+                const toBase64 = async (url) => {
+                    if (!url || url.startsWith('data:')) return url;
+                    try {
+                        const response = await fetch(url, { mode: 'cors' });
+                        const blob = await response.blob();
+                        return new Promise((resolve) => {
+                            const reader = new FileReader();
+                            reader.onloadend = () => resolve(reader.result);
+                            reader.readAsDataURL(blob);
+                        });
+                    } catch (e) { return url; }
+                };
+
                 const imgs = Array.from(clonedCard.querySelectorAll('img'));
-                const originalImgs = Array.from(originalCard.querySelectorAll('img'));
+                await Promise.all(imgs.map(async (img) => { img.src = await toBase64(img.src); }));
 
-                // 處理背景圖片 (照片)
-                const bgDivs = Array.from(clonedCard.querySelectorAll('[style*="background-image"]'));
-                const originalBgDivs = Array.from(originalCard.querySelectorAll('[style*="background-image"]'));
-                
-                await Promise.all(bgDivs.map(async (div, idx) => {
-                    const style = div.style.backgroundImage;
-                    if (style && style.includes('url(')) {
-                        const url = style.match(/url\(["']?([^"']+)["']?\)/)[1];
-                        if (!url.startsWith('data:')) {
-                            try {
-                                const response = await fetch(url, { mode: 'cors' });
-                                const blob = await response.blob();
-                                const dataUrl = await new Promise(r => {
-                                    const reader = new FileReader();
-                                    reader.onloadend = () => r(reader.result);
-                                    reader.readAsDataURL(blob);
-                                });
-                                div.style.backgroundImage = `url(${dataUrl})`;
-                            } catch (e) { console.warn('BG Image failed:', e); }
-                        }
+                const allElements = Array.from(clonedCard.querySelectorAll('*'));
+                await Promise.all(allElements.map(async (el) => {
+                    const style = window.getComputedStyle(el);
+                    const bg = style.backgroundImage;
+                    if (bg && bg !== 'none' && bg.includes('url(')) {
+                        const url = bg.match(/url\(["']?([^"']+)["']?\)/)[1];
+                        const b64 = await toBase64(url);
+                        el.style.backgroundImage = `url("${b64}")`;
                     }
                 }));
 
-                // 處理一般圖片 (簽名)
-                await Promise.all(imgs.map(async (img, idx) => {
-                    if (img.src && !img.src.startsWith('data:')) {
-                        try {
-                            const sourceImg = originalImgs[idx];
-                            if (sourceImg && sourceImg.complete) {
-                                const canvas = document.createElement('canvas');
-                                canvas.width = sourceImg.naturalWidth;
-                                canvas.height = sourceImg.naturalHeight;
-                                canvas.getContext('2d').drawImage(sourceImg, 0, 0);
-                                img.src = canvas.toDataURL('image/png');
-                            }
-                        } catch (e) { console.warn('Img failed:', e); }
-                    }
-                }));
-
-                // 3. 擷取
-                const canvas = await html2canvas(clonedCard, {
-                    useCORS: true,
-                    scale: 2,
-                    backgroundColor: null,
-                    logging: false,
-                    width: 450,
-                    height: 684
+                const dataUrl = await domtoimage.toPng(clonedCard, {
+                    width: 450, height: 684,
+                    style: { transform: 'none', left: '0', top: '0' },
+                    quality: 1.0, cacheBust: true
                 });
-
-                return canvas.toDataURL('image/png');
-            } catch (error) {
-                console.error('Capture error:', error);
-                showToast('圖片生成失敗', 'error');
-                return null;
-            } finally {
-                if (container) document.body.removeChild(container);
-                isCapturing.value = false;
-            }
+                return dataUrl;
+            } catch (error) { console.error('Capture error:', error); showToast('圖片生成失敗', 'error'); return null; }
+            finally { if (container && container.parentNode) document.body.removeChild(container); isCapturing.value = false; }
         };
 
         const downloadCard = async () => {
             const dataUrl = await captureCardImage();
             if (!dataUrl) return;
-
             const fileName = `player-card-${props.player.name || 'tennis'}.png`;
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
+            const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
             try {
-                // 1. Desktop: Direct Download
                 if (!isMobile) {
-                    const link = document.createElement('a');
-                    link.download = fileName;
-                    link.href = dataUrl;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    showToast('圖片已開始下載', 'success');
-                    return;
+                    const link = document.createElement('a'); link.download = fileName; link.href = dataUrl;
+                    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+                    showToast('圖片已開始下載', 'success'); return;
                 }
-
-                // 2. Mobile: Try Share or New Tab
-                const res = await fetch(dataUrl);
-                const blob = await res.blob();
+                const res = await fetch(dataUrl); const blob = await res.blob();
                 const file = new File([blob], fileName, { type: 'image/png' });
-
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    try {
-                        await navigator.share({
-                            files: [file],
-                            title: '我的球員卡',
-                            text: '🎾 這是我的網球球員卡！'
-                        });
-                        return;
-                    } catch (shareErr) {
-                        if (shareErr.name === 'AbortError') return;
-                    }
+                    try { await navigator.share({ files: [file], title: '我的球員卡' }); return; } catch (e) {}
                 }
-
-                // Mobile Fallback
-                const newTab = window.open();
-                if (newTab) {
-                    newTab.document.write(`
-                        <html>
-                            <head><title>儲存球員卡</title></head>
-                            <body style="margin:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#f1f5f9; font-family:sans-serif;">
-                                <img src="${dataUrl}" style="max-width:90%; max-height:80vh; border-radius:20px; box-shadow:0 20px 25px -5px rgb(0 0 0 / 0.1);">
-                                <p style="margin-top:20px; font-weight:bold; color:#64748b;">請長按圖片並選擇「儲存圖片」</p>
-                                <button onclick="window.close()" style="margin-top:20px; padding:10px 20px; background:#2563eb; color:white; border:none; border-radius:10px; font-weight:bold;">關閉視窗</button>
-                            </body>
-                        </html>
-                    `);
-                    showToast('請長按圖片儲存', 'info');
-                } else {
-                    window.location.href = dataUrl;
-                }
-            } catch (error) {
-                console.error('Download error:', error);
-                window.open(dataUrl, '_blank');
-                showToast('請長按圖片儲存', 'info');
-            }
+                window.open(dataUrl, '_blank'); showToast('請長按圖片儲存', 'info');
+            } catch (error) { window.open(dataUrl, '_blank'); }
         };
 
         const shareToLine = () => {
@@ -936,35 +618,25 @@ const MatchModal = {
     components: { AppIcon },
     template: '#match-modal-template',
     emits: ['update:open', 'submit'],
-    setup(props, { emit }) {
+    setup(props) {
         const textModel = ref('');
         const photoUrl = computed(() => {
             const path = props.player?.photo_url || props.player?.photo;
             if (!path) return null;
             if (path.startsWith('http') || path.startsWith('data:')) return path;
-            if (path.startsWith('/storage/')) return path;
             return `/storage/${path}`;
         });
         return { textModel, photoUrl };
     }
 };
 
-const NtrpGuideModal = {
-    props: ['open', 'descs'],
-    components: { AppIcon },
-    template: '#ntrp-guide-modal-template',
-    emits: ['update:open']
-};
+const NtrpGuideModal = { props: ['open', 'descs'], components: { AppIcon }, template: '#ntrp-guide-modal-template', emits: ['update:open'] };
 
 const QuickEditModal = {
     props: ['open', 'form', 'levels', 'regions'],
     components: { AppIcon },
     template: '#quick-edit-modal-template',
-    emits: ['update:open', 'save', 'trigger-upload'],
-    setup(props) {
-        const { getUrl } = useUtils();
-        return { getUrl };
-    }
+    emits: ['update:open', 'save', 'trigger-upload']
 };
 
 const EventDetailModal = {
@@ -974,15 +646,8 @@ const EventDetailModal = {
     emits: ['update:open', 'like', 'join', 'comment', 'leave', 'update:comment-draft', 'delete-comment', 'open-profile'],
     setup(props, { emit }) {
         const { formatEventDate, formatDate } = useUtils();
-        
-        const openProfile = (uid) => emit('open-profile', uid);
-
-        return { formatEventDate, formatDate, openProfile };
+        return { formatEventDate, formatDate, openProfile: (uid) => emit('open-profile', uid) };
     }
 };
-const PrivacyModal = {
-    props: ['modelValue', 'navigateTo'],
-    components: { AppIcon },
-    template: '#privacy-modal-template',
-    emits: ['update:modelValue']
-};
+
+const PrivacyModal = { props: ['modelValue', 'navigateTo'], components: { AppIcon }, template: '#privacy-modal-template', emits: ['update:modelValue'] };

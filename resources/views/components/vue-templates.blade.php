@@ -113,7 +113,7 @@
                         <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 opacity-80"></div>
                         
                         <div class="relative z-10">
-                            <h3 :class="['font-black uppercase tracking-tighter italic leading-[1.1] whitespace-nowrap pb-[5px] text-white text-left drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]']" style="font-size: 50px;">
+                            <h3 :class="['font-black uppercase tracking-tighter italic leading-[1.0] whitespace-nowrap pb-[5px] bg-gradient-to-r bg-clip-text text-transparent text-left drop-shadow-md', isPlaceholder ? 'bg-slate-400' : themeStyle.border]" style="font-size: 50px;">
                                 @{{ p?.name || '請更新卡片' }}
                             </h3>
                             <div class="flex items-center justify-between">

@@ -28,7 +28,9 @@ class CardCaptureController extends Controller
             $browsershot = Browsershot::url($renderUrl)
                 ->windowSize(450, 684)
                 ->deviceScaleFactor(2) // Retina quality (900x1368 output)
+                ->transparent()
                 ->waitUntilNetworkIdle()
+                ->delay(500)
                 ->timeout(30);
             
             // Configure paths for Windows/Linux

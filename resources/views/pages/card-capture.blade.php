@@ -54,15 +54,17 @@
         .theme-gold .name-gradient { background: linear-gradient(90deg, #f59e0b, #fde68a, #d97706); }
         .theme-platinum .name-gradient { background: linear-gradient(90deg, #e2e8f0, #ffffff, #cbd5e1); }
         .theme-holographic .name-gradient { background: linear-gradient(90deg, #ec4899, #06b6d4, #fde047, #a855f7); }
-        .theme-onyx .name-gradient { background: linear-gradient(90deg, #cbd5e1, #f1f5f9, #94a3b8); }
+        .theme-onyx .name-gradient { background: linear-gradient(90deg, #ffffff, #cbd5e1, #94a3b8); }
         .theme-sakura .name-gradient { background: linear-gradient(90deg, #f472b6, #fbcfe8, #ec4899); }
         .theme-standard .name-gradient { background: linear-gradient(90deg, #3b82f6, #60a5fa, #6366f1); }
         
         .name-gradient {
+            display: inline-block;
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
             color: transparent;
+            background-size: 100% 100%;
         }
         
         /* SVG Icons inline */
@@ -183,8 +185,8 @@
             <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 opacity-80"></div>
             
             <div class="relative z-10">
-                <h3 class="name-gradient font-black uppercase tracking-tighter italic leading-[1.0] whitespace-nowrap pb-[5px] text-left" style="font-size: 50px;">
-                    {{ $player->name ?? '請更新卡片' }}
+                <h3 class="font-black uppercase tracking-tighter italic leading-[1.0] whitespace-nowrap mb-[8px] text-left" style="font-size: 50px;">
+                    <span class="name-gradient">{{ $player->name ?? '請更新卡片' }}</span>
                 </h3>
                 <div class="flex items-center gap-[14px] text-white/80">
                     <div class="flex items-center gap-[7px]">

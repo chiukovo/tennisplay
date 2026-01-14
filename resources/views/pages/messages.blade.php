@@ -6,10 +6,6 @@
             <h2 class="text-2xl sm:text-5xl font-black italic uppercase tracking-tighter">約打訊息</h2>
             <p class="text-slate-400 font-bold text-xs sm:text-sm uppercase tracking-[0.2em] mt-1 sm:mt-2">My Messages</p>
         </div>
-        <div v-if="messages.length > 0" class="text-right">
-            <div class="text-xl sm:text-2xl font-black text-blue-600">@{{ messages.filter(m => m.unread || !m.read_at).length }}</div>
-            <div class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">未讀</div>
-        </div>
     </div>
     
     {{-- LINE Add Friend Button --}}

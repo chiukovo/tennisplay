@@ -719,6 +719,8 @@ createApp({
         };
 
         const openMessage = (message) => {
+            // 點進去立即設為已讀（前端即時回饋）
+            message.unread_count = 0;
             const otherUser = (message.sender?.uid === currentUser.value.uid) ? message.receiver : message.sender;
             if (message.player) otherUser.player = message.player;
             selectedChatUser.value = otherUser;

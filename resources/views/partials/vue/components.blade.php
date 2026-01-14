@@ -490,16 +490,27 @@ const ShareModal = {
                 const originalCard = document.querySelector('.modal-content .capture-target');
                 if (!originalCard) throw new Error('找不到卡片元素');
 
+                // 1. 建立隱藏容器
                 container = document.createElement('div');
-                container.style.position = 'fixed'; container.style.left = '-9999px'; container.style.top = '0';
-                container.style.width = '450px'; container.style.zIndex = '-1000';
+                container.style.position = 'fixed';
+                container.style.left = '-9999px';
+                container.style.top = '0';
+                container.style.width = '450px';
+                container.style.zIndex = '-1000';
                 document.body.appendChild(container);
 
+                // 2. 克隆並強制樣式
                 const clonedCard = originalCard.cloneNode(true);
-                clonedCard.style.transform = 'none'; clonedCard.style.width = '450px'; clonedCard.style.height = '684px';
-                clonedCard.style.display = 'block'; clonedCard.style.visibility = 'visible';
+                clonedCard.style.transform = 'none';
+                clonedCard.style.width = '450px';
+                clonedCard.style.height = '684px';
+                clonedCard.style.display = 'block';
+                clonedCard.style.visibility = 'visible';
+                clonedCard.style.fontFamily = "'Inter', sans-serif";
+                clonedCard.style.letterSpacing = "normal";
                 container.appendChild(clonedCard);
 
+                // 3. 全 Base64 預處理 (共用邏輯)
                 const toBase64 = async (url) => {
                     if (!url || url.startsWith('data:')) return url;
                     try {
@@ -510,12 +521,19 @@ const ShareModal = {
                             reader.onloadend = () => resolve(reader.result);
                             reader.readAsDataURL(blob);
                         });
-                    } catch (e) { return url; }
+                    } catch (e) {
+                        console.warn('Base64 conversion failed:', url, e);
+                        return url;
+                    }
                 };
 
+                // 處理所有 <img>
                 const imgs = Array.from(clonedCard.querySelectorAll('img'));
-                await Promise.all(imgs.map(async (img) => { img.src = await toBase64(img.src); }));
+                await Promise.all(imgs.map(async (img) => {
+                    if (img.src) img.src = await toBase64(img.src);
+                }));
 
+                // 處理所有帶有 background-image 的元素
                 const allElements = Array.from(clonedCard.querySelectorAll('*'));
                 await Promise.all(allElements.map(async (el) => {
                     const style = window.getComputedStyle(el);
@@ -527,14 +545,59 @@ const ShareModal = {
                     }
                 }));
 
-                const dataUrl = await domtoimage.toPng(clonedCard, {
-                    width: 450, height: 684,
-                    style: { transform: 'none', left: '0', top: '0' },
-                    quality: 1.0, cacheBust: true
-                });
-                return dataUrl;
-            } catch (error) { console.error('Capture error:', error); showToast('圖片生成失敗', 'error'); return null; }
-            finally { if (container && container.parentNode) document.body.removeChild(container); isCapturing.value = false; }
+                // 4. 雙引擎擷取策略
+                try {
+                    // Engine A: html-to-image (High Fidelity, 支援漸層/毛玻璃)
+                    // 使用 filter 排除干擾元素
+                    const filter = (node) => {
+                        return (node.tagName !== 'SCRIPT' && 
+                               !node.classList?.contains('no-capture'));
+                    };
+
+                    const dataUrl = await htmlToImage.toPng(clonedCard, {
+                        width: 450,
+                        height: 684,
+                        style: { transform: 'none', left: '0', top: '0' },
+                        quality: 1.0,
+                        cacheBust: true,
+                        filter: filter,
+                        pixelRatio: 3 // 3x 高解析度
+                    });
+                    return dataUrl;
+
+                } catch (engineAError) {
+                    console.warn('html-to-image failed, falling back to html2canvas:', engineAError);
+                    
+                    // Engine B: html2canvas (High Compatibility, 備援)
+                    const canvas = await html2canvas(clonedCard, {
+                        useCORS: true,
+                        scale: 3,
+                        backgroundColor: null,
+                        logging: false,
+                        width: 450,
+                        height: 684,
+                        allowTaint: true,
+                        onclone: (doc) => {
+                            const el = doc.querySelector('.capture-target');
+                            if (el) {
+                                el.style.transform = 'none';
+                                el.style.boxShadow = 'none';
+                            }
+                        }
+                    });
+                    return canvas.toDataURL('image/png');
+                }
+
+            } catch (error) {
+                console.error('Capture error:', error);
+                showToast('圖片生成失敗，請稍後再試', 'error');
+                return null;
+            } finally {
+                if (container && container.parentNode) {
+                    document.body.removeChild(container);
+                }
+                isCapturing.value = false;
+            }
         };
 
         const downloadCard = async () => {

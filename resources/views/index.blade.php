@@ -68,7 +68,7 @@
     <script src="/vendor/axios/axios.min.js"></script>
     <script src="/vendor/moveable/moveable.min.js" defer></script>
     <script src="/vendor/html2canvas/html2canvas.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@2.9.5/dist/dom-to-image-more.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
     
     @include('partials.styles')
 </head>

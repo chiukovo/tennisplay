@@ -203,9 +203,9 @@
             </div>
         </div>
         
-        {{-- Signature Layer --}}
+        {{-- Signature Layer (Must be on top of everything) --}}
         @if($signatureUrl)
-        <div class="absolute inset-0 pointer-events-none" style="z-index: 70;">
+        <div class="absolute inset-0 pointer-events-none" style="z-index: 100;">
             <div class="relative w-full h-full">
                 <img src="{{ $signatureUrl }}" 
                      crossorigin="anonymous"
@@ -214,6 +214,7 @@
             </div>
         </div>
         @endif
+
         
     </div>
 </div>

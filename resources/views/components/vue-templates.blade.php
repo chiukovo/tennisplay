@@ -75,6 +75,7 @@
                         </div>
 
                         <img :src="(p?.photo) || 'https://images.unsplash.com/photo-1614743758466-e569f4791116?q=80&w=650&auto=format&fit=crop'" 
+                            crossorigin="anonymous"
                             :class="['w-full h-full object-contain transition-transform duration-1000', isAdjustingSig ? 'pointer-events-none select-none' : '']"
                             :style="{ transform: `translate(${p?.photoX || 0}%, ${p?.photoY || 0}%) scale(${p?.photoScale || 1})` }">
                         
@@ -135,6 +136,7 @@
                         <div class="relative w-full h-full">
                             <img :src="p.signature" 
                                 id="target-signature"
+                                crossorigin="anonymous"
                                 draggable="false"
                                 :class="['absolute origin-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]', isAdjustingSig ? 'pointer-events-auto cursor-move' : 'pointer-events-none']"
                                 :style="{ 

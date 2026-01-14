@@ -685,39 +685,64 @@ const ShareModal = {
         const captureCardImage = async () => {
             isCapturing.value = true;
             await nextTick();
-            // Wait for Vue to update and styles to apply (increased for safety)
-            await new Promise(resolve => setTimeout(resolve, 800));
+            // Wait for any pending renders
+            await new Promise(resolve => setTimeout(resolve, 600));
 
             let container = null;
             try {
-                // 1. Find the original card element
                 const originalCard = document.querySelector('.modal-content .capture-target');
                 if (!originalCard) throw new Error('找不到卡片元素');
 
-                // 2. Create a hidden container with standard card width (450px)
+                // Create a container off-screen
                 container = document.createElement('div');
-                container.id = 'capture-temp-container';
                 container.style.position = 'fixed';
                 container.style.left = '-9999px';
                 container.style.top = '0';
                 container.style.width = '450px';
                 container.style.height = '684px';
-                container.style.containerType = 'inline-size';
+                container.style.zIndex = '-1000';
                 container.style.backgroundColor = 'transparent';
                 document.body.appendChild(container);
 
-                // 3. Clone the card into the container
+                // Wrap in a div that preserves the CSS context (important for styles)
+                const contextWrapper = document.createElement('div');
+                contextWrapper.className = 'modal-content'; // Preserve modal styles
+                contextWrapper.style.width = '450px';
+                contextWrapper.style.height = '684px';
+                
                 const clonedCard = originalCard.cloneNode(true);
                 clonedCard.style.width = '450px';
                 clonedCard.style.height = '684px';
                 clonedCard.style.transform = 'none';
                 clonedCard.style.margin = '0';
                 clonedCard.style.padding = '0';
-                container.appendChild(clonedCard);
+                clonedCard.style.visibility = 'visible';
+                clonedCard.style.opacity = '1';
+                clonedCard.style.containerType = 'inline-size'; // Ensure container query works
+                
+                // Ensure all images have crossorigin
+                const imgs = Array.from(clonedCard.querySelectorAll('img'));
+                imgs.forEach(img => {
+                    if (img.src && !img.src.startsWith('data:')) {
+                        img.setAttribute('crossorigin', 'anonymous');
+                    }
+                });
 
-                // 4. Capture using dom-to-image-more
-                // We use a higher scale via style if needed, but dom-to-image-more 
-                // usually produces good quality. For even higher quality, we can scale the container.
+                contextWrapper.appendChild(clonedCard);
+                container.appendChild(contextWrapper);
+
+                // Wait for images to load
+                await Promise.all(imgs.map(img => {
+                    if (img.complete) return Promise.resolve();
+                    return new Promise(resolve => {
+                        img.onload = resolve;
+                        img.onerror = resolve;
+                    });
+                }));
+
+                // Wait for layout to settle
+                await new Promise(resolve => setTimeout(resolve, 400));
+
                 const dataUrl = await domtoimage.toPng(container, {
                     width: 450,
                     height: 684,
@@ -725,10 +750,10 @@ const ShareModal = {
                         transform: 'none',
                         left: '0',
                         top: '0',
-                        visibility: 'visible'
+                        visibility: 'visible',
+                        opacity: '1'
                     },
-                    cacheBust: true,
-                    imagePlaceholder: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=='
+                    cacheBust: true
                 });
 
                 return dataUrl;
@@ -748,14 +773,27 @@ const ShareModal = {
             const dataUrl = await captureCardImage();
             if (!dataUrl) return;
 
+            const fileName = `player-card-${props.player.name || 'tennis'}.png`;
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
             try {
-                // Convert dataUrl to Blob and File for sharing
+                // 1. Desktop: Direct Download
+                if (!isMobile) {
+                    const link = document.createElement('a');
+                    link.download = fileName;
+                    link.href = dataUrl;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    showToast('圖片已開始下載', 'success');
+                    return;
+                }
+
+                // 2. Mobile: Try Share or New Tab
                 const res = await fetch(dataUrl);
                 const blob = await res.blob();
-                const fileName = `player-card-${props.player.name || 'tennis'}.png`;
                 const file = new File([blob], fileName, { type: 'image/png' });
 
-                // 1. Try Web Share API (Best for Mobile)
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     try {
                         await navigator.share({
@@ -763,51 +801,31 @@ const ShareModal = {
                             title: '我的球員卡',
                             text: '🎾 這是我的網球球員卡！'
                         });
-                        return; // Success
-                    } catch (shareErr) {
-                        if (shareErr.name !== 'AbortError') {
-                            console.error('Share failed:', shareErr);
-                        } else {
-                            return; // User cancelled share
-                        }
-                    }
-                }
-
-                // 2. Fallback for Mobile (especially iOS)
-                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
-                             (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-                if (isIOS || isMobile) {
-                    // Open in new tab for manual save
-                    const newTab = window.open();
-                    if (newTab) {
-                        newTab.document.write(`
-                            <html>
-                                <head><title>儲存球員卡</title></head>
-                                <body style="margin:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#f1f5f9; font-family:sans-serif;">
-                                    <img src="${dataUrl}" style="max-width:90%; max-height:80vh; border-radius:20px; shadow:0 20px 25px -5px rgb(0 0 0 / 0.1);">
-                                    <p style="margin-top:20px; font-weight:bold; color:#64748b;">請長按圖片並選擇「儲存圖片」</p>
-                                    <button onclick="window.close()" style="margin-top:20px; padding:10px 20px; background:#2563eb; color:white; border:none; border-radius:10px; font-weight:bold;">關閉視窗</button>
-                                </body>
-                            </html>
-                        `);
-                        showToast('請長按圖片儲存', 'info');
                         return;
+                    } catch (shareErr) {
+                        if (shareErr.name === 'AbortError') return;
                     }
                 }
 
-                // 3. Standard Download for Desktop
-                const link = document.createElement('a');
-                link.download = fileName;
-                link.href = dataUrl;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                showToast('圖片已開始下載', 'success');
+                // Mobile Fallback
+                const newTab = window.open();
+                if (newTab) {
+                    newTab.document.write(`
+                        <html>
+                            <head><title>儲存球員卡</title></head>
+                            <body style="margin:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#f1f5f9; font-family:sans-serif;">
+                                <img src="${dataUrl}" style="max-width:90%; max-height:80vh; border-radius:20px; box-shadow:0 20px 25px -5px rgb(0 0 0 / 0.1);">
+                                <p style="margin-top:20px; font-weight:bold; color:#64748b;">請長按圖片並選擇「儲存圖片」</p>
+                                <button onclick="window.close()" style="margin-top:20px; padding:10px 20px; background:#2563eb; color:white; border:none; border-radius:10px; font-weight:bold;">關閉視窗</button>
+                            </body>
+                        </html>
+                    `);
+                    showToast('請長按圖片儲存', 'info');
+                } else {
+                    window.location.href = dataUrl;
+                }
             } catch (error) {
                 console.error('Download error:', error);
-                // Last resort fallback
                 window.open(dataUrl, '_blank');
                 showToast('請長按圖片儲存', 'info');
             }

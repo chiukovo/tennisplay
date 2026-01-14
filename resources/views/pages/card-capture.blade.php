@@ -50,21 +50,11 @@
         .theme-sakura .accent { color: #f472b6; }
         .theme-standard .accent { color: #3b82f6; }
         
-        /* Text gradient for name */
-        .theme-gold .name-gradient { background: linear-gradient(90deg, #f59e0b, #fde68a, #d97706); }
-        .theme-platinum .name-gradient { background: linear-gradient(90deg, #e2e8f0, #ffffff, #cbd5e1); }
-        .theme-holographic .name-gradient { background: linear-gradient(90deg, #ec4899, #06b6d4, #fde047, #a855f7); }
-        .theme-onyx .name-gradient { background: linear-gradient(90deg, #ffffff, #cbd5e1, #94a3b8); }
-        .theme-sakura .name-gradient { background: linear-gradient(90deg, #f472b6, #fbcfe8, #ec4899); }
-        .theme-standard .name-gradient { background: linear-gradient(90deg, #3b82f6, #60a5fa, #6366f1); }
-        
-        .name-gradient {
-            display: inline-block;
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            color: transparent;
-            background-size: 100% 100%;
+        /* SVG Text fallback */
+        .name-svg {
+            font-family: 'Noto Sans TC', 'Inter', sans-serif;
+            font-weight: 900;
+            font-style: italic;
         }
         
         /* SVG Icons inline */
@@ -106,23 +96,20 @@
     $sigRotate = $player->sig_rotate ?? 0;
     $sigWidth = $player->sig_width ?? 100;
     
-    // NTRP level descriptions
-    $levelTags = [
-        '1.0' => '網球初學者',
-        '1.5' => '開始學習發球',
-        '2.0' => '能在底線對打',
-        '2.5' => '開始有穩定對打',
-        '3.0' => '穩定底線對打',
-        '3.5' => '具備控球能力',
-        '4.0' => '進階業餘球友',
-        '4.5' => '高階業餘選手',
-        '5.0' => '準專業水準',
-        '5.5' => '專業選手水準',
-        '6.0' => '國家級選手',
-        '6.5' => '世界級選手',
-        '7.0' => '世界頂尖選手',
-    ];
+    // NTRP level descriptions - Sync with config/tennis.php
+    $levelTags = config('tennis.level_tags');
     $levelTag = $levelTags[$player->level] ?? '網球愛好者';
+
+    // SVG Gradient Colors
+    $gradients = [
+        'gold' => ['#fde68a', '#f59e0b'],
+        'platinum' => ['#ffffff', '#cbd5e1'],
+        'holographic' => ['#ec4899', '#06b6d4'],
+        'onyx' => ['#ffffff', '#94a3b8'],
+        'sakura' => ['#fbcfe8', '#ec4899'],
+        'standard' => ['#60a5fa', '#3b82f6'],
+    ];
+    $currentGradient = $gradients[$theme] ?? $gradients['standard'];
 @endphp
 
 <div class="{{ $themeClass }}" style="width: 450px; height: 684px; position: relative;">
@@ -184,10 +171,19 @@
             <div class="absolute inset-0 bg-white/10 backdrop-blur-2xl border-t border-white/20"></div>
             <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 opacity-80"></div>
             
-            <div class="relative z-10">
-                <h3 class="font-black uppercase tracking-tighter italic leading-[1.0] whitespace-nowrap mb-[8px] text-left" style="font-size: 50px;">
-                    <span class="name-gradient">{{ $player->name ?? '請更新卡片' }}</span>
-                </h3>
+            <div class="relative z-10" style="margin-bottom: 8px;">
+                <svg width="400" height="60" viewBox="0 0 400 60" style="display: block;">
+                    <defs>
+                        <linearGradient id="nameGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:{{ $currentGradient[0] }};stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:{{ $currentGradient[1] }};stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <text x="0" y="48" class="name-svg" font-size="50" fill="url(#nameGradient)" style="font-style: italic; font-weight: 900;">
+                        {{ $player->name ?? 'TENNIS PLAYER' }}
+                    </text>
+                </svg>
+            </div>
                 <div class="flex items-center gap-[14px] text-white/80">
                     <div class="flex items-center gap-[7px]">
                         <svg class="w-[22px] h-[22px] accent" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>

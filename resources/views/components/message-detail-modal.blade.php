@@ -9,12 +9,14 @@
                         <button @click="$emit('update:open', false)" class="sm:hidden p-1.5 -ml-1 hover:bg-white/10 rounded-xl transition-colors">
                             <app-icon name="chevron-left" class-name="w-5 h-5 text-white"></app-icon>
                         </button>
-                        <div class="w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-sm sm:text-lg font-black uppercase shadow-lg border-2 border-white/20">
-                            @{{ targetUser?.name?.[0] || '?' }}
-                        </div>
-                        <div>
-                            <h3 class="text-base sm:text-xl font-black italic uppercase tracking-tight">@{{ targetUser?.name || 'Loading...' }}</h3>
-                            <p v-if="targetUser?.player" class="text-[10px] sm:text-xs text-blue-200 font-bold">關於: @{{ targetUser.player.name }}</p>
+                        <div @click="goToProfile" class="flex items-center gap-2 sm:gap-4 cursor-pointer hover:opacity-80 transition-opacity">
+                            <div class="w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-sm sm:text-lg font-black uppercase shadow-lg border-2 border-white/20">
+                                @{{ targetUser?.name?.[0] || '?' }}
+                            </div>
+                            <div>
+                                <h3 class="text-base sm:text-xl font-black italic uppercase tracking-tight">@{{ targetUser?.name || 'Loading...' }}</h3>
+                                <p v-if="targetUser?.player" class="text-[10px] sm:text-xs text-blue-200 font-bold">關於: @{{ targetUser.player.name }}</p>
+                            </div>
                         </div>
                     </div>
                     <button @click="$emit('update:open', false)" class="hidden sm:block p-2 hover:bg-white/10 rounded-full transition-colors">

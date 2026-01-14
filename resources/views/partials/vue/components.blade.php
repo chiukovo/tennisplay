@@ -125,27 +125,27 @@ const PlayerCard = {
         const cardContainer = ref(null);
         const themes = {
             gold: { 
-                border: 'from-amber-400/80 via-yellow-200/70 to-amber-500/80', accent: 'text-yellow-500', bg: 'bg-slate-900',
+                border: 'from-amber-500 via-yellow-300 to-amber-600', accent: 'text-yellow-500', bg: 'bg-slate-900',
                 logoBg: 'bg-yellow-500/10', logoBorder: 'border-yellow-500/10', logoIcon: 'text-yellow-400/40', logoText: 'text-yellow-200/30'
             },
             platinum: { 
-                border: 'from-slate-300/80 via-white/70 to-slate-400/80', accent: 'text-blue-400', bg: 'bg-slate-900',
+                border: 'from-slate-400 via-white to-slate-500', accent: 'text-blue-400', bg: 'bg-slate-900',
                 logoBg: 'bg-white/10', logoBorder: 'border-white/10', logoIcon: 'text-white/40', logoText: 'text-white/30'
             },
             holographic: { 
-                border: 'from-pink-400/70 via-cyan-300/60 via-yellow-200/60 to-purple-500/70', accent: 'text-cyan-400', bg: 'bg-slate-900',
+                border: 'from-pink-500 via-cyan-400 via-yellow-300 to-purple-600', accent: 'text-cyan-400', bg: 'bg-slate-900',
                 logoBg: 'bg-cyan-500/10', logoBorder: 'border-cyan-500/10', logoIcon: 'text-cyan-300/40', logoText: 'text-cyan-100/30'
             },
             onyx: { 
-                border: 'from-slate-700/70 via-slate-500/60 to-slate-800/70', accent: 'text-slate-400', bg: 'bg-black',
+                border: 'from-slate-800 via-slate-600 to-slate-900', accent: 'text-slate-400', bg: 'bg-black',
                 logoBg: 'bg-white/5', logoBorder: 'border-white/5', logoIcon: 'text-slate-400/30', logoText: 'text-slate-500/20'
             },
             sakura: { 
-                border: 'from-pink-300/80 via-pink-100/70 to-pink-400/80', accent: 'text-pink-400', bg: 'bg-slate-900',
+                border: 'from-pink-400 via-pink-200 to-pink-500', accent: 'text-pink-400', bg: 'bg-slate-900',
                 logoBg: 'bg-pink-500/10', logoBorder: 'border-pink-500/10', logoIcon: 'text-pink-300/40', logoText: 'text-pink-100/30'
             },
             standard: { 
-                border: 'from-blue-400/70 via-sky-300/60 to-indigo-500/70', accent: 'text-blue-500', bg: 'bg-slate-900',
+                border: 'from-blue-500 via-sky-400 to-indigo-600', accent: 'text-blue-500', bg: 'bg-slate-900',
                 logoBg: 'bg-blue-500/10', logoBorder: 'border-blue-500/10', logoIcon: 'text-blue-400/40', logoText: 'text-blue-200/30'
             }
         };
@@ -439,13 +439,21 @@ const MessageDetailModal = {
     props: ['open', 'targetUser', 'currentUser'],
     components: { AppIcon },
     template: '#message-detail-modal-template',
-    emits: ['update:open', 'message-sent'],
+    emits: ['update:open', 'message-sent', 'navigate-to-profile'],
     setup(props, { emit }) {
         const messages = ref([]);
         const loading = ref(false);
         const sending = ref(false);
         const newMessage = ref('');
         const chatContainer = ref(null);
+
+        // 導航到用戶個人頁面
+        const goToProfile = () => {
+            if (props.targetUser?.uid) {
+                emit('update:open', false);
+                emit('navigate-to-profile', props.targetUser.uid);
+            }
+        };
 
         const formatDate = (dateString) => {
             if (!dateString) return '';
@@ -607,26 +615,41 @@ const MessageDetailModal = {
 
         let pollInterval;
 
+        // 處理手機返回鍵
+        const handlePopState = (e) => {
+            if (props.open) {
+                emit('update:open', false);
+            }
+        };
+
         watch(() => props.open, (newVal) => {
             if (newVal) {
                 document.body.style.overflow = 'hidden';
                 page.value = 1;
                 loadChat(false);
                 pollInterval = setInterval(() => loadChat(true), 5000);
+                
+                // 加入 history state 以支援手機返回鍵
+                history.pushState({ modal: 'message-detail' }, '');
+                window.addEventListener('popstate', handlePopState);
             } else {
                 document.body.style.overflow = '';
                 messages.value = [];
                 page.value = 1;
                 if (pollInterval) clearInterval(pollInterval);
+                
+                // 移除返回鍵監聽
+                window.removeEventListener('popstate', handlePopState);
             }
         });
 
         onUnmounted(() => {
             document.body.style.overflow = '';
             if (pollInterval) clearInterval(pollInterval);
+            window.removeEventListener('popstate', handlePopState);
         });
 
-        return { messages, loading, sending, newMessage, chatContainer, formatDate, sendMessage, handleEnterKey, hasMore, loadMore };
+        return { messages, loading, sending, newMessage, chatContainer, formatDate, sendMessage, handleEnterKey, hasMore, loadMore, goToProfile };
     }
 };
 

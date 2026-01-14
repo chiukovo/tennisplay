@@ -1,4 +1,4 @@
 User-agent: *
-Disallow:
+Allow: /
 
-Sitemap: https://tennisplay.com/sitemap.xml
+Sitemap: https://lovetennis.tw/sitemap.xml

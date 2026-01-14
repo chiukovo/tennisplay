@@ -45,7 +45,7 @@
              :style="[{ transform: `rotateX(${tilt.rX}deg) rotateY(${tilt.rY}deg)` }, holoStyle]">
              
             {{-- Animated Border Glow (Moved outside overflow-hidden to prevent clipping) --}}
-            <div v-if="!isPlaceholder" :class="['absolute -inset-[3px] bg-gradient-to-br rounded-[32px] blur-[10px] transition-all duration-700 opacity-60 z-0', themeStyle.border]"></div>
+            <div v-if="!isPlaceholder" :class="['absolute -inset-[2px] bg-gradient-to-br rounded-[30px] blur-[6px] transition-all duration-700 opacity-40 z-0', themeStyle.border]"></div>
             <div v-else class="absolute -inset-[3px] bg-slate-200 rounded-[32px] opacity-30 border-2 border-dashed border-slate-300 transition-opacity z-0"></div>
 
             <div :class="['group capture-target relative overflow-hidden rounded-[28px] w-full h-full z-10', 

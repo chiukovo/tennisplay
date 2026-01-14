@@ -125,27 +125,27 @@ const PlayerCard = {
         const cardContainer = ref(null);
         const themes = {
             gold: { 
-                border: 'from-yellow-600 via-yellow-200 to-yellow-700', accent: 'text-yellow-500', bg: 'bg-slate-900',
+                border: 'from-amber-400/80 via-yellow-200/70 to-amber-500/80', accent: 'text-yellow-500', bg: 'bg-slate-900',
                 logoBg: 'bg-yellow-500/10', logoBorder: 'border-yellow-500/10', logoIcon: 'text-yellow-400/40', logoText: 'text-yellow-200/30'
             },
             platinum: { 
-                border: 'from-slate-400 via-white to-slate-500', accent: 'text-blue-400', bg: 'bg-slate-900',
+                border: 'from-slate-300/80 via-white/70 to-slate-400/80', accent: 'text-blue-400', bg: 'bg-slate-900',
                 logoBg: 'bg-white/10', logoBorder: 'border-white/10', logoIcon: 'text-white/40', logoText: 'text-white/30'
             },
             holographic: { 
-                border: 'from-pink-500 via-cyan-300 via-yellow-200 to-purple-600', accent: 'text-cyan-400', bg: 'bg-slate-900',
+                border: 'from-pink-400/70 via-cyan-300/60 via-yellow-200/60 to-purple-500/70', accent: 'text-cyan-400', bg: 'bg-slate-900',
                 logoBg: 'bg-cyan-500/10', logoBorder: 'border-cyan-500/10', logoIcon: 'text-cyan-300/40', logoText: 'text-cyan-100/30'
             },
             onyx: { 
-                border: 'from-slate-900 via-slate-600 to-black', accent: 'text-slate-400', bg: 'bg-black',
+                border: 'from-slate-700/70 via-slate-500/60 to-slate-800/70', accent: 'text-slate-400', bg: 'bg-black',
                 logoBg: 'bg-white/5', logoBorder: 'border-white/5', logoIcon: 'text-slate-400/30', logoText: 'text-slate-500/20'
             },
             sakura: { 
-                border: 'from-pink-400 via-pink-100 to-pink-500', accent: 'text-pink-400', bg: 'bg-slate-900',
+                border: 'from-pink-300/80 via-pink-100/70 to-pink-400/80', accent: 'text-pink-400', bg: 'bg-slate-900',
                 logoBg: 'bg-pink-500/10', logoBorder: 'border-pink-500/10', logoIcon: 'text-pink-300/40', logoText: 'text-pink-100/30'
             },
             standard: { 
-                border: 'from-blue-600 via-indigo-400 to-blue-800', accent: 'text-blue-500', bg: 'bg-slate-900',
+                border: 'from-blue-400/70 via-sky-300/60 to-indigo-500/70', accent: 'text-blue-500', bg: 'bg-slate-900',
                 logoBg: 'bg-blue-500/10', logoBorder: 'border-blue-500/10', logoIcon: 'text-blue-400/40', logoText: 'text-blue-200/30'
             }
         };

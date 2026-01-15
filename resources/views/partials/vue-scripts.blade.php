@@ -869,16 +869,17 @@ createApp({
 
         watch(profileTab, () => loadProfileEvents(false));
 
-        // Disable body scroll when adjustment modes are active
-        watch([isAdjustingPhoto, isAdjustingSig, isSigning], ([photo, sig, signing]) => {
-            if (photo || sig || signing) {
+        // Disable body scroll ONLY when on 'create' view and adjustment modes are active
+        watch([isAdjustingPhoto, isAdjustingSig, isSigning, view], ([photo, sig, signing, currentView]) => {
+            // Only lock scroll on create page with active adjustment; otherwise always ensure scroll is enabled
+            if (currentView === 'create' && (photo || sig || signing)) {
                 document.body.style.overflow = 'hidden';
                 document.body.style.touchAction = 'none';
             } else {
                 document.body.style.overflow = '';
                 document.body.style.touchAction = '';
             }
-        });
+        }, { immediate: true }); // immediate ensures cleanup runs on initial load
         
         // Players Watchers
         watch(currentPage, (newPage) => {

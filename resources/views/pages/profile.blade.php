@@ -120,29 +120,11 @@
                         <div class="flex flex-nowrap items-center gap-6 sm:gap-10 border-b border-slate-100 pb-8 mb-8 overflow-x-auto no-scrollbar">
                             <div class="flex items-center gap-2.5 shrink-0 group">
                                 <div class="w-9 h-9 sm:w-11 sm:h-11 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-600 transition-all duration-300">
-                                    <app-icon name="users" class-name="w-4 h-4 sm:w-5 sm:h-5"></app-icon>
-                                </div>
-                                <div class="flex flex-col">
-                                    <div class="text-lg sm:text-xl font-black text-slate-950 tracking-tight leading-none whitespace-nowrap">@{{ profileData.stats.followers_count }}</div>
-                                    <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5 whitespace-nowrap">粉絲</div>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-2.5 shrink-0 group">
-                                <div class="w-9 h-9 sm:w-11 sm:h-11 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-600 transition-all duration-300">
                                     <app-icon name="user" class-name="w-4 h-4 sm:w-5 sm:h-5"></app-icon>
                                 </div>
                                 <div class="flex flex-col">
                                     <div class="text-lg sm:text-xl font-black text-slate-950 tracking-tight leading-none whitespace-nowrap">@{{ profileData.stats.following_count }}</div>
                                     <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5 whitespace-nowrap">追蹤</div>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-2.5 shrink-0 group">
-                                <div class="w-9 h-9 sm:w-11 sm:h-11 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-all duration-300">
-                                    <app-icon name="heart" class-name="w-4 h-4 sm:w-5 sm:h-5"></app-icon>
-                                </div>
-                                <div class="flex flex-col">
-                                    <div class="text-lg sm:text-xl font-black text-slate-950 tracking-tight leading-none whitespace-nowrap">@{{ profileData.stats.likes_count }}</div>
-                                    <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5 whitespace-nowrap">獲讚</div>
                                 </div>
                             </div>
                         </div>
@@ -293,23 +275,11 @@
                         </div>
                         <div :class="['absolute bottom-0 left-0 right-0 h-1 bg-blue-600 rounded-full transition-all duration-300', profileTab === 'comments' ? 'opacity-100 w-full' : 'opacity-0 w-0']"></div>
                     </button>
-                    <button v-if="profileData.status?.is_me" @click="profileTab = 'likes'; loadLikedPlayers()" 
-                            :class="profileTab === 'likes' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'"
-                            class="relative py-4 text-[11px] sm:text-sm font-black uppercase tracking-[0.2em] transition-all group whitespace-nowrap">
-                        我的按讚
-                        <div :class="['absolute bottom-0 left-0 right-0 h-1 bg-blue-600 rounded-full transition-all duration-300', profileTab === 'likes' ? 'opacity-100 w-full' : 'opacity-0 w-0']"></div>
-                    </button>
                     <button v-if="profileData.status?.is_me" @click="profileTab = 'following'; loadFollowing()" 
                             :class="profileTab === 'following' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'"
                             class="relative py-4 text-[11px] sm:text-sm font-black uppercase tracking-[0.2em] transition-all group whitespace-nowrap">
                         我的追蹤
                         <div :class="['absolute bottom-0 left-0 right-0 h-1 bg-blue-600 rounded-full transition-all duration-300', profileTab === 'following' ? 'opacity-100 w-full' : 'opacity-0 w-0']"></div>
-                    </button>
-                    <button v-if="profileData.status?.is_me" @click="profileTab = 'followers'; loadFollowers()" 
-                            :class="profileTab === 'followers' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'"
-                            class="relative py-4 text-[11px] sm:text-sm font-black uppercase tracking-[0.2em] transition-all group whitespace-nowrap">
-                        我的粉絲
-                        <div :class="['absolute bottom-0 left-0 right-0 h-1 bg-blue-600 rounded-full transition-all duration-300', profileTab === 'followers' ? 'opacity-100 w-full' : 'opacity-0 w-0']"></div>
                     </button>
                 </div>
             </div>
@@ -402,34 +372,6 @@
                 </div>
             </div>
 
-            <!-- Liked Players Tab -->
-            <div v-if="profileTab === 'likes'" class="animate__animated animate__fadeIn">
-                <div v-if="likedPlayers.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div v-for="p in likedPlayers" :key="p.id" 
-                         @click="showDetail(p)"
-                         class="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm hover:border-blue-200 hover:shadow-md transition-all cursor-pointer flex items-center gap-4">
-                        <div class="w-16 h-16 rounded-2xl overflow-hidden bg-slate-50 border-2 border-white shadow-sm shrink-0">
-                            <img v-if="p.photo_url || p.photo" :src="p.photo_url || p.photo" class="w-full h-full object-cover">
-                            <app-icon v-else name="user" class-name="w-full h-full text-slate-200 p-3"></app-icon>
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex items-center gap-2 mb-1">
-                                <div class="text-slate-900 font-black text-lg leading-tight">@{{ p.name }}</div>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="px-2 py-0.5 bg-blue-50 text-blue-600 text-[8px] font-black rounded uppercase italic" v-if="p.level">NTRP @{{ p.level }}</span>
-                                <span class="text-slate-400 text-[9px] font-bold">@{{ p.region }}</span>
-                            </div>
-                        </div>
-                        <app-icon name="chevron-right" class-name="w-5 h-5 text-slate-300"></app-icon>
-                    </div>
-                </div>
-                <div v-else class="py-20 text-center bg-white rounded-[40px] border border-slate-100">
-                    <app-icon name="heart" class-name="w-12 h-12 text-slate-100 mx-auto mb-4"></app-icon>
-                    <p class="text-slate-400 font-black uppercase tracking-widest text-xs">還沒有收藏任何球員卡</p>
-                </div>
-            </div>
-
             <!-- Following Tab -->
             <div v-if="profileTab === 'following'" class="animate__animated animate__fadeIn">
                 <div v-if="followingUsers.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -455,34 +397,6 @@
                 <div v-else class="py-20 text-center bg-white rounded-[40px] border border-slate-100">
                     <app-icon name="users" class-name="w-12 h-12 text-slate-100 mx-auto mb-4"></app-icon>
                     <p class="text-slate-400 font-black uppercase tracking-widest text-xs">目前沒有追蹤任何人</p>
-                </div>
-            </div>
-
-            <!-- Followers Tab -->
-            <div v-if="profileTab === 'followers'" class="animate__animated animate__fadeIn">
-                <div v-if="followerUsers.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div v-for="u in followerUsers" :key="u.id" 
-                         @click="showDetail(u)"
-                         class="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm hover:border-blue-200 hover:shadow-md transition-all cursor-pointer flex items-center gap-4">
-                        <div class="w-16 h-16 rounded-2xl overflow-hidden bg-slate-50 border-2 border-white shadow-sm shrink-0">
-                            <img v-if="u.photo_url || u.photo" :src="u.photo_url || u.photo" class="w-full h-full object-cover">
-                            <app-icon v-else name="user" class-name="w-full h-full text-slate-200 p-3"></app-icon>
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex items-center gap-2 mb-1">
-                                <div class="text-slate-900 font-black text-lg leading-tight">@{{ u.name }}</div>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="px-2 py-0.5 bg-blue-50 text-blue-600 text-[8px] font-black rounded uppercase italic" v-if="u.level">NTRP @{{ u.level }}</span>
-                                <span class="text-slate-400 text-[9px] font-bold">@{{ u.region }}</span>
-                            </div>
-                        </div>
-                        <app-icon name="chevron-right" class-name="w-5 h-5 text-slate-300"></app-icon>
-                    </div>
-                </div>
-                <div v-else class="py-20 text-center bg-white rounded-[40px] border border-slate-100">
-                    <app-icon name="users" class-name="w-12 h-12 text-slate-100 mx-auto mb-4"></app-icon>
-                    <p class="text-slate-400 font-black uppercase tracking-widest text-xs">目前沒有粉絲</p>
                 </div>
             </div>
         </div>

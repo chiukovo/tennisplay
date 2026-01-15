@@ -108,7 +108,6 @@ const useAuth = (showToast, navigateTo, initSettings, isLoggedIn, currentUser, s
         localStorage.removeItem('auth_user');
         isLoggedIn.value = false;
         currentUser.value = null;
-        showToast('已成功登出', 'info');
         navigateTo('home');
     };
 
@@ -125,7 +124,6 @@ const useAuth = (showToast, navigateTo, initSettings, isLoggedIn, currentUser, s
             if (response.data.success) {
                 currentUser.value = response.data.data;
                 localStorage.setItem('auth_user', JSON.stringify(currentUser.value));
-                showToast('設置已儲存', 'success');
             }
         } catch (error) {
             showToast('儲存失敗', 'error');

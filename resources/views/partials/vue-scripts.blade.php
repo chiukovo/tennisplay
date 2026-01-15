@@ -447,7 +447,6 @@ createApp({
                     form.photo = e.target.result;
                     form.photoX = 0; form.photoY = 0; form.photoScale = 1;
                     isAdjustingPhoto.value = true;
-                    showToast('已成功匯入 LINE 大頭貼', 'success');
                 };
                 reader.readAsDataURL(blob);
             } catch (error) {
@@ -465,7 +464,6 @@ createApp({
             form.sigX = sigData.xPct;
             form.sigY = sigData.yPct;
             isSigning.value = false;
-            showToast('簽名已更新', 'success');
 
             isAdjustingSig.value = true;
             nextTick(() => {
@@ -699,7 +697,6 @@ createApp({
                     to_player_id: matchModal.player.id,
                     content: matchModal.text || `Hi ${matchModal.player.name}，我想跟你約打！`,
                 });
-                showToast(`已成功發送約打邀請給 ${matchModal.player.name}`, 'success');
                 loadMessages();
                 matchModal.open = false; matchModal.text = '';
             } catch (error) { showToast('發送失敗', 'error'); }
@@ -736,7 +733,6 @@ createApp({
                 if (!eventComments[eventId]) eventComments[eventId] = [];
                 eventComments[eventId].unshift(response.data.comment);
                 eventCommentDraft.value = '';
-                showToast('留言成功', 'success');
             } catch (error) { showToast('發送失敗', 'error'); }
         };
 

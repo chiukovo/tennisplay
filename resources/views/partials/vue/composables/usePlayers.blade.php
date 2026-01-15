@@ -66,8 +66,6 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
             };
             let response = form.id ? await api.put(`/players/${form.id}`, payload) : await api.post('/players', payload);
             if (response.data.success) {
-                showToast(form.id ? '球友卡已更新' : '球友卡建立成功！', 'success');
-                
                 // Sync user info back to currentUser (連動更新個人資料)
                 if (currentUser.value) {
                     currentUser.value.name = form.name;
@@ -102,7 +100,6 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
                     await api.delete(`/players/${cardId}`);
                     await loadPlayers(); await loadMyCards();
                     if (view.value === 'profile' && loadProfile) loadProfile(currentUser.value.uid);
-                    showToast('球友卡已刪除', 'info');
                 } catch (error) {
                     const msg = error.response?.data?.error || error.response?.data?.message || '刪除失敗';
                     showToast(msg, 'error');

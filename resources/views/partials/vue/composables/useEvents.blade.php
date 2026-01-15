@@ -46,7 +46,6 @@ const useEvents = (isLoggedIn, showToast, navigateTo, formatLocalDateTime, event
         eventSubmitting.value = true;
         try {
             const response = await api.post('/events', eventForm);
-            showToast('活動建立成功！', 'success');
             if (resetEventForm) resetEventForm(); 
             await loadEvents(); 
             navigateTo('events');
@@ -70,7 +69,6 @@ const useEvents = (isLoggedIn, showToast, navigateTo, formatLocalDateTime, event
         eventSubmitting.value = true;
         try {
             const response = await api.put(`/events/${id}`, eventForm);
-            showToast('活動更新成功！', 'success');
             if (resetEventForm) resetEventForm(); 
             await loadEvents(); 
             navigateTo('events');
@@ -85,7 +83,6 @@ const useEvents = (isLoggedIn, showToast, navigateTo, formatLocalDateTime, event
         if (!isLoggedIn.value) return;
         try {
             await api.delete(`/events/${id}`);
-            showToast('活動已刪除', 'success');
             await loadEvents();
         } catch (error) {
             showToast(error.response?.data?.error || '刪除失敗', 'error');
@@ -96,7 +93,6 @@ const useEvents = (isLoggedIn, showToast, navigateTo, formatLocalDateTime, event
         if (!isLoggedIn.value) { showToast('請先登入', 'error'); navigateTo('auth'); return null; }
         try {
             const response = await api.post(`/events/${eventId}/join`);
-            showToast('報名成功！', 'success'); 
             await loadEvents();
             return response.data.event;
         } catch (error) { 
@@ -108,7 +104,6 @@ const useEvents = (isLoggedIn, showToast, navigateTo, formatLocalDateTime, event
     const leaveEvent = async (eventId) => {
         try {
             const response = await api.post(`/events/${eventId}/leave`);
-            showToast('已取消報名', 'info'); 
             await loadEvents();
             return response.data.event;
         } catch (error) { 

@@ -104,7 +104,6 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
             const response = await api.post(`/players/${playerId}/comments`, { content: text });
             profileComments.value.unshift(response.data.comment);
             playerCommentDraft.value = '';
-            showToast('留言成功', 'success');
         } catch (error) { showToast('發送失敗', 'error'); }
     };
 
@@ -116,7 +115,6 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
                 localStorage.setItem('auth_user', JSON.stringify(response.data.user));
                 await loadProfile(currentUser.value.uid, loadProfileEvents);
                 isEditingProfile.value = false;
-                showToast('個人資料已更新', 'success');
             }
         } catch (error) { showToast('儲存失敗', 'error'); }
     };
@@ -129,7 +127,6 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
             const response = await api.post(endpoint);
             profileData.status.is_following = !profileData.status.is_following;
             profileData.stats.followers_count = response.data.followers_count;
-            showToast(response.data.message, 'success');
         } catch (error) {
             const msg = error.response?.data?.error || error.response?.data?.message || '操作失敗';
             showToast(msg, 'error');
@@ -145,7 +142,6 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
             const response = await api.post(endpoint);
             profileData.status.is_liked = !profileData.status.is_liked;
             profileData.stats.likes_count = response.data.likes_count;
-            showToast(response.data.message, 'success');
         } catch (error) {
             const msg = error.response?.data?.error || error.response?.data?.message || '操作失敗';
             showToast(msg, 'error');

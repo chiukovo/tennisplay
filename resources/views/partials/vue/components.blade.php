@@ -271,25 +271,54 @@ const PlayerDetailModal = {
         const toggleFollowModal = async () => {
             if (!props.isLoggedIn) { props.showToast('請先登入', 'error'); props.navigateTo('auth'); return; }
             const uid = props.player.user?.uid || props.player.user_id;
+            
+            // Optimistic Update
+            const prevFollowing = socialStatus.is_following;
+            socialStatus.is_following = !prevFollowing;
+            emit('update:player', { ...props.player, is_following: socialStatus.is_following });
+
             try {
-                const action = socialStatus.is_following ? 'unfollow' : 'follow';
-                const response = await api.post(`/${action}/${uid}`);
-                socialStatus.is_following = !socialStatus.is_following;
-                emit('update:player', { ...props.player, is_following: socialStatus.is_following });
-                props.showToast(response.data.message, 'success');
-            } catch (error) { props.showToast(error.response?.data?.message || '操作失敗', 'error'); }
+                const action = prevFollowing ? 'unfollow' : 'follow';
+                await api.post(`/${action}/${uid}`);
+            } catch (error) {
+                // Rollback on failure
+                socialStatus.is_following = prevFollowing;
+                emit('update:player', { ...props.player, is_following: prevFollowing });
+                props.showToast(error.response?.data?.message || '操作失敗', 'error');
+            }
         };
 
         const toggleLikeModal = async () => {
             if (!props.isLoggedIn) { props.showToast('請先登入', 'error'); props.navigateTo('auth'); return; }
+            
+            // Optimistic Update
+            const prevLiked = socialStatus.is_liked;
+            const prevLikesCount = socialStatus.likes_count;
+            socialStatus.is_liked = !prevLiked;
+            socialStatus.likes_count = prevLiked ? prevLikesCount - 1 : prevLikesCount + 1;
+            emit('update:player', { 
+                ...props.player, 
+                is_liked: socialStatus.is_liked, 
+                likes_count: socialStatus.likes_count 
+            });
+
             try {
-                const action = socialStatus.is_liked ? 'unlike' : 'like';
+                const action = prevLiked ? 'unlike' : 'like';
                 const response = await api.post(`/${action}/${props.player.id}`);
-                socialStatus.is_liked = !socialStatus.is_liked;
+                // Sync with server's final count just in case
                 socialStatus.likes_count = response.data.likes_count;
-                emit('update:player', { ...props.player, is_liked: socialStatus.is_liked, likes_count: socialStatus.likes_count });
-                props.showToast(response.data.message, 'success');
-            } catch (error) { props.showToast(error.response?.data?.message || '操作失敗', 'error'); }
+                emit('update:player', { ...props.player, likes_count: socialStatus.likes_count });
+            } catch (error) {
+                // Rollback on failure
+                socialStatus.is_liked = prevLiked;
+                socialStatus.likes_count = prevLikesCount;
+                emit('update:player', { 
+                    ...props.player, 
+                    is_liked: prevLiked, 
+                    likes_count: prevLikesCount 
+                });
+                props.showToast(error.response?.data?.message || '操作失敗', 'error');
+            }
         };
 
         const postComment = async () => {
@@ -307,6 +336,9 @@ const PlayerDetailModal = {
 
         watch(() => props.player, (newP) => {
             if (newP) {
+                // Reset states immediately to prevent ghosting
+                comments.value = [];
+                isLoadingComments.value = true;
                 socialStatus.is_liked = newP.is_liked || false;
                 socialStatus.is_following = newP.is_following || false;
                 socialStatus.likes_count = newP.likes_count || 0;

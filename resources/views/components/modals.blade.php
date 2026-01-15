@@ -637,3 +637,47 @@
         </div>
     </transition>
 </script>
+
+{{-- NTRP Level Guide Modal Template --}}
+<script type="text/x-template" id="ntrp-guide-modal-template">
+    <transition name="modal">
+        <div v-if="open" class="fixed inset-0 z-[500] flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-sm" @click.self="$emit('update:open', false)">
+            <div class="bg-white w-full max-w-lg rounded-[40px] shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate__animated animate__zoomIn animate__faster">
+                {{-- Header --}}
+                <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                    <div>
+                        <h3 class="text-2xl font-black italic uppercase tracking-tight text-slate-900">NTRP 等級說明</h3>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">NTRP Level Guide</p>
+                    </div>
+                    <button @click="$emit('update:open', false)" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:border-slate-300 transition-all shadow-sm">
+                        <app-icon name="x" class-name="w-5 h-5"></app-icon>
+                    </button>
+                </div>
+
+                {{-- Content --}}
+                <div class="flex-1 overflow-y-auto p-6 sm:p-8 space-y-4 custom-scrollbar">
+                    <div v-for="(desc, level) in descs" :key="level" 
+                        class="p-4 rounded-2xl border border-slate-100 hover:border-blue-200 hover:bg-blue-50/30 transition-all group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 rounded-xl bg-slate-900 flex flex-col items-center justify-center shrink-0 shadow-lg group-hover:scale-110 transition-transform">
+                                <span class="text-[10px] font-bold text-white/40 leading-none mb-1">NTRP</span>
+                                <span class="text-xl font-black text-white italic leading-none">@{{ level }}</span>
+                            </div>
+                            <div>
+                                <h4 class="font-black text-slate-900 text-sm mb-1">@{{ LEVEL_TAGS[level] }}</h4>
+                                <p class="text-slate-500 text-xs leading-relaxed font-medium">@{{ desc }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Footer --}}
+                <div class="px-8 py-6 bg-slate-50 border-t border-slate-100">
+                    <button @click="$emit('update:open', false)" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-blue-600 transition-all shadow-lg active:scale-95">
+                        我瞭解了
+                    </button>
+                </div>
+            </div>
+        </div>
+    </transition>
+</script>

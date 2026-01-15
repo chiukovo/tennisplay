@@ -228,6 +228,7 @@
     .holo-container {
         transform: translateZ(0);
         -webkit-transform: translateZ(0);
+        perspective: 1000px;
     }
 
     /* Premium Holo Effects (Refined CodePen Style - Subtle & Persistent) */

@@ -69,7 +69,7 @@
         <div :class="['holo-card-wrapper card-holo transition-all duration-300 absolute top-0 left-0 origin-top-left', 
                       (isAnimated && !isCapturing) ? 'animated' : '',
                       isHoloTheme ? 'theme-' + p.theme : '']" 
-             :style="[{ width: '450px', height: '684px', transform: `scale(${cardScale}) rotateX(${!isCapturing ? tilt.rX : 0}deg) rotateY(${!isCapturing ? tilt.rY : 0}deg)` }, holoStyle]">
+             :style="[{ width: '450px', height: '684px', transform: `scale(${cardScale}) rotateX(${(!isCapturing && !isAdjustingSig) ? tilt.rX : 0}deg) rotateY(${(!isCapturing && !isAdjustingSig) ? tilt.rY : 0}deg)` }, holoStyle]">
              
             {{-- Animated Border Glow --}}
             <div v-if="!isPlaceholder" :class="['absolute -inset-[3px] bg-gradient-to-br rounded-[32px] blur-[8px] transition-all duration-700 opacity-50 z-0', themeStyle.border]"></div>

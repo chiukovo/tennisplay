@@ -213,6 +213,9 @@ const PlayerCard = {
         let resumeTimeout = null;
 
         const handleMove = (e) => {
+            // Disable tilt effect during signature adjustment to prevent UI issues
+            if (props.isAdjustingSig) return;
+            
             isAnimated.value = false;
             if (resumeTimeout) clearTimeout(resumeTimeout);
             if (rafId) cancelAnimationFrame(rafId);

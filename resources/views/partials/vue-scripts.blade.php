@@ -515,33 +515,47 @@ createApp({
             if (!isAdjustingSig.value || !target) return;
             if (moveableInstance.value) moveableInstance.value.destroy();
 
-            moveableInstance.value = new Moveable(document.body, {
-                target: target,
-                draggable: true,
-                resizable: false,
-                scalable: true,
-                rotatable: true,
-                warpable: false,
-                keepRatio: true,
-                snappable: true,
-                renderDirections: ["nw", "ne", "sw", "se"],
-                zoom: 1,
-                origin: false,
-            });
+            // Wait for Vue and browser to finish rendering before initializing Moveable
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    if (!isAdjustingSig.value || !target) return;
+                    
+                    moveableInstance.value = new Moveable(document.body, {
+                        target: target,
+                        draggable: true,
+                        resizable: false,
+                        scalable: true,
+                        rotatable: true,
+                        warpable: false,
+                        keepRatio: true,
+                        snappable: true,
+                        renderDirections: ["nw", "ne", "sw", "se"],
+                        zoom: 1,
+                        origin: false,
+                    });
 
-            moveableInstance.value
-                .on("drag", ({ target, left, top }) => {
-                    const parent = target.parentElement;
-                    if (!parent) return;
-                    form.sigX = (left / parent.offsetWidth) * 100;
-                    form.sigY = (top / parent.offsetHeight) * 100;
-                })
-                .on("scale", ({ target, scale }) => {
-                    form.sigScale = scale[0];
-                })
-                .on("rotate", ({ target, rotate }) => {
-                    form.sigRotate = rotate;
+                    moveableInstance.value
+                        .on("drag", ({ target, left, top }) => {
+                            const parent = target.parentElement;
+                            if (!parent) return;
+                            // Calculate center position as percentage
+                            // left/top from Moveable represents the top-left corner
+                            // We need to add half the element size to get the center
+                            const sigRect = target.getBoundingClientRect();
+                            const parentRect = parent.getBoundingClientRect();
+                            const centerX = left + (sigRect.width / 2);
+                            const centerY = top + (sigRect.height / 2);
+                            form.sigX = (centerX / parentRect.width) * 100;
+                            form.sigY = (centerY / parentRect.height) * 100;
+                        })
+                        .on("scale", ({ target, scale }) => {
+                            form.sigScale = scale[0];
+                        })
+                        .on("rotate", ({ target, rotate }) => {
+                            form.sigRotate = rotate;
+                        });
                 });
+            });
         };
 
         const handleSaveCard = async () => {

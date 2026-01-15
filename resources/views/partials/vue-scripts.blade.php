@@ -806,6 +806,10 @@ createApp({
 
         // --- 7. Lifecycle & Watchers ---
         onMounted(() => {
+            // Ensure body scroll is enabled immediately on mount (cleanup any residual lock)
+            document.body.style.overflow = '';
+            document.body.style.touchAction = '';
+            
             checkAuth(() => loadMessages(), () => loadMyCards());
             parseRoute((id) => loadProfile(id, (append) => loadProfileEvents(append)), () => resetFormFull(), () => resetEventForm());
             window.addEventListener('popstate', (event) => {

@@ -63,7 +63,7 @@
         :style="{ height: containerHeight + 'px' }">
         
         {{-- Internal Scalable Card --}}
-        <div :class="['holo-card-wrapper card-holo transition-all duration-300 absolute top-0 left-0 origin-top-left', p?.theme ? `theme-${p.theme}` : '']" 
+        <div :class="['holo-card-wrapper card-holo transition-all duration-300 absolute top-0 left-0 origin-top-left', p?.theme ? `theme-${p.theme}` : '', size === 'sm' ? 'card-sm' : '']" 
              :style="[{ width: '450px', height: '684px', transform: `scale(${cardScale}) translateZ(0)` }, holoStyle]">
              
             {{-- Shine Effect Layer --}}

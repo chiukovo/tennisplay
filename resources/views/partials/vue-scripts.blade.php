@@ -816,6 +816,10 @@ createApp({
 
         let messagePollInterval;
         watch(view, (newView) => {
+            // Global Scroll Reset when switching views
+            document.body.style.overflow = '';
+            document.body.style.touchAction = '';
+
             if (newView === 'home' || newView === 'list') {
                 loadPlayers({ search: searchQuery.value, region: selectedRegion.value, page: currentPage.value });
             } else if (newView === 'events' || newView === 'create-event') {

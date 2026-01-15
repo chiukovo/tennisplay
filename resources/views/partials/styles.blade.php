@@ -19,7 +19,8 @@
     }
 
     .premium-blur {
-        backdrop-filter: blur(8px);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
         background: rgba(15, 23, 42, 0.7);
         will-change: opacity;
     }
@@ -361,22 +362,22 @@
 
     .theme-holographic { --color1: #efb2fb; --color2: #acc6f8; }
 
-    /* Capture Stability */
+    /* Capture Stability & Performance */
     .is-capturing {
         transform: none !important;
         animation: none !important;
         transition: none !important;
     }
-    .is-capturing * {
+    .is-capturing *, .card-sm, .card-sm * {
         animation: none !important;
         transition: none !important;
-        -webkit-background-clip: border-box !important;
-        background-clip: border-box !important;
-        -webkit-text-fill-color: currentColor !important;
-        text-fill-color: currentColor !important;
     }
-    .is-capturing .card-shine {
+    .is-capturing .card-shine, .card-sm .card-shine {
         display: none !important;
+    }
+    .card-sm .card-holo::after {
+        animation: none !important;
+        background: rgba(255, 255, 255, 0.05) !important;
     }
     .is-capturing .signature-layer img {
         transition: none !important;

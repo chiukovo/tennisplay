@@ -41,7 +41,8 @@ const useDrag = (form) => {
     };
 
     const startDrag = (e, target) => {
-        // Don't prevent default here to allow clicking other elements
+        // Prevent default to stop page scrolling on first touch
+        if (e.cancelable) e.preventDefault();
         dragInfo.isDragging = true;
         dragInfo.target = target;
         const clientX = e.clientX || (e.touches && e.touches[0].clientX);

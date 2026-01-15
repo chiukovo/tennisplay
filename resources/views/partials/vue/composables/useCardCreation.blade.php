@@ -7,6 +7,8 @@ const useCardCreation = (form, showToast) => {
     const isAdjustingPhoto = ref(false);
     const isAdjustingSig = ref(false);
     const isCapturing = ref(false);
+    const isPhotoAdjustLoading = ref(false);
+    const isSigAdjustLoading = ref(false);
 
     const canProceedStep1 = computed(() => !!form.photo);
     const canProceedStep2 = computed(() => !!form.level && !!form.handed && !!form.backhand);
@@ -35,5 +37,5 @@ const useCardCreation = (form, showToast) => {
         }
     };
 
-    return { currentStep, stepAttempted, isAdjustingPhoto, isAdjustingSig, isCapturing, canProceedStep1, canProceedStep2, canProceedStep3, canGoToStep, tryNextStep, tryGoToStep };
+    return { currentStep, stepAttempted, isAdjustingPhoto, isAdjustingSig, isCapturing, isPhotoAdjustLoading, isSigAdjustLoading, canProceedStep1, canProceedStep2, canProceedStep3, canGoToStep, tryNextStep, tryGoToStep };
 };

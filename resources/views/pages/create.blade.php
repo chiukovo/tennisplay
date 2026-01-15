@@ -1,7 +1,7 @@
 {{-- Create View (Refactored Wizard) --}}
 <div v-if="view === 'create'" class="max-w-4xl mx-auto">
     {{-- Page Title --}}
-    <div class="mb-6 text-center">
+    <div class="mb-3 text-center">
         <h1 class="text-3xl sm:text-4xl font-black italic uppercase tracking-tighter text-slate-900">
             <span v-if="form.id">編輯球友卡</span>
             <span v-else>建立球友卡</span>
@@ -13,7 +13,7 @@
     </div>
 
     {{-- Clickable Progress Bar --}}
-    <div class="mb-10 px-4">
+    <div class="mb-4 px-4">
         <div class="flex justify-between mb-4">
             <button v-for="s in 4" :key="s" type="button" @click="tryGoToStep(s)"
                 :class="['text-[10px] font-black uppercase tracking-widest transition-all duration-300 px-3 py-1.5 rounded-full border-2', 
@@ -29,8 +29,8 @@
         </div>
     </div>
 
-    <div class="bg-white p-6 sm:p-12 rounded-[40px] shadow-2xl border border-slate-100 relative min-h-[600px] flex flex-col">
-        <div class="flex items-center justify-between mb-10">
+    <div class="bg-white p-4 sm:p-8 rounded-[32px] shadow-2xl border border-slate-100 relative flex flex-col">
+        <div class="flex items-center justify-between mb-4">
             <div>
                 <h2 class="text-3xl font-black italic uppercase tracking-tighter text-slate-900">
                     <span v-if="currentStep === 1">1. 形象照片</span>
@@ -46,9 +46,9 @@
             {{-- <transition name="step" mode="out-in"> --}}
                 <div :key="currentStep" class="flex-1">
                     {{-- Step 1: Photo --}}
-                    <div v-if="currentStep === 1" class="space-y-8">
+                    <div v-if="currentStep === 1" class="space-y-4">
                         {{-- Basic Info Summary --}}
-                        <div class="bg-slate-50 rounded-3xl p-6 flex items-center justify-between border border-slate-100">
+                        <div class="bg-slate-50 rounded-2xl p-4 flex items-center justify-between border border-slate-100">
                             <div class="flex items-center gap-4">
                                 <img :src="currentUser?.line_picture_url" class="w-12 h-12 rounded-full border-2 border-white shadow-sm">
                                 <div>
@@ -73,12 +73,19 @@
                                                     <div class="w-1.5 h-6 bg-blue-600 rounded-full"></div>
                                                     <h4 class="text-lg font-black uppercase tracking-widest text-white italic">調整照片版面</h4>
                                                 </div>
-                                                <button type="button" @click="isAdjustingPhoto = false" class="bg-blue-600 text-white px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest shadow-xl shadow-blue-600/30 hover:bg-blue-500 transition-all active:scale-95">✓ 完成調整</button>
+                                                <button type="button" @click="finishPhotoAdjust" :disabled="isPhotoAdjustLoading" class="bg-blue-600 text-white px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest shadow-xl shadow-blue-600/30 hover:bg-blue-500 transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2">
+                                                    <svg v-if="isPhotoAdjustLoading" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    <span v-if="isPhotoAdjustLoading">儲存中...</span>
+                                                    <span v-else>✓ 完成調整</span>
+                                                </button>
                                             </div>
 
                                             {{-- Larger, interactive preview --}}
                                             <div class="relative w-full max-w-[340px] aspect-[2.5/3.5] rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20 cursor-move bg-slate-900 touch-none"
-                                                @mousedown="startDrag($event, 'photo')" @touchstart.passive="startDrag($event, 'photo')">
+                                                @mousedown="startDrag($event, 'photo')" @touchstart.prevent="startDrag($event, 'photo')">
                                                 <img :src="getUrl(form.photo)" 
                                                     class="absolute inset-0 w-full h-full object-contain pointer-events-none"
                                                     :style="{ transform: `translate(${form.photoX}%, ${form.photoY}%) scale(${form.photoScale})` }">
@@ -156,8 +163,8 @@
                     </div>
 
                     {{-- Step 2: Stats --}}
-                    <div v-if="currentStep === 2" class="space-y-8">
-                        <div class="space-y-4">
+                    <div v-if="currentStep === 2" class="space-y-4">
+                        <div class="space-y-2">
                             <label class="flex items-center justify-between text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
                                 NTRP 程度
                                 <button type="button" @click="showNtrpGuide = true" class="text-blue-600 hover:scale-110 transition-transform flex items-center gap-1">
@@ -165,28 +172,28 @@
                                     程度列表
                                 </button>
                             </label>
-                            <div class="grid grid-cols-4 gap-3">
+                            <div class="grid grid-cols-4 gap-2">
                                 <button v-for="l in levels" :key="l" type="button" @click="form.level = l"
-                                    :class="['py-3 rounded-2xl font-black text-sm transition-all', form.level === l ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-50 text-slate-400 hover:bg-slate-100']">
+                                    :class="['py-2.5 rounded-xl font-black text-sm transition-all', form.level === l ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-50 text-slate-400 hover:bg-slate-100']">
                                     @{{l}}
                                 </button>
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-6">
-                            <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-2">
                                 <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">持拍手</label>
                                 <div class="flex gap-2">
                                     <button type="button" v-for="h in ['右手', '左手']" :key="h" @click="form.handed = h"
-                                        :class="['flex-1 py-4 rounded-2xl font-black text-sm transition-all', form.handed === h ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-400']">
+                                        :class="['flex-1 py-3 rounded-xl font-black text-sm transition-all', form.handed === h ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-400']">
                                         @{{h}}
                                     </button>
                                 </div>
                             </div>
-                            <div class="space-y-4">
+                            <div class="space-y-2">
                                 <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">反手類型</label>
                                 <div class="flex gap-2">
                                     <button type="button" v-for="b in ['單反', '雙反']" :key="b" @click="form.backhand = b"
-                                        :class="['flex-1 py-4 rounded-2xl font-black text-sm transition-all', form.backhand === b ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-400']">
+                                        :class="['flex-1 py-3 rounded-xl font-black text-sm transition-all', form.backhand === b ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-400']">
                                         @{{b}}
                                     </button>
                                 </div>
@@ -230,7 +237,14 @@
                                                 <div class="w-1.5 h-6 bg-blue-600 rounded-full"></div>
                                                 <h4 class="text-lg font-black uppercase tracking-widest text-white italic">調整簽名版面</h4>
                                             </div>
-                                            <button type="button" @click="toggleAdjustSig" class="bg-blue-600 text-white px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest shadow-xl shadow-blue-600/30 hover:bg-blue-500 transition-all active:scale-95">✓ 完成調整</button>
+                                            <button type="button" @click="finishSigAdjust" :disabled="isSigAdjustLoading" class="bg-blue-600 text-white px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest shadow-xl shadow-blue-600/30 hover:bg-blue-500 transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2">
+                                                <svg v-if="isSigAdjustLoading" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                                <span v-if="isSigAdjustLoading">儲存中...</span>
+                                                <span v-else>✓ 完成調整</span>
+                                            </button>
                                         </div>
 
                                         {{-- Interactive Card Area --}}
@@ -272,16 +286,16 @@
                             </div>
                             <div class="space-y-4 w-full">
                                 {{-- Signature Actions Grid --}}
-                                <div v-if="form.signature" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    <button type="button" @click="isSigning = true; isAdjustingSig = false" class="bg-slate-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-800 transition-all shadow-lg active:scale-95">
-                                        <app-icon name="eraser" class-name="w-4 h-4 text-blue-400"></app-icon>
-                                        重新手寫簽名
+                                <div v-if="form.signature" class="flex items-center gap-4">
+                                    <button type="button" @click="isSigning = true; isAdjustingSig = false" class="flex-1 bg-slate-100 text-slate-700 py-2.5 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-slate-200 transition-all">
+                                        <app-icon name="eraser" class-name="w-3.5 h-3.5 text-slate-500"></app-icon>
+                                        重新簽名
                                     </button>
 
                                     <button type="button" @click="toggleAdjustSig" 
-                                        :class="['py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95', isAdjustingSig ? 'bg-blue-600 text-white shadow-blue-500/30' : 'bg-white text-slate-900 border border-slate-100 hover:bg-slate-50']">
-                                        <app-icon :name="isAdjustingSig ? 'check' : 'move'" class-name="w-4 h-4" :class="isAdjustingSig ? 'text-white' : 'text-blue-600'"></app-icon>
-                                        調整簽名位置
+                                        :class="['flex-1 py-2.5 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all', isAdjustingSig ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200']">
+                                        <app-icon :name="isAdjustingSig ? 'check' : 'move'" class-name="w-3.5 h-3.5" :class="isAdjustingSig ? 'text-white' : 'text-slate-500'"></app-icon>
+                                        @{{ isAdjustingSig ? '完成調整' : '調整位置' }}
                                     </button>
                                 </div>
 
@@ -299,18 +313,18 @@
             {{-- </transition> --}}
 
             {{-- Navigation Buttons --}}
-            <div class="mt-12 flex gap-4">
-                <button v-if="currentStep > 1" type="button" @click="currentStep--" class="flex-1 py-5 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-all border border-slate-100">
+            <div class="mt-6 flex gap-4">
+                <button v-if="currentStep > 1" type="button" @click="currentStep--" class="flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-all border border-slate-100">
                     上一步
                 </button>
                 <button v-if="currentStep < 4" type="button" @click="tryNextStep" 
-                    :class="['flex-[2] py-5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl',
+                    :class="['flex-[2] py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl',
                     (currentStep === 1 && canProceedStep1) || (currentStep === 2 && canProceedStep2) || (currentStep === 3 && canProceedStep3) 
                     ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-slate-950 text-white hover:bg-slate-800']">
                     下一步
                 </button>
-                <button v-if="currentStep === 4" type="submit" class="flex-[2] bg-blue-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20">
-                    發佈球友卡
+                <button v-if="currentStep === 4" type="submit" class="flex-[2] bg-blue-600 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20">
+                    @{{ form.id ? '更新球友卡' : '發佈球友卡' }}
                 </button>
             </div>
         </form>

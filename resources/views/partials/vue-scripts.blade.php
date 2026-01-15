@@ -169,6 +169,7 @@ createApp({
 
         const { 
             currentStep, stepAttempted, isAdjustingPhoto, isAdjustingSig, isCapturing, 
+            isPhotoAdjustLoading, isSigAdjustLoading,
             canProceedStep1, canProceedStep2, canProceedStep3, canGoToStep, tryNextStep, tryGoToStep 
         } = useCardCreation(form, showToast);
 
@@ -428,7 +429,6 @@ createApp({
                 form.photo = event.target.result;
                 form.photoX = 0; form.photoY = 0; form.photoScale = 1;
                 isAdjustingPhoto.value = true;
-                showToast('照片上傳成功，您可以拖動調整位置', 'success');
             };
             reader.readAsDataURL(file);
         };
@@ -485,6 +485,29 @@ createApp({
                 moveableInstance.value.destroy();
                 moveableInstance.value = null;
             }
+        };
+
+        // 完成照片調整（帶 loading 效果）
+        const finishPhotoAdjust = () => {
+            isPhotoAdjustLoading.value = true;
+            setTimeout(() => {
+                isAdjustingPhoto.value = false;
+                isPhotoAdjustLoading.value = false;
+            }, 500);
+        };
+
+        // 完成簽名調整（帶 loading 效果）
+        const finishSigAdjust = () => {
+            isSigAdjustLoading.value = true;
+            setTimeout(() => {
+                if (moveableInstance.value) {
+                    moveableInstance.value.destroy();
+                    moveableInstance.value = null;
+                }
+                isAdjustingSig.value = false;
+                isSigAdjustLoading.value = false;
+                showToast('簽名位置已儲存', 'success');
+            }, 500);
         };
 
         const moveableInstance = ref(null);
@@ -867,7 +890,7 @@ createApp({
             view, isLoggedIn, currentUser, isLoginMode, showUserMenu, isSigning, messageTab,
             players, myPlayers, isPlayersLoading, playersPagination, messages, events, eventsLoading, eventSubmitting, eventsPagination,
             profileData, isProfileLoading, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm,
-            form, eventForm, currentStep, stepAttempted, isAdjustingPhoto, isAdjustingSig, isCapturing,
+            form, eventForm, currentStep, stepAttempted, isAdjustingPhoto, isAdjustingSig, isCapturing, isPhotoAdjustLoading, isSigAdjustLoading,
             searchQuery, searchDraft, selectedRegion, regionDraft, selectedGender, genderDraft, selectedLevelMin, levelMinDraft, selectedLevelMax, levelMaxDraft, selectedHanded, handedDraft, selectedBackhand, backhandDraft, showAdvancedFilters, currentPage, perPage, matchModal, detailPlayer,
             eventFilter, eventRegionFilter, eventSearchQuery, eventSearchDraft, eventStartDate, eventEndDate, eventDateShortcut, eventCurrentPage, eventPerPage, showEventDetail, activeEvent, eventComments, eventCommentDraft,
             showNtrpGuide, showPrivacy, showLinePromo, showMessageDetail, selectedChatUser, isLoading, isAuthLoading,
@@ -897,7 +920,7 @@ createApp({
             handlePlayerUpdate,
             showToast, removeToast, showConfirm, hideConfirm, executeConfirm,
             formatDate, getUrl, formatLocalDateTime, formatEventDate,
-            handleFileUpload, triggerUpload, useLinePhoto, handleSignatureUpdate, toggleAdjustSig, initMoveable, getPlayersByRegion,
+            handleFileUpload, triggerUpload, useLinePhoto, handleSignatureUpdate, toggleAdjustSig, finishPhotoAdjust, finishSigAdjust, initMoveable, getPlayersByRegion,
             startDrag, handleDrag, stopDrag, captureCardImage,
             tryNextStep, tryGoToStep, openMatchModal, sendMatchRequest,
             handleSearch, handleEventSearch,

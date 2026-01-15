@@ -19,7 +19,7 @@ $seoData = [
     'home' => [
         'title' => 'LoveTennis | 全台最專業的網球約打媒合與球友卡社群',
         'description' => 'LoveTennis 是全台領先的網球約打平台，提供職業級球友卡製作、透明約打費用與安全站內信媒合系統。',
-        'og_image' => '/img/og-home.jpg'
+        'og_image' => '/img/og-default.jpg'
     ],
     'list' => [
         'title' => '球友大廳 | 發現您的最佳網球夥伴 | LoveTennis',

@@ -64,7 +64,7 @@
         
         {{-- Internal Scalable Card --}}
         <div :class="['holo-card-wrapper card-holo transition-all duration-300 absolute top-0 left-0 origin-top-left', p?.theme ? `theme-${p.theme}` : '']" 
-             :style="[{ width: '450px', height: '684px', transform: `scale(${cardScale})` }, holoStyle]">
+             :style="[{ width: '450px', height: '684px', transform: `scale(${cardScale}) translateZ(0)` }, holoStyle]">
              
             {{-- Shine Effect Layer --}}
             <div v-if="['gold', 'platinum', 'holographic'].includes(p?.theme)" class="card-shine"></div>
@@ -126,12 +126,13 @@
                     <signature-pad :active="isSigning" @save="sig => $emit('update-signature', sig)" @close="$emit('close-signing')"></signature-pad>
                     
                     {{-- Bottom Info Section --}}
-                    <div class="h-[171px] px-[27px] py-[14px] flex flex-col justify-center relative overflow-hidden z-[80]">
+                    <div class="h-[171px] px-[27px] py-[14px] flex flex-col justify-center relative overflow-hidden z-[80] rounded-b-[28px]">
                         <div class="absolute inset-0 bg-white/10 backdrop-blur-2xl border-t border-white/20"></div>
                         <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 opacity-80"></div>
                         
                         <div class="relative z-10">
-                            <h3 :class="['font-black uppercase tracking-tighter italic leading-[1.0] whitespace-nowrap pb-[5px] text-left drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]', isPlaceholder ? 'opacity-50 text-white' : themeStyle.name]" style="font-size: 50px; text-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+                            <h3 :class="['font-black uppercase tracking-tighter italic leading-[1.0] whitespace-nowrap pb-[5px] text-left drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] overflow-hidden text-ellipsis', isPlaceholder ? 'opacity-50 text-white' : themeStyle.name]" 
+                                :style="{ fontSize: nameFontSize, textShadow: '0 4px 12px rgba(0,0,0,0.5)' }">
                                 @{{ p?.name || '請更新卡片' }}
                             </h3>
                             <div class="flex items-center justify-between">

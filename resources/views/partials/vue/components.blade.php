@@ -212,7 +212,23 @@ const PlayerCard = {
             if (resizeObserver) resizeObserver.disconnect();
         });
 
-        return { cardContainer, p, themeStyle, getLevelTag, handleMove, handleLeave, holoStyle, cardScale, containerHeight };
+        const nameFontSize = computed(() => {
+            const name = p.value?.name || '';
+            if (!name) return '50px';
+            
+            // Calculate visual length (Chinese characters count as 2, others as 1)
+            let visualLength = 0;
+            for (let i = 0; i < name.length; i++) {
+                visualLength += name.charCodeAt(i) > 255 ? 2 : 1;
+            }
+
+            if (visualLength <= 10) return '50px';
+            if (visualLength <= 14) return '40px';
+            if (visualLength <= 18) return '32px';
+            return '26px';
+        });
+
+        return { cardContainer, p, themeStyle, getLevelTag, handleMove, handleLeave, holoStyle, cardScale, containerHeight, nameFontSize };
     }
 };
 

@@ -188,15 +188,20 @@ const PlayerCard = {
         const cardScale = ref(1);
         const containerHeight = ref(684);
         let resizeObserver = null;
+        let rafId = null;
         
         const updateScale = () => {
-            if (cardContainer.value) {
-                const containerWidth = cardContainer.value.offsetWidth;
-                if (containerWidth > 0) {
-                    cardScale.value = containerWidth / 450;
-                    containerHeight.value = 684 * cardScale.value;
+            if (rafId) return; // Throttle with RAF
+            rafId = requestAnimationFrame(() => {
+                if (cardContainer.value) {
+                    const containerWidth = cardContainer.value.offsetWidth;
+                    if (containerWidth > 0) {
+                        cardScale.value = containerWidth / 450;
+                        containerHeight.value = 684 * cardScale.value;
+                    }
                 }
-            }
+                rafId = null;
+            });
         };
 
         onMounted(() => {
@@ -210,6 +215,7 @@ const PlayerCard = {
         onUnmounted(() => {
             window.removeEventListener('resize', updateScale);
             if (resizeObserver) resizeObserver.disconnect();
+            if (rafId) cancelAnimationFrame(rafId);
         });
 
         const nameFontSize = computed(() => {

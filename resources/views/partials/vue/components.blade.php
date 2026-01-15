@@ -523,7 +523,7 @@ const ShareModal = {
 };
 
 const MatchModal = {
-    props: ['open', 'player'],
+    props: ['open', 'player', 'isSending'],
     components: { AppIcon },
     template: '#match-modal-template',
     emits: ['update:open', 'submit'],

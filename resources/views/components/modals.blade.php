@@ -462,8 +462,10 @@
                     </div>
                     <textarea v-model="textModel" class="w-full h-40 p-5 bg-slate-50 border-2 border-transparent rounded-[28px] focus:border-blue-500 outline-none font-bold text-base leading-relaxed" 
                         :placeholder="'Hi ' + (player.name || '') + '，看到你的 LoveTennis 檔案後非常想跟你交流，請問... '"></textarea>
-                    <button type="button" @click="$emit('submit', textModel)" class="w-full bg-slate-950 text-white py-5 rounded-3xl font-black uppercase tracking-[0.2em] hover:bg-blue-600 shadow-2xl transition-all text-lg">
-                        發送站內訊息
+                    <button type="button" @click="$emit('submit', textModel)" :disabled="isSending" 
+                        :class="['w-full py-5 rounded-3xl font-black uppercase tracking-[0.2em] shadow-2xl transition-all text-lg', 
+                            isSending ? 'bg-slate-400 text-slate-200 cursor-not-allowed' : 'bg-slate-950 text-white hover:bg-blue-600']">
+                        @{{ isSending ? '發送中...' : '發送站內訊息' }}
                     </button>
                 </div>
             </div>

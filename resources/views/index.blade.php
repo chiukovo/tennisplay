@@ -156,7 +156,7 @@
     {{-- Modal Components --}}
     <player-detail-modal :player="detailPlayer" @update:player="handlePlayerUpdate" :players="filteredPlayers" :stats="getDetailStats(detailPlayer)" :is-logged-in="isLoggedIn" :show-toast="showToast" :navigate-to="navigateTo" @close="detailPlayer = null" @open-match="p => { detailPlayer = null; openMatchModal(p); }" @open-profile="uid => { detailPlayer = null; openProfile(uid); }" @open-ntrp-guide="showNtrpGuide = true" @share="p => { shareModal.player = p; shareModal.open = true; }"></player-detail-modal>
     <share-modal v-model="shareModal.open" :player="shareModal.player"></share-modal>
-    <match-modal v-model:open="matchModal.open" :player="matchModal.player" @submit="text => { matchModal.text = text; sendMatchRequest(); }"></match-modal>
+    <match-modal v-model:open="matchModal.open" :player="matchModal.player" :is-sending="isSendingMatch" @submit="text => { matchModal.text = text; sendMatchRequest(); }"></match-modal>
     <ntrp-guide-modal v-model:open="showNtrpGuide" :descs="levelDescs"></ntrp-guide-modal>
     <message-detail-modal v-model:open="showMessageDetail" :target-user="selectedChatUser" :current-user="currentUser" @message-sent="onMessageSent" @navigate-to-profile="uid => openProfile(uid)"></message-detail-modal>
     <event-detail-modal 

@@ -26,6 +26,7 @@ createApp({
         const backhandDraft = ref('全部');
         const showAdvancedFilters = ref(false);
         const matchModal = reactive({ open: false, player: null, text: '' });
+        const isSendingMatch = ref(false);
         const detailPlayer = ref(null);
         const shareModal = reactive({ open: false, player: null });
         const isSigning = ref(false);
@@ -691,6 +692,8 @@ createApp({
 
         const sendMatchRequest = async () => {
             if (!isLoggedIn.value) { matchModal.open = false; navigateTo('auth'); return; }
+            if (isSendingMatch.value) return; // 防止重複發送
+            isSendingMatch.value = true;
             try {
                 await api.post('/messages', {
                     to_player_id: matchModal.player.id,
@@ -698,8 +701,9 @@ createApp({
                 });
                 showToast(`已成功發送約打邀請給 ${matchModal.player.name}`, 'success');
                 loadMessages();
+                matchModal.open = false; matchModal.text = '';
             } catch (error) { showToast('發送失敗', 'error'); }
-            matchModal.open = false; matchModal.text = '';
+            finally { isSendingMatch.value = false; }
         };
 
 
@@ -928,7 +932,7 @@ createApp({
             eventFilter, eventRegionFilter, eventSearchQuery, eventSearchDraft, eventStartDate, eventEndDate, eventDateShortcut, eventCurrentPage, eventPerPage, showEventDetail, activeEvent, eventComments, eventCommentDraft,
             showNtrpGuide, showPrivacy, showLinePromo, showMessageDetail, selectedChatUser, isLoading, isAuthLoading,
             showPreview, showQuickEditModal, features, cardThemes,
-            shareModal,
+            shareModal, isSendingMatch,
             settingsForm, isSavingSettings, toasts, confirmDialog, dragInfo,
             profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,
             // Computed

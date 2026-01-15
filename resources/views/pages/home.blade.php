@@ -141,8 +141,10 @@
         </div>
 
         {{-- Has Players --}}
-        <div v-if="players.length > 0" class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-12">
-            <player-card v-for="p in players.slice(0, 4)" :key="p.id" :player="p" @click="showDetail(p)" size="sm" class="max-w-60 mx-auto w-full"></player-card>
+        <div v-if="players.length > 0" class="flex overflow-x-auto no-scrollbar gap-5 sm:gap-10 pb-8 -mx-4 px-4 snap-x snap-mandatory">
+            <div v-for="p in players.slice(0, 10)" :key="p.id" class="snap-center shrink-0 w-[240px] sm:w-[300px]">
+                <player-card :player="p" @click="showDetail(p)" size="sm" class="w-full"></player-card>
+            </div>
         </div>
         
         {{-- Empty State --}}

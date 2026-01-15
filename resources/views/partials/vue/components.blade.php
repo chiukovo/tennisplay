@@ -223,6 +223,7 @@ const PlayerCard = {
                 const rect = card.getBoundingClientRect();
                 let x, y;
                 if (e.type === 'touchmove') {
+                    if (!e.touches || !e.touches[0]) return;
                     x = e.touches[0].clientX - rect.left;
                     y = e.touches[0].clientY - rect.top;
                 } else {

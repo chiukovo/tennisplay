@@ -41,8 +41,9 @@ const useDrag = (form) => {
     };
 
     const startDrag = (e, target) => {
-        // Prevent default to stop page scrolling on first touch
-        if (e.cancelable) e.preventDefault();
+        // Only prevent default for photo adjustment (full-screen overlay)
+        // Don't prevent for signature or other cases to allow normal scrolling
+        if (target === 'photo' && e.cancelable) e.preventDefault();
         dragInfo.isDragging = true;
         dragInfo.target = target;
         const clientX = e.clientX || (e.touches && e.touches[0].clientX);

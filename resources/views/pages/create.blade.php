@@ -274,7 +274,6 @@
                                 @update-signature="handleSignatureUpdate" 
                                 @edit-signature="isSigning = true"
                                 @close-signing="isSigning = false" 
-                                @drag-start="startDrag"
                                 @sig-ready="initMoveable"></player-card>
                         </div>
                         

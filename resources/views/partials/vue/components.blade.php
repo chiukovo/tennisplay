@@ -222,10 +222,12 @@ const PlayerCard = {
                 visualLength += name.charCodeAt(i) > 255 ? 2 : 1;
             }
 
-            if (visualLength <= 10) return '50px';
-            if (visualLength <= 14) return '40px';
-            if (visualLength <= 18) return '32px';
-            return '26px';
+            // More relaxed thresholds
+            if (visualLength <= 12) return '50px'; // Up to 6 Chinese chars
+            if (visualLength <= 16) return '44px'; // Up to 8 Chinese chars
+            if (visualLength <= 20) return '38px'; // Up to 10 Chinese chars
+            if (visualLength <= 24) return '34px'; // Up to 12 Chinese chars
+            return '30px';
         });
 
         return { cardContainer, p, themeStyle, getLevelTag, handleMove, handleLeave, holoStyle, cardScale, containerHeight, nameFontSize };

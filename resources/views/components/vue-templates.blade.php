@@ -60,29 +60,21 @@
 <script type="text/x-template" id="player-card-template">
     <div v-if="p || isPlaceholder" ref="cardContainer"
         class="holo-container overflow-visible relative"
-        @mousemove="handleMove"
-        @touchmove.passive="handleMove"
-        @mouseleave="handleLeave"
         :style="{ height: containerHeight + 'px' }">
         
         {{-- Internal Scalable Card --}}
-        <div :class="['holo-card-wrapper card-holo transition-all duration-300 absolute top-0 left-0 origin-top-left', 
-                      (isAnimated && !isCapturing) ? 'animated' : '',
-                      isHoloTheme ? 'theme-' + p.theme : '']" 
-             :style="[{ width: '450px', height: '684px', transform: `scale(${cardScale}) rotateX(${(!isCapturing && !isAdjustingSig) ? tilt.rX : 0}deg) rotateY(${(!isCapturing && !isAdjustingSig) ? tilt.rY : 0}deg) translateZ(0)` }, holoStyle]">
+        <div :class="['holo-card-wrapper card-holo transition-all duration-300 absolute top-0 left-0 origin-top-left', p?.theme ? `theme-${p.theme}` : '']" 
+             :style="[{ width: '450px', height: '684px', transform: `scale(${cardScale})` }, holoStyle]">
              
-            {{-- Animated Border Glow --}}
-            <div v-if="!isPlaceholder" :class="['absolute -inset-[3px] bg-gradient-to-br rounded-[32px] blur-[8px] transition-all duration-700 opacity-50 z-0', themeStyle.border]"></div>
-            <div v-else class="absolute -inset-[3px] bg-slate-200 rounded-[32px] opacity-30 border-2 border-dashed border-slate-300 transition-opacity z-0"></div>
+            {{-- Shine Effect Layer --}}
+            <div v-if="['gold', 'platinum', 'holographic'].includes(p?.theme)" class="card-shine"></div>
 
             <div :class="['group capture-target relative overflow-hidden rounded-[28px] w-full h-full z-10', 
                          isPlaceholder ? 'opacity-30 grayscale hover:opacity-100 hover:grayscale-0' : '',
                          isCapturing ? 'is-capturing' : '']">
                 
                 <div :class="['relative h-full rounded-[28px] overflow-hidden flex flex-col border border-white/20 transition-colors shadow-inner', isPlaceholder ? 'bg-slate-50' : themeStyle.bg]">
-                    {{-- Noise Texture Overlay --}}
-                    <div class="absolute inset-0 opacity-[0.03] pointer-events-none z-[5]" style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E');"></div>
-
+                    
                     {{-- Main Image Area --}}
                     <div class="h-[513px] relative overflow-hidden bg-slate-200 z-10 flex items-center justify-center">
                         {{-- Social Indicators (Top Right) --}}

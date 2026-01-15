@@ -58,8 +58,6 @@ const SignaturePad = {
             const rawY = clientY - rect.top;
             
             // Account for CSS transform scale by comparing actual vs rendered size
-            // canvas.offsetWidth is the CSS width before transform
-            // rect.width is the rendered width after transform
             const scaleX = canvas.value.offsetWidth / rect.width;
             const scaleY = canvas.value.offsetHeight / rect.height;
             
@@ -75,7 +73,6 @@ const SignaturePad = {
         const moveTouch = (e) => { e.preventDefault(); draw(e); };
         const clear = () => { if (ctx) ctx.clearRect(0, 0, canvas.value.width, canvas.value.height); };
 
-        
         const getTrimmedCanvas = (sourceCanvas) => {
             if (!sourceCanvas || sourceCanvas.width <= 0 || sourceCanvas.height <= 0) return null;
             const tempCtx = sourceCanvas.getContext('2d');
@@ -147,48 +144,26 @@ const PlayerCard = {
     setup(props) {
         const cardContainer = ref(null);
         const themes = {
-            gold: { 
-                border: 'from-amber-500 via-yellow-300 to-amber-600', accent: 'text-yellow-500', bg: 'bg-slate-900',
-                logoBg: 'bg-yellow-500/10', logoBorder: 'border-yellow-500/10', logoIcon: 'text-yellow-400/40', logoText: 'text-yellow-200/30'
-            },
-            platinum: { 
-                border: 'from-slate-400 via-white to-slate-500', accent: 'text-blue-400', bg: 'bg-slate-900',
-                logoBg: 'bg-white/10', logoBorder: 'border-white/10', logoIcon: 'text-white/40', logoText: 'text-white/30'
-            },
-            holographic: { 
-                border: 'from-pink-500 via-cyan-400 via-yellow-300 to-purple-600', accent: 'text-cyan-400', bg: 'bg-slate-900',
-                logoBg: 'bg-cyan-500/10', logoBorder: 'border-cyan-500/10', logoIcon: 'text-cyan-300/40', logoText: 'text-cyan-100/30'
-            },
-            onyx: { 
-                border: 'from-slate-800 via-slate-600 to-slate-900', accent: 'text-slate-400', bg: 'bg-black',
-                logoBg: 'bg-white/5', logoBorder: 'border-white/5', logoIcon: 'text-slate-400/30', logoText: 'text-slate-500/20'
-            },
-            sakura: { 
-                border: 'from-pink-400 via-pink-200 to-pink-500', accent: 'text-pink-400', bg: 'bg-slate-900',
-                logoBg: 'bg-pink-500/10', logoBorder: 'border-pink-500/10', logoIcon: 'text-pink-300/40', logoText: 'text-pink-100/30'
-            },
-            standard: { 
-                border: 'from-blue-500 via-sky-400 to-indigo-600', accent: 'text-blue-500', bg: 'bg-slate-900',
-                logoBg: 'bg-blue-500/10', logoBorder: 'border-blue-500/10', logoIcon: 'text-blue-400/40', logoText: 'text-blue-200/30'
-            }
+            gold: { border: 'from-amber-500 via-yellow-300 to-amber-600', accent: 'text-yellow-500', bg: 'bg-slate-900' },
+            platinum: { border: 'from-slate-400 via-white to-slate-500', accent: 'text-blue-400', bg: 'bg-slate-900' },
+            holographic: { border: 'from-pink-500 via-cyan-400 via-yellow-300 to-purple-600', accent: 'text-cyan-400', bg: 'bg-slate-900' },
+            onyx: { border: 'from-slate-800 via-slate-600 to-slate-900', accent: 'text-slate-400', bg: 'bg-black' },
+            sakura: { border: 'from-pink-400 via-pink-200 to-pink-500', accent: 'text-pink-400', bg: 'bg-slate-900' },
+            standard: { border: 'from-blue-500 via-sky-400 to-indigo-600', accent: 'text-blue-500', bg: 'bg-slate-900' }
         };
         
         const p = computed(() => {
             const raw = props.player;
             if (!raw) return null;
-
             const getFullUrl = (path) => {
                 if (!path) return null;
                 if (path.startsWith('http') || path.startsWith('data:')) return path;
-                if (path.startsWith('/storage/')) return path;
                 return `/storage/${path}`;
             };
-
             return {
                 ...raw,
                 photo: getFullUrl(raw.photo_url || raw.photo),
                 signature: getFullUrl(raw.signature_url || raw.signature),
-                merged_photo: getFullUrl(raw.merged_photo_url || raw.merged_photo),
                 photoX: raw.photoX ?? raw.photo_x ?? 0,
                 photoY: raw.photoY ?? raw.photo_y ?? 0,
                 photoScale: raw.photoScale ?? raw.photo_scale ?? 1,
@@ -197,7 +172,6 @@ const PlayerCard = {
                 sigScale: raw.sigScale ?? raw.sig_scale ?? 1,
                 sigRotate: raw.sigRotate ?? raw.sig_rotate ?? 0,
                 sigWidth: raw.sigWidth ?? raw.sig_width ?? 100,
-                sigHeight: raw.sigHeight ?? raw.sig_height ?? 100,
             };
         });
         
@@ -207,67 +181,9 @@ const PlayerCard = {
         });
         const getLevelTag = (lvl) => LEVEL_TAGS[lvl] || '網球愛好者';
 
-        const tilt = reactive({ lp: 50, tp: 50, spx: 50, spy: 50, opc: 0, rX: 0, rY: 0 });
-        const isAnimated = ref(true);
-        let rafId = null;
-        let resumeTimeout = null;
-
-        const handleMove = (e) => {
-            // Disable tilt effect during signature adjustment to prevent UI issues
-            if (props.isAdjustingSig) return;
-            
-            isAnimated.value = false;
-            if (resumeTimeout) clearTimeout(resumeTimeout);
-            if (rafId) cancelAnimationFrame(rafId);
-            
-            rafId = requestAnimationFrame(() => {
-                const card = cardContainer.value;
-                if (!card) return;
-                const rect = card.getBoundingClientRect();
-                let x, y;
-                if (e.type === 'touchmove') {
-                    if (!e.touches || !e.touches[0]) return;
-                    x = e.touches[0].clientX - rect.left;
-                    y = e.touches[0].clientY - rect.top;
-                } else {
-                    x = e.clientX - rect.left;
-                    y = e.clientY - rect.top;
-                }
-                const px = Math.abs(Math.floor(100 / rect.width * x) - 100);
-                const py = Math.abs(Math.floor(100 / rect.height * y) - 100);
-                const pa = (50 - px) + (50 - py);
-                tilt.lp = (50 + (px - 50) / 1.5);
-                tilt.tp = (50 + (py - 50) / 1.5);
-                tilt.spx = (50 + (px - 50) / 7);
-                tilt.spy = (50 + (py - 50) / 7);
-                tilt.opc = (15 + (Math.abs(pa) * 0.5)) / 100;
-                tilt.rX = ((tilt.tp - 50) / 6) * -1; 
-                tilt.rY = ((tilt.lp - 50) / 4.5) * 0.5;
-            });
-        };
-
-        const handleLeave = () => {
-            if (rafId) cancelAnimationFrame(rafId);
-            tilt.rX = 0; tilt.rY = 0; tilt.opc = 0;
-            resumeTimeout = setTimeout(() => { isAnimated.value = true; }, 2500);
-        };
-
-        const isHoloTheme = computed(() => {
-            if (!p.value) return false;
-            return ['gold', 'platinum', 'holographic'].includes(p.value.theme);
-        });
-
-        const holoStyle = computed(() => {
-            if (!p.value) return {};
-            const id = p.value.id || 0;
-            if (props.isCapturing) {
-                return { '--lp': '50%', '--tp': '50%', '--spx': '50%', '--spy': '50%', '--opc': '0.4', '--int': '1.2', '--delay': '0s', '--duration': '10s' };
-            }
-            const delay = (id % 12) * -1.5;
-            const duration = 10 + (id % 6);
-            const intensity = 0.7 + (id % 4) * 0.15;
-            return { '--delay': `${delay}s`, '--duration': `${duration}s`, '--int': intensity, '--lp': `${tilt.lp}%`, '--tp': `${tilt.tp}%`, '--spx': `${tilt.spx}%`, '--spy': `${tilt.spy}%`, '--opc': tilt.opc };
-        });
+        const handleMove = () => {};
+        const handleLeave = () => {};
+        const holoStyle = computed(() => ({}));
 
         const cardScale = ref(1);
         const containerHeight = ref(684);
@@ -296,7 +212,7 @@ const PlayerCard = {
             if (resizeObserver) resizeObserver.disconnect();
         });
 
-        return { cardContainer, p, themeStyle, getLevelTag, tilt, handleMove, handleLeave, isHoloTheme, isAnimated, holoStyle, cardScale, containerHeight };
+        return { cardContainer, p, themeStyle, getLevelTag, handleMove, handleLeave, holoStyle, cardScale, containerHeight };
     }
 };
 
@@ -519,103 +435,42 @@ const ShareModal = {
         });
 
         const copyToClipboard = async (text) => {
-            // Try modern API first
             if (navigator.clipboard && window.isSecureContext) {
-                try {
-                    await navigator.clipboard.writeText(text);
-                    return true;
-                } catch (err) {}
+                try { await navigator.clipboard.writeText(text); return true; } catch (err) {}
             }
-
-            // Fallback for older browsers or non-secure contexts
             const textArea = document.createElement("textarea");
-            textArea.value = text;
-            textArea.style.position = "fixed";
-            textArea.style.left = "-999999px";
-            textArea.style.top = "-999999px";
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            try {
-                document.execCommand('copy');
-                textArea.remove();
-                return true;
-            } catch (err) {
-                textArea.remove();
-                return false;
-            }
+            textArea.value = text; textArea.style.position = "fixed"; textArea.style.left = "-999999px"; textArea.style.top = "-999999px";
+            document.body.appendChild(textArea); textArea.focus(); textArea.select();
+            try { document.execCommand('copy'); textArea.remove(); return true; } catch (err) { textArea.remove(); return false; }
         };
 
         const copyLink = async () => { 
             const success = await copyToClipboard(shareUrl.value); 
-            if (success) {
-                showToast('連結已複製', 'success'); 
-            } else {
-                showToast('複製失敗，請手動選取連結', 'error');
-            }
+            if (success) showToast('連結已複製', 'success'); 
+            else showToast('複製失敗，請手動選取連結', 'error');
         };
 
-        /**
-         * 使用後端 API 生成高保真卡片圖片
-         * 透過 Browsershot (Puppeteer) 渲染，確保 100% 保真度
-         */
         const downloadCard = async () => {
-            if (!props.player?.id) {
-                showToast('無法取得球員資料', 'error');
-                return;
-            }
-            
+            if (!props.player?.id) { showToast('無法取得球員資料', 'error'); return; }
             isCapturing.value = true;
-            
             try {
-                // 呼叫後端 API 生成圖片
                 const response = await api.get(`/players/${props.player.id}/card-image`);
-                
-                if (!response.data.success) {
-                    throw new Error(response.data.message || '圖片生成失敗');
-                }
-                
+                if (!response.data.success) throw new Error(response.data.message || '圖片生成失敗');
                 const dataUrl = response.data.image;
                 const fileName = response.data.filename || `player-card-${props.player.name || 'tennis'}.png`;
                 const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
-                
-                // 處理下載/分享
                 if (!isMobile) {
-                    // 桌面環境：直接下載
-                    const link = document.createElement('a');
-                    link.download = fileName;
-                    link.href = dataUrl;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    showToast('圖片已開始下載', 'success');
-                    return;
+                    const link = document.createElement('a'); link.download = fileName; link.href = dataUrl;
+                    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+                    showToast('圖片已開始下載', 'success'); return;
                 }
-                
-                // 行動裝置：嘗試使用 Web Share API
-                const res = await fetch(dataUrl);
-                const blob = await res.blob();
+                const res = await fetch(dataUrl); const blob = await res.blob();
                 const file = new File([blob], fileName, { type: 'image/png' });
-                
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    try {
-                        await navigator.share({ files: [file], title: '我的球員卡' });
-                        return;
-                    } catch (e) {
-                        // 使用者取消分享或不支援，fallback 到開新視窗
-                    }
+                    try { await navigator.share({ files: [file], title: '我的球員卡' }); return; } catch (e) {}
                 }
-                
-                // Fallback: 開新視窗顯示圖片
-                window.open(dataUrl, '_blank');
-                showToast('請長按圖片儲存', 'info');
-                
-            } catch (error) {
-                console.error('Card download error:', error);
-                showToast(error.response?.data?.message || '圖片生成失敗，請稍後再試', 'error');
-            } finally {
-                isCapturing.value = false;
-            }
+                window.open(dataUrl, '_blank'); showToast('請長按圖片儲存', 'info');
+            } catch (error) { showToast(error.response?.data?.message || '圖片生成失敗，請稍後再試', 'error'); } finally { isCapturing.value = false; }
         };
 
         const shareToLine = () => {
@@ -625,26 +480,13 @@ const ShareModal = {
 
         const shareNative = async () => {
             if (navigator.share) {
-                try {
-                    await navigator.share({
-                        title: 'LoveTennis 球友個人資料',
-                        text: `🎾 這是 ${props.player.name} 的網球個人資料，快來跟我約打吧！`,
-                        url: shareUrl.value
-                    });
-                } catch (err) {}
-            } else {
-                copyLink();
-            }
+                try { await navigator.share({ title: 'LoveTennis 球友個人資料', text: `🎾 這是 ${props.player.name} 的網球個人資料，快來跟我約打吧！`, url: shareUrl.value }); } catch (err) {}
+            } else { copyLink(); }
         };
 
         const shareToInstagram = async () => {
-            await copyToClipboard(shareUrl.value);
-            showToast('連結已複製，請至 IG 發布限時動態', 'info');
-            // Instagram doesn't support direct URL sharing via web intent, 
-            // the best we can do is copy and suggest opening the app.
-            setTimeout(() => {
-                window.location.href = "instagram://camera";
-            }, 1500);
+            await copyToClipboard(shareUrl.value); showToast('連結已複製，請至 IG 發布限時動態', 'info');
+            setTimeout(() => { window.location.href = "instagram://camera"; }, 1500);
         };
 
         const shareToThreads = () => {
@@ -653,33 +495,14 @@ const ShareModal = {
             window.open(url, '_blank');
         };
 
-        const shareToFacebook = () => {
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl.value)}`, '_blank');
-        };
+        const shareToFacebook = () => { window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl.value)}`, '_blank'); };
+        const shareToX = () => { window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl.value)}&text=${encodeURIComponent('🎾 來看我的網球個人資料！')}`, '_blank'); };
+        const shareToWhatsApp = () => { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent('🎾 來看我的網球個人資料！\n' + shareUrl.value)}`, '_blank'); };
+        const shareToTelegram = () => { window.open(`https://t.me/share/url?url=${encodeURIComponent(shareUrl.value)}&text=${encodeURIComponent('🎾 來看我的網球個人資料！')}`, '_blank'); };
 
-        const shareToX = () => {
-            const text = `🎾 來看我的網球個人資料！`;
-            window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl.value)}&text=${encodeURIComponent(text)}`, '_blank');
-        };
-
-        const shareToWhatsApp = () => {
-            const text = `🎾 來看我的網球個人資料！\n${shareUrl.value}`;
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
-        };
-
-        const shareToTelegram = () => {
-            const text = `🎾 來看我的網球個人資料！`;
-            window.open(`https://t.me/share/url?url=${encodeURIComponent(shareUrl.value)}&text=${encodeURIComponent(text)}`, '_blank');
-        };
-
-        return { 
-            shareUrl, copyLink, shareToLine, shareNative, shareToInstagram, shareToThreads, 
-            shareToFacebook, shareToX, shareToWhatsApp, shareToTelegram,
-            isCapturing, downloadCard 
-        };
+        return { shareUrl, copyLink, shareToLine, shareNative, shareToInstagram, shareToThreads, shareToFacebook, shareToX, shareToWhatsApp, shareToTelegram, isCapturing, downloadCard };
     }
 };
-
 
 const MatchModal = {
     props: ['open', 'player'],

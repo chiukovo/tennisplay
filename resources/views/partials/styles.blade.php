@@ -224,123 +224,67 @@
         animation: nav-pulse 2s infinite;
     }
 
-    /* Card Container - GPU accelerated for crisp text */
-    .holo-container {
-        transform: translateZ(0);
-        -webkit-transform: translateZ(0);
-        perspective: 1000px;
-    }
-
-    /* Premium Holo Effects (Refined CodePen Style - Subtle & Persistent) */
-    .card-holo {
-        --color1: rgb(0, 231, 255);
-        --color2: rgb(255, 0, 231);
-        position: relative;
-        z-index: 10;
-        isolation: isolate;
-        transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease;
-        background-color: #040712;
-        /* Premium Layered Shadow - Softer and more floating */
-        box-shadow: 
-            0 5px 15px -5px rgba(0,0,0,0.4),
-            0 20px 40px -10px rgba(0,0,0,0.6);
-        border-radius: 32px; /* Softer base */
-        /* Text rendering optimization for scaled elements */
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        text-rendering: optimizeLegibility;
-        image-rendering: -webkit-optimize-contrast;
-        backface-visibility: hidden;
-        -webkit-backface-visibility: hidden;
-        transform-style: preserve-3d;
-    }
-
-    .card-holo:before,
-    .card-holo:after {
-        content: "";
+    /* Low-Cost Shine Effect */
+    .card-shine {
         position: absolute;
         inset: 0;
-        background-repeat: no-repeat;
-        opacity: var(--opc, 0);
-        mix-blend-mode: color-dodge;
-        transition: all 0.5s ease; /* Smoother transitions */
-        z-index: 60;
+        z-index: 15;
         pointer-events: none;
-        border-radius: inherit;
-    }
-
-    .card-holo:before {
-        background-position: var(--lp, 50%) var(--tp, 50%);
-        background-size: 250% 250%;
-        background-image: linear-gradient(
-            115deg,
-            transparent 0%,
-            var(--color1) 25%,
-            transparent 47%,
-            transparent 53%,
-            var(--color2) 75%,
-            transparent 100%
+        background: linear-gradient(
+            110deg,
+            transparent 20%,
+            rgba(255, 255, 255, 0.1) 40%,
+            rgba(255, 255, 255, 0.4) 50%,
+            rgba(255, 255, 255, 0.1) 60%,
+            transparent 80%
         );
-        filter: brightness(0.5) contrast(1.1);
+        background-size: 200% 100%;
+        animation: shine-flow 6s infinite linear;
+        mix-blend-mode: overlay;
+        opacity: 0.5;
     }
 
-    .card-holo:after {
-        background-image: url("https://assets.codepen.io/13471/sparkles.gif"),
-            url(https://assets.codepen.io/13471/holo.png),
-            linear-gradient(
-                125deg,
-                #ff008450 15%,
-                #fca40040 30%,
-                #ffff0030 40%,
-                #00ff8a20 60%,
-                #00cfff40 70%,
-                #cc4cfa50 85%
-            );
-        background-position: var(--spx, 50%) var(--spy, 50%);
-        background-size: 160%;
-        background-blend-mode: overlay;
-        filter: brightness(0.8) contrast(1.1);
+    .theme-gold .card-shine {
+        background: linear-gradient(
+            110deg,
+            transparent 20%,
+            rgba(255, 215, 0, 0.1) 40%,
+            rgba(255, 240, 150, 0.5) 50%,
+            rgba(255, 215, 0, 0.1) 60%,
+            transparent 80%
+        );
+        background-size: 200% 100%;
     }
 
-    /* Animated State (Initial Shine - Softened) */
-    .card-holo.animated:before {
-        animation: holoGradient var(--duration, 12s) ease var(--delay, 0s) infinite;
-        opacity: calc(0.1 * var(--int, 1));
-    }
-    .card-holo.animated:after {
-        animation: holoSparkle var(--duration, 12s) ease var(--delay, 0s) infinite;
-        opacity: calc(1 * var(--int, 1));
-    }
-
-    @keyframes holoSparkle {
-        0%, 100% { opacity: calc(0.5 * var(--int, 1)); background-position: 50% 50%; }
-        5%, 8% { opacity: calc(0.8 * var(--int, 1)); background-position: 40% 40%; }
-        13%, 16% { opacity: calc(0.35 * var(--int, 1)); background-position: 50% 50%; }
-        35%, 38% { opacity: calc(0.8 * var(--int, 1)); background-position: 60% 60%; }
-        55% { opacity: calc(0.2 * var(--int, 1)); background-position: 45% 45%; }
+    .theme-holographic .card-shine {
+        background: linear-gradient(
+            110deg,
+            transparent 10%,
+            rgba(255, 0, 255, 0.1) 25%,
+            rgba(0, 255, 255, 0.3) 50%,
+            rgba(255, 255, 0, 0.1) 75%,
+            transparent 90%
+        );
+        background-size: 200% 100%;
+        animation: shine-flow 4s infinite linear;
+        opacity: 0.6;
     }
 
-    @keyframes holoGradient {
-        0%, 100% { opacity: calc(0.1 * var(--int, 1)); background-position: 50% 50%; }
-        5%, 9% { background-position: 100% 100%; opacity: calc(0.25 * var(--int, 1)); }
-        13%, 17% { background-position: 0% 0%; opacity: calc(0.2 * var(--int, 1)); }
-        35%, 39% { background-position: 100% 100%; opacity: calc(0.25 * var(--int, 1)); }
-        55% { background-position: 0% 0%; opacity: calc(0.2 * var(--int, 1)); }
+    @keyframes shine-flow {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
     }
 
-    /* Removed holoCard rotation from always-on animation to keep it stable */
-    .card-holo.animated {
-        transform: rotateX(0deg) rotateY(0deg) translateZ(0);
-    }
-
-    /* Active State (Interaction - Subtle) */
-    .card-holo:not(.animated) {
-        transition: transform 0.2s ease-out; /* Slower, gentler return */
-    }
-    .card-holo:not(.animated):before,
-    .card-holo:not(.animated):after {
-        opacity: var(--opc, 0.2); 
-        transition: opacity 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    /* Simplified Card Style for Performance */
+    .card-holo {
+        position: relative;
+        z-index: 10;
+        background-color: #040712;
+        box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
+        border-radius: 32px;
+        overflow: hidden;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }
 
     .theme-holographic { --color1: #efb2fb; --color2: #acc6f8; }
@@ -354,13 +298,14 @@
     .is-capturing * {
         animation: none !important;
         transition: none !important;
-        /* Force text rendering to be stable */
         -webkit-background-clip: border-box !important;
         background-clip: border-box !important;
         -webkit-text-fill-color: currentColor !important;
         text-fill-color: currentColor !important;
     }
-    /* Ensure signature maintains its transform but without transitions */
+    .is-capturing .card-shine {
+        display: none !important;
+    }
     .is-capturing .signature-layer img {
         transition: none !important;
     }

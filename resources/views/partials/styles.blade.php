@@ -329,6 +329,20 @@
         opacity: 0.6;
     }
 
+    /* Holographic Text Gradient */
+    .text-holo-gradient {
+        background: linear-gradient(to right, #efb2fb, #acc6f8, #efb2fb, #acc6f8);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: holo-text-flow 4s linear infinite;
+        color: #acc6f8; /* Fallback */
+    }
+
+    @keyframes holo-text-flow {
+        to { background-position: 200% center; }
+    }
+
     @keyframes holo-shift {
         0% { filter: hue-rotate(0deg) brightness(1); }
         50% { filter: hue-rotate(180deg) brightness(1.1); }

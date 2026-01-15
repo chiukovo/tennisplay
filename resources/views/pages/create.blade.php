@@ -226,7 +226,7 @@
                             </div>
                         </div>
 
-                        <div class="w-full max-w-[300px] transform hover:scale-[1.02] transition-all duration-500 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] rounded-2xl relative">
+                        <div class="w-full max-w-[300px] transform transition-all duration-500 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] rounded-2xl relative pointer-events-none">
                             {{-- Signature Adjustment Overlay (Teleported) --}}
                             <teleport to="body">
                                 <transition name="fade">

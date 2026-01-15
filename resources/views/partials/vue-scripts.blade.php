@@ -473,17 +473,28 @@ createApp({
             });
         };
 
+        const moveableInstance = ref(null);
+        let isInitializingMoveable = false;
+
         const toggleAdjustSig = () => {
             isAdjustingSig.value = !isAdjustingSig.value;
             if (isAdjustingSig.value) {
                 isSigning.value = false; // 強制關閉簽名板防止衝突
+                // Wait for DOM update then initialize Moveable
                 nextTick(() => {
-                    const target = document.querySelector('#target-signature');
-                    if (target) initMoveable(target);
+                    setTimeout(() => {
+                        const target = document.querySelector('#target-signature');
+                        if (target) initMoveable(target);
+                    }, 50);
                 });
-            } else if (moveableInstance.value) {
-                moveableInstance.value.destroy();
-                moveableInstance.value = null;
+            } else {
+                if (moveableInstance.value) {
+                    moveableInstance.value.destroy();
+                    moveableInstance.value = null;
+                }
+                // Clean up any orphaned Moveable elements
+                document.querySelectorAll('.moveable-control-box').forEach(el => el.remove());
+                isInitializingMoveable = false;
             }
         };
 
@@ -500,24 +511,37 @@ createApp({
         const finishSigAdjust = () => {
             isSigAdjustLoading.value = true;
             setTimeout(() => {
+                // Destroy Moveable instance first
                 if (moveableInstance.value) {
                     moveableInstance.value.destroy();
                     moveableInstance.value = null;
                 }
+                // Also remove any orphaned Moveable elements from DOM
+                document.querySelectorAll('.moveable-control-box').forEach(el => el.remove());
+                
+                isInitializingMoveable = false;
                 isAdjustingSig.value = false;
                 isSigAdjustLoading.value = false;
-                showToast('簽名位置已儲存', 'success');
             }, 500);
         };
-
-        const moveableInstance = ref(null);
+        
         const initMoveable = (target) => {
             if (!isAdjustingSig.value || !target) return;
-            if (moveableInstance.value) moveableInstance.value.destroy();
+            
+            // Prevent concurrent initializations
+            if (isInitializingMoveable) return;
+            
+            // If already initialized for this target, skip
+            if (moveableInstance.value) return;
+            
+            isInitializingMoveable = true;
+            
+            // Also clean up any orphaned Moveable elements
+            document.querySelectorAll('.moveable-control-box').forEach(el => el.remove());
 
             // Wait for Vue and browser to finish rendering before initializing Moveable
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
+            nextTick(() => {
+                setTimeout(() => {
                     if (!isAdjustingSig.value || !target) return;
                     
                     moveableInstance.value = new Moveable(document.body, {
@@ -538,15 +562,8 @@ createApp({
                         .on("drag", ({ target, left, top }) => {
                             const parent = target.parentElement;
                             if (!parent) return;
-                            // Calculate center position as percentage
-                            // left/top from Moveable represents the top-left corner
-                            // We need to add half the element size to get the center
-                            const sigRect = target.getBoundingClientRect();
-                            const parentRect = parent.getBoundingClientRect();
-                            const centerX = left + (sigRect.width / 2);
-                            const centerY = top + (sigRect.height / 2);
-                            form.sigX = (centerX / parentRect.width) * 100;
-                            form.sigY = (centerY / parentRect.height) * 100;
+                            form.sigX = (left / parent.offsetWidth) * 100;
+                            form.sigY = (top / parent.offsetHeight) * 100;
                         })
                         .on("scale", ({ target, scale }) => {
                             form.sigScale = scale[0];
@@ -554,7 +571,9 @@ createApp({
                         .on("rotate", ({ target, rotate }) => {
                             form.sigRotate = rotate;
                         });
-                });
+                    
+                    isInitializingMoveable = false;
+                }, 100);
             });
         };
 

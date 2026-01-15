@@ -69,7 +69,7 @@
         <div :class="['holo-card-wrapper card-holo transition-all duration-300 absolute top-0 left-0 origin-top-left', 
                       (isAnimated && !isCapturing) ? 'animated' : '',
                       isHoloTheme ? 'theme-' + p.theme : '']" 
-             :style="[{ width: '450px', height: '684px', transform: `scale(${cardScale}) rotateX(${(!isCapturing && !isAdjustingSig) ? tilt.rX : 0}deg) rotateY(${(!isCapturing && !isAdjustingSig) ? tilt.rY : 0}deg)` }, holoStyle]">
+             :style="[{ width: '450px', height: '684px', zoom: cardScale, transform: `rotateX(${(!isCapturing && !isAdjustingSig) ? tilt.rX : 0}deg) rotateY(${(!isCapturing && !isAdjustingSig) ? tilt.rY : 0}deg)` }, holoStyle]">
              
             {{-- Animated Border Glow --}}
             <div v-if="!isPlaceholder" :class="['absolute -inset-[3px] bg-gradient-to-br rounded-[32px] blur-[8px] transition-all duration-700 opacity-50 z-0', themeStyle.border]"></div>
@@ -139,7 +139,7 @@
                         <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 opacity-80"></div>
                         
                         <div class="relative z-10">
-                            <h3 :class="['font-black uppercase tracking-tighter italic leading-[1.0] whitespace-nowrap pb-[5px] bg-gradient-to-r bg-clip-text text-transparent text-left drop-shadow-md', isPlaceholder ? 'bg-slate-400' : themeStyle.border]" style="font-size: 50px;">
+                            <h3 :class="['font-black uppercase tracking-tighter italic leading-[1.0] whitespace-nowrap pb-[5px] text-white text-left drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]', isPlaceholder ? 'opacity-50' : '']" style="font-size: 50px; text-shadow: 0 4px 12px rgba(0,0,0,0.5);">
                                 @{{ p?.name || '請更新卡片' }}
                             </h3>
                             <div class="flex items-center justify-between">

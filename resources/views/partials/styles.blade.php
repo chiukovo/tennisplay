@@ -224,6 +224,12 @@
         animation: nav-pulse 2s infinite;
     }
 
+    /* Card Container - GPU accelerated for crisp text */
+    .holo-container {
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+    }
+
     /* Premium Holo Effects (Refined CodePen Style - Subtle & Persistent) */
     .card-holo {
         --color1: rgb(0, 231, 255);
@@ -232,13 +238,20 @@
         z-index: 10;
         isolation: isolate;
         transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease;
-        will-change: transform, filter;
         background-color: #040712;
         /* Premium Layered Shadow - Softer and more floating */
         box-shadow: 
             0 5px 15px -5px rgba(0,0,0,0.4),
             0 20px 40px -10px rgba(0,0,0,0.6);
         border-radius: 32px; /* Softer base */
+        /* Text rendering optimization for scaled elements */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+        image-rendering: -webkit-optimize-contrast;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        transform-style: preserve-3d;
     }
 
     .card-holo:before,

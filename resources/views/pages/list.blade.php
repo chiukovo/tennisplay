@@ -131,7 +131,7 @@
     {{-- Player Cards Grid (Using PlayerCard Component) --}}
     <div v-else-if="paginatedPlayers.length > 0" class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
         <template v-for="player in paginatedPlayers" :key="player?.id || Math.random()">
-            <div v-if="player && player.id" class="relative group max-w-60 mx-auto w-full transition-all duration-500 hover:-translate-y-2">
+            <div v-if="player && player.id" class="relative group max-w-60 mx-auto w-full transition-transform duration-300 sm:hover:-translate-y-2">
                 {{-- Player Card Component with proper positioning data --}}
                 <div @click="showDetail(player)" class="cursor-pointer">
                     <player-card 
@@ -140,11 +140,11 @@
                     </player-card>
                 </div>
             {{-- Action Buttons Overlay (Hidden on Mobile) --}}
-            <div class="absolute bottom-4 left-4 right-4 hidden sm:flex gap-2 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-all duration-300 z-30">
-                <button type="button" @click.stop="showDetail(player)" class="flex-1 py-3 bg-white/90 backdrop-blur-md text-slate-700 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white transition-all flex items-center justify-center gap-2 shadow-lg">
+            <div class="absolute bottom-4 left-4 right-4 hidden sm:flex gap-2 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-200 z-30">
+                <button type="button" @click.stop="showDetail(player)" class="flex-1 py-3 bg-white/95 text-slate-700 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white transition-colors flex items-center justify-center gap-2 shadow-lg">
                     <app-icon name="user" class-name="w-4 h-4"></app-icon> 詳細
                 </button>
-                <button type="button" @click.stop="openMatchModal(player)" class="flex-1 py-3 bg-blue-600/90 backdrop-blur-md text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 transition-all flex items-center justify-center gap-2 shadow-lg">
+                <button type="button" @click.stop="openMatchModal(player)" class="flex-1 py-3 bg-blue-600/95 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 shadow-lg">
                     <app-icon name="message-circle" class-name="w-4 h-4"></app-icon> 約打
                 </button>
             </div>

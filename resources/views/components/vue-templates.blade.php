@@ -92,8 +92,8 @@
                             </div>
                         </div>
 
-                        {{-- Player Photo as Background for better html2canvas support --}}
-                        <div :class="['absolute inset-0 transition-transform duration-1000 bg-no-repeat bg-center bg-contain', isAdjustingSig ? 'pointer-events-none select-none' : '']"
+                        {{-- Player Photo --}}
+                        <div :class="['absolute inset-0 transition-transform duration-1000 bg-no-repeat bg-center bg-cover z-10', isAdjustingSig ? 'pointer-events-none select-none' : '']"
                              :style="{ 
                                 backgroundImage: `url(${(p?.photo) || 'https://images.unsplash.com/photo-1614743758466-e569f4791116?q=80&w=650&auto=format&fit=crop'})`,
                                 transform: `translate(${p?.photoX || 0}%, ${p?.photoY || 0}%) scale(${p?.photoScale || 1})` 
@@ -101,10 +101,10 @@
                         </div>
                         
                         {{-- Gradient Overlay --}}
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80 pointer-events-none"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-60 pointer-events-none z-[15]"></div>
                         
                         {{-- NTRP Badge --}}
-                        <div class="absolute bottom-[18px] left-[22px] flex flex-col items-start gap-[7px]">
+                        <div class="absolute bottom-[18px] left-[22px] flex flex-col items-start gap-[7px] z-20">
                             <div class="relative group/badge">
                                 <div class="absolute inset-0 bg-white/10 blur-xl rounded-full"></div>
                                 <div :class="['relative flex items-center gap-[9px] p-[3px] rounded-[18px] shadow-[0_8px_20px_rgba(0,0,0,0.4)] border border-white/30 backdrop-blur-xl overflow-hidden', isPlaceholder ? 'bg-slate-400' : themeStyle.border]">

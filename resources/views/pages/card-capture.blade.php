@@ -123,7 +123,7 @@
         <div class="absolute inset-0 opacity-[0.03] pointer-events-none" style="z-index: 5; background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E');"></div>
         
         {{-- Main Image Area --}}
-        <div class="relative overflow-hidden bg-slate-200 flex items-center justify-center" style="height: 513px; z-index: 10;">
+        <div class="relative overflow-hidden bg-slate-900 flex items-center justify-center" style="height: 513px; z-index: 10;">
             {{-- Social Indicators --}}
             <div class="absolute top-[18px] right-[18px] z-20">
                 <div class="bg-black/40 backdrop-blur-xl px-[16px] py-[9px] rounded-[14px] border border-white/20 flex items-center gap-[18px] shadow-2xl">
@@ -140,14 +140,14 @@
             </div>
             
             {{-- Player Photo --}}
-            <div class="absolute inset-0 bg-no-repeat bg-center bg-contain"
+            <div class="absolute inset-0 bg-no-repeat bg-center bg-cover z-10"
                  style="background-image: url('{{ $photoUrl }}'); transform: translate({{ $photoX }}%, {{ $photoY }}%) scale({{ $photoScale }});"></div>
             
             {{-- Gradient Overlay --}}
-            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80 pointer-events-none"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-60 pointer-events-none" style="z-index: 15;"></div>
             
             {{-- NTRP Badge --}}
-            <div class="absolute bottom-[18px] left-[22px] flex flex-col items-start gap-[7px]">
+            <div class="absolute bottom-[18px] left-[22px] flex flex-col items-start gap-[7px]" style="z-index: 20;">
                 <div class="relative">
                     <div class="absolute inset-0 bg-white/10 blur-xl rounded-full"></div>
                     <div class="card-border relative flex items-center gap-[9px] p-[3px] rounded-[18px] shadow-[0_8px_20px_rgba(0,0,0,0.4)] border border-white/30 backdrop-blur-xl overflow-hidden">

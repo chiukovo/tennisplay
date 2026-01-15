@@ -144,12 +144,12 @@ const PlayerCard = {
     setup(props) {
         const cardContainer = ref(null);
         const themes = {
-            gold: { border: 'from-amber-500 via-yellow-300 to-amber-600', accent: 'text-yellow-500', bg: 'bg-slate-900' },
-            platinum: { border: 'from-slate-400 via-white to-slate-500', accent: 'text-blue-400', bg: 'bg-slate-900' },
-            holographic: { border: 'from-pink-500 via-cyan-400 via-yellow-300 to-purple-600', accent: 'text-cyan-400', bg: 'bg-slate-900' },
-            onyx: { border: 'from-slate-800 via-slate-600 to-slate-900', accent: 'text-slate-400', bg: 'bg-black' },
-            sakura: { border: 'from-pink-400 via-pink-200 to-pink-500', accent: 'text-pink-400', bg: 'bg-slate-900' },
-            standard: { border: 'from-blue-500 via-sky-400 to-indigo-600', accent: 'text-blue-500', bg: 'bg-slate-900' }
+            gold: { border: 'bg-gradient-to-br from-amber-500 via-yellow-300 to-amber-600', accent: 'text-yellow-500', name: 'text-yellow-400', bg: 'bg-slate-900' },
+            platinum: { border: 'bg-gradient-to-br from-slate-400 via-white to-slate-500', accent: 'text-blue-400', name: 'text-slate-100', bg: 'bg-slate-900' },
+            holographic: { border: 'bg-gradient-to-br from-pink-500 via-cyan-400 via-yellow-300 to-purple-600', accent: 'text-cyan-400', name: 'text-cyan-200', bg: 'bg-slate-900' },
+            onyx: { border: 'bg-gradient-to-br from-slate-800 via-slate-600 to-slate-900', accent: 'text-slate-400', name: 'text-slate-300', bg: 'bg-black' },
+            sakura: { border: 'bg-gradient-to-br from-pink-400 via-pink-200 to-pink-500', accent: 'text-pink-400', name: 'text-pink-200', bg: 'bg-slate-900' },
+            standard: { border: 'bg-gradient-to-br from-blue-500 via-sky-400 to-indigo-600', accent: 'text-blue-500', name: 'text-white', bg: 'bg-slate-900' }
         };
         
         const p = computed(() => {

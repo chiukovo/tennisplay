@@ -73,7 +73,7 @@
                          isPlaceholder ? 'opacity-30 grayscale hover:opacity-100 hover:grayscale-0' : '',
                          isCapturing ? 'is-capturing' : '']">
                 
-                <div :class="['relative h-full rounded-[28px] overflow-hidden flex flex-col border border-white/20 transition-colors shadow-inner', isPlaceholder ? 'bg-slate-50' : themeStyle.bg]">
+                <div :class="['relative h-full rounded-[28px] overflow-hidden flex flex-col border transition-colors shadow-inner', (isPlaceholder && !p?.theme) ? 'bg-slate-50 border-white/20' : `${themeStyle.bg} border-white/10`]">
                     
                     {{-- Main Image Area --}}
                     <div class="h-[513px] relative overflow-hidden bg-slate-200 z-10 flex items-center justify-center">
@@ -131,7 +131,7 @@
                         <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 opacity-80"></div>
                         
                         <div class="relative z-10">
-                            <h3 :class="['font-black uppercase tracking-tighter italic leading-[1.0] whitespace-nowrap pb-[5px] text-white text-left drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]', isPlaceholder ? 'opacity-50' : '']" style="font-size: 50px; text-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+                            <h3 :class="['font-black uppercase tracking-tighter italic leading-[1.0] whitespace-nowrap pb-[5px] text-left drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]', isPlaceholder ? 'opacity-50 text-white' : themeStyle.name]" style="font-size: 50px; text-shadow: 0 4px 12px rgba(0,0,0,0.5);">
                                 @{{ p?.name || '請更新卡片' }}
                             </h3>
                             <div class="flex items-center justify-between">

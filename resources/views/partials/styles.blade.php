@@ -244,6 +244,65 @@
         opacity: 0.5;
     }
 
+    @keyframes shine-flow {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    /* Base Card Style */
+    .card-holo {
+        position: relative;
+        z-index: 10;
+        border-radius: 32px;
+        overflow: hidden;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.05);
+    }
+    .card-holo::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        opacity: 0.03;
+        pointer-events: none;
+        z-index: 20;
+    }
+
+    /* Theme Specific Card Styles */
+    .theme-gold.card-holo { 
+        background: linear-gradient(135deg, #1a1c2c 0%, #0a0b16 100%); 
+        border: 2px solid rgba(251, 191, 36, 0.6);
+        box-shadow: 0 20px 40px -10px rgba(251, 191, 36, 0.3), inset 0 0 20px rgba(251, 191, 36, 0.1);
+    }
+    .theme-platinum.card-holo { 
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); 
+        border: 2px solid rgba(148, 163, 184, 0.6);
+        box-shadow: 0 20px 40px -10px rgba(148, 163, 184, 0.3), inset 0 0 20px rgba(148, 163, 184, 0.1);
+    }
+    .theme-holographic.card-holo { 
+        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); 
+        border: 2px solid rgba(192, 132, 252, 0.6);
+        box-shadow: 0 20px 40px -10px rgba(192, 132, 252, 0.3), inset 0 0 20px rgba(192, 132, 252, 0.1);
+    }
+    .theme-onyx.card-holo { 
+        background: linear-gradient(135deg, #0f172a 0%, #020617 100%); 
+        border: 2px solid rgba(71, 85, 105, 0.6);
+        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(255, 255, 255, 0.05);
+    }
+    .theme-sakura.card-holo { 
+        background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); 
+        border: 2px solid rgba(244, 114, 182, 0.6);
+        box-shadow: 0 20px 40px -10px rgba(244, 114, 182, 0.3), inset 0 0 20px rgba(244, 114, 182, 0.1);
+    }
+    .theme-standard.card-holo { 
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); 
+        border: 2px solid rgba(59, 130, 246, 0.6);
+        box-shadow: 0 20px 40px -10px rgba(59, 130, 246, 0.3), inset 0 0 20px rgba(59, 130, 246, 0.1);
+    }
+
+    /* Shine Effect Theme Overrides */
     .theme-gold .card-shine {
         background: linear-gradient(
             110deg,
@@ -270,21 +329,19 @@
         opacity: 0.6;
     }
 
-    @keyframes shine-flow {
-        0% { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
+    @keyframes holo-shift {
+        0% { filter: hue-rotate(0deg) brightness(1); }
+        50% { filter: hue-rotate(180deg) brightness(1.1); }
+        100% { filter: hue-rotate(360deg) brightness(1); }
     }
-
-    /* Simplified Card Style for Performance */
-    .card-holo {
-        position: relative;
-        z-index: 10;
-        background-color: #040712;
-        box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
-        border-radius: 32px;
-        overflow: hidden;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
+    .theme-holographic.card-holo::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255,0,255,0.05), rgba(0,255,255,0.05));
+        z-index: 12;
+        pointer-events: none;
+        animation: holo-shift 15s infinite linear;
     }
 
     .theme-holographic { --color1: #efb2fb; --color2: #acc6f8; }

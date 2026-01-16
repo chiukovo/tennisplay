@@ -107,6 +107,18 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
         } catch (error) { showToast('發送失敗', 'error'); }
     };
 
+    const deletePlayerComment = async (commentId) => {
+        if (!isLoggedIn.value) { showToast('請先登入', 'error'); navigateTo('auth'); return; }
+        if (!confirm('確定要刪除這則留言嗎？')) return;
+        try {
+            await api.delete(`/players/comments/${commentId}`);
+            profileComments.value = profileComments.value.filter(c => c.id !== commentId);
+            showToast('留言已刪除', 'success');
+        } catch (error) {
+            showToast('刪除失敗', 'error');
+        }
+    };
+
     const saveProfile = async () => {
         try {
             const response = await api.post('/profile/update', profileForm);
@@ -167,6 +179,6 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
         profileData, isProfileLoading, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm, 
         profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,
         loadProfile, loadProfileEvents, saveProfile, openProfile, toggleFollow, toggleLike,
-        loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment
+        loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment, deletePlayerComment
     };
 };

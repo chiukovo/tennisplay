@@ -176,8 +176,15 @@
                                                 </div>
                                                 <div class="content-container">
                                                     <div class="header">
-                                                        <span class="username cursor-pointer hover:underline" @click="$emit('open-profile', c.user?.uid || c.user_id)">@{{ c.user?.name || '匿名球友' }}</span>
-                                                        <span class="timestamp">@{{ formatDate(c.at) }}</span>
+                                                        <div class="flex items-center gap-2">
+                                                            <span class="username cursor-pointer hover:underline" @click="$emit('open-profile', c.user?.uid || c.user_id)">@{{ c.user?.name || '匿名球友' }}</span>
+                                                            <span class="timestamp">@{{ formatDate(c.at) }}</span>
+                                                        </div>
+                                                        <button v-if="currentUser && c.user?.uid === currentUser.uid" type="button"
+                                                            @click="deleteComment(c.id)"
+                                                            class="p-1 text-slate-300 hover:text-red-500 transition-colors">
+                                                            <app-icon name="trash" class-name="w-3 h-3"></app-icon>
+                                                        </button>
                                                     </div>
                                                     <div class="text">@{{ c.text }}</div>
                                                 </div>

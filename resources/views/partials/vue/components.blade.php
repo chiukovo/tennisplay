@@ -344,6 +344,21 @@ const PlayerDetailModal = {
             } catch (error) { props.showToast('發送失敗', 'error'); }
         };
 
+        const deleteComment = async (commentId) => {
+            if (!props.isLoggedIn) { props.showToast('請先登入', 'error'); props.navigateTo('auth'); return; }
+            if (!confirm('確定要刪除這則留言嗎？')) return;
+            try {
+                await api.delete(`/players/comments/${commentId}`);
+                comments.value = comments.value.filter(c => c.id !== commentId);
+                commentsCache.set(props.player.id, [...comments.value]);
+                const nextCount = Math.max(0, (props.player.comments_count || 0) - 1);
+                emit('update:player', { ...props.player, comments_count: nextCount });
+                props.showToast('留言已刪除', 'success');
+            } catch (error) {
+                props.showToast('刪除失敗', 'error');
+            }
+        };
+
         watch(() => props.player, (newP) => {
             if (newP) {
                 // 更新社交狀態
@@ -427,7 +442,7 @@ const PlayerDetailModal = {
             return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
         };
 
-        return { currentIndex, hasPrev, hasNext, transitionName, navigate, handleTouchStart, handleTouchEnd, backStats, formatDate, comments, commentDraft, isLoadingComments, socialStatus, toggleFollowModal, toggleLikeModal, postComment };
+        return { currentIndex, hasPrev, hasNext, transitionName, navigate, handleTouchStart, handleTouchEnd, backStats, formatDate, comments, commentDraft, isLoadingComments, socialStatus, toggleFollowModal, toggleLikeModal, postComment, deleteComment };
     }
 };
 

@@ -48,6 +48,9 @@ class SendEventCommentNotification implements ShouldQueue
         }
 
         $senderName = $actor ? ($actor->name ?: '球友') : '球友';
+        $senderAvatar = $actor ? $actor->line_picture_url : null;
+        $avatarUrl = $senderAvatar ? (str_starts_with($senderAvatar, 'http') ? $senderAvatar : asset($senderAvatar)) : null;
+
         $text = sprintf(
             "💬 有人留言了\n活動：%s\n來自：%s\n內容：%s\n👉 %s",
             $event->title ?: '網球活動',
@@ -56,6 +59,104 @@ class SendEventCommentNotification implements ShouldQueue
             url('/events/' . $event->id)
         );
 
-        (new LineNotifyService())->sendTextMessage($organizer->line_user_id, $text);
+        $flexContents = [
+            'type' => 'bubble',
+            'header' => [
+                'type' => 'box',
+                'layout' => 'vertical',
+                'contents' => [
+                    [
+                        'type' => 'text',
+                        'text' => '💬 新留言通知',
+                        'weight' => 'bold',
+                        'color' => '#FFFFFF',
+                        'size' => 'md'
+                    ],
+                    [
+                        'type' => 'text',
+                        'text' => $event->title ?: '網球活動',
+                        'weight' => 'bold',
+                        'color' => '#FFFFFF',
+                        'size' => 'lg',
+                        'margin' => 'sm',
+                        'wrap' => true
+                    ]
+                ],
+                'backgroundColor' => '#2563EB',
+                'paddingAll' => 'md'
+            ],
+            'body' => [
+                'type' => 'box',
+                'layout' => 'vertical',
+                'spacing' => 'md',
+                'contents' => array_values(array_filter([
+                    [
+                        'type' => 'box',
+                        'layout' => 'horizontal',
+                        'contents' => array_values(array_filter([
+                            $avatarUrl ? [
+                                'type' => 'image',
+                                'url' => $avatarUrl,
+                                'size' => 'sm',
+                                'aspectMode' => 'cover',
+                                'aspectRatio' => '1:1',
+                                'gravity' => 'center'
+                            ] : null,
+                            [
+                                'type' => 'box',
+                                'layout' => 'vertical',
+                                'contents' => [
+                                    [
+                                        'type' => 'text',
+                                        'text' => '留言者',
+                                        'size' => 'xs',
+                                        'color' => '#94A3B8'
+                                    ],
+                                    [
+                                        'type' => 'text',
+                                        'text' => $senderName,
+                                        'size' => 'sm',
+                                        'weight' => 'bold',
+                                        'color' => '#0F172A'
+                                    ]
+                                ],
+                                'margin' => 'md'
+                            ]
+                        ]))
+                    ],
+                    [
+                        'type' => 'separator',
+                        'margin' => 'md'
+                    ],
+                    [
+                        'type' => 'text',
+                        'text' => '留言內容：' . Str::limit($this->content, 120),
+                        'size' => 'sm',
+                        'wrap' => true,
+                        'color' => '#334155'
+                    ]
+                ]))
+            ],
+            'footer' => [
+                'type' => 'box',
+                'layout' => 'vertical',
+                'contents' => [
+                    [
+                        'type' => 'button',
+                        'action' => [
+                            'type' => 'uri',
+                            'label' => '查看留言',
+                            'uri' => url('/events/' . $event->id)
+                        ],
+                        'style' => 'primary',
+                        'color' => '#2563EB',
+                        'height' => 'sm'
+                    ]
+                ],
+                'paddingAll' => 'md'
+            ]
+        ];
+
+        (new LineNotifyService())->sendFlexMessage($organizer->line_user_id, $text, $flexContents);
     }
 }

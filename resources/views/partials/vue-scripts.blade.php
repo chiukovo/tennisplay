@@ -160,7 +160,7 @@ createApp({
             profileData, isProfileLoading, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm, 
             profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,
             loadProfile, loadProfileEvents, saveProfile, openProfile, toggleFollow, toggleLike,
-            loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment
+            loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment, deletePlayerComment
         } = useProfile(isLoggedIn, currentUser, showToast, navigateTo);
 
         const { 
@@ -241,6 +241,24 @@ createApp({
                 loadProfile(uid, loadProfileEvents, isIncomplete);
             }
             
+            if (viewName === 'list' && shouldReset) {
+                searchDraft.value = '';
+                searchQuery.value = '';
+                regionDraft.value = '全部';
+                selectedRegion.value = '全部';
+                genderDraft.value = '全部';
+                selectedGender.value = '全部';
+                levelMinDraft.value = '';
+                selectedLevelMin.value = '';
+                levelMaxDraft.value = '';
+                selectedLevelMax.value = '';
+                handedDraft.value = '全部';
+                selectedHanded.value = '全部';
+                backhandDraft.value = '全部';
+                selectedBackhand.value = '全部';
+                activeQuickLevel.value = 'all';
+            }
+
             navigateTo(viewName, shouldReset, uid, resetFormFull, resetEventForm, loadProfile);
         };
 
@@ -998,7 +1016,7 @@ createApp({
             // Profile methods with edit mode support
             openProfileWithEdit: () => { loadProfile(currentUser.value.uid, loadProfileEvents, true); navigateTo('profile', false, currentUser.value.uid); },
             loadProfile, loadProfileEvents, saveProfile, openProfile, toggleFollow, toggleLike,
-            loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment,
+            loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment, deletePlayerComment,
             loadMessages, markMessageRead, openMessage, onMessageSent, loadMoreMessages,
             handlePlayerUpdate,
             showToast, removeToast, showConfirm, hideConfirm, executeConfirm,

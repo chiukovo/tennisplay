@@ -358,7 +358,14 @@
                             <div class="flex-1 space-y-1">
                                 <div class="flex items-center justify-between">
                                     <span class="text-sm font-black text-slate-900 cursor-pointer hover:text-blue-600 transition-colors" @click="openProfile(c.user.uid)">@{{ c.user.name }}</span>
-                                    <span class="text-[9px] font-black text-slate-300 uppercase tracking-widest">@{{ formatDate(c.at) }}</span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[9px] font-black text-slate-300 uppercase tracking-widest">@{{ formatDate(c.at) }}</span>
+                                        <button v-if="currentUser && c.user?.uid === currentUser.uid" type="button"
+                                            @click="deletePlayerComment(c.id)"
+                                            class="p-1 text-slate-300 hover:text-red-500 transition-colors">
+                                            <app-icon name="trash" class-name="w-3 h-3"></app-icon>
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="bg-slate-50/80 p-5 rounded-[24px] rounded-tl-none text-slate-700 text-sm font-bold leading-relaxed relative">
                                     @{{ c.text }}

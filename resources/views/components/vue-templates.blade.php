@@ -69,7 +69,7 @@
             {{-- Shine Effect Layer --}}
             <div v-if="['gold', 'platinum', 'holographic'].includes(p?.theme)" class="card-shine"></div>
 
-            <div :class="['group capture-target relative overflow-hidden rounded-[32px] w-full h-full z-10', 
+            <div :class="['group capture-target relative overflow-hidden rounded-[32px] w-full h-full z-10 ring-1 ring-white/10 shadow-[0_24px_60px_-40px_rgba(15,23,42,0.6)]', 
                          isPlaceholder ? 'opacity-30 grayscale hover:opacity-100 hover:grayscale-0' : '',
                          isCapturing ? 'is-capturing' : '']">
                 
@@ -101,6 +101,7 @@
                         </div>
                         
                         {{-- Gradient Overlay --}}
+                        <div class="absolute inset-0 bg-gradient-to-b from-white/15 via-transparent to-transparent opacity-50 pointer-events-none z-[14]"></div>
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-60 pointer-events-none z-[15]"></div>
                         
                         {{-- NTRP Badge --}}
@@ -128,6 +129,7 @@
                     {{-- Bottom Info Section --}}
                     <div class="h-[171px] px-[27px] py-[14px] flex flex-col justify-center relative overflow-hidden z-[80] rounded-b-[32px]">
                         <div class="absolute inset-0 bg-white/10 backdrop-blur-2xl border-t border-white/20 rounded-b-[32px]"></div>
+                        <div class="absolute top-0 left-0 right-0 h-px bg-white/20"></div>
                         <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 opacity-80 rounded-b-[32px]"></div>
                         
                         <div class="relative z-10">

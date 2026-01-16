@@ -37,11 +37,12 @@
 
 
                 {{-- Main Scrollable Area (Mobile) / Split Layout (Desktop) --}}
-                <transition :name="transitionName" mode="out-in">
+                {{-- 使用 fade transition 避免 translateX 造成的跑版問題 --}}
+                <transition name="fade" mode="out-in">
                     <div :key="player.id" 
                         @touchstart.passive="handleTouchStart" 
                         @touchend="handleTouchEnd"
-                        class="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden no-scrollbar pb-24 md:pb-0">
+                        class="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden no-scrollbar pb-24 md:pb-0 overscroll-contain">
                         {{-- Left: Card Display --}}
                         <div class="w-full md:w-1/2 p-6 sm:p-10 flex items-center justify-center bg-slate-50 border-r border-slate-100 shrink-0 relative min-h-[400px] sm:min-h-0">
                             <div class="w-full max-w-[260px] sm:max-w-[340px]">

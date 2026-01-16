@@ -628,6 +628,22 @@ createApp({
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
+        const activeQuickLevel = ref('all');
+
+        const applyQuickLevel = (min, max, key = 'all') => {
+            const isSame = activeQuickLevel.value === key;
+            if (isSame) {
+                levelMinDraft.value = '';
+                levelMaxDraft.value = '';
+                activeQuickLevel.value = 'all';
+            } else {
+                levelMinDraft.value = min;
+                levelMaxDraft.value = max;
+                activeQuickLevel.value = key;
+            }
+            handleSearch();
+        };
+
         const setDateRange = (type) => {
             eventDateShortcut.value = type;
             const now = new Date();
@@ -988,6 +1004,8 @@ createApp({
             showToast, removeToast, showConfirm, hideConfirm, executeConfirm,
             formatDate, getUrl, formatLocalDateTime, formatEventDate,
             handleFileUpload, triggerUpload, useLinePhoto, handleSignatureUpdate, toggleAdjustSig, finishPhotoAdjust, finishSigAdjust, initMoveable, getPlayersByRegion,
+            applyQuickLevel,
+            activeQuickLevel,
             startDrag, handleDrag, stopDrag, captureCardImage,
             tryNextStep, tryGoToStep, openMatchModal, sendMatchRequest,
             handleSearch, handleEventSearch,

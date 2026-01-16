@@ -41,6 +41,34 @@
             </div>
         </div>
 
+        {{-- Quick NTRP Filters --}}
+        <div class="bg-white border border-slate-200 rounded-[22px] p-3 sm:p-4 shadow-sm">
+            <div class="flex flex-nowrap items-center gap-2 overflow-x-auto no-scrollbar">
+                <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900 text-white text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] shrink-0">
+                    <app-icon name="filter" class-name="w-4 h-4"></app-icon>
+                    快速篩選
+                </div>
+                <button type="button" @click="applyQuickLevel('5.0', '7.0', 'pro')" :class="['px-3 py-1.5 rounded-full text-[11px] sm:text-sm font-black uppercase tracking-widest border transition-all shrink-0', activeQuickLevel === 'pro' ? 'bg-slate-900 text-white border-slate-900 shadow-sm' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50']">
+                    🏆 找大神
+                </button>
+                <button type="button" @click="applyQuickLevel('4.0', '5.0', 'battle')" :class="['px-3 py-1.5 rounded-full text-[11px] sm:text-sm font-black uppercase tracking-widest border transition-all shrink-0', activeQuickLevel === 'battle' ? 'bg-slate-900 text-white border-slate-900 shadow-sm' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50']">
+                    ⚔️ 競技對戰
+                </button>
+                <button type="button" @click="applyQuickLevel('3.5', '4.5', 'mid')" :class="['px-3 py-1.5 rounded-full text-[11px] sm:text-sm font-black uppercase tracking-widest border transition-all shrink-0', activeQuickLevel === 'mid' ? 'bg-slate-900 text-white border-slate-900 shadow-sm' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50']">
+                    🚀 中高級
+                </button>
+                <button type="button" @click="applyQuickLevel('3.0', '3.5', 'steady')" :class="['px-3 py-1.5 rounded-full text-[11px] sm:text-sm font-black uppercase tracking-widest border transition-all shrink-0', activeQuickLevel === 'steady' ? 'bg-slate-900 text-white border-slate-900 shadow-sm' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50']">
+                    🎯 穩定練習
+                </button>
+                <button type="button" @click="applyQuickLevel('1.0', '2.5', 'starter')" :class="['px-3 py-1.5 rounded-full text-[11px] sm:text-sm font-black uppercase tracking-widest border transition-all shrink-0', activeQuickLevel === 'starter' ? 'bg-slate-900 text-white border-slate-900 shadow-sm' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50']">
+                    🌱 初學友善
+                </button>
+                <button type="button" @click="applyQuickLevel('', '', 'all')" :class="['px-3 py-1.5 rounded-full text-[11px] sm:text-sm font-black uppercase tracking-widest border transition-all shrink-0', activeQuickLevel === 'all' ? 'bg-slate-900 text-white border-slate-900 shadow-sm' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50']">
+                    🎾 不限程度
+                </button>
+            </div>
+        </div>
+
         {{-- Advanced Filters Panel --}}
         <transition name="fade-slide">
             <div v-if="showAdvancedFilters" class="bg-white border border-slate-100 rounded-[32px] p-6 sm:p-8 shadow-xl shadow-slate-200/50 space-y-8">
@@ -118,7 +146,7 @@
                 程度: @{{ selectedLevelMin || '1.0' }} - @{{ selectedLevelMax || '7.0' }}
             </span>
         </div>
-        <button type="button" @click="searchDraft = ''; searchQuery = ''; regionDraft = '全部'; selectedRegion = '全部'; genderDraft = '全部'; selectedGender = '全部'; levelMinDraft = ''; selectedLevelMin = ''; levelMaxDraft = ''; selectedLevelMax = ''; handedDraft = '全部'; selectedHanded = '全部'; backhandDraft = '全部'; selectedBackhand = '全部'; handleSearch();" class="text-red-500 text-xs font-black uppercase tracking-widest hover:underline ml-auto">清除全部</button>
+        <button type="button" @click="searchDraft = ''; searchQuery = ''; regionDraft = '全部'; selectedRegion = '全部'; genderDraft = '全部'; selectedGender = '全部'; levelMinDraft = ''; selectedLevelMin = ''; levelMaxDraft = ''; selectedLevelMax = ''; handedDraft = '全部'; selectedHanded = '全部'; backhandDraft = '全部'; selectedBackhand = '全部'; activeQuickLevel = 'all'; handleSearch();" class="text-red-500 text-xs font-black uppercase tracking-widest hover:underline ml-auto">清除全部</button>
     </div>
 
     {{-- Skeleton Loading --}}

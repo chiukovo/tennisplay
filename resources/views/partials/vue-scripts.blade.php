@@ -40,20 +40,17 @@ createApp({
             const now = new Date();
             return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         };
-        const eventDateShortcut = ref('week');
-        const getWeekRange = () => {
+        const eventDateShortcut = ref('month');
+        const getMonthRange = () => {
             const now = new Date();
-            const day = now.getDay();
-            const diff = now.getDate() - day + (day === 0 ? -6 : 1);
-            const start = new Date(now.setDate(diff));
-            const end = new Date(start);
-            end.setDate(start.getDate() + 6);
+            const start = new Date(now.getFullYear(), now.getMonth(), 1);
+            const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
             const format = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
             return { start: format(start), end: format(end) };
         };
-        const weekRange = getWeekRange();
-        const eventStartDate = ref(weekRange.start);
-        const eventEndDate = ref(weekRange.end);
+        const monthRange = getMonthRange();
+        const eventStartDate = ref(monthRange.start);
+        const eventEndDate = ref(monthRange.end);
         const eventCurrentPage = ref(1);
         const eventPerPage = ref(12);
         const showEventDetail = ref(false);

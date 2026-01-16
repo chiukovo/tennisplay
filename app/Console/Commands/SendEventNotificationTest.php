@@ -13,7 +13,7 @@ class SendEventNotificationTest extends Command
      *
      * @var string
      */
-    protected $signature = 'event:notify-test {eventId : 活動 ID} {userId : 接收者使用者 ID} {--type=created : created|updated|cancelled} {--sync : 同步執行（不走佇列）}';
+    protected $signature = 'event:notify-test {eventId : 活動 ID} {userId : 接收者使用者 ID} {--type=created : created|updated|cancelled} {--sync : 同步執行（不走佇列）} {--force : 強制忽略重複通知限制}';
 
     /**
      * The console command description.
@@ -36,13 +36,15 @@ class SendEventNotificationTest extends Command
             return 1;
         }
 
+        $force = (bool) $this->option('force');
+
         if ($this->option('sync')) {
-            $service->notifyById($eventId, $type, $userId, true);
+            $service->notifyById($eventId, $type, $userId, $force);
             $this->info('測試通知已送出');
             return 0;
         }
 
-        SendEventNotification::dispatch($eventId, $type, $userId, true);
+        SendEventNotification::dispatch($eventId, $type, $userId, $force);
         $this->info('測試通知已加入佇列');
         return 0;
     }

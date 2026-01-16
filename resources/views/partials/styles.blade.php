@@ -19,10 +19,20 @@
     }
 
     .premium-blur {
+        /* Desktop: use blur for premium feel */
         backdrop-filter: blur(4px);
         -webkit-backdrop-filter: blur(4px);
         background: rgba(15, 23, 42, 0.7);
         will-change: opacity;
+    }
+    
+    /* Mobile: disable expensive backdrop-blur for smooth performance */
+    @media (max-width: 640px) {
+        .premium-blur {
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            background: rgba(15, 23, 42, 0.85);
+        }
     }
 
     /* 自定義捲軸 */
@@ -38,17 +48,16 @@
         opacity: 0;
     }
 
-    /* 動畫優化 */
+    /* 動畫優化 - 簡化以提升行動端效能 */
     .modal-enter-active, .modal-leave-active {
-        transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: opacity 0.15s ease-out;
     }
     .modal-enter-from, .modal-leave-to {
         opacity: 0;
-        transform: scale(0.98) translateY(5px);
     }
     
     .modal-content {
-        will-change: transform, opacity;
+        /* Remove will-change to reduce memory overhead on mobile */
     }
     /* 隱藏捲軸但保留滾動功能 */
     .no-scrollbar::-webkit-scrollbar { display: none; }

@@ -914,12 +914,17 @@ createApp({
                 // 等待 Vue 渲染完成（真實手機需要更長時間）
                 setTimeout(() => {
                     detailPlayer.value = null;
-                    // 等 Modal 完全關閉後再移除隱藏 class
+                    // 等 Modal 完全關閉後再移除隱藏 class 並淡出 Loading
                     setTimeout(() => {
                         document.body.classList.remove('warmup-hidden');
+                        const loader = document.getElementById('init-loader');
+                        if (loader) {
+                            loader.style.opacity = '0';
+                            setTimeout(() => loader.remove(), 300);
+                        }
                     }, 200);
                 }, 100);
-            }, 500);
+            }, 300);
         });
 
         // 當預設地區載入時，如果目前在列表頁或首頁且尚未篩選，則自動套用

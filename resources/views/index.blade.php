@@ -91,6 +91,15 @@
         }
     </script>
 
+    {{-- 全域初始化 Loading（預渲染暖身時顯示）--}}
+    <div id="init-loader" style="position: fixed; inset: 0; z-index: 99998; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); display: flex; align-items: center; justify-content: center; flex-direction: column; transition: opacity 0.3s ease;">
+        <img src="/img/logo.png" alt="LoveTennis" style="width: 4rem; height: 4rem; margin-bottom: 1rem; object-fit: contain;">
+        <div style="width: 2rem; height: 2rem; border-radius: 50%; border: 3px solid #e2e8f0; border-top-color: #3b82f6; animation: spin 0.8s linear infinite;"></div>
+    </div>
+    <style>
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+
 {{-- Vue Component Templates --}}
 @include('components.vue-templates')
 @include('components.modals')

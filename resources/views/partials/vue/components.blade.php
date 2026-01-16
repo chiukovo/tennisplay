@@ -406,6 +406,9 @@ const PlayerDetailModal = {
             touchStartY.value = e.touches[0].clientY;
         };
         const handleTouchEnd = (e) => {
+            // 手機版禁用左右滑動切換
+            if (window.innerWidth < 640) return;
+            
             const touchEndX = e.changedTouches[0].clientX;
             const touchEndY = e.changedTouches[0].clientY;
             const diffX = touchStartX.value - touchEndX;

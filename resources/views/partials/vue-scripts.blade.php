@@ -822,6 +822,12 @@ createApp({
         onMounted(async () => {
             await checkAuth(() => loadMessages(), () => loadMyCards());
             parseRoute((id) => loadProfile(id, (append) => loadProfileEvents(append)), () => resetFormFull(), () => resetEventForm());
+
+            const eventMatch = window.location.pathname.match(/^\/events\/(\d+)$/);
+            if (eventMatch) {
+                view.value = 'events';
+                openEventDetail({ id: Number(eventMatch[1]) });
+            }
             window.addEventListener('popstate', (event) => {
                 if (event.state && event.state.view) {
                     applyDefaultFilters(event.state.view);

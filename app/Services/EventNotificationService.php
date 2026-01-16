@@ -233,7 +233,7 @@ class EventNotificationService
 
             User::whereIn('id', $recipientIds)
                 ->whereNotNull('line_user_id')
-                ->chunk(200, function ($users) use ($lineService, $text, $flexContents) {
+                ->chunk(200, function ($users) use ($lineService, $text, $flexContents, $event, $type) {
                     foreach ($users as $u) {
                         $settings = $u->settings ?? [];
                         $wantsLine = $settings['notify_line'] ?? true;
@@ -241,7 +241,14 @@ class EventNotificationService
                         if (!$wantsLine || !$wantsEvent) {
                             continue;
                         }
-                        $lineService->sendFlexMessage($u->line_user_id, $text, $flexContents);
+                        $success = $lineService->sendFlexMessage($u->line_user_id, $text, $flexContents);
+                        Log::channel('notify')->info('event_notify_sent', [
+                            'event_id' => $event->id,
+                            'type' => $type,
+                            'user_id' => $u->id,
+                            'line_user_id' => $u->line_user_id,
+                            'success' => $success,
+                        ]);
                     }
                 });
         } catch (\Throwable $e) {

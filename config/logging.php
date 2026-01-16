@@ -67,6 +67,12 @@ return [
             'days' => 14,
         ],
 
+        'notify' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/notify.log'),
+            'level' => 'info',
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),

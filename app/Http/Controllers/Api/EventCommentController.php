@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\EventComment;
+use App\Jobs\SendEventCommentNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -60,6 +61,7 @@ class EventCommentController extends Controller
             'user_id' => Auth::id(),
             'content' => $request->content,
         ]);
+        SendEventCommentNotification::dispatch($event->id, Auth::id(), $request->content);
 
         return response()->json([
             'message' => '留言成功',
@@ -76,6 +78,7 @@ class EventCommentController extends Controller
             ]
         ]);
     }
+
 
     /**
      * Delete a comment.

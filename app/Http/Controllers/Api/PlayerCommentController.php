@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Player;
 use App\Models\PlayerComment;
+use App\Jobs\SendPlayerCommentNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -68,6 +69,7 @@ class PlayerCommentController extends Controller
             'user_id' => $actor->id,
             'content' => $request->content,
         ]);
+        SendPlayerCommentNotification::dispatch($player->id, $actor->id, $request->content);
 
         return response()->json([
             'message' => '留言成功',
@@ -86,6 +88,7 @@ class PlayerCommentController extends Controller
 
 
     }
+
 
     /**
      * Delete a comment.

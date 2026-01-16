@@ -24,7 +24,10 @@
         <div class="relative flex flex-col sm:flex-row gap-3">
             <div class="relative flex-1">
                 <app-icon name="search" class-name="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-5 h-5"></app-icon>
-                <input type="text" v-model="searchDraft" @keyup.enter="handleSearch" placeholder="搜尋姓名、程度或地區..." class="w-full pl-12 pr-4 py-3 sm:py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 font-bold text-base transition-all shadow-sm">
+                <input type="text" v-model="searchDraft" @keyup.enter="handleSearch" placeholder="搜尋姓名、程度或地區..." class="w-full pl-12 pr-12 py-3 sm:py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 font-bold text-base transition-all shadow-sm">
+                <button v-if="searchDraft" type="button" @click="searchDraft = ''; searchQuery = ''; handleSearch();" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors">
+                    <app-icon name="x" class-name="w-4 h-4"></app-icon>
+                </button>
             </div>
             <div class="flex gap-2">
                 <select v-model="regionDraft" @change="handleSearch" class="flex-1 sm:flex-none px-4 py-3 sm:py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 font-black text-sm uppercase tracking-widest cursor-pointer appearance-none min-w-[100px] sm:min-w-[120px] shadow-sm">
@@ -42,7 +45,7 @@
         </div>
 
         {{-- Quick NTRP Filters --}}
-        <div class="bg-white border border-slate-200 rounded-[22px] p-3 sm:p-4 shadow-sm">
+        <div class="bg-slate-50/60 border border-slate-200 rounded-[22px] p-3 sm:p-4 shadow-sm ring-1 ring-slate-100/60">
             <div class="flex flex-nowrap items-center gap-2 overflow-x-auto no-scrollbar">
                 <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900 text-white text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] shrink-0">
                     <app-icon name="filter" class-name="w-4 h-4"></app-icon>
@@ -146,6 +149,7 @@
                 程度: @{{ selectedLevelMin || '1.0' }} - @{{ selectedLevelMax || '7.0' }}
             </span>
         </div>
+        <span class="text-slate-300 text-xs font-black uppercase tracking-widest hidden sm:inline">第 @{{ playersPagination.current_page }} / @{{ totalPages }} 頁</span>
         <button type="button" @click="searchDraft = ''; searchQuery = ''; regionDraft = '全部'; selectedRegion = '全部'; genderDraft = '全部'; selectedGender = '全部'; levelMinDraft = ''; selectedLevelMin = ''; levelMaxDraft = ''; selectedLevelMax = ''; handedDraft = '全部'; selectedHanded = '全部'; backhandDraft = '全部'; selectedBackhand = '全部'; activeQuickLevel = 'all'; handleSearch();" class="text-red-500 text-xs font-black uppercase tracking-widest hover:underline ml-auto">清除全部</button>
     </div>
 
@@ -159,7 +163,7 @@
     {{-- Player Cards Grid (Using PlayerCard Component) --}}
     <div v-else-if="paginatedPlayers.length > 0" class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
         <template v-for="(player, index) in paginatedPlayers" :key="player?.id ? `player-${player.id}` : `placeholder-${index}`">
-            <div v-if="player && player.id" class="relative group max-w-60 mx-auto w-full transition-transform duration-300 sm:hover:-translate-y-2">
+            <div v-if="player && player.id" class="relative group max-w-60 mx-auto w-full transition-transform duration-300 sm:hover:-translate-y-1">
                 {{-- Player Card Component with proper positioning data --}}
                 <div @click="showDetail(player)" class="cursor-pointer">
                     <player-card 

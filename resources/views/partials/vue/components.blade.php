@@ -501,9 +501,18 @@ const MessageDetailModal = {
 
         const handleEnterKey = (e) => { if (!e.shiftKey && !(/Android|iPhone/i.test(navigator.userAgent))) { e.preventDefault(); sendMessage(); } };
         let pollInterval;
-        watch(() => props.open, (newVal) => {
-            if (newVal) { document.body.style.overflow = 'hidden'; page.value = 1; loadChat(false); pollInterval = setInterval(() => loadChat(true), 5000); }
-            else { document.body.style.overflow = ''; messages.value = []; if (pollInterval) clearInterval(pollInterval); }
+        watch(() => props.open, async (newVal) => {
+            if (newVal) {
+                document.body.style.overflow = 'hidden';
+                page.value = 1;
+                await loadChat(false);
+                scrollToBottom();
+                pollInterval = setInterval(() => loadChat(true), 5000);
+            } else {
+                document.body.style.overflow = '';
+                messages.value = [];
+                if (pollInterval) clearInterval(pollInterval);
+            }
         });
         onUnmounted(() => { if (pollInterval) clearInterval(pollInterval); });
         return { messages, loading, sending, newMessage, chatContainer, formatDate, sendMessage, handleEnterKey, hasMore, loadMore, goToProfile };

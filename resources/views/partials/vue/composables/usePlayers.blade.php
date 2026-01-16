@@ -128,8 +128,13 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         } catch (error) {
-            const msg = error.response?.data?.error || error.response?.data?.message || '儲存失敗';
-            showToast(msg, 'error');
+            console.error('Save card error:', error);
+            if (error.response?.status === 413) {
+                showToast('照片檔案過大，請嘗試更換較小的照片或重新上傳', 'error');
+            } else {
+                const msg = error.response?.data?.error || error.response?.data?.message || '儲存失敗';
+                showToast(msg, 'error');
+            }
         }
     };
 

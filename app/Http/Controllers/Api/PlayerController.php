@@ -78,7 +78,16 @@ class PlayerController extends Controller
             'intro' => 'string|nullable',
             'fee' => 'string|nullable',
             'theme' => 'string|nullable',
+            'photo' => 'string|nullable',
+            'signature' => 'string|nullable',
         ]);
+
+        if ($request->photo && strlen($request->photo) > 1024 * 1024) {
+            Log::info('Large photo payload in store', [
+                'user_id' => Auth::id(),
+                'size' => strlen($request->photo)
+            ]);
+        }
 
         $data = $request->only([
             'name', 'region', 'level', 'gender', 'handed', 'backhand',
@@ -147,6 +156,14 @@ class PlayerController extends Controller
             'intro', 'fee', 'theme', 'photo_x', 'photo_y', 'photo_scale',
             'sig_x', 'sig_y', 'sig_scale', 'sig_rotate', 'sig_width', 'sig_height', 'is_active'
         ]);
+
+        if ($request->photo && strlen($request->photo) > 1024 * 1024) {
+            Log::info('Large photo payload in update', [
+                'user_id' => Auth::id(),
+                'player_id' => $id,
+                'size' => strlen($request->photo)
+            ]);
+        }
 
         if ($request->photo && Str::startsWith($request->photo, 'data:image')) {
             if ($player->photo && !Str::startsWith($player->photo, 'http')) {

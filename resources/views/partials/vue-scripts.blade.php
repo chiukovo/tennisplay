@@ -86,7 +86,7 @@ createApp({
         // --- 2. Helper Functions (Must be defined before composables that use them) ---
         const { 
             toasts, showToast, removeToast, confirmDialog, showConfirm, hideConfirm, executeConfirm, 
-            formatDate, getUrl, formatLocalDateTime, formatEventDate
+            formatDate, getUrl, formatLocalDateTime, formatEventDate, compressImage
         } = useUtils();
 
         const initSettings = () => {
@@ -100,7 +100,7 @@ createApp({
         const applyDefaultFilters = (viewName) => {
             const defRegion = settingsForm.default_region;
             if (!defRegion || defRegion === '全部') return;
-            if (viewName === 'list' && selectedRegion.value === '全部') {
+            if ((viewName === 'list' || viewName === 'home') && selectedRegion.value === '全部') {
                 selectedRegion.value = defRegion;
                 regionDraft.value = defRegion;
             }
@@ -427,8 +427,10 @@ createApp({
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = (event) => {
-                form.photo = event.target.result;
+            reader.onload = async (event) => {
+                const base64 = event.target.result;
+                // 壓縮圖片
+                form.photo = await compressImage(base64);
                 form.photoX = 0; form.photoY = 0; form.photoScale = 1;
                 isAdjustingPhoto.value = true;
             };
@@ -444,8 +446,10 @@ createApp({
                 const response = await fetch(url);
                 const blob = await response.blob();
                 const reader = new FileReader();
-                reader.onload = (e) => {
-                    form.photo = e.target.result;
+                reader.onload = async (e) => {
+                    const base64 = e.target.result;
+                    // 壓縮圖片
+                    form.photo = await compressImage(base64);
                     form.photoX = 0; form.photoY = 0; form.photoScale = 1;
                     isAdjustingPhoto.value = true;
                 };
@@ -811,13 +815,25 @@ createApp({
         };
 
         // --- 7. Lifecycle & Watchers ---
-        onMounted(() => {
-            checkAuth(() => loadMessages(), () => loadMyCards());
+        onMounted(async () => {
+            await checkAuth(() => loadMessages(), () => loadMyCards());
             parseRoute((id) => loadProfile(id, (append) => loadProfileEvents(append)), () => resetFormFull(), () => resetEventForm());
             window.addEventListener('popstate', (event) => {
-                if (event.state && event.state.view) view.value = event.state.view;
+                if (event.state && event.state.view) {
+                    applyDefaultFilters(event.state.view);
+                    view.value = event.state.view;
+                }
                 else parseRoute((id) => loadProfile(id, (append) => loadProfileEvents(append)), () => resetFormFull(), () => resetEventForm());
             });
+        });
+
+        // 當預設地區載入時，如果目前在列表頁或首頁且尚未篩選，則自動套用
+        watch(() => settingsForm.default_region, (newRegion) => {
+            if (newRegion && newRegion !== '全部' && (view.value === 'list' || view.value === 'home') && selectedRegion.value === '全部') {
+                applyDefaultFilters(view.value);
+                // 觸發載入
+                loadPlayers({ search: searchQuery.value, region: selectedRegion.value, page: 1 });
+            }
         });
 
         let messagePollInterval;
@@ -851,17 +867,6 @@ createApp({
             
             prevView = newView;
         }, { immediate: true });
-
-        onMounted(() => {
-            checkAuth(loadMessages, loadMyCards);
-            
-            // Initial data load if viewing lobby/events
-            if (view.value === 'list') {
-                loadPlayers({ page: 1, search: '', region: selectedRegion.value !== '全部' ? selectedRegion.value : '' });
-            } else if (view.value === 'events') {
-                loadEvents({ page: 1 });
-            }
-        });
 
         watch(currentStep, () => {
             if (isAdjustingSig.value) {

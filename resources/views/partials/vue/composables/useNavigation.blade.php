@@ -31,12 +31,13 @@ const useNavigation = (routes, routePaths, viewTitles, showToast, applyDefaultFi
             loadProfile(uid);
         }
         
+        if (applyDefaultFilters) applyDefaultFilters(viewName);
+        
         view.value = viewName;
         let path = routePaths[viewName] || '/';
         if (viewName === 'profile' && uid) path = `/profile/${uid}`;
         
         window.history.pushState({ view: viewName, uid: uid }, '', path);
-        if (applyDefaultFilters) applyDefaultFilters(viewName);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -68,6 +69,7 @@ const useNavigation = (routes, routePaths, viewTitles, showToast, applyDefaultFi
             window.history.replaceState({ view: 'home' }, '', '/');
         }
 
+        if (applyDefaultFilters) applyDefaultFilters(viewName);
         view.value = viewName;
         if (viewName === 'create' && resetForm) resetForm();
         if (viewName === 'create-event' && resetEventForm) resetEventForm();

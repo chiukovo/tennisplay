@@ -86,7 +86,7 @@
                                         <span class="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 italic">個人特色 / 約打宣告</span>
                                     </div>
                                     <p class="text-base text-slate-700 font-bold leading-relaxed italic whitespace-pre-line relative z-10">
-                                        「@{{player.intro || '希望能找到實力相當的球友進行約打與練習。'}}」
+                                        @{{player.intro || ''}}
                                     </p>
                                 </div>
 

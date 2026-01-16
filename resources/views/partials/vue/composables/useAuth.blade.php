@@ -1,10 +1,32 @@
 // --- useAuth Composable ---
 // 登入/登出、使用者狀態管理
 
-const useAuth = (showToast, navigateTo, initSettings, isLoggedIn, currentUser, settingsForm) => {
+const useAuth = (showToast, navigateTo, initSettings, isLoggedIn, currentUser, settingsForm, view) => {
     const isLoginMode = ref(true);
     const showUserMenu = ref(false);
     const isSavingSettings = ref(false);
+
+    // 監聽路由變化，自動關閉選單
+    if (view) {
+        watch(view, () => {
+            showUserMenu.value = false;
+        });
+    }
+
+    // 點擊外部自動關閉選單
+    const handleOutsideClick = (e) => {
+        if (showUserMenu.value && !e.target.closest('.user-menu-container')) {
+            showUserMenu.value = false;
+        }
+    };
+
+    onMounted(() => {
+        window.addEventListener('click', handleOutsideClick);
+    });
+
+    onUnmounted(() => {
+        window.removeEventListener('click', handleOutsideClick);
+    });
     // LINE 登入時的 Loading 狀態 - 初始化時就檢測 URL 參數
     const hasLineToken = new URLSearchParams(window.location.search).has('line_token');
     const isAuthLoading = ref(hasLineToken); // 如果有 line_token 參數，立即顯示 Loading

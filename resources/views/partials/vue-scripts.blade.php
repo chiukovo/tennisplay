@@ -150,7 +150,7 @@ createApp({
         const { 
             isLoginMode, showUserMenu, isSavingSettings, isAuthLoading,
             checkAuth, logout, saveSettings 
-        } = useAuth(showToast, (v, s, i) => navigateTo(v, s, i), () => initSettings(), isLoggedIn, currentUser, settingsForm);
+        } = useAuth(showToast, (v, s, i) => navigateTo(v, s, i), () => initSettings(), isLoggedIn, currentUser, settingsForm, view);
 
         const { 
             profileData, isProfileLoading, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm, 

@@ -27,7 +27,7 @@
             </a>
             
             {{-- Logged In: User Dropdown --}}
-            <div v-if="isLoggedIn" class="relative group">
+            <div v-if="isLoggedIn" class="relative group user-menu-container">
                 <button @click="showUserMenu = !showUserMenu" class="flex items-center text-slate-600 hover:text-slate-900 transition-colors">
                     <div class="w-9 h-9 sm:w-10 sm:h-10 bg-blue-100 rounded-full flex items-center justify-center overflow-hidden border-2 border-white shadow-md">
                         <img v-if="currentUser?.line_picture_url" :src="currentUser.line_picture_url" class="w-full h-full object-cover">
@@ -63,8 +63,6 @@
                     </button>
                     </div>
                 </div>
-                {{-- Click outside to close --}}
-                <div v-if="showUserMenu" @click="showUserMenu = false" class="fixed inset-0 z-40"></div>
             </div>
 
             {{-- NTRP Guide Button --}}

@@ -205,12 +205,15 @@ const PlayerCard = {
         };
 
         onMounted(() => {
-            updateScale();
-            window.addEventListener('resize', updateScale);
-            if (window.ResizeObserver && cardContainer.value) {
-                resizeObserver = new ResizeObserver(() => { updateScale(); });
-                resizeObserver.observe(cardContainer.value);
-            }
+            // Delay ResizeObserver setup to prioritize first paint
+            requestAnimationFrame(() => {
+                updateScale();
+                window.addEventListener('resize', updateScale);
+                if (window.ResizeObserver && cardContainer.value) {
+                    resizeObserver = new ResizeObserver(() => { updateScale(); });
+                    resizeObserver.observe(cardContainer.value);
+                }
+            });
         });
         onUnmounted(() => {
             window.removeEventListener('resize', updateScale);
@@ -366,13 +369,16 @@ const PlayerDetailModal = {
                 socialStatus.is_following = newP.is_following || false;
                 socialStatus.likes_count = newP.likes_count || 0;
                 
-                // 檢查快取，如果有就直接用，否則載入
+                // 檢查快取，如果有就直接用
                 const cached = commentsCache.get(newP.id);
                 if (cached) {
                     comments.value = cached;
                 } else {
                     comments.value = [];
-                    loadComments();
+                    // 延遲載入留言，讓 UI 先渲染
+                    requestAnimationFrame(() => {
+                        setTimeout(() => loadComments(), 50);
+                    });
                 }
             }
         }, { immediate: true });

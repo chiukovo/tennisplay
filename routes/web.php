@@ -18,40 +18,40 @@ use Illuminate\Support\Facades\Route;
 $seoData = [
     'home' => [
         'title' => 'LoveTennis | 全台最專業的網球約打媒合與球友卡社群',
-        'description' => 'LoveTennis 是全台領先的網球約打平台，提供職業級球友卡製作、透明約打費用與安全站內信媒合系統。',
+        'description' => 'LoveTennis 是全台領先的網球約打、網球約球平台，提供職業級球友卡製作、透明約打費用與安全站內信媒合系統，一起打網球更安心。',
         'og_image' => '/img/og-default.jpg'
     ],
     'list' => [
         'title' => '球友大廳 | 發現您的最佳網球夥伴 | LoveTennis',
-        'description' => '瀏覽全台網球球友，依據地區與 NTRP 等級篩選最適合您的網球戰友。即刻發送約打邀請！',
+        'description' => '瀏覽全台網球球友，依據地區與 NTRP 等級篩選最適合您的網球戰友。網球約打、網球約球一鍵發送邀請！',
     ],
     'create' => [
         'title' => '建立球友卡 | 展現您的網球風格 | LoveTennis',
-        'description' => '30秒快速建立您的專屬數位球友卡。上傳專業照、設定等級，開啟您的網球社交第一步。',
+        'description' => '30秒快速建立您的專屬數位球友卡。上傳專業照、設定等級，讓網球約打、網球約球更順利。',
     ],
     'messages' => [
         'title' => '我的訊息 | 網球約打邀請管理 | LoveTennis',
-        'description' => '管理您的約打邀請與球友訊息，安全聯繫潛在夥伴。',
+        'description' => '管理您的網球約打、網球約球邀請與球友訊息，安全聯繫潛在夥伴，一起打網球更有效率。',
     ],
     'events' => [
         'title' => '揪球開團 | 搜尋全台網球場次 | LoveTennis',
-        'description' => '即時搜尋附近的網球團體與練習場次。不管是新手練習還是專業切磋，這裡都有適合您的球局。',
+        'description' => '即時搜尋附近的網球團體與練習場次，網球約打、網球約球、一起打網球都能快速找到合適場次。',
     ],
     'auth' => [
         'title' => '登入/註冊 | 加入 LoveTennis 社群',
-        'description' => '使用 LINE 或電子郵件快速加入 LoveTennis，開啟專業網球社交體驗。',
+        'description' => '使用 LINE 或電子郵件快速加入 LoveTennis，開啟專業網球社交體驗，網球約打更簡單。',
     ],
     'mycards' => [
         'title' => '我的球友卡 | 管理個人檔案 | LoveTennis',
-        'description' => '編輯與管理您的網球特色與約打設定，保持個人檔案最優化。',
+        'description' => '編輯與管理您的網球特色與約打設定，讓網球約球、一起打網球更精準。',
     ],
     'settings' => [
         'title' => '帳號設置 | 個性化您的網球體驗 | LoveTennis',
-        'description' => '調整預設地區與帳號偏好，享受最直覺的網球媒合服務。',
+        'description' => '調整預設地區與帳號偏好，享受最直覺的網球媒合服務，網球約打更貼近需求。',
     ],
     'privacy' => [
         'title' => '隱私權政策 | LoveTennis',
-        'description' => '了解 LoveTennis 如何保護您的個人資料與使用規範。',
+        'description' => '了解 LoveTennis 如何保護您的個人資料與使用規範，安心網球約打。',
     ]
 ];
 

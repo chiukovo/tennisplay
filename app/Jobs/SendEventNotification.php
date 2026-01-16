@@ -15,14 +15,18 @@ class SendEventNotification implements ShouldQueue
 
     public $eventId;
     public $type;
+    public $targetUserId;
+    public $force;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(int $eventId, string $type)
+    public function __construct(int $eventId, string $type, ?int $targetUserId = null, bool $force = false)
     {
         $this->eventId = $eventId;
         $this->type = $type;
+        $this->targetUserId = $targetUserId;
+        $this->force = $force;
     }
 
     /**
@@ -30,6 +34,6 @@ class SendEventNotification implements ShouldQueue
      */
     public function handle(EventNotificationService $service)
     {
-        $service->notifyById($this->eventId, $this->type);
+        $service->notifyById($this->eventId, $this->type, $this->targetUserId, $this->force);
     }
 }

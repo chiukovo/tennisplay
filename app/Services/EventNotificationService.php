@@ -14,19 +14,19 @@ class EventNotificationService
     /**
      * Notify by event id.
      */
-    public function notifyById(int $eventId, string $type): void
+    public function notifyById(int $eventId, string $type, ?int $targetUserId = null, bool $force = false): void
     {
         $event = Event::find($eventId);
         if (!$event) {
             return;
         }
-        $this->notify($event, $type);
+        $this->notify($event, $type, $targetUserId, $force);
     }
 
     /**
      * Notify users about event changes.
      */
-    public function notify(Event $event, string $type): void
+    public function notify(Event $event, string $type, ?int $targetUserId = null, bool $force = false): void
     {
         $event->refresh();
 
@@ -50,17 +50,17 @@ class EventNotificationService
                 break;
         }
 
-        if (!Cache::add($cacheKey, true, $ttl)) {
+        if (!$force && !Cache::add($cacheKey, true, $ttl)) {
             return;
         }
 
-        $this->sendEventNotification($event, $type);
+        $this->sendEventNotification($event, $type, $targetUserId);
     }
 
     /**
      * Build recipients and send LINE notifications.
      */
-    protected function sendEventNotification(Event $event, string $type): void
+    protected function sendEventNotification(Event $event, string $type, ?int $targetUserId = null): void
     {
         try {
             $event->loadMissing(['user']);
@@ -94,7 +94,9 @@ class EventNotificationService
                 $url
             );
 
-            $recipientIds = $this->getEventNotifyRecipientIds($event, $type);
+            $recipientIds = $targetUserId
+                ? collect([$targetUserId])
+                : $this->getEventNotifyRecipientIds($event, $type);
             if ($recipientIds->isEmpty()) {
                 return;
             }

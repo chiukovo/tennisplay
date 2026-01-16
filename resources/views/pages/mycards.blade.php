@@ -75,7 +75,7 @@
             <app-icon name="plus" class-name="w-12 h-12 text-blue-300"></app-icon>
         </div>
         <h3 class="text-2xl font-black italic uppercase tracking-tight mb-4">還沒有球友卡</h3>
-        <p class="text-slate-400 font-medium mb-8">建立您的第一張專業球友卡，開始在社群大廳曝光！</p>
+        <p class="text-slate-400 font-medium mb-8">建立您的第一張專業球友卡，開始在找球友曝光！</p>
         <a href="/create" @click.prevent="navigateTo('create')" class="inline-flex items-center gap-3 bg-blue-600 text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl">
             <app-icon name="plus" class-name="w-5 h-5"></app-icon>
             建立球友卡

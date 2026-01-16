@@ -10,7 +10,7 @@
     {{-- List --}}
     <a href="/list" @click.prevent="navigateTo('list')" class="flex-1 flex flex-col items-center gap-0.5 py-1.5 rounded-xl transition-all relative" :class="view === 'list' ? 'text-blue-400' : 'text-slate-500'">
         <app-icon name="search" class-name="w-4 h-4"></app-icon>
-        <span class="text-[7px] font-black uppercase tracking-widest">大廳</span>
+        <span class="text-[7px] font-black uppercase tracking-widest">找球友</span>
         <div v-if="view === 'list'" class="absolute -bottom-0.5 w-1 h-1 bg-blue-400 rounded-full"></div>
     </a>
 

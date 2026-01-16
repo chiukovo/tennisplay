@@ -22,7 +22,7 @@ $seoData = [
         'og_image' => '/img/og-default.jpg'
     ],
     'list' => [
-        'title' => '球友大廳 | 發現您的最佳網球夥伴 | LoveTennis',
+        'title' => '找球友 | 發現您的最佳網球夥伴 | LoveTennis',
         'description' => '瀏覽全台網球球友，依據地區與 NTRP 等級篩選最適合您的網球戰友。網球約打、網球約球一鍵發送邀請！',
     ],
     'create' => [

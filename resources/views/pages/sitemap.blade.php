@@ -130,7 +130,7 @@
                     <div class="space-y-3">
                         <div class="text-3xl font-black text-blue-500">02</div>
                         <div class="font-black text-lg">發現新夥伴</div>
-                        <p class="text-slate-400 text-sm font-medium leading-relaxed">在大廳瀏覽球友，或在活動列表加入感興趣的球局。</p>
+                        <p class="text-slate-400 text-sm font-medium leading-relaxed">在找球友瀏覽球友，或在活動列表加入感興趣的球局。</p>
                     </div>
                     <div class="space-y-3">
                         <div class="text-3xl font-black text-blue-500">03</div>

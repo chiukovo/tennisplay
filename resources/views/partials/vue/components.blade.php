@@ -256,6 +256,7 @@ const PlayerDetailModal = {
         const hasPrev = computed(() => props.players && props.players.length > 1);
         const hasNext = computed(() => props.players && props.players.length > 1);
         const transitionName = ref('slide-next');
+        const isTransitioning = ref(false);  // 轉場動畫狀態
         const comments = ref([]);
         const commentDraft = ref('');
         const isLoadingComments = ref(false);
@@ -384,12 +385,22 @@ const PlayerDetailModal = {
         }, { immediate: true });
 
         const navigate = (direction) => {
-            if (!props.players || props.players.length <= 1) return;
+            if (!props.players || props.players.length <= 1 || isTransitioning.value) return;
+            
+            // 輕量淡出淡入轉場
+            isTransitioning.value = true;
             transitionName.value = direction > 0 ? 'slide-next' : 'slide-prev';
-            let nextIndex = currentIndex.value + direction;
-            if (nextIndex < 0) nextIndex = props.players.length - 1;
-            if (nextIndex >= props.players.length) nextIndex = 0;
-            emit('update:player', props.players[nextIndex]);
+            
+            setTimeout(() => {
+                let nextIndex = currentIndex.value + direction;
+                if (nextIndex < 0) nextIndex = props.players.length - 1;
+                if (nextIndex >= props.players.length) nextIndex = 0;
+                emit('update:player', props.players[nextIndex]);
+                
+                setTimeout(() => {
+                    isTransitioning.value = false;
+                }, 150);
+            }, 100);
         };
 
         const handleKeydown = (e) => {
@@ -460,7 +471,7 @@ const PlayerDetailModal = {
             return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
         };
 
-        return { currentIndex, hasPrev, hasNext, transitionName, navigate, handleTouchStart, handleTouchEnd, backStats, formatDate, comments, commentDraft, isLoadingComments, socialStatus, toggleFollowModal, toggleLikeModal, postComment, deleteComment };
+        return { currentIndex, hasPrev, hasNext, transitionName, isTransitioning, navigate, handleTouchStart, handleTouchEnd, backStats, formatDate, comments, commentDraft, isLoadingComments, socialStatus, toggleFollowModal, toggleLikeModal, postComment, deleteComment };
     }
 };
 

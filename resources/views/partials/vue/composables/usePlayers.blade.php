@@ -6,8 +6,35 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
     const myPlayers = ref([]);
     const isPlayersLoading = ref(false);
     const playersPagination = ref({ total: 0, current_page: 1, last_page: 1, per_page: 12 });
+    
+    // 分頁快取機制
+    const playersCache = reactive(new Map());
+    let lastCacheKey = '';
+
+    const getCacheKey = (params) => {
+        return JSON.stringify({
+            search: params.search || '',
+            region: params.region || '',
+            gender: params.gender || '',
+            level_min: params.level_min || '',
+            level_max: params.level_max || '',
+            handed: params.handed || '',
+            backhand: params.backhand || '',
+            page: params.page || 1
+        });
+    };
 
     const loadPlayers = async (params = {}) => {
+        const cacheKey = getCacheKey(params);
+        
+        // 檢查快取 (30秒內有效)
+        const cached = playersCache.get(cacheKey);
+        if (cached && Date.now() - cached.timestamp < 30000) {
+            players.value = cached.data;
+            playersPagination.value = cached.pagination;
+            return;
+        }
+
         isPlayersLoading.value = true;
         try {
             // Default per_page to 12 for better grid layout (4x3)
@@ -30,8 +57,21 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
                     players.value = (Array.isArray(data) ? data : []).filter(p => p && p.id);
                     playersPagination.value = { total: players.value.length, current_page: 1, last_page: 1, per_page: 1000 };
                 }
+                
+                // 存入快取
+                playersCache.set(cacheKey, {
+                    data: [...players.value],
+                    pagination: { ...playersPagination.value },
+                    timestamp: Date.now()
+                });
+                lastCacheKey = cacheKey;
             }
         } catch (error) {} finally { isPlayersLoading.value = false; }
+    };
+
+    // 清除快取（當資料變更時呼叫）
+    const clearPlayersCache = () => {
+        playersCache.clear();
     };
 
     const loadMyCards = async () => {
@@ -73,7 +113,8 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
                     currentUser.value.region = form.region;
                     localStorage.setItem('auth_user', JSON.stringify(currentUser.value));
                 }
-                
+                // 清除快取確保資料最新
+                clearPlayersCache();
                 await loadPlayers(); await loadMyCards();
                 
                 if (resetForm) resetForm();
@@ -98,6 +139,8 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
             onConfirm: async () => {
                 try {
                     await api.delete(`/players/${cardId}`);
+                    // 清除快取確保資料最新
+                    clearPlayersCache();
                     await loadPlayers(); await loadMyCards();
                     if (view.value === 'profile' && loadProfile) loadProfile(currentUser.value.uid);
                 } catch (error) {
@@ -108,5 +151,5 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
         });
     };
 
-    return { players, myPlayers, isPlayersLoading, playersPagination, loadPlayers, loadMyCards, saveCard, deleteCard };
+    return { players, myPlayers, isPlayersLoading, playersPagination, loadPlayers, loadMyCards, saveCard, deleteCard, clearPlayersCache };
 };

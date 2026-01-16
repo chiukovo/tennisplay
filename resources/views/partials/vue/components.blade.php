@@ -143,6 +143,8 @@ const PlayerCard = {
     template: '#player-card-template',
     setup(props) {
         const cardContainer = ref(null);
+        const isVisible = ref(false);  // Lazy loading flag
+        let observer = null;
         const themes = {
             gold: { border: 'bg-gradient-to-br from-amber-500 via-yellow-300 to-amber-600', accent: 'text-yellow-500', name: 'text-yellow-400', bg: 'bg-slate-900' },
             platinum: { border: 'bg-gradient-to-br from-slate-400 via-white to-slate-500', accent: 'text-blue-400', name: 'text-slate-100', bg: 'bg-slate-900' },
@@ -211,11 +213,26 @@ const PlayerCard = {
                 resizeObserver = new ResizeObserver(() => { updateScale(); });
                 resizeObserver.observe(cardContainer.value);
             }
+            // Lazy Loading: Observe when card enters viewport
+            if (window.IntersectionObserver && cardContainer.value) {
+                observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            isVisible.value = true;
+                            observer.disconnect();  // Stop observing once visible
+                        }
+                    });
+                }, { rootMargin: '100px' });  // Pre-load 100px before entering viewport
+                observer.observe(cardContainer.value);
+            } else {
+                isVisible.value = true;  // Fallback for older browsers
+            }
         });
         onUnmounted(() => {
             window.removeEventListener('resize', updateScale);
             if (resizeObserver) resizeObserver.disconnect();
             if (rafId) cancelAnimationFrame(rafId);
+            if (observer) observer.disconnect();
         });
 
         const nameFontSize = computed(() => {
@@ -236,7 +253,7 @@ const PlayerCard = {
             return '30px';
         });
 
-        return { cardContainer, p, themeStyle, getLevelTag, handleMove, handleLeave, holoStyle, cardScale, containerHeight, nameFontSize };
+        return { cardContainer, p, themeStyle, getLevelTag, handleMove, handleLeave, holoStyle, cardScale, containerHeight, nameFontSize, isVisible };
     }
 };
 

@@ -159,7 +159,7 @@ createApp({
         } = useProfile(isLoggedIn, currentUser, showToast, navigateTo);
 
         const { 
-            players, myPlayers, isPlayersLoading, playersPagination, loadPlayers, loadMyCards, saveCard, deleteCard
+            players, myPlayers, isPlayersLoading, playersPagination, loadPlayers, loadMyCards, saveCard, deleteCard, clearPlayersCache
         } = usePlayers(isLoggedIn, currentUser, showToast, navigateTo, showConfirm, (id) => loadProfile(id), form);
 
         const { 
@@ -811,12 +811,14 @@ createApp({
         });
 
         let messagePollInterval;
+        let prevView = null;  // 追蹤上一個 view
         watch(view, (newView) => {
             // Global Scroll Reset when switching views
             document.body.style.overflow = '';
             document.body.style.touchAction = '';
 
-            if (newView === 'home' || newView === 'list') {
+            // 只在從非 list/home 頁面進入時載入，快取會處理資料重用
+            if ((newView === 'home' || newView === 'list') && prevView !== 'home' && prevView !== 'list') {
                 loadPlayers({ search: searchQuery.value, region: selectedRegion.value, page: currentPage.value });
             } else if (newView === 'events' || newView === 'create-event') {
                 loadEvents({ 
@@ -836,6 +838,8 @@ createApp({
                 clearInterval(messagePollInterval);
                 messagePollInterval = null;
             }
+            
+            prevView = newView;
         }, { immediate: true });
 
         onMounted(() => {

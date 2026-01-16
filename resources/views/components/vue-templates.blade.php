@@ -92,12 +92,12 @@
                             </div>
                         </div>
 
-                        {{-- Player Photo --}}
-                        <div :class="['absolute inset-0 transition-transform duration-1000 bg-no-repeat bg-center bg-cover z-10', isAdjustingSig ? 'pointer-events-none select-none' : '']"
-                             :style="{ 
+                        {{-- Player Photo (Lazy Loaded) --}}
+                        <div :class="['absolute inset-0 transition-all duration-500 bg-no-repeat bg-center bg-cover z-10', isAdjustingSig ? 'pointer-events-none select-none' : '', !isVisible ? 'bg-slate-300' : '']"
+                             :style="isVisible ? { 
                                 backgroundImage: `url(${(p?.photo) || 'https://images.unsplash.com/photo-1614743758466-e569f4791116?q=80&w=650&auto=format&fit=crop'})`,
                                 transform: `translate(${p?.photoX || 0}%, ${p?.photoY || 0}%) scale(${p?.photoScale || 1})` 
-                             }">
+                             } : {}">
                         </div>
                         
                         {{-- Gradient Overlay --}}

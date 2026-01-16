@@ -130,7 +130,7 @@
 
     {{-- Player Cards Grid (Using PlayerCard Component) --}}
     <div v-else-if="paginatedPlayers.length > 0" class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
-        <template v-for="player in paginatedPlayers" :key="player?.id || Math.random()">
+        <template v-for="(player, index) in paginatedPlayers" :key="player?.id ? `player-${player.id}` : `placeholder-${index}`">
             <div v-if="player && player.id" class="relative group max-w-60 mx-auto w-full transition-transform duration-300 sm:hover:-translate-y-2">
                 {{-- Player Card Component with proper positioning data --}}
                 <div @click="showDetail(player)" class="cursor-pointer">

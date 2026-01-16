@@ -124,12 +124,23 @@
     </section>
 
     {{-- Featured Players --}}
-    <section>
+    <section class="relative">
         <div class="flex items-center justify-between mb-12">
             <h2 class="text-3xl font-black italic uppercase tracking-tighter flex items-center gap-4">
                 <div class="w-1.5 h-10 bg-blue-600 rounded-full"></div> 推薦戰友
             </h2>
-            <a v-if="players.length > 0" href="/list" @click.prevent="navigateTo('list')" class="text-blue-600 text-sm font-black uppercase tracking-widest border-b-2 border-blue-600/10 pb-1">顯示更多</a>
+            <div class="flex items-center gap-3">
+                {{-- Desktop Navigation Arrows --}}
+                <div class="hidden sm:flex items-center gap-2">
+                    <button @click="scrollFeaturedPlayers(-1)" class="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm">
+                        <app-icon name="chevron-left" class-name="w-5 h-5"></app-icon>
+                    </button>
+                    <button @click="scrollFeaturedPlayers(1)" class="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm">
+                        <app-icon name="chevron-right" class-name="w-5 h-5"></app-icon>
+                    </button>
+                </div>
+                <a v-if="players.length > 0" href="/list" @click.prevent="navigateTo('list')" class="text-blue-600 text-sm font-black uppercase tracking-widest border-b-2 border-blue-600/10 pb-1">顯示更多</a>
+            </div>
         </div>
         
         {{-- SEO Content for Crawlers (SSR) --}}
@@ -141,7 +152,7 @@
         </div>
 
         {{-- Has Players --}}
-        <div v-if="players.length > 0" class="flex overflow-x-auto no-scrollbar gap-5 sm:gap-10 pb-8 -mx-4 px-4 snap-x snap-mandatory">
+        <div v-if="players.length > 0" ref="featuredPlayersContainer" class="flex overflow-x-auto no-scrollbar gap-5 sm:gap-10 pb-8 -mx-4 px-4 snap-x snap-mandatory scroll-smooth">
             <div v-for="p in players.slice(0, 10)" :key="p.id" class="snap-center shrink-0 w-[240px] sm:w-[300px]">
                 <player-card :player="p" @click="showDetail(p)" size="sm" class="w-full"></player-card>
             </div>

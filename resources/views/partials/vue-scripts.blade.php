@@ -28,6 +28,7 @@ createApp({
         const matchModal = reactive({ open: false, player: null, text: '' });
         const isSendingMatch = ref(false);
         const detailPlayer = ref(null);
+        const featuredPlayersContainer = ref(null);  // 推薦戰友滾動容器
         const shareModal = reactive({ open: false, player: null });
         const isSigning = ref(false);
         const showNtrpGuide = ref(false);
@@ -663,6 +664,15 @@ createApp({
         });
 
         const openMatchModal = (p) => { matchModal.player = p; matchModal.open = true; };
+        
+        // 推薦戰友左右滾動
+        const scrollFeaturedPlayers = (direction) => {
+            if (!featuredPlayersContainer.value) return;
+            const container = featuredPlayersContainer.value;
+            const cardWidth = 300 + 40; // 卡片寬度 + gap
+            container.scrollBy({ left: direction * cardWidth * 2, behavior: 'smooth' });
+        };
+        
         const getPlayersByRegion = (region) => players.value.filter(p => p.region === region);
         
         const getEventsByMatchType = (type) => {
@@ -933,11 +943,11 @@ createApp({
             players, myPlayers, isPlayersLoading, playersPagination, messages, events, eventsLoading, eventSubmitting, eventsPagination,
             profileData, isProfileLoading, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm,
             form, eventForm, currentStep, stepAttempted, isAdjustingPhoto, isAdjustingSig, isCapturing, isPhotoAdjustLoading, isSigAdjustLoading,
-            searchQuery, searchDraft, selectedRegion, regionDraft, selectedGender, genderDraft, selectedLevelMin, levelMinDraft, selectedLevelMax, levelMaxDraft, selectedHanded, handedDraft, selectedBackhand, backhandDraft, showAdvancedFilters, currentPage, perPage, matchModal, detailPlayer,
+            searchQuery, searchDraft, selectedRegion, regionDraft, selectedGender, genderDraft, selectedLevelMin, levelMinDraft, selectedLevelMax, levelMaxDraft, selectedHanded, handedDraft, selectedBackhand, backhandDraft, showAdvancedFilters, currentPage, perPage, matchModal, detailPlayer, featuredPlayersContainer,
             eventFilter, eventRegionFilter, eventSearchQuery, eventSearchDraft, eventStartDate, eventEndDate, eventDateShortcut, eventCurrentPage, eventPerPage, showEventDetail, activeEvent, eventComments, eventCommentDraft,
             showNtrpGuide, showPrivacy, showLinePromo, showMessageDetail, selectedChatUser, isLoading, isAuthLoading,
             showPreview, showQuickEditModal, features, cardThemes,
-            shareModal, isSendingMatch,
+            shareModal, isSendingMatch, scrollFeaturedPlayers,
             settingsForm, isSavingSettings, toasts, confirmDialog, dragInfo,
             profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,
             // Computed

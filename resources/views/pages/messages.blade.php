@@ -40,8 +40,11 @@
             <div v-for="m in paginatedMessages" :key="m.id" @click="openMessage(m)" class="p-3.5 sm:p-6 hover:bg-slate-50 transition-all cursor-pointer relative group flex items-center gap-3 sm:gap-4 border-l-4 border-transparent" :class="m.unread_count > 0 ? 'bg-blue-50/20 border-l-blue-600' : ''">
                 {{-- Avatar with Unread Dot --}}
                 <div class="relative shrink-0">
-                    <div class="w-11 h-11 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-500 text-base sm:text-xl font-black uppercase shadow-inner border-2 border-white">
-                        @{{ (m.sender?.uid === currentUser.uid ? m.receiver?.name : m.sender?.name)?.[0] || '?' }}
+                    <div class="w-11 h-11 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-500 text-base sm:text-xl font-black uppercase shadow-inner border-2 border-white overflow-hidden">
+                        <img v-if="m.sender?.uid === currentUser.uid ? (m.receiver?.player?.photo_url || m.receiver?.line_picture_url) : (m.sender?.player?.photo_url || m.sender?.line_picture_url)" 
+                             :src="m.sender?.uid === currentUser.uid ? (m.receiver?.player?.photo_url || m.receiver?.line_picture_url) : (m.sender?.player?.photo_url || m.sender?.line_picture_url)" 
+                             class="w-full h-full object-cover">
+                        <span v-else>@{{ (m.sender?.uid === currentUser.uid ? m.receiver?.name : m.sender?.name)?.[0] || '?' }}</span>
                     </div>
                     <div v-if="m.unread_count > 0" class="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 border-2 border-white rounded-full shadow-sm animate-pulse"></div>
                 </div>

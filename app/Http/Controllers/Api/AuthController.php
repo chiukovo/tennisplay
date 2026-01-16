@@ -33,7 +33,7 @@ class AuthController extends Controller
     {
         return response()->json([
             'success' => true,
-            'user' => $request->user(),
+            'user' => $request->user()->load('player'),
         ]);
     }
 
@@ -207,4 +207,3 @@ class AuthController extends Controller
         return response('OK', 200);
     }
 }
-

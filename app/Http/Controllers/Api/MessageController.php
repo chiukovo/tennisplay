@@ -8,6 +8,7 @@ use App\Models\Player;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class MessageController extends Controller
 {
@@ -31,7 +32,7 @@ class MessageController extends Controller
             ->pluck('id');
 
         $conversations = Message::whereIn('id', $latestIds)
-            ->with(['sender', 'receiver', 'player'])
+            ->with(['sender.player', 'receiver.player', 'player'])
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($message) use ($userId) {
@@ -73,11 +74,11 @@ class MessageController extends Controller
 
         if ($request->after_id) {
             $messages = $query->where('id', '>', $request->after_id)
-                ->with(['sender', 'player'])
+                ->with(['sender.player', 'player'])
                 ->orderBy('created_at', 'asc')
                 ->get();
         } else {
-            $messages = $query->with(['sender', 'player'])
+            $messages = $query->with(['sender.player', 'player'])
                 ->orderBy('created_at', 'desc')
                 ->paginate($request->per_page ?? 50);
         }
@@ -121,6 +122,12 @@ class MessageController extends Controller
         if ($playerId && !$toUserId) {
             $player = Player::findOrFail($playerId);
             $toUserId = $player->user_id;
+        }
+
+        // 阻擋重複點擊 (5秒內相同內容)
+        $lockKey = 'lock_message_' . $user->id . '_' . md5($toUserId . $request->content);
+        if (!Cache::add($lockKey, true, 5)) {
+            return response()->json(['success' => false, 'message' => '提交太快，請稍候再試'], 429);
         }
 
         $message = Message::create([

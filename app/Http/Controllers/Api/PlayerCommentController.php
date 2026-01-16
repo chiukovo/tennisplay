@@ -8,6 +8,7 @@ use App\Models\PlayerComment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 
 class PlayerCommentController extends Controller
@@ -54,6 +55,12 @@ class PlayerCommentController extends Controller
         }
         if (!$actor) {
             return response()->json(['message' => '未授權'], 401);
+        }
+
+        // 阻擋重複點擊 (5秒內相同內容)
+        $lockKey = 'lock_player_comment_' . $actor->id . '_' . md5($playerId . $request->content);
+        if (!Cache::add($lockKey, true, 5)) {
+            return response()->json(['message' => '提交太快，請稍候再試'], 429);
         }
 
         $comment = PlayerComment::create([

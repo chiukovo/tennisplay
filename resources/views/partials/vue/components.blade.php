@@ -241,7 +241,7 @@ const PlayerCard = {
 };
 
 const PlayerDetailModal = {
-    props: ['player', 'stats', 'players', 'isLoggedIn', 'showToast', 'navigateTo'],
+    props: ['player', 'stats', 'players', 'isLoggedIn', 'showToast', 'navigateTo', 'currentUser'],
     components: { AppIcon, PlayerCard },
     template: '#player-detail-modal-template',
     emits: ['close', 'open-match', 'update:player', 'open-profile', 'open-ntrp-guide', 'share'],
@@ -341,7 +341,6 @@ const PlayerDetailModal = {
                 commentsCache.set(props.player.id, [...comments.value]);  // 更新快取
                 commentDraft.value = '';
                 emit('update:player', { ...props.player, comments_count: (props.player.comments_count || 0) + 1 });
-                props.showToast('留言成功', 'success');
             } catch (error) { props.showToast('發送失敗', 'error'); }
         };
 

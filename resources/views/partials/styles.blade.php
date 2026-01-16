@@ -386,4 +386,59 @@
     .is-capturing .signature-layer img {
         transition: none !important;
     }
+
+    /* Threads Style Comments */
+    .comment-threads {
+        display: flex;
+        gap: 12px;
+        position: relative;
+    }
+    .comment-threads .avatar-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex-shrink: 0;
+    }
+    .comment-threads .avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.05);
+        background: #f8fafc;
+    }
+    .comment-threads .thread-line {
+        width: 2px;
+        flex-grow: 1;
+        background: #f1f5f9;
+        margin-top: 8px;
+        border-radius: 1px;
+    }
+    .comment-threads .content-container {
+        flex-grow: 1;
+        padding-bottom: 20px;
+    }
+    .comment-threads .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 4px;
+    }
+    .comment-threads .username {
+        font-size: 14px;
+        font-weight: 900;
+        color: #0f172a;
+    }
+    .comment-threads .timestamp {
+        font-size: 11px;
+        font-weight: 700;
+        color: #94a3b8;
+    }
+    .comment-threads .text {
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 1.5;
+        color: #334155;
+        white-space: pre-line;
+    }
 </style>

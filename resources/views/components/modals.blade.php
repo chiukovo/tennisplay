@@ -143,36 +143,43 @@
                                     <span class="text-[9px] font-black text-slate-300">@{{ comments.length }} COMMENTS</span>
                                 </div>
 
-                                <!-- Combined Comment Unit -->
-                                <div class="bg-slate-50/50 rounded-[32px] p-6 border border-slate-100">
+                                 <!-- Combined Comment Unit -->
+                                <div class="bg-white rounded-[32px] p-2 sm:p-4">
                                     <!-- Comment Input -->
-                                    <div class="relative mb-6">
-                                        <textarea v-model="commentDraft" 
-                                               rows="1"
-                                               @keyup.enter.prevent="postComment"
-                                               placeholder="留個言打聲招呼吧..." 
-                                               class="w-full bg-white border-2 border-transparent rounded-[20px] px-5 py-4 pr-16 text-sm font-bold focus:border-blue-500 outline-none transition-all shadow-sm shadow-blue-500/5 placeholder:text-slate-300 resize-none overflow-hidden"></textarea>
-                                        <button @click="postComment" :disabled="!commentDraft.trim()" class="absolute right-2 top-2 bottom-2 w-12 bg-blue-600 text-white rounded-[14px] shadow-lg shadow-blue-500/20 active:scale-95 transition-all disabled:opacity-30 flex items-center justify-center">
-                                            <app-icon name="send" class-name="w-5 h-5"></app-icon>
-                                        </button>
+                                    <div class="flex gap-3 mb-8 px-2">
+                                        <div class="w-10 h-10 rounded-full overflow-hidden bg-slate-100 shrink-0 border border-slate-100">
+                                            <img v-if="currentUser?.line_picture_url" :src="currentUser.line_picture_url" class="w-full h-full object-cover">
+                                            <app-icon v-else name="user" class-name="w-full h-full text-slate-300 p-2"></app-icon>
+                                        </div>
+                                        <div class="flex-1 relative">
+                                            <textarea v-model="commentDraft" 
+                                                rows="1"
+                                                @keyup.enter.prevent="postComment"
+                                                placeholder="留個言打聲招呼吧..." 
+                                                class="w-full bg-slate-50 border-none rounded-2xl px-5 py-3 pr-12 text-sm font-bold focus:bg-slate-100 outline-none transition-all placeholder:text-slate-300 resize-none overflow-hidden"></textarea>
+                                            <button @click="postComment" :disabled="!commentDraft.trim()" class="absolute right-2 top-1.5 p-2 text-blue-600 disabled:opacity-20 transition-all">
+                                                <app-icon name="send" class-name="w-5 h-5"></app-icon>
+                                            </button>
+                                        </div>
                                     </div>
 
                                     <!-- Scrollable Comment List -->
-                                    <div class="max-h-[400px] overflow-y-auto pr-2 space-y-4 scrollbar-thin">
-                                        <div v-if="comments.length > 0" class="space-y-4">
-                                            <div v-for="c in comments" :key="c.id" class="flex gap-3 group">
-                                                <div class="w-10 h-10 rounded-2xl overflow-hidden bg-white border border-slate-100 shrink-0 shadow-sm cursor-pointer" @click="$emit('open-profile', c.user.uid)">
-                                                    <img v-if="c.user.photo" :src="c.user.photo" class="w-full h-full object-cover">
-                                                    <app-icon v-else name="user" class-name="w-full h-full text-slate-200 p-2"></app-icon>
+                                    <div class="max-h-[500px] overflow-y-auto pr-2 no-scrollbar">
+                                        <div v-if="comments.length > 0" class="space-y-1">
+                                            <div v-for="(c, index) in comments" :key="c.id" class="comment-threads">
+                                                <div class="avatar-container">
+                                                    <div class="avatar cursor-pointer" @click="$emit('open-profile', c.user.uid)">
+                                                        <img v-if="c.user.photo" :src="c.user.photo" class="w-full h-full object-cover">
+                                                        <app-icon v-else name="user" class-name="w-full h-full text-slate-200 p-2"></app-icon>
+                                                    </div>
+                                                    <div v-if="index < comments.length - 1" class="thread-line"></div>
                                                 </div>
-                                                <div class="flex-1 space-y-1">
-                                                    <div class="flex items-center justify-between">
-                                                        <span class="text-[11px] font-black text-slate-900 cursor-pointer hover:text-blue-600" @click="$emit('open-profile', c.user.uid)">@{{ c.user.name }}</span>
-                                                        <span class="text-[9px] font-black text-slate-300 tracking-tighter">@{{ formatDate(c.at) }}</span>
+                                                <div class="content-container">
+                                                    <div class="header">
+                                                        <span class="username cursor-pointer hover:underline" @click="$emit('open-profile', c.user?.uid || c.user_id)">@{{ c.user?.name || '匿名球友' }}</span>
+                                                        <span class="timestamp">@{{ formatDate(c.at) }}</span>
                                                     </div>
-                                                    <div class="bg-white/80 p-4 rounded-[22px] rounded-tl-none text-slate-700 text-xs font-bold leading-relaxed shadow-sm">
-                                                        @{{ c.text }}
-                                                    </div>
+                                                    <div class="text">@{{ c.text }}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -367,46 +374,53 @@
                         {{-- Social interaction --}}
                         <div class="border-t border-slate-200 pt-10 space-y-8">
                             {{-- Comment Input --}}
-                            <div class="relative">
+                            <div class="px-2">
                                 <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 ml-2">提問、留言、或打個招呼...</div>
-                                <div class="flex gap-3">
-                                    <div class="flex-1">
+                                <div class="flex gap-3 mb-10">
+                                    <div class="w-10 h-10 rounded-full overflow-hidden bg-slate-100 shrink-0 border border-slate-100">
+                                        <img v-if="currentUser?.line_picture_url" :src="currentUser.line_picture_url" class="w-full h-full object-cover">
+                                        <app-icon v-else name="user" class-name="w-full h-full text-slate-300 p-2"></app-icon>
+                                    </div>
+                                    <div class="flex-1 relative">
                                         <textarea :value="commentDraft" 
                                             @input="$emit('update:comment-draft', $event.target.value)"
                                             @keydown.enter.prevent="$emit('comment', event.id)"
                                             rows="1" placeholder="寫下你的訊息..." 
-                                            class="w-full bg-white border-2 border-slate-100 rounded-[24px] px-6 py-4 text-sm font-bold focus:border-slate-900 focus:ring-0 outline-none transition-all placeholder:text-slate-300 min-h-[56px]"></textarea>
+                                            class="w-full bg-slate-50 border-none rounded-2xl px-5 py-3 pr-12 text-sm font-bold focus:bg-slate-100 outline-none transition-all placeholder:text-slate-300 resize-none overflow-hidden min-h-[48px]"></textarea>
+                                        <button type="button" @click="$emit('comment', event.id)" :disabled="!commentDraft?.trim()" class="absolute right-2 top-1.5 p-2 text-blue-600 disabled:opacity-20 transition-all">
+                                            <app-icon name="send" class-name="w-5 h-5"></app-icon>
+                                        </button>
                                     </div>
-                                    <button type="button" @click="$emit('comment', event.id)" class="bg-slate-900 hover:bg-blue-600 text-white px-8 rounded-[24px] font-black uppercase tracking-widest text-xs shadow-xl transition-all">
-                                        發送
-                                    </button>
                                 </div>
                             </div>
 
                             {{-- Comments List --}}
-                            <div class="space-y-4" v-if="comments[event.id]?.length">
-                                <div v-for="c in comments[event.id]" :key="c.id" class="flex gap-3 group">
-                                    <div class="w-10 h-10 rounded-xl bg-slate-200 shrink-0 overflow-hidden border border-white shadow-sm">
-                                        <img v-if="c.user?.photo" :src="c.user?.photo" class="w-full h-full object-cover">
-                                        <app-icon v-else name="user" class-name="w-full h-full text-slate-400 p-2"></app-icon>
-                                    </div>
-                                    <div class="flex-1 bg-white rounded-3xl p-5 border border-slate-100 shadow-sm relative group-hover:border-blue-100 transition-colors">
-                                        <div class="flex items-center justify-between mb-1.5">
-                                            <span class="text-xs font-black text-slate-800 cursor-pointer hover:text-blue-600 transition-colors" @click="openProfile(c.user?.uid || c.user_id)">@{{ c.user?.name || '匿名球友' }}</span>
-                                            <div class="flex items-center gap-2">
-                                                <button v-if="currentUser && c.user?.uid === currentUser.uid" 
-                                                    @click="$emit('delete-comment', c.id, event.id)"
-                                                    class="p-1 text-slate-400 hover:text-red-500 transition-colors">
-                                                    <app-icon name="trash" class-name="w-3 h-3"></app-icon>
-                                                </button>
-                                                <span class="text-[9px] font-bold text-slate-400 uppercase">@{{ formatDate(c.at) }}</span>
-                                            </div>
+                            <div class="space-y-1" v-if="comments[event.id]?.length">
+                                <div v-for="(c, index) in comments[event.id]" :key="c.id" class="comment-threads">
+                                    <div class="avatar-container">
+                                        <div class="avatar cursor-pointer" @click="openProfile(c.user?.uid || c.user_id)">
+                                            <img v-if="c.user?.photo" :src="c.user?.photo" class="w-full h-full object-cover">
+                                            <app-icon v-else name="user" class-name="w-full h-full text-slate-400 p-2"></app-icon>
                                         </div>
-                                        <p class="text-sm font-bold text-slate-600 leading-relaxed">@{{ c.text }}</p>
+                                        <div v-if="index < comments[event.id].length - 1" class="thread-line"></div>
+                                    </div>
+                                    <div class="content-container">
+                                        <div class="header">
+                                            <div class="flex items-center gap-2">
+                                                <span class="username cursor-pointer hover:underline" @click="openProfile(c.user?.uid || c.user_id)">@{{ c.user?.name || '匿名球友' }}</span>
+                                                <span class="timestamp">@{{ formatDate(c.at) }}</span>
+                                            </div>
+                                            <button v-if="currentUser && c.user?.uid === currentUser.uid" 
+                                                @click="$emit('delete-comment', c.id, event.id)"
+                                                class="p-1 text-slate-300 hover:text-red-500 transition-colors">
+                                                <app-icon name="trash" class-name="w-3 h-3"></app-icon>
+                                            </button>
+                                        </div>
+                                        <div class="text">@{{ c.text }}</div>
                                     </div>
                                 </div>
                             </div>
-                            <div v-else-if="!event.loading" class="text-center py-10 bg-white/30 rounded-[32px] border-2 border-dashed border-slate-200">
+                            <div v-else-if="!event.loading" class="text-center py-10 bg-slate-50 rounded-[32px] border-2 border-dashed border-slate-100">
                                 <p class="text-slate-400 font-bold text-sm">目前尚無問答，快來當第一個發問的人吧！</p>
                             </div>
                         </div>

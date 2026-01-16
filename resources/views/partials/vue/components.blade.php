@@ -380,12 +380,21 @@ const PlayerDetailModal = {
         };
 
         const touchStartX = ref(0);
-        const handleTouchStart = (e) => { touchStartX.value = e.touches[0].clientX; };
+        const touchStartY = ref(0);
+        const handleTouchStart = (e) => { 
+            touchStartX.value = e.touches[0].clientX; 
+            touchStartY.value = e.touches[0].clientY;
+        };
         const handleTouchEnd = (e) => {
             const touchEndX = e.changedTouches[0].clientX;
-            const diff = touchStartX.value - touchEndX;
-            if (Math.abs(diff) > 50) {
-                if (diff > 0) navigate(1);
+            const touchEndY = e.changedTouches[0].clientY;
+            const diffX = touchStartX.value - touchEndX;
+            const diffY = touchStartY.value - touchEndY;
+            
+            // 只在明確的水平滑動時切換（水平位移 > 垂直位移，且水平位移 > 100px）
+            // 這樣用戶在垂直滾動留言時不會誤觸發換頁
+            if (Math.abs(diffX) > 100 && Math.abs(diffX) > Math.abs(diffY) * 2) {
+                if (diffX > 0) navigate(1);
                 else navigate(-1);
             }
         };

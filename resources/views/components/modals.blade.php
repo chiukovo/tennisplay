@@ -10,17 +10,28 @@
                     <app-icon name="x" class-name="w-5 h-5 group-hover:scale-110 transition-transform"></app-icon>
                 </button>
 
-                {{-- Page Counter --}}
-                <div v-if="players && players.length > 1" class="absolute top-4 left-4 md:top-8 md:left-1/2 md:-translate-x-1/2 z-[120] px-3 py-1.5 md:px-4 md:py-2 bg-slate-900/10 backdrop-blur-md rounded-full border border-slate-200/50 flex items-center gap-2 md:gap-3">
-                    <span class="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">球友</span>
-                    <span class="text-xs md:text-sm font-black italic text-slate-900">@{{ currentIndex + 1 }} / @{{ players.length }}</span>
+                {{-- Page Counter with Mobile Navigation --}}
+                <div v-if="players && players.length > 1" class="absolute top-4 left-4 md:top-8 md:left-1/2 md:-translate-x-1/2 z-[120] flex items-center gap-1 md:gap-0">
+                    {{-- Mobile Prev Button --}}
+                    <button @click.stop="navigate(-1)" class="sm:hidden w-8 h-8 bg-slate-900/10 backdrop-blur-md rounded-full border border-slate-200/50 flex items-center justify-center text-slate-600 active:scale-95 transition-all">
+                        <app-icon name="chevron-left" class-name="w-4 h-4"></app-icon>
+                    </button>
+                    {{-- Counter --}}
+                    <div class="px-3 py-1.5 md:px-4 md:py-2 bg-slate-900/10 backdrop-blur-md rounded-full border border-slate-200/50 flex items-center gap-2 md:gap-3">
+                        <span class="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">球友</span>
+                        <span class="text-xs md:text-sm font-black italic text-slate-900">@{{ currentIndex + 1 }} / @{{ players.length }}</span>
+                    </div>
+                    {{-- Mobile Next Button --}}
+                    <button @click.stop="navigate(1)" class="sm:hidden w-8 h-8 bg-slate-900/10 backdrop-blur-md rounded-full border border-slate-200/50 flex items-center justify-center text-slate-600 active:scale-95 transition-all">
+                        <app-icon name="chevron-right" class-name="w-4 h-4"></app-icon>
+                    </button>
                 </div>
 
-                {{-- Navigation Arrows (All Devices - Subtle Pulsing Style) --}}
-                <button v-if="hasPrev" @click.stop="navigate(-1)" class="absolute left-1 sm:left-4 md:left-6 top-1/2 -translate-y-1/2 z-[130] w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-white/40 backdrop-blur-sm hover:bg-white/80 text-slate-500 hover:text-blue-600 rounded-full shadow-md hover:shadow-lg transition-all border border-white/60 flex items-center justify-center animate-subtle-pulse">
+                {{-- Navigation Arrows (Desktop/Tablet Only - Hidden on Mobile to avoid interference with scrolling) --}}
+                <button v-if="hasPrev" @click.stop="navigate(-1)" class="hidden sm:flex absolute left-4 md:left-6 top-1/2 -translate-y-1/2 z-[130] w-10 h-10 md:w-12 md:h-12 bg-white/40 backdrop-blur-sm hover:bg-white/80 text-slate-500 hover:text-blue-600 rounded-full shadow-md hover:shadow-lg transition-all border border-white/60 items-center justify-center animate-subtle-pulse">
                     <app-icon name="chevron-left" class-name="w-5 h-5 md:w-6 md:h-6"></app-icon>
                 </button>
-                <button v-if="hasNext" @click.stop="navigate(1)" class="absolute right-1 sm:right-4 md:right-6 top-1/2 -translate-y-1/2 z-[130] w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-white/40 backdrop-blur-sm hover:bg-white/80 text-slate-500 hover:text-blue-600 rounded-full shadow-md hover:shadow-lg transition-all border border-white/60 flex items-center justify-center animate-subtle-pulse">
+                <button v-if="hasNext" @click.stop="navigate(1)" class="hidden sm:flex absolute right-4 md:right-6 top-1/2 -translate-y-1/2 z-[130] w-10 h-10 md:w-12 md:h-12 bg-white/40 backdrop-blur-sm hover:bg-white/80 text-slate-500 hover:text-blue-600 rounded-full shadow-md hover:shadow-lg transition-all border border-white/60 items-center justify-center animate-subtle-pulse">
                     <app-icon name="chevron-right" class-name="w-5 h-5 md:w-6 md:h-6"></app-icon>
                 </button>
 

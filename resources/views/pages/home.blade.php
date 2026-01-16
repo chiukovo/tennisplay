@@ -105,6 +105,41 @@
         </div>
     </section>
 
+    {{-- LINE Notify CTA --}}
+    <section class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-[32px] sm:rounded-[48px] p-6 sm:p-12 text-white relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-24 -mt-24"></div>
+        <div class="absolute bottom-0 left-0 w-56 h-56 bg-white/5 rounded-full blur-2xl -ml-20 -mb-20"></div>
+        <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div class="space-y-4">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-white/15 rounded-full border border-white/20 text-[10px] sm:text-xs font-black uppercase tracking-widest">
+                    <app-icon name="bell" class-name="w-4 h-4"></app-icon>
+                    通知優先
+                </div>
+                <h2 class="text-2xl sm:text-4xl font-black italic uppercase tracking-tighter leading-tight">
+                    加入好友<br><span class="text-white/90">立即收到通知</span>
+                </h2>
+                <p class="text-blue-100 font-bold text-sm sm:text-lg leading-relaxed max-w-xl">
+                    新活動建立、修改或取消，第一時間推播提醒。加入官方 LINE 好友，才不會錯過好場次。
+                </p>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <a href="https://line.me/R/ti/p/@344epiuj" target="_blank" class="inline-flex items-center justify-center gap-2 bg-white text-blue-700 px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs sm:text-sm shadow-xl hover:scale-105 transition-all">
+                        <app-icon name="line" fill="currentColor" stroke="none" class-name="w-4 h-4"></app-icon>
+                        立即加入
+                    </a>
+                    <button type="button" @click="showLinePromo = true" class="inline-flex items-center justify-center gap-2 bg-white/10 text-white px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs sm:text-sm border border-white/20 hover:bg-white/20 transition-all">
+                        <app-icon name="qr-code" class-name="w-4 h-4"></app-icon>
+                        顯示 QR
+                    </button>
+                </div>
+            </div>
+            <div class="flex items-center justify-center md:justify-end">
+                <div class="bg-white p-4 rounded-3xl shadow-2xl shadow-blue-900/30">
+                    <img src="/img/lineqrcode.png" alt="LINE QR" class="w-40 h-40 sm:w-48 sm:h-48">
+                </div>
+            </div>
+        </div>
+    </section>
+
     {{-- Featured Players --}}
     <section class="relative">
         <div class="flex items-center justify-between mb-12">

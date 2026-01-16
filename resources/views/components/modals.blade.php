@@ -3,7 +3,7 @@
 {{-- Player Detail Modal --}}
 <script type="text/x-template" id="player-detail-modal-template">
     <transition name="modal">
-        <div v-if="player" class="fixed inset-0 z-[200] flex items-center justify-center p-2 sm:p-10 premium-blur modal-content" @click.self="$emit('close')">
+        <div v-if="player" class="fixed inset-0 z-[200] flex items-center justify-center p-2 sm:p-10 premium-blur modal-content overflow-hidden" @click.self="$emit('close')">
             <div class="bg-white w-full max-w-5xl h-full sm:h-auto max-h-[96vh] sm:max-h-[92vh] rounded-[32px] sm:rounded-[48px] overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.5)] flex flex-col md:flex-row relative">
                 {{-- Close Button --}}
                 <button type="button" @click="$emit('close')" class="absolute top-4 right-4 sm:top-8 sm:right-8 z-[120] p-2.5 bg-white/90 backdrop-blur-md hover:bg-red-50 hover:text-red-500 rounded-full shadow-xl transition-all border border-slate-100 group">
@@ -39,7 +39,7 @@
                 {{-- Main Scrollable Area (Mobile) / Split Layout (Desktop) --}}
                 <div @touchstart.passive="handleTouchStart" 
                     @touchend="handleTouchEnd"
-                    class="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden no-scrollbar pb-24 md:pb-0 overscroll-contain">
+                    class="flex-1 flex flex-col md:flex-row overflow-y-auto overflow-x-hidden md:overflow-hidden no-scrollbar pb-24 md:pb-0 overscroll-contain">
                         {{-- Left: Card Display --}}
                         <div class="w-full md:w-1/2 p-6 sm:p-10 flex items-center justify-center bg-slate-50 border-r border-slate-100 shrink-0 relative min-h-[400px] sm:min-h-0">
                             <div class="w-full max-w-[260px] sm:max-w-[340px]">

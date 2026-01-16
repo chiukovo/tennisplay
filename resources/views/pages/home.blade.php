@@ -105,24 +105,6 @@
         </div>
     </section>
 
-    {{-- My Card Section (if logged in) --}}
-    <section v-if="isLoggedIn && currentUser?.player" class="mb-20 animate__animated animate__fadeIn">
-        <div class="flex items-center justify-between mb-8">
-            <h2 class="text-3xl font-black italic uppercase tracking-tighter flex items-center gap-4">
-                <div class="w-1.5 h-10 bg-blue-600 rounded-full"></div> 我的球友卡
-            </h2>
-            <button @click="navigateTo('profile', true, currentUser.uid)" class="text-blue-600 text-sm font-black uppercase tracking-widest border-b-2 border-blue-600/10 pb-1">查看主頁</button>
-        </div>
-        <div class="max-w-[320px] mx-auto relative group">
-            <player-card :player="currentUser.player" @click="navigateTo('profile', true, currentUser.uid)"></player-card>
-            <div class="absolute inset-0 bg-black/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-[24px] z-20">
-                <button @click="navigateTo('profile', true, currentUser.uid)" class="bg-white text-slate-900 px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-2xl hover:scale-105 transition-all">
-                    進入個人主頁
-                </button>
-            </div>
-        </div>
-    </section>
-
     {{-- Featured Players --}}
     <section class="relative">
         <div class="flex items-center justify-between mb-12">

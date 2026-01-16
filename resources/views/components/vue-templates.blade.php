@@ -79,7 +79,7 @@
                     <div class="h-[513px] relative overflow-hidden bg-slate-200 z-10 flex items-center justify-center">
                         {{-- Social Indicators (Top Right) --}}
                         <div v-if="!isPlaceholder" class="absolute top-[18px] right-[18px] z-20">
-                            <div class="bg-black/40 backdrop-blur-xl px-[16px] py-[9px] rounded-[14px] border border-white/20 flex items-center gap-[18px] shadow-2xl">
+                            <div class="bg-black/60 px-[16px] py-[9px] rounded-[14px] border border-white/20 flex items-center gap-[18px] shadow-lg">
                                 <div class="flex items-center gap-[7px] group/social">
                                     <app-icon name="heart" class-name="w-[22px] h-[22px] text-white group-hover/social:text-red-400 group-hover/social:scale-110 transition-all drop-shadow-sm"></app-icon>
                                     <span class="text-white font-black leading-none drop-shadow-sm text-[19px]">@{{ p?.likes_count || 0 }}</span>
@@ -108,7 +108,7 @@
                         <div class="absolute bottom-[18px] left-[22px] flex flex-col items-start gap-[7px] z-20">
                             <div class="relative group/badge">
                                 <div class="absolute inset-0 bg-white/10 blur-xl rounded-full"></div>
-                                <div :class="['relative flex items-center gap-[9px] p-[3px] rounded-[18px] shadow-[0_8px_20px_rgba(0,0,0,0.4)] border border-white/30 backdrop-blur-xl overflow-hidden', isPlaceholder ? 'bg-slate-400' : themeStyle.border]">
+                                <div :class="['relative flex items-center gap-[9px] p-[3px] rounded-[18px] shadow-lg border border-white/30 overflow-hidden', isPlaceholder ? 'bg-slate-400' : themeStyle.border]">
                                     <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-60"></div>
                                     <div class="bg-slate-900/95 px-[18px] py-[9px] rounded-[16px] flex items-center gap-[9px] relative z-10">
                                         <span class="font-bold text-white/40 uppercase tracking-widest leading-none text-[16px]">NTRP</span>
@@ -118,7 +118,7 @@
                             </div>
                             
                             {{-- Level Tag --}}
-                            <div class="bg-white/10 backdrop-blur-xl px-[18px] py-[9px] rounded-[11px] border border-white/20 max-w-[350px] shadow-xl">
+                            <div class="bg-black/60 px-[18px] py-[9px] rounded-[11px] border border-white/20 max-w-[350px] shadow-lg">
                                 <p class="font-bold text-white uppercase tracking-[0.15em] italic leading-none text-[25px]" style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">@{{ p ? getLevelTag(p.level) : '尚未認證' }}</p>
                             </div>
                         </div>
@@ -128,7 +128,7 @@
                     
                     {{-- Bottom Info Section --}}
                     <div class="h-[171px] px-[27px] py-[14px] flex flex-col justify-center relative overflow-hidden z-[80] rounded-b-[32px]">
-                        <div class="absolute inset-0 bg-white/10 backdrop-blur-2xl border-t border-white/20 rounded-b-[32px]"></div>
+                        <div class="absolute inset-0 bg-black/70 border-t border-white/20 rounded-b-[32px]"></div>
                         <div class="absolute top-0 left-0 right-0 h-px bg-white/20"></div>
                         <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 opacity-80 rounded-b-[32px]"></div>
                         

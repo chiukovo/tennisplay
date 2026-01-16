@@ -53,6 +53,10 @@ class SendBroadcastNotification extends Command
             return 1;
         }
 
+        // 將 \n 字串轉換為實際換行符號
+        $message = str_replace('\n', "\n", $message);
+        $title = str_replace('\n', "\n", $title);
+
         // 取得目標用戶
         $query = User::whereNotNull('line_user_id')->where('line_user_id', '!=', '');
         

@@ -414,13 +414,22 @@ const PlayerDetailModal = {
         };
 
         // Lock body scroll when modal is open to prevent outer scroll interference
+        watch(() => props.player, (newPlayer) => {
+            if (newPlayer) {
+                document.body.style.overflow = 'hidden';
+                document.body.style.touchAction = 'none';
+            } else {
+                document.body.style.overflow = '';
+                document.body.style.touchAction = '';
+            }
+        }, { immediate: true });
+
         onMounted(() => {
             window.addEventListener('keydown', handleKeydown);
-            document.body.style.overflow = 'hidden';
-            document.body.style.touchAction = 'none';
         });
         onUnmounted(() => {
             window.removeEventListener('keydown', handleKeydown);
+            // Ensure scroll is restored when component is destroyed
             document.body.style.overflow = '';
             document.body.style.touchAction = '';
         });

@@ -94,6 +94,136 @@ class EventNotificationService
                 $url
             );
 
+            $organizerName = $event->user ? ($event->user->name ?: '主辦人') : '主辦人';
+            $organizerAvatar = $event->user ? $event->user->line_picture_url : null;
+            $avatarUrl = $organizerAvatar ? (str_starts_with($organizerAvatar, 'http') ? $organizerAvatar : asset($organizerAvatar)) : null;
+
+            $flexContents = [
+                'type' => 'bubble',
+                'header' => [
+                    'type' => 'box',
+                    'layout' => 'vertical',
+                    'contents' => [
+                        [
+                            'type' => 'text',
+                            'text' => $titlePrefix,
+                            'weight' => 'bold',
+                            'color' => '#FFFFFF',
+                            'size' => 'md'
+                        ],
+                        [
+                            'type' => 'text',
+                            'text' => $event->title ?: '活動通知',
+                            'weight' => 'bold',
+                            'color' => '#FFFFFF',
+                            'size' => 'lg',
+                            'margin' => 'sm',
+                            'wrap' => true
+                        ]
+                    ],
+                    'backgroundColor' => '#2563EB',
+                    'paddingAll' => 'md'
+                ],
+                'body' => [
+                    'type' => 'box',
+                    'layout' => 'vertical',
+                    'spacing' => 'md',
+                    'contents' => array_values(array_filter([
+                        [
+                            'type' => 'box',
+                            'layout' => 'horizontal',
+                            'contents' => array_values(array_filter([
+                                $avatarUrl ? [
+                                    'type' => 'image',
+                                    'url' => $avatarUrl,
+                                    'size' => 'sm',
+                                    'aspectMode' => 'cover',
+                                    'aspectRatio' => '1:1',
+                                    'gravity' => 'center'
+                                ] : null,
+                                [
+                                    'type' => 'box',
+                                    'layout' => 'vertical',
+                                    'contents' => [
+                                        [
+                                            'type' => 'text',
+                                            'text' => '主辦人',
+                                            'size' => 'xs',
+                                            'color' => '#94A3B8'
+                                        ],
+                                        [
+                                            'type' => 'text',
+                                            'text' => $organizerName,
+                                            'size' => 'sm',
+                                            'weight' => 'bold',
+                                            'color' => '#0F172A'
+                                        ]
+                                    ],
+                                    'margin' => 'md'
+                                ]
+                            ]))
+                        ],
+                        [
+                            'type' => 'separator',
+                            'margin' => 'md'
+                        ],
+                        [
+                            'type' => 'box',
+                            'layout' => 'vertical',
+                            'spacing' => 'sm',
+                            'contents' => [
+                                [
+                                    'type' => 'text',
+                                    'text' => "📅 時間：" . ($dateText ?: '時間待確認'),
+                                    'size' => 'sm',
+                                    'wrap' => true,
+                                    'color' => '#334155'
+                                ],
+                                [
+                                    'type' => 'text',
+                                    'text' => "📍 地點：" . ($event->location ?: '地點待確認'),
+                                    'size' => 'sm',
+                                    'wrap' => true,
+                                    'color' => '#334155'
+                                ],
+                                [
+                                    'type' => 'text',
+                                    'text' => "💰 費用：$" . (int) $event->fee . "/人",
+                                    'size' => 'sm',
+                                    'wrap' => true,
+                                    'color' => '#334155'
+                                ],
+                                [
+                                    'type' => 'text',
+                                    'text' => "🏟️ 地區：" . ($event->region ?: '未設定'),
+                                    'size' => 'sm',
+                                    'wrap' => true,
+                                    'color' => '#334155'
+                                ]
+                            ]
+                        ]
+                    ]))
+                ],
+                'footer' => [
+                    'type' => 'box',
+                    'layout' => 'vertical',
+                    'contents' => [
+                        [
+                            'type' => 'button',
+                            'action' => [
+                                'type' => 'uri',
+                                'label' => '立即查看活動',
+                                'uri' => $url
+                            ],
+                            'style' => 'primary',
+                            'color' => '#2563EB',
+                            'height' => 'sm'
+                        ]
+                    ],
+                    'paddingAll' => 'md'
+                ]
+            ];
+
             $recipientIds = $targetUserId
                 ? collect([$targetUserId])
                 : $this->getEventNotifyRecipientIds($event, $type);
@@ -103,7 +233,7 @@ class EventNotificationService
 
             User::whereIn('id', $recipientIds)
                 ->whereNotNull('line_user_id')
-                ->chunk(200, function ($users) use ($lineService, $text) {
+                ->chunk(200, function ($users) use ($lineService, $text, $flexContents) {
                     foreach ($users as $u) {
                         $settings = $u->settings ?? [];
                         $wantsLine = $settings['notify_line'] ?? true;
@@ -111,7 +241,7 @@ class EventNotificationService
                         if (!$wantsLine || !$wantsEvent) {
                             continue;
                         }
-                        $lineService->sendTextMessage($u->line_user_id, $text);
+                        $lineService->sendFlexMessage($u->line_user_id, $text, $flexContents);
                     }
                 });
         } catch (\Throwable $e) {

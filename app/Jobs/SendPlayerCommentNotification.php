@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Player;
+use App\Models\PlayerComment;
 use App\Models\User;
 use App\Services\LineNotifyService;
 use Illuminate\Bus\Queueable;
@@ -10,6 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class SendPlayerCommentNotification implements ShouldQueue
@@ -19,11 +21,13 @@ class SendPlayerCommentNotification implements ShouldQueue
     public $playerId;
     public $actorId;
     public $content;
+    public $commentId;
 
-    public function __construct(int $playerId, int $actorId, string $content)
+    public function __construct(int $playerId, int $actorId, int $commentId, string $content)
     {
         $this->playerId = $playerId;
         $this->actorId = $actorId;
+        $this->commentId = $commentId;
         $this->content = $content;
     }
 
@@ -37,13 +41,20 @@ class SendPlayerCommentNotification implements ShouldQueue
         }
 
         $owner = $player->user;
-        if (!$owner->line_user_id || ($actor && $owner->id === $actor->id)) {
-            return;
+        $recipientIds = PlayerComment::where('player_id', $player->id)
+            ->distinct()
+            ->pluck('user_id')
+            ->toArray();
+
+        if ($owner) {
+            $recipientIds[] = $owner->id;
         }
 
-        $settings = $owner->settings ?? [];
-        $wantsLine = $settings['notify_line'] ?? true;
-        if (!$wantsLine) {
+        $recipientIds = array_values(array_unique(array_filter($recipientIds, function ($id) {
+            return (int)$id !== (int)$this->actorId;
+        })));
+
+        if (empty($recipientIds)) {
             return;
         }
 
@@ -56,7 +67,7 @@ class SendPlayerCommentNotification implements ShouldQueue
             $player->name ?: '球友卡',
             $senderName,
             Str::limit($this->content, 80),
-            url('/profile/' . $owner->uid)
+            url('/profile/' . ($owner->uid ?? $owner->id))
         );
 
         $flexContents = [
@@ -146,7 +157,7 @@ class SendPlayerCommentNotification implements ShouldQueue
                         'action' => [
                             'type' => 'uri',
                             'label' => '查看主頁',
-                            'uri' => url('/profile/' . $owner->uid)
+                            'uri' => url('/profile/' . ($owner->uid ?? $owner->id))
                         ],
                         'style' => 'primary',
                         'color' => '#2563EB',
@@ -157,6 +168,24 @@ class SendPlayerCommentNotification implements ShouldQueue
             ]
         ];
 
-        (new LineNotifyService())->sendFlexMessage($owner->line_user_id, $text, $flexContents);
+        $lineService = new LineNotifyService();
+        foreach ($recipientIds as $userId) {
+            $recipient = User::find($userId);
+            if (!$recipient || !$recipient->line_user_id) {
+                continue;
+            }
+            $settings = $recipient->settings ?? [];
+            $wantsLine = $settings['notify_line'] ?? true;
+            if (!$wantsLine) {
+                continue;
+            }
+
+            $cacheKey = 'player_comment_notify_' . $this->commentId . '_' . $recipient->id;
+            if (!Cache::add($cacheKey, true, now()->addDay())) {
+                continue;
+            }
+
+            $lineService->sendFlexMessage($recipient->line_user_id, $text, $flexContents);
+        }
     }
 }

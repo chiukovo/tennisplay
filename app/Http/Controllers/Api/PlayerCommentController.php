@@ -64,12 +64,12 @@ class PlayerCommentController extends Controller
             return response()->json(['message' => '提交太快，請稍候再試'], 429);
         }
 
-        $comment = PlayerComment::create([
+            $comment = PlayerComment::create([
             'player_id' => $player->id,
             'user_id' => $actor->id,
             'content' => $request->content,
         ]);
-        SendPlayerCommentNotification::dispatch($player->id, $actor->id, $request->content);
+            SendPlayerCommentNotification::dispatch($player->id, $actor->id, $comment->id, $request->content);
 
         return response()->json([
             'message' => '留言成功',

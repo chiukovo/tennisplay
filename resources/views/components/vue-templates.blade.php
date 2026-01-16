@@ -69,11 +69,11 @@
             {{-- Shine Effect Layer --}}
             <div v-if="['gold', 'platinum', 'holographic'].includes(p?.theme)" class="card-shine"></div>
 
-            <div :class="['group capture-target relative overflow-hidden rounded-[28px] w-full h-full z-10', 
+            <div :class="['group capture-target relative overflow-hidden rounded-[32px] w-full h-full z-10', 
                          isPlaceholder ? 'opacity-30 grayscale hover:opacity-100 hover:grayscale-0' : '',
                          isCapturing ? 'is-capturing' : '']">
                 
-                <div :class="['relative h-full rounded-[28px] overflow-hidden flex flex-col border transition-colors shadow-inner', (isPlaceholder && !p?.theme) ? 'bg-slate-50 border-white/20' : `${themeStyle.bg} border-white/10`]">
+                <div :class="['relative h-full rounded-[32px] overflow-hidden flex flex-col border transition-colors shadow-inner', (isPlaceholder && !p?.theme) ? 'bg-slate-50 border-white/20' : `${themeStyle.bg} border-white/10`]">
                     
                     {{-- Main Image Area --}}
                     <div class="h-[513px] relative overflow-hidden bg-slate-200 z-10 flex items-center justify-center">
@@ -126,9 +126,9 @@
                     <signature-pad :active="isSigning" @save="sig => $emit('update-signature', sig)" @close="$emit('close-signing')"></signature-pad>
                     
                     {{-- Bottom Info Section --}}
-                    <div class="h-[171px] px-[27px] py-[14px] flex flex-col justify-center relative overflow-hidden z-[80] rounded-b-[28px]">
-                        <div class="absolute inset-0 bg-white/10 backdrop-blur-2xl border-t border-white/20"></div>
-                        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 opacity-80"></div>
+                    <div class="h-[171px] px-[27px] py-[14px] flex flex-col justify-center relative overflow-hidden z-[80] rounded-b-[32px]">
+                        <div class="absolute inset-0 bg-white/10 backdrop-blur-2xl border-t border-white/20 rounded-b-[32px]"></div>
+                        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 opacity-80 rounded-b-[32px]"></div>
                         
                         <div class="relative z-10">
                             <h3 :class="['font-black uppercase tracking-tighter italic leading-[1.0] whitespace-nowrap pb-[5px] text-left drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] overflow-hidden text-ellipsis', isPlaceholder ? 'opacity-50 text-white' : themeStyle.name]" 

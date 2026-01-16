@@ -12,7 +12,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <h2 class="text-3xl sm:text-5xl font-black italic uppercase tracking-tighter leading-tight">球友列表</h2>
-                <p class="text-slate-400 font-bold text-xs sm:text-base uppercase tracking-[0.2em] mt-1">Find your matching LoveTennis</p>
+                <p class="text-slate-400 font-bold text-xs sm:text-base uppercase tracking-[0.2em] mt-1">Find your matching</p>
             </div>
             <div class="text-right">
                 <div class="text-2xl font-black text-blue-600">@{{ playersPagination.total }}</div>

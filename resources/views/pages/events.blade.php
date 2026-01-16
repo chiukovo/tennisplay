@@ -10,7 +10,7 @@
     <div class="flex flex-nowrap items-center justify-between gap-4 mb-8">
         <div>
             <h2 class="text-3xl sm:text-5xl font-black italic uppercase tracking-tighter leading-tight text-slate-900">開團揪球</h2>
-            <p class="text-slate-400 font-bold text-xs sm:text-base uppercase tracking-[0.2em] mt-1">Join or Create Tennis Events</p>
+            <p class="text-slate-400 font-bold text-xs sm:text-base uppercase tracking-[0.2em] mt-1">Join Tennis Events</p>
         </div>
         <div class="flex items-center gap-6">
             <button v-if="isLoggedIn && hasPlayerCard" @click="navigateTo('create-event')" class="bg-blue-600 text-white px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-2xl hover:-translate-y-1 hover:bg-blue-700 transition-all flex items-center gap-2 whitespace-nowrap shrink-0">

@@ -261,6 +261,8 @@
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.05);
         isolation: isolate;
+        /* 強制修正圓角裁切問題，特別是在有 transform scale 時 */
+        -webkit-mask-image: -webkit-radial-gradient(white, black);
     }
     .card-holo::before {
         content: "";
@@ -270,6 +272,7 @@
         opacity: 0.03;
         pointer-events: none;
         z-index: 20;
+        border-radius: inherit;
     }
 
     /* Theme Specific Card Styles */
@@ -358,6 +361,7 @@
         z-index: 12;
         pointer-events: none;
         animation: holo-shift 15s infinite linear;
+        border-radius: inherit;
     }
 
     .theme-holographic { --color1: #efb2fb; --color2: #acc6f8; }

@@ -41,8 +41,8 @@
                 {{-- Avatar with Unread Dot --}}
                 <div class="relative shrink-0">
                     <div class="w-11 h-11 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-500 text-base sm:text-xl font-black uppercase shadow-inner border-2 border-white overflow-hidden">
-                        <img v-if="m.sender?.uid === currentUser.uid ? (m.receiver?.player?.photo_url || m.receiver?.line_picture_url) : (m.sender?.player?.photo_url || m.sender?.line_picture_url)" 
-                             :src="m.sender?.uid === currentUser.uid ? (m.receiver?.player?.photo_url || m.receiver?.line_picture_url) : (m.sender?.player?.photo_url || m.sender?.line_picture_url)" 
+                            <img v-if="m.sender?.uid === currentUser.uid ? m.receiver?.line_picture_url : m.sender?.line_picture_url" 
+                                :src="m.sender?.uid === currentUser.uid ? m.receiver?.line_picture_url : m.sender?.line_picture_url" 
                              class="w-full h-full object-cover">
                         <span v-else>@{{ (m.sender?.uid === currentUser.uid ? m.receiver?.name : m.sender?.name)?.[0] || '?' }}</span>
                     </div>

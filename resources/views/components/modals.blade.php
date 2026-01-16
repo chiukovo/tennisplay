@@ -169,7 +169,7 @@
                                             <div v-for="(c, index) in comments" :key="c.id" class="comment-threads">
                                                 <div class="avatar-container">
                                                     <div class="avatar cursor-pointer" @click="$emit('open-profile', c.user.uid)">
-                                                        <img v-if="c.user.photo" :src="c.user.photo" class="w-full h-full object-cover">
+                                                        <img v-if="c.user.line_picture_url" :src="c.user.line_picture_url" class="w-full h-full object-cover">
                                                         <app-icon v-else name="user" class-name="w-full h-full text-slate-200 p-2"></app-icon>
                                                     </div>
                                                     <div v-if="index < comments.length - 1" class="thread-line"></div>
@@ -471,7 +471,7 @@
                             <app-icon name="user" class-name="w-6 h-6 text-slate-500"></app-icon>
                         </div>
                         <div>
-                            <h3 class="font-black italic uppercase text-xl italic tracking-tight">約打邀約信</h3>
+                            <h3 class="font-black italic uppercase text-xl tracking-tight">約打邀約信</h3>
                             <p class="text-[9px] font-bold text-blue-400 tracking-widest uppercase">To: @{{player.name}}</p>
                         </div>
                     </div>

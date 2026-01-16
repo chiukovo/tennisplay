@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Event;
+use App\Jobs\SendEventNotification;
 use App\Models\EventParticipant;
 use App\Models\Player;
 use Illuminate\Http\Request;
@@ -158,6 +159,18 @@ class EventController extends Controller
             'level_min' => 'nullable|string',
             'level_max' => 'nullable|string',
             'notes' => 'nullable|string|max:500',
+        ], [
+            'title.required' => '請輸入活動主題',
+            'event_date.required' => '請選擇開始時間',
+            'event_date.after' => '開始時間必須是未來的時間',
+            'end_date.after' => '結束時間必須晚於開始時間',
+            'location.required' => '請輸入球場名稱',
+            'fee.required' => '請輸入每人費用',
+            'fee.integer' => '每人費用格式不正確',
+            'max_participants.required' => '請選擇招募人數',
+            'match_type.required' => '請選擇賽制類型',
+            'region.required' => '請選擇活動地區',
+            'notes.max' => '備註文字過長，請縮短內容',
         ]);
 
         $eventData = array_merge(
@@ -179,6 +192,8 @@ class EventController extends Controller
             'status' => 'confirmed',
             'registered_at' => now(),
         ]);
+
+        SendEventNotification::dispatch($event->id, 'created');
 
         return response()->json([
             'success' => true,
@@ -214,9 +229,16 @@ class EventController extends Controller
             'level_max' => 'nullable|string',
             'notes' => 'nullable|string|max:500',
             'status' => 'sometimes|in:open,closed,cancelled',
+        ], [
+            'event_date.after' => '開始時間必須是未來的時間',
+            'end_date.after' => '結束時間必須晚於開始時間',
+            'fee.integer' => '每人費用格式不正確',
+            'notes.max' => '備註文字過長，請縮短內容',
         ]);
 
         $event->update($validated);
+
+        SendEventNotification::dispatch($event->id, 'updated');
 
         return response()->json([
             'success' => true,
@@ -238,6 +260,8 @@ class EventController extends Controller
         }
 
         $event->update(['status' => 'cancelled']);
+
+        SendEventNotification::dispatch($event->id, 'cancelled');
 
         return response()->json([
             'success' => true,
@@ -437,4 +461,5 @@ class EventController extends Controller
             'data' => $shareData,
         ]);
     }
+
 }

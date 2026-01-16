@@ -140,7 +140,8 @@ const useAuth = (showToast, navigateTo, initSettings, isLoggedIn, currentUser, s
             const response = await api.put('/user/settings', {
                 settings: { 
                     default_region: settingsForm.default_region,
-                    notify_line: settingsForm.notify_line
+                    notify_line: settingsForm.notify_line,
+                    notify_event: settingsForm.notify_event
                 }
             });
             if (response.data.success) {

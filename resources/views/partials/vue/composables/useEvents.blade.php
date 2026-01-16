@@ -33,15 +33,37 @@ const useEvents = (isLoggedIn, showToast, navigateTo, formatLocalDateTime, event
         } catch (error) { events.value = []; } finally { eventsLoading.value = false; }
     };
 
+    const validateEventTimes = () => {
+        if (!eventForm.event_date) {
+            showToast('請選擇開始時間', 'error');
+            return false;
+        }
+        const eventDate = new Date(eventForm.event_date);
+        if (Number.isNaN(eventDate.getTime())) {
+            showToast('請選擇正確的日期時間', 'error');
+            return false;
+        }
+        if (eventDate <= new Date()) {
+            showToast('開始時間必須是未來的時間', 'error');
+            return false;
+        }
+        if (eventForm.end_date) {
+            const endDate = new Date(eventForm.end_date);
+            if (Number.isNaN(endDate.getTime())) {
+                showToast('請選擇正確的結束時間', 'error');
+                return false;
+            }
+            if (endDate <= eventDate) {
+                showToast('結束時間必須晚於開始時間', 'error');
+                return false;
+            }
+        }
+        return true;
+    };
+
     const createEvent = async () => {
         if (!isLoggedIn.value) { showToast('請先登入', 'error'); return; }
-        
-        // 前端防呆：驗證日期必須是未來時間
-        const eventDate = new Date(eventForm.event_date);
-        if (eventDate <= new Date()) {
-            showToast('活動日期必須是未來的時間', 'error');
-            return;
-        }
+        if (!validateEventTimes()) return;
         
         eventSubmitting.value = true;
         try {
@@ -51,20 +73,16 @@ const useEvents = (isLoggedIn, showToast, navigateTo, formatLocalDateTime, event
             navigateTo('events');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } catch (error) {
-            const msg = error.response?.data?.error || error.response?.data?.message || '建立失敗';
+            const apiErrors = error.response?.data?.errors;
+            const firstError = apiErrors ? Object.values(apiErrors).flat()[0] : null;
+            const msg = firstError || error.response?.data?.error || error.response?.data?.message || '建立失敗';
             showToast(msg, 'error');
         } finally { eventSubmitting.value = false; }
     };
 
     const updateEvent = async (id) => {
         if (!isLoggedIn.value) { showToast('請先登入', 'error'); return; }
-        
-        // 前端防呆：驗證日期必須是未來時間
-        const eventDate = new Date(eventForm.event_date);
-        if (eventDate <= new Date()) {
-            showToast('活動日期必須是未來的時間', 'error');
-            return;
-        }
+        if (!validateEventTimes()) return;
         
         eventSubmitting.value = true;
         try {
@@ -74,7 +92,9 @@ const useEvents = (isLoggedIn, showToast, navigateTo, formatLocalDateTime, event
             navigateTo('events');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } catch (error) {
-            const msg = error.response?.data?.error || error.response?.data?.message || '更新失敗';
+            const apiErrors = error.response?.data?.errors;
+            const firstError = apiErrors ? Object.values(apiErrors).flat()[0] : null;
+            const msg = firstError || error.response?.data?.error || error.response?.data?.message || '更新失敗';
             showToast(msg, 'error');
         } finally { eventSubmitting.value = false; }
     };

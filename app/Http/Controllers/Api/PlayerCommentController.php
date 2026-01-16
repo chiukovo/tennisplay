@@ -30,7 +30,7 @@ class PlayerCommentController extends Controller
                     'user_id' => $comment->user_id,
                     'user' => [
                         'name' => ($p = $comment->user->player) ? $p->name : $comment->user->name,
-                        'photo' => $p ? $p->photo_url : null,
+                        'line_picture_url' => $comment->user->line_picture_url,
                         'uid' => $comment->user->uid,
                     ],
                 ];
@@ -78,7 +78,7 @@ class PlayerCommentController extends Controller
                 'user_id' => $comment->user_id,
                 'user' => [
                     'name' => ($actor && $actor->player) ? $actor->player->name : $actor->name,
-                    'photo' => ($actor && $actor->player) ? $actor->player->photo_url : null,
+                    'line_picture_url' => $actor->line_picture_url,
                     'uid' => $actor->uid,
                 ],
             ],

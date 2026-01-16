@@ -13,12 +13,14 @@ class UserController extends Controller
      */
     public function updateSettings(Request $request)
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
         
         $validated = $request->validate([
             'settings' => 'required|array',
             'settings.default_region' => 'nullable|string',
             'settings.notify_line' => 'nullable|boolean',
+            'settings.notify_event' => 'nullable|boolean',
         ]);
 
         $settings = $user->settings ?? [];

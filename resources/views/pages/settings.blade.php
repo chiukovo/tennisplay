@@ -69,6 +69,26 @@
                 <p class="text-sm text-slate-500 font-medium">
                     開啟後，當有人發送邀約信給您時，系統會立即透過 Line 官方帳號通知。
                 </p>
+                <div class="pt-4 border-t border-slate-100">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
+                                <app-icon name="calendar" class-name="w-5 h-5"></app-icon>
+                            </div>
+                            <div>
+                                <h4 class="font-black text-slate-900 leading-none">揪團通知</h4>
+                                <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Event Updates</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" v-model="settingsForm.notify_event" class="sr-only peer">
+                            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                    <p class="text-sm text-slate-500 font-medium mt-2">
+                        開啟後，當有新活動建立或活動被修改/取消時，系統會通知您。
+                    </p>
+                </div>
                 {{-- Add Friend Alert --}}
                 <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 flex gap-4">
                     <img src="/img/lineqrcode.png" alt="QR" class="w-16 h-16 rounded-lg border border-white shadow-sm shrink-0">

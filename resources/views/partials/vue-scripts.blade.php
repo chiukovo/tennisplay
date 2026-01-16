@@ -70,7 +70,8 @@ createApp({
         const showQuickEditModal = ref(false);
         const settingsForm = reactive({ 
             default_region: '全部',
-            notify_line: true 
+            notify_line: true,
+            notify_event: true
         });
         const form = reactive({
             id: null, name: '', region: '台中市', level: '3.5', handed: '右手', backhand: '雙反', gender: '男',
@@ -94,6 +95,7 @@ createApp({
                 const s = currentUser.value.settings;
                 settingsForm.default_region = s.default_region || '全部';
                 settingsForm.notify_line = s.notify_line !== undefined ? s.notify_line : true;
+                settingsForm.notify_event = s.notify_event !== undefined ? s.notify_event : true;
             }
         };
 
@@ -121,8 +123,10 @@ createApp({
 
         const resetEventForm = () => {
             const now = new Date();
-            const start = formatLocalDateTime(now);
-            const end = formatLocalDateTime(new Date(now.getTime() + 2 * 60 * 60 * 1000));
+            const startTime = new Date(now.getTime() + 60 * 60 * 1000);
+            const endTime = new Date(now.getTime() + 3 * 60 * 60 * 1000);
+            const start = formatLocalDateTime(startTime);
+            const end = formatLocalDateTime(endTime);
             const defRegion = (settingsForm.default_region && settingsForm.default_region !== '全部') ? settingsForm.default_region : '';
             
             Object.assign(eventForm, {

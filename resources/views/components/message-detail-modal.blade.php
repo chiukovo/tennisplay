@@ -11,8 +11,8 @@
                         </button>
                         <div @click="goToProfile" class="flex items-center gap-2 sm:gap-4 cursor-pointer hover:opacity-80 transition-opacity">
                             <div class="w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-sm sm:text-lg font-black uppercase shadow-lg border-2 border-white/20 overflow-hidden">
-                                <img v-if="targetUser?.player?.photo_url || targetUser?.line_picture_url" 
-                                     :src="targetUser?.player?.photo_url || targetUser?.line_picture_url" 
+                                  <img v-if="targetUser?.line_picture_url" 
+                                      :src="targetUser?.line_picture_url" 
                                      class="w-full h-full object-cover">
                                 <span v-else>@{{ targetUser?.name?.[0] || '?' }}</span>
                             </div>

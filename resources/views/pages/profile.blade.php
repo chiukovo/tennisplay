@@ -352,7 +352,7 @@
                     <div v-if="profileComments.length > 0" class="space-y-6">
                         <div v-for="c in profileComments" :key="c.id" class="flex gap-4 group">
                             <div class="w-12 h-12 rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 shrink-0 cursor-pointer" @click="openProfile(c.user.uid)">
-                                <img v-if="c.user.photo" :src="c.user.photo" class="w-full h-full object-cover">
+                                <img v-if="c.user.line_picture_url" :src="c.user.line_picture_url" class="w-full h-full object-cover">
                                 <app-icon v-else name="user" class-name="w-full h-full text-slate-200 p-2"></app-icon>
                             </div>
                             <div class="flex-1 space-y-1">

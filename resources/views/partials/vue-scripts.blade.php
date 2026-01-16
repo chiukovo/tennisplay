@@ -68,6 +68,8 @@ createApp({
         const showLinePromo = ref(false);
         const showPreview = ref(false);
         const showQuickEditModal = ref(false);
+        const navRefreshing = ref(false);
+        const navRefreshView = ref('');
         const settingsForm = reactive({ 
             default_region: '全部',
             notify_line: true,
@@ -119,6 +121,18 @@ createApp({
                 intro: '', fee: '免費 (交流為主)', photo: null, signature: null, theme: 'standard', merged_photo: null,
                 photoX: 0, photoY: 0, photoScale: 1, sigX: 50, sigY: 50, sigScale: 1, sigRotate: 0, sigWidth: 100, sigHeight: 100
             });
+        };
+
+        const triggerNavRefresh = (viewName, action) => {
+            navRefreshView.value = viewName;
+            navRefreshing.value = true;
+            return Promise.resolve()
+                .then(() => action && action())
+                .finally(() => {
+                    setTimeout(() => {
+                        if (navRefreshView.value === viewName) navRefreshing.value = false;
+                    }, 350);
+                });
         };
 
         const resetEventForm = () => {
@@ -194,6 +208,27 @@ createApp({
 
         // Wrapped navigateTo that handles profile loading
         const navigateToWithProfile = (viewName, shouldReset = true, uid = null) => {
+            // 同一頁重複點擊時，直接重新載入資料
+            if (viewName === view.value) {
+                if (viewName === 'home' || viewName === 'list') {
+                    triggerNavRefresh(viewName, () => loadPlayers({ search: searchQuery.value, region: selectedRegion.value, page: currentPage.value }));
+                } else if (viewName === 'events' || viewName === 'create-event') {
+                    triggerNavRefresh('events', () => loadEvents({
+                        search: eventSearchQuery.value,
+                        region: eventRegionFilter.value,
+                        match_type: eventFilter.value,
+                        start_date: eventStartDate.value,
+                        end_date: eventEndDate.value,
+                        page: eventCurrentPage.value
+                    }));
+                } else if (viewName === 'messages') {
+                    triggerNavRefresh(viewName, () => loadMessages());
+                } else if (viewName === 'profile') {
+                    const targetUid = uid || profileData.value?.user?.uid || profileData.value?.user?.id;
+                    if (targetUid) triggerNavRefresh(viewName, () => loadProfile(targetUid, loadProfileEvents, false));
+                }
+                return;
+            }
             // Unauthenticated checks for restricted views
             if (!isLoggedIn.value) {
                 if (viewName === 'create') {
@@ -995,7 +1030,7 @@ createApp({
             searchQuery, searchDraft, selectedRegion, regionDraft, selectedGender, genderDraft, selectedLevelMin, levelMinDraft, selectedLevelMax, levelMaxDraft, selectedHanded, handedDraft, selectedBackhand, backhandDraft, showAdvancedFilters, currentPage, perPage, matchModal, detailPlayer, featuredPlayersContainer,
             eventFilter, eventRegionFilter, eventSearchQuery, eventSearchDraft, eventStartDate, eventEndDate, eventDateShortcut, eventCurrentPage, eventPerPage, showEventDetail, activeEvent, eventComments, eventCommentDraft,
             showNtrpGuide, showPrivacy, showLinePromo, showMessageDetail, selectedChatUser, isLoading, isAuthLoading,
-            showPreview, showQuickEditModal, features, cardThemes,
+            showPreview, showQuickEditModal, navRefreshing, navRefreshView, features, cardThemes,
             shareModal, isSendingMatch, scrollFeaturedPlayers,
             settingsForm, isSavingSettings, toasts, confirmDialog, dragInfo,
             profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,

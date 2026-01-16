@@ -102,10 +102,16 @@
                             <div v-if="!profileData.status?.is_me" class="flex flex-nowrap gap-2 sm:gap-3">
                                 <button @click="toggleFollow" 
                                         :class="profileData.status.is_following ? 'bg-slate-100 text-slate-600' : 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'"
-                                        class="px-6 sm:px-8 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] sm:text-xs transition-all active:scale-95 whitespace-nowrap">
+                                        class="px-4 sm:px-8 py-3 sm:py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] sm:text-xs transition-all active:scale-95 whitespace-nowrap">
                                     @{{ profileData.status.is_following ? '已追蹤' : '追蹤球友' }}
                                 </button>
-                                <button @click="openMessage({from_user_id: profileData.user.id, sender: profileData.user})" class="px-5 sm:px-6 py-3.5 bg-white border border-slate-200 text-slate-700 rounded-2xl font-black uppercase tracking-widest text-[10px] sm:text-xs hover:bg-slate-50 transition-all flex items-center gap-2 shrink-0">
+                                <button v-if="profileData.user?.player" @click="toggleLike"
+                                        :class="profileData.status.is_liked ? 'bg-rose-50 text-rose-500' : 'bg-white border border-slate-200 text-slate-600 hover:text-rose-500'"
+                                        class="px-4 sm:px-6 py-3 sm:py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] sm:text-xs transition-all flex items-center gap-2 shrink-0">
+                                    <app-icon name="heart" class-name="w-4 h-4"></app-icon>
+                                    <span>@{{ profileData.status.is_liked ? '已按讚' : '按讚' }}</span>
+                                </button>
+                                <button @click="openMessage({from_user_id: profileData.user.id, sender: profileData.user})" class="px-4 sm:px-6 py-3 sm:py-3.5 bg-white border border-slate-200 text-slate-700 rounded-2xl font-black uppercase tracking-widest text-[10px] sm:text-xs hover:bg-slate-50 transition-all flex items-center gap-2 shrink-0">
                                     <app-icon name="mail" class-name="w-4 h-4"></app-icon>
                                 </button>
                                 <button v-if="profileData.user?.player" 
@@ -125,6 +131,24 @@
                                 <div class="flex flex-col">
                                     <div class="text-lg sm:text-xl font-black text-slate-950 tracking-tight leading-none whitespace-nowrap">@{{ profileData.stats.following_count }}</div>
                                     <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5 whitespace-nowrap">追蹤</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2.5 shrink-0 group">
+                                <div class="w-9 h-9 sm:w-11 sm:h-11 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-600 transition-all duration-300">
+                                    <app-icon name="users" class-name="w-4 h-4 sm:w-5 sm:h-5"></app-icon>
+                                </div>
+                                <div class="flex flex-col">
+                                    <div class="text-lg sm:text-xl font-black text-slate-950 tracking-tight leading-none whitespace-nowrap">@{{ profileData.stats.followers_count }}</div>
+                                    <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5 whitespace-nowrap">追蹤者</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2.5 shrink-0 group">
+                                <div class="w-9 h-9 sm:w-11 sm:h-11 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-rose-50 group-hover:text-rose-500 transition-all duration-300">
+                                    <app-icon name="heart" class-name="w-4 h-4 sm:w-5 sm:h-5"></app-icon>
+                                </div>
+                                <div class="flex flex-col">
+                                    <div class="text-lg sm:text-xl font-black text-slate-950 tracking-tight leading-none whitespace-nowrap">@{{ profileData.stats.likes_count }}</div>
+                                    <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5 whitespace-nowrap">按讚</div>
                                 </div>
                             </div>
                         </div>
@@ -327,54 +351,65 @@
 
             <!-- Comments Tab -->
             <div v-if="profileTab === 'comments'" class="space-y-6 animate__animated animate__fadeIn">
-                <div class="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm ring-1 ring-slate-100">
-                    <div class="mb-8 flex items-center justify-between">
-                        <h3 class="text-xl font-black italic uppercase tracking-tighter text-slate-900">球友留言板 / Comments</h3>
-                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-3 py-1.5 rounded-full">@{{ profileComments.length }} 則留言</span>
+                <div class="bg-white p-6 sm:p-7 rounded-[32px] border border-slate-100 shadow-sm">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-2">
+                            <div class="w-1 h-3 bg-blue-600 rounded-full"></div>
+                            <span class="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 italic">球友留言板 / Comments</span>
+                        </div>
+                        <span class="text-[9px] font-black text-slate-300">@{{ profileComments.length }} COMMENTS</span>
                     </div>
 
                     <!-- Comment Input -->
-                    <div class="flex gap-4 mb-10">
-                        <div class="flex-1 relative group">
-                            <textarea v-model="playerCommentDraft" 
-                                rows="2" 
-                                placeholder="對這位球友有什麼想說的嗎..." 
-                                class="w-full bg-slate-50 border-2 border-transparent rounded-[24px] px-6 py-4 text-sm font-bold focus:bg-white focus:border-blue-500 outline-none transition-all placeholder:text-slate-300 resize-none"></textarea>
-                            <button @click="submitPlayerComment(profileData.user.player.id)" 
-                                :disabled="!playerCommentDraft.trim()"
-                                class="absolute right-3 bottom-3 w-10 h-10 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:hover:scale-100">
-                                <app-icon name="send" class-name="w-5 h-5"></app-icon>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Comment List -->
-                    <div v-if="profileComments.length > 0" class="space-y-6">
-                        <div v-for="c in profileComments" :key="c.id" class="flex gap-4 group">
-                            <div class="w-12 h-12 rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 shrink-0 cursor-pointer" @click="openProfile(c.user.uid)">
-                                <img v-if="c.user.line_picture_url" :src="c.user.line_picture_url" class="w-full h-full object-cover">
-                                <app-icon v-else name="user" class-name="w-full h-full text-slate-200 p-2"></app-icon>
+                    <div class="bg-white rounded-[32px] p-2 sm:p-4">
+                        <div class="flex gap-3 mb-6 px-2">
+                            <div class="w-10 h-10 rounded-full overflow-hidden bg-slate-100 shrink-0 border border-slate-100">
+                                <img v-if="currentUser?.line_picture_url" :src="currentUser.line_picture_url" class="w-full h-full object-cover">
+                                <app-icon v-else name="user" class-name="w-full h-full text-slate-300 p-2"></app-icon>
                             </div>
-                            <div class="flex-1 space-y-1">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm font-black text-slate-900 cursor-pointer hover:text-blue-600 transition-colors" @click="openProfile(c.user.uid)">@{{ c.user.name }}</span>
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-[9px] font-black text-slate-300 uppercase tracking-widest">@{{ formatDate(c.at) }}</span>
-                                        <button v-if="currentUser && c.user?.uid === currentUser.uid" type="button"
-                                            @click="deletePlayerComment(c.id)"
-                                            class="p-1 text-slate-300 hover:text-red-500 transition-colors">
-                                            <app-icon name="trash" class-name="w-3 h-3"></app-icon>
-                                        </button>
+                            <div class="flex-1 relative">
+                                <textarea v-model="playerCommentDraft" 
+                                    rows="1" maxlength="200" :disabled="!isLoggedIn"
+                                    @keyup.enter.prevent="submitPlayerComment(profileData.user.player.id)"
+                                    placeholder="對這位球友有什麼想說的嗎..." 
+                                    class="w-full bg-slate-50 border-none rounded-2xl px-5 py-3 pr-12 text-sm font-bold focus:bg-slate-100 outline-none transition-all placeholder:text-slate-300 resize-none overflow-hidden disabled:opacity-60"></textarea>
+                                <button @click="submitPlayerComment(profileData.user.player.id)" :disabled="!playerCommentDraft.trim()" class="absolute right-2 top-1.5 p-2 text-blue-600 disabled:opacity-20 transition-all">
+                                    <app-icon name="send" class-name="w-5 h-5"></app-icon>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Comment List -->
+                        <div class="max-h-[500px] overflow-y-auto pr-2 no-scrollbar">
+                            <div v-if="profileComments.length > 0" class="space-y-1">
+                                <div v-for="(c, index) in profileComments" :key="c.id" class="comment-threads">
+                                    <div class="avatar-container">
+                                        <div class="avatar cursor-pointer" @click="openProfile(c.user.uid)">
+                                            <img v-if="c.user.line_picture_url" :src="c.user.line_picture_url" class="w-full h-full object-cover">
+                                            <app-icon v-else name="user" class-name="w-full h-full text-slate-200 p-2"></app-icon>
+                                        </div>
+                                        <div v-if="index < profileComments.length - 1" class="thread-line"></div>
+                                    </div>
+                                    <div class="content-container">
+                                        <div class="header">
+                                            <div class="flex items-center gap-2">
+                                                <span class="username cursor-pointer hover:underline" @click="openProfile(c.user.uid)">@{{ c.user.name }}</span>
+                                                <span class="timestamp">@{{ formatDate(c.at) }}</span>
+                                            </div>
+                                            <button v-if="currentUser && c.user?.uid === currentUser.uid" type="button"
+                                                @click="deletePlayerComment(c.id)"
+                                                class="p-1 text-slate-300 hover:text-red-500 transition-colors">
+                                                <app-icon name="trash" class-name="w-3 h-3"></app-icon>
+                                            </button>
+                                        </div>
+                                        <div class="text">@{{ c.text }}</div>
                                     </div>
                                 </div>
-                                <div class="bg-slate-50/80 p-5 rounded-[24px] rounded-tl-none text-slate-700 text-sm font-bold leading-relaxed relative">
-                                    @{{ c.text }}
-                                </div>
+                            </div>
+                            <div v-else class="py-10 text-center">
+                                <p class="text-slate-300 font-black italic text-xs uppercase tracking-widest">目前還沒有留言...</p>
                             </div>
                         </div>
-                    </div>
-                    <div v-else class="py-12 text-center">
-                        <p class="text-slate-300 font-black italic text-sm uppercase tracking-widest">目前還沒有留言，快來搶頭香吧！</p>
                     </div>
                 </div>
             </div>

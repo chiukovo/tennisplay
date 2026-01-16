@@ -8,7 +8,7 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
         status: { is_following: false, is_liked: false, is_me: false }
     });
     const isProfileLoading = ref(true); // Added: loading state to prevent flash
-    const profileTab = ref('active');
+    const profileTab = ref('comments');
     const profileEvents = ref([]);
     const profileEventsPage = ref(1);
     const profileEventsHasMore = ref(false);
@@ -38,6 +38,7 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
             }
             profileEventsPage.value = 1;
             if (loadProfileEventsCallback) loadProfileEventsCallback(false);
+            if (profileTab.value === 'comments') await loadProfileComments();
         } catch (error) { 
             showToast('會員資料不存在或載入失敗', 'error');
             navigateTo('home');
@@ -163,6 +164,8 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
     const openProfile = (uid) => {
         // Set loading state before clearing data
         isProfileLoading.value = true;
+
+        profileTab.value = 'comments';
         
         // Clear existing data to force refresh display
         profileData.user = { player: null };

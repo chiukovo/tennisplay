@@ -27,7 +27,7 @@
                 <input type="text" v-model="searchDraft" @keyup.enter="handleSearch" placeholder="搜尋姓名、程度或地區..." class="w-full pl-12 pr-4 py-3 sm:py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 font-bold text-base transition-all shadow-sm">
             </div>
             <div class="flex gap-2">
-                <select v-model="regionDraft" class="flex-1 sm:flex-none px-4 py-3 sm:py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 font-black text-sm uppercase tracking-widest cursor-pointer appearance-none min-w-[100px] sm:min-w-[120px] shadow-sm">
+                <select v-model="regionDraft" @change="handleSearch" class="flex-1 sm:flex-none px-4 py-3 sm:py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 font-black text-sm uppercase tracking-widest cursor-pointer appearance-none min-w-[100px] sm:min-w-[120px] shadow-sm">
                     <option value="全部">全部地區</option>
                     <option v-for="r in activeRegions" :key="r" :value="r">@{{ r }}</option>
                 </select>

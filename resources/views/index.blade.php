@@ -304,8 +304,8 @@
     {{-- Initial State for SEO / Fast Load --}}
     <script>
         window.__INITIAL_STATE__ = {
-            players: {!! isset($initialPlayers) ? $initialPlayers->toJson() : '[]' !!},
-            events: {!! isset($initialEvents) ? $initialEvents->toJson() : '[]' !!}
+            players: @json($initialPlayers ?? []),
+            events: @json($initialEvents ?? [])
         };
     </script>
     @include('partials.vue-scripts')

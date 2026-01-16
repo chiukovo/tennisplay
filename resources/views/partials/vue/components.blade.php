@@ -257,13 +257,23 @@ const PlayerDetailModal = {
         const commentDraft = ref('');
         const isLoadingComments = ref(false);
         const socialStatus = reactive({ is_liked: false, is_following: false, likes_count: 0 });
+        const commentsCache = reactive(new Map());  // 留言快取
 
         const loadComments = async () => {
             if (!props.player) return;
+            
+            // 檢查快取
+            const cached = commentsCache.get(props.player.id);
+            if (cached) {
+                comments.value = cached;
+                return;
+            }
+            
             isLoadingComments.value = true;
             try {
                 const response = await api.get(`/players/${props.player.id}/comments`);
                 comments.value = response.data;
+                commentsCache.set(props.player.id, response.data);  // 存入快取
             } catch (error) {}
             finally { isLoadingComments.value = false; }
         };
@@ -328,6 +338,7 @@ const PlayerDetailModal = {
             try {
                 const response = await api.post(`/players/${props.player.id}/comments`, { content: text });
                 comments.value.unshift(response.data.comment);
+                commentsCache.set(props.player.id, [...comments.value]);  // 更新快取
                 commentDraft.value = '';
                 emit('update:player', { ...props.player, comments_count: (props.player.comments_count || 0) + 1 });
                 props.showToast('留言成功', 'success');
@@ -336,13 +347,19 @@ const PlayerDetailModal = {
 
         watch(() => props.player, (newP) => {
             if (newP) {
-                // Reset states immediately to prevent ghosting
-                comments.value = [];
-                isLoadingComments.value = true;
+                // 更新社交狀態
                 socialStatus.is_liked = newP.is_liked || false;
                 socialStatus.is_following = newP.is_following || false;
                 socialStatus.likes_count = newP.likes_count || 0;
-                loadComments();
+                
+                // 檢查快取，如果有就直接用，否則載入
+                const cached = commentsCache.get(newP.id);
+                if (cached) {
+                    comments.value = cached;
+                } else {
+                    comments.value = [];
+                    loadComments();
+                }
             }
         }, { immediate: true });
 

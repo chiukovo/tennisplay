@@ -92,9 +92,11 @@
                                     <span v-if="profileData.user?.gender" class="px-4 py-1.5 bg-slate-100 rounded-full text-xs font-black text-slate-600 uppercase tracking-widest flex items-center gap-1.5">
                                         <app-icon name="gender" class-name="w-3.5 h-3.5"></app-icon>@{{ profileData.user?.gender }}
                                     </span>
-                                    <span v-if="profileData.user?.region" class="px-4 py-1.5 bg-blue-50 rounded-full text-xs font-black text-blue-600 uppercase tracking-widest flex items-center gap-1.5">
-                                        <app-icon name="map-pin" class-name="w-3.5 h-3.5"></app-icon>@{{ profileData.user?.region }}
-                                    </span>
+                                    <template v-if="profileData.user?.region">
+                                        <span v-for="r in profileData.user.region.split(',')" :key="r" class="px-4 py-1.5 bg-blue-50 rounded-full text-xs font-black text-blue-600 uppercase tracking-widest flex items-center gap-1.5">
+                                            <app-icon name="map-pin" class-name="w-3.5 h-3.5"></app-icon>@{{ r }}
+                                        </span>
+                                    </template>
                                 </div>
                             </div>
                             
@@ -196,14 +198,15 @@
                             </div>
                         </div>
                         <div class="space-y-4">
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">主要活動地區</label>
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">主要活動地區 <span class="text-blue-500">(可複選)</span></label>
                             <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2 max-h-[280px] overflow-y-auto no-scrollbar p-1">
-                                <button v-for="r in regions" :key="r" @click="profileForm.region = r"
-                                        :class="profileForm.region === r ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-50 text-slate-400'"
+                                <button v-for="r in regions" :key="r" @click="toggleProfileRegion(r)"
+                                        :class="selectedProfileRegions.includes(r) ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-50 text-slate-400'"
                                         class="py-3.5 rounded-xl font-black text-[10px] transition-all">
                                     @{{ r }}
                                 </button>
                             </div>
+                            <p v-if="selectedProfileRegions.length > 0" class="text-xs text-blue-600 font-bold ml-1">已選擇: @{{ selectedProfileRegions.join('、') }}</p>
                         </div>
                         <div class="space-y-2">
                             <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">個人簡介 (Bio)</label>

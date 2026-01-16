@@ -19,6 +19,30 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
     const followerUsers = ref([]);
     const likedPlayers = ref([]);
     const playerCommentDraft = ref('');
+    
+    // 多地區選擇
+    const selectedProfileRegions = ref([]);
+    
+    // 監聽 profileForm.region 初始化已選地區
+    watch(() => profileForm.region, (newVal) => {
+        if (newVal) {
+            selectedProfileRegions.value = newVal.split(',').filter(r => r.trim());
+        } else {
+            selectedProfileRegions.value = [];
+        }
+    }, { immediate: true });
+    
+    // 切換地區選擇
+    const toggleProfileRegion = (region) => {
+        const idx = selectedProfileRegions.value.indexOf(region);
+        if (idx > -1) {
+            selectedProfileRegions.value.splice(idx, 1);
+        } else {
+            selectedProfileRegions.value.push(region);
+        }
+        // 同步到 profileForm.region（逗點分隔）
+        profileForm.region = selectedProfileRegions.value.join(',');
+    };
 
 
     const loadProfile = async (userId, loadProfileEventsCallback, autoEdit = false) => {
@@ -181,6 +205,7 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
     return { 
         profileData, isProfileLoading, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm, 
         profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,
+        selectedProfileRegions, toggleProfileRegion,
         loadProfile, loadProfileEvents, saveProfile, openProfile, toggleFollow, toggleLike,
         loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment, deletePlayerComment
     };

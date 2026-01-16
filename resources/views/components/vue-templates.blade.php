@@ -141,7 +141,7 @@
                                 <div class="flex items-center gap-[14px] text-white/80">
                                     <div class="flex items-center gap-[7px]">
                                         <app-icon name="map-pin" class-name="w-[22px] h-[22px]" :class="themeStyle.accent"></app-icon>
-                                        <span class="font-bold uppercase tracking-wider italic text-[27px]">@{{ p?.region || '全台' }}</span>
+                                        <span class="font-bold uppercase tracking-wider italic text-[27px]">@{{ displayRegion }}</span>
                                     </div>
                                     <div class="w-[2px] h-[18px] bg-white/30 rounded-full"></div>
                                     <div class="flex items-center gap-[7px]">

@@ -24,27 +24,28 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
         });
     };
 
-    const loadPlayers = async (params = {}) => {
+    const loadPlayers = async (params = {}, force = false) => {
         const cacheKey = getCacheKey(params);
         
-        // 檢查快取 (30秒內有效)
-        const cached = playersCache.get(cacheKey);
-        if (cached && Date.now() - cached.timestamp < 30000) {
-            players.value = cached.data;
-            playersPagination.value = cached.pagination;
-            return;
+        // 如果不是強制刷新，則檢查快取
+        if (!force) {
+            const cached = playersCache.get(cacheKey);
+            if (cached && Date.now() - cached.timestamp < 10000) {
+                players.value = cached.data;
+                playersPagination.value = cached.pagination;
+                return;
+            }
         }
 
+        // 強制刷新或快取過期，執行請求並更新快取
         isPlayersLoading.value = true;
         try {
-            // Default per_page to 12 for better grid layout (4x3)
             const response = await api.get('/players', { 
                 params: { per_page: 12, ...params } 
             });
             if (response.data.success) {
                 const data = response.data.data;
                 if (data.data) {
-                    // Paginated response
                     players.value = data.data.filter(p => p && p.id);
                     playersPagination.value = {
                         total: data.total,
@@ -53,12 +54,10 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
                         per_page: data.per_page
                     };
                 } else {
-                    // Non-paginated fallback
                     players.value = (Array.isArray(data) ? data : []).filter(p => p && p.id);
                     playersPagination.value = { total: players.value.length, current_page: 1, last_page: 1, per_page: 1000 };
                 }
                 
-                // 存入快取
                 playersCache.set(cacheKey, {
                     data: [...players.value],
                     pagination: { ...playersPagination.value },

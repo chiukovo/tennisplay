@@ -120,11 +120,13 @@ class Player extends Model
 
     /**
      * Scope for filtering by region.
+     * Supports comma-separated multi-region format (e.g., "台北市,新北市")
      */
     public function scopeInRegion($query, $region)
     {
         if ($region && !in_array($region, ['全部', 'all'])) {
-            return $query->where('region', $region);
+            // Use FIND_IN_SET for exact match within comma-separated values
+            return $query->whereRaw('FIND_IN_SET(?, region) > 0', [$region]);
         }
         return $query;
     }

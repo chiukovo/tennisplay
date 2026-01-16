@@ -150,7 +150,7 @@ createApp({
         };
 
         // --- 3. Initialize Composables ---
-        const { view, navigateTo, parseRoute } = useNavigation(
+        const { view, lastNavigationTap, navigateTo, parseRoute } = useNavigation(
             { '/': 'home', '/list': 'list', '/create': 'create', '/messages': 'messages', '/auth': 'auth', '/profile': 'profile', '/events': 'events', '/create-event': 'create-event', '/settings': 'settings', '/privacy': 'privacy', '/sitemap': 'sitemap' },
             { 'home': '/', 'list': '/list', 'create': '/create', 'messages': '/messages', 'auth': '/auth', 'profile': '/profile', 'events': '/events', 'create-event': '/create-event', 'settings': '/settings', 'privacy': '/privacy', 'sitemap': '/sitemap' },
             { 
@@ -173,6 +173,7 @@ createApp({
         const { 
             profileData, isProfileLoading, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm, 
             profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,
+            selectedProfileRegions, toggleProfileRegion,
             loadProfile, loadProfileEvents, saveProfile, openProfile, toggleFollow, toggleLike,
             loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment, deletePlayerComment
         } = useProfile(isLoggedIn, currentUser, showToast, navigateTo);
@@ -938,23 +939,47 @@ createApp({
 
         let messagePollInterval;
         let prevView = null;  // 追蹤上一個 view
-        watch(view, (newView) => {
-            // Global Scroll Reset when switching views
-            document.body.style.overflow = '';
-            document.body.style.touchAction = '';
-
-            // 只在從非 list/home 頁面進入時載入，快取會處理資料重用
-            if ((newView === 'home' || newView === 'list') && prevView !== 'home' && prevView !== 'list') {
-                loadPlayers({ search: searchQuery.value, region: selectedRegion.value, page: currentPage.value });
-            } else if (newView === 'events' || newView === 'create-event') {
+        // 監聽導航點擊 (包含點擊當前視圖按鈕)
+        watch(lastNavigationTap, () => {
+            const v = view.value;
+            if (v === 'home' || v === 'list') {
+                loadPlayers({ search: searchQuery.value, region: selectedRegion.value, page: 1 }, true);
+            } else if (v === 'events') {
                 loadEvents({ 
                     search: eventSearchQuery.value, 
                     region: eventRegionFilter.value, 
                     match_type: eventFilter.value,
                     start_date: eventStartDate.value,
                     end_date: eventEndDate.value,
-                    page: eventCurrentPage.value 
+                    page: 1 
                 });
+            }
+        });
+
+        watch(view, (newView) => {
+            // Global Scroll Reset when switching views
+            document.body.style.overflow = '';
+            document.body.style.touchAction = '';
+
+            // 如果是瀏覽器前進後退 (popstate) 觸發的視圖切換，需要載入資料
+            // 但如果是透過導航點擊觸發的，則交給 lastNavigationTap 處理（避免雙重載入）
+            const isIntentionalNav = (Date.now() - lastNavigationTap.value < 100);
+
+            if (newView === 'home' || newView === 'list') {
+                 if (!isIntentionalNav) {
+                     loadPlayers({ search: searchQuery.value, region: selectedRegion.value, page: 1 });
+                 }
+            } else if (newView === 'events' || newView === 'create-event') {
+                if (!isIntentionalNav) {
+                    loadEvents({ 
+                        search: eventSearchQuery.value, 
+                        region: eventRegionFilter.value, 
+                        match_type: eventFilter.value,
+                        start_date: eventStartDate.value,
+                        end_date: eventEndDate.value,
+                        page: 1 
+                    });
+                }
             }
             
             if (newView === 'messages') {
@@ -1055,6 +1080,7 @@ createApp({
             shareModal, isSendingMatch, scrollFeaturedPlayers,
             settingsForm, isSavingSettings, toasts, confirmDialog, dragInfo,
             profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,
+            selectedProfileRegions, toggleProfileRegion,
             // Computed
             hasUnread, hasPlayerCard, myCards, activeRegions, activeEventRegions, filteredPlayers, totalPages, paginatedPlayers, displayPages, 
             filteredEvents, eventTotalPages, paginatedEvents, eventDisplayPages,

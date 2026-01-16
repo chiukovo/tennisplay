@@ -49,23 +49,19 @@
 
                         {{-- Right: Detailed Stats --}}
                         <div class="w-full md:w-1/2 p-8 sm:p-14 md:overflow-y-auto bg-white flex flex-col no-scrollbar">
-                            <div class="mb-6">
-                                
-                                <div class="flex flex-nowrap items-center gap-2 overflow-x-auto no-scrollbar">
+                            <div class="space-y-4 mb-8">
+                                {{-- Row 1: Status, Level, Gender, Handedness --}}
+                                <div class="flex flex-wrap items-center gap-2">
                                     <span class="px-2 py-1 bg-blue-600 text-white text-[8px] font-black rounded-lg uppercase tracking-widest italic shrink-0">已認證</span>
-                                    <div class="flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-lg text-[10px] font-bold text-slate-600 shrink-0">
-                                        <app-icon name="map-pin" class-name="w-3 h-3 text-slate-400"></app-icon>
-                                        @{{player.region}}
-                                    </div>
                                     <div class="flex items-center gap-1 px-2 py-1 bg-blue-50 rounded-lg text-[10px] font-black text-blue-600 italic shrink-0">
                                         <app-icon name="zap" class-name="w-3 h-3"></app-icon>
                                         NTRP @{{player.level}}
                                         <button @click.stop="$emit('open-ntrp-guide')" class="ml-1 text-blue-400 hover:text-blue-600 transition-colors">
-                                            <app-icon name="help" class-name="w-3 h-3"></app-icon>
+                                            <app-icon name="help-circle" class-name="w-3 h-3 opacity-60"></app-icon>
                                         </button>
                                     </div>
                                     <div class="flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-lg text-[10px] font-bold text-slate-600 shrink-0">
-                                        <app-icon name="gender" class-name="w-3 h-3 text-slate-400"></app-icon>
+                                        <app-icon :name="player.gender === '女' ? 'female' : 'male'" class-name="w-3 h-3 text-slate-400"></app-icon>
                                         @{{player.gender}}
                                     </div>
                                     <div class="flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-lg text-[10px] font-bold text-slate-600 shrink-0">
@@ -74,6 +70,16 @@
                                     <div class="flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-lg text-[10px] font-bold text-slate-600 shrink-0">
                                         @{{player.backhand || '雙反'}}
                                     </div>
+                                </div>
+
+                                {{-- Row 2: Regions (Independent Line) --}}
+                                <div v-if="player.region" class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-50">
+                                    <template v-for="r in (player.region || '').split(',').filter(x => x)" :key="r">
+                                        <div class="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 rounded-xl text-[10px] font-bold text-slate-600 shrink-0 border border-slate-200/50">
+                                            <app-icon name="map-pin" class-name="w-3 h-3 text-blue-500/70"></app-icon>
+                                            @{{r}}
+                                        </div>
+                                    </template>
                                 </div>
                             </div>
 
@@ -683,15 +689,16 @@
                         </div>
                     </div>
 
-                    {{-- Region --}}
+                    {{-- Region (Multi-select) --}}
                     <div class="space-y-3">
-                        <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">活動地區</label>
+                        <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">主要活動地區 <span class="text-blue-500">(可複選)</span></label>
                         <div class="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-[150px] overflow-y-auto no-scrollbar p-1">
-                            <button v-for="r in regions" :key="r" type="button" @click="form.region = r"
-                                :class="['py-2.5 px-2 rounded-xl font-bold text-[10px] transition-all border-2', form.region === r ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-slate-50 text-slate-400 border-transparent hover:border-slate-200']">
+                            <button v-for="r in regions" :key="r" type="button" @click="toggleRegion(r)"
+                                :class="['py-2.5 px-2 rounded-xl font-bold text-[10px] transition-all border-2', selectedRegions.includes(r) ? 'bg-blue-600 text-white border-blue-600 shadow-md' : 'bg-slate-50 text-slate-400 border-transparent hover:border-slate-200']">
                                 @{{r}}
                             </button>
                         </div>
+                        <p v-if="selectedRegions.length > 0" class="text-xs text-blue-600 font-bold">已選擇: @{{ selectedRegions.join('、') }}</p>
                     </div>
 
                     {{-- Intro --}}

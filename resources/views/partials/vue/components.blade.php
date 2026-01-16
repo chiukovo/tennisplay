@@ -179,6 +179,15 @@ const PlayerCard = {
             if (!p.value) return themes.standard;
             return themes[p.value.theme || 'standard'] || themes.standard;
         });
+
+        const displayRegion = computed(() => {
+            const raw = props.player?.region || '';
+            if (!raw) return '全台';
+            const regions = raw.split(',').filter(x => x.trim());
+            if (regions.length === 0) return '全台';
+            if (regions.length <= 2) return regions.join(' ');
+            return regions.slice(0, 2).join(' ') + ' +';
+        });
         const getLevelTag = (lvl) => LEVEL_TAGS[lvl] || '網球愛好者';
 
         const handleMove = () => {};
@@ -239,7 +248,7 @@ const PlayerCard = {
             return '30px';
         });
 
-        return { cardContainer, p, themeStyle, getLevelTag, handleMove, handleLeave, holoStyle, cardScale, containerHeight, nameFontSize };
+        return { cardContainer, p, themeStyle, displayRegion, getLevelTag, handleMove, handleLeave, holoStyle, cardScale, containerHeight, nameFontSize };
     }
 };
 
@@ -670,7 +679,34 @@ const QuickEditModal = {
     props: ['open', 'form', 'levels', 'regions'],
     components: { AppIcon },
     template: '#quick-edit-modal-template',
-    emits: ['update:open', 'save', 'trigger-upload']
+    emits: ['update:open', 'save', 'trigger-upload'],
+    setup(props, { emit }) {
+        // 多地區選擇
+        const selectedRegions = ref([]);
+        
+        // 監聽 form.region 初始化已選地區
+        watch(() => props.form.region, (newVal) => {
+            if (newVal) {
+                selectedRegions.value = newVal.split(',').filter(r => r.trim());
+            } else {
+                selectedRegions.value = [];
+            }
+        }, { immediate: true });
+        
+        // 切換地區選擇
+        const toggleRegion = (region) => {
+            const idx = selectedRegions.value.indexOf(region);
+            if (idx > -1) {
+                selectedRegions.value.splice(idx, 1);
+            } else {
+                selectedRegions.value.push(region);
+            }
+            // 同步到 form.region（逗點分隔）
+            props.form.region = selectedRegions.value.join(',');
+        };
+        
+        return { selectedRegions, toggleRegion };
+    }
 };
 
 const EventDetailModal = {

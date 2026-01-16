@@ -3,6 +3,7 @@
 
 const useNavigation = (routes, routePaths, viewTitles, showToast, applyDefaultFilters, isLoggedIn, currentUser) => {
     const view = ref('home');
+    const lastNavigationTap = ref(0); // 記錄最後一次點擊導航的時間，用於強制刷新
 
     watch(view, (newView) => {
         if (viewTitles[newView]) document.title = viewTitles[newView];
@@ -33,6 +34,7 @@ const useNavigation = (routes, routePaths, viewTitles, showToast, applyDefaultFi
         
         if (applyDefaultFilters) applyDefaultFilters(viewName);
         
+        lastNavigationTap.value = Date.now();
         view.value = viewName;
         let path = routePaths[viewName] || '/';
         if (viewName === 'profile' && uid) path = `/profile/${uid}`;
@@ -76,5 +78,5 @@ const useNavigation = (routes, routePaths, viewTitles, showToast, applyDefaultFi
         return viewName;
     };
 
-    return { view, navigateTo, parseRoute };
+    return { view, lastNavigationTap, navigateTo, parseRoute };
 };

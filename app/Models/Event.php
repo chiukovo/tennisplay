@@ -145,7 +145,7 @@ class Event extends Model
     {
         if ($region && !in_array($region, ['全部', 'all'])) {
             return $query->where(function($q) use ($region) {
-                $q->where('region', $region)
+                $q->whereRaw("FIND_IN_SET(?, region)", [$region])
                   ->orWhere('location', 'like', "%{$region}%")
                   ->orWhere('address', 'like', "%{$region}%");
             });

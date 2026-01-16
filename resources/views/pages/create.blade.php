@@ -53,7 +53,10 @@
                                 <img :src="currentUser?.line_picture_url" class="w-12 h-12 rounded-full border-2 border-white shadow-sm">
                                 <div>
                                     <h4 class="font-black text-slate-900 leading-none">@{{ currentUser?.name }}</h4>
-                                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">@{{ currentUser?.gender }} · @{{ currentUser?.region }}</p>
+                                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
+                                        @{{ currentUser?.gender }} · 
+                                        @{{ currentUser?.region ? (currentUser.region.split(',').filter(x=>x).length > 2 ? currentUser.region.split(',').filter(x=>x).slice(0, 2).join(' ') + ' +' : currentUser.region.split(',').filter(x=>x).join(' ')) : '未設定' }}
+                                    </p>
                                 </div>
                             </div>
                             <button type="button" @click="openProfileWithEdit()" class="text-blue-600 text-[10px] font-black uppercase tracking-widest hover:underline">修改基本資料</button>

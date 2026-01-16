@@ -82,6 +82,14 @@ class PlayerController extends Controller
             'signature' => 'string|nullable',
         ]);
 
+        $maxPhotoBytes = 5 * 1024 * 1024; // 5MB
+        if ($request->photo && Str::startsWith($request->photo, 'data:image') && strlen($request->photo) > $maxPhotoBytes) {
+            return response()->json([
+                'success' => false,
+                'message' => '圖片過大，請不要超過 5 MB',
+            ], 422);
+        }
+
         if ($request->photo && strlen($request->photo) > 1024 * 1024) {
             Log::info('Large photo payload in store', [
                 'user_id' => Auth::id(),
@@ -156,6 +164,14 @@ class PlayerController extends Controller
             'intro', 'fee', 'theme', 'photo_x', 'photo_y', 'photo_scale',
             'sig_x', 'sig_y', 'sig_scale', 'sig_rotate', 'sig_width', 'sig_height', 'is_active'
         ]);
+
+        $maxPhotoBytes = 5 * 1024 * 1024; // 5MB
+        if ($request->photo && Str::startsWith($request->photo, 'data:image') && strlen($request->photo) > $maxPhotoBytes) {
+            return response()->json([
+                'success' => false,
+                'message' => '圖片過大，請不要超過 5 MB',
+            ], 422);
+        }
 
         if ($request->photo && strlen($request->photo) > 1024 * 1024) {
             Log::info('Large photo payload in update', [

@@ -29,6 +29,26 @@
                     <a href="/create" @click.prevent="navigateTo('create')" class="bg-blue-600 text-white px-8 py-4 sm:px-10 sm:py-5 rounded-2xl sm:rounded-3xl font-black text-base sm:text-xl hover:scale-105 transition-all shadow-2xl shadow-blue-500/40 text-center">製作球友卡</a>
                     <a href="/list" @click.prevent.prevent="navigateTo('list')" class="bg-white/5 text-white border border-white/10 px-8 py-4 sm:px-10 sm:py-5 rounded-2xl sm:rounded-3xl font-black text-base sm:text-xl hover:bg-white/10 transition-all backdrop-blur-md text-center">球友列表</a>
                 </div>
+                <div class="pt-4">
+                    <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2 sm:gap-3">
+                        <button type="button" @click="navigateTo('list')" class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/10 text-white text-[11px] sm:text-xs font-black uppercase tracking-widest border border-white/10 hover:bg-white/20 transition-all">
+                            <app-icon name="search" class-name="w-4 h-4"></app-icon>
+                            找球友
+                        </button>
+                        <button type="button" @click="navigateTo('events')" class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/10 text-white text-[11px] sm:text-xs font-black uppercase tracking-widest border border-white/10 hover:bg-white/20 transition-all">
+                            <app-icon name="calendar" class-name="w-4 h-4"></app-icon>
+                            揪團揪球
+                        </button>
+                        <button type="button" @click="navigateTo('create-event')" class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/10 text-white text-[11px] sm:text-xs font-black uppercase tracking-widest border border-white/10 hover:bg-white/20 transition-all">
+                            <app-icon name="plus" class-name="w-4 h-4"></app-icon>
+                            發佈揪球
+                        </button>
+                        <button type="button" @click="navigateTo('messages')" class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/10 text-white text-[11px] sm:text-xs font-black uppercase tracking-widest border border-white/10 hover:bg-white/20 transition-all">
+                            <app-icon name="mail" class-name="w-4 h-4"></app-icon>
+                            約打訊息
+                        </button>
+                    </div>
+                </div>
             </div>
 
             {{-- Right: Card Showcase Mockup --}}

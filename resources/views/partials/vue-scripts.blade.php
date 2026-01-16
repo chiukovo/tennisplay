@@ -904,6 +904,20 @@ createApp({
                 }
                 else parseRoute((id) => loadProfile(id, (append) => loadProfileEvents(append)), () => resetFormFull(), () => resetEventForm());
             });
+
+            // 預渲染暖身：讓 Vue 提前編譯 PlayerDetailModal 模板
+            // 使用 CSS 隱藏，避免畫面閃爍
+            setTimeout(() => {
+                document.body.classList.add('warmup-hidden');
+                const warmupPlayer = { id: 0, name: '', level: '3.5', region: '' };
+                detailPlayer.value = warmupPlayer;
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        detailPlayer.value = null;
+                        document.body.classList.remove('warmup-hidden');
+                    });
+                });
+            }, 500);
         });
 
         // 當預設地區載入時，如果目前在列表頁或首頁且尚未篩選，則自動套用

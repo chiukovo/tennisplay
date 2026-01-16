@@ -1,4 +1,12 @@
 <style>
+    /* 預渲染暖身時隱藏 Modal，避免閃爍 */
+    body.warmup-hidden .modal-content,
+    body.warmup-hidden .premium-blur {
+        opacity: 0 !important;
+        pointer-events: none !important;
+        transition: none !important;
+    }
+
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Noto+Sans+TC:wght@400;700;900&display=swap');
     *, ::before, ::after {
         box-sizing: border-box;

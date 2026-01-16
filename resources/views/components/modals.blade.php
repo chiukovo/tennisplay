@@ -78,6 +78,24 @@
                             </div>
 
                             <div class="space-y-6">
+                                {{-- Basic Info Section --}}
+                                <div class="space-y-4">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-1 h-3 bg-blue-600 rounded-full"></div>
+                                        <span class="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 italic">基本資料 / Basic</span>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div v-for="item in backStats" :key="item.label" class="flex items-center gap-2 p-3 rounded-2xl bg-slate-50 border border-slate-100">
+                                            <div class="w-7 h-7 rounded-xl bg-white border border-slate-100 flex items-center justify-center">
+                                                <app-icon :name="item.icon" class-name="w-3.5 h-3.5 text-slate-400"></app-icon>
+                                            </div>
+                                            <div class="space-y-0.5">
+                                                <div class="text-[9px] font-black uppercase tracking-widest text-slate-300">@{{ item.label }}</div>
+                                                <div class="text-sm font-black text-slate-700">@{{ item.value }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                                 
                                 {{-- Intro Section --}}
                                 <div class="bg-slate-50 p-6 rounded-[24px] border border-slate-100 relative overflow-hidden mb-6">
@@ -90,9 +108,36 @@
                                     </p>
                                 </div>
 
-                                {{-- Social Action Bar --}}
-                                {{-- Action Dashboard (Desktop Only) --}}
-                                <div class="hidden md:block mt-8 rounded-[28px] border-2 border-slate-100 overflow-hidden shadow-sm bg-white">
+                                {{-- Events Section --}}
+                                <div class="space-y-4">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-1 h-3 bg-blue-600 rounded-full"></div>
+                                        <span class="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 italic">場次 / Events</span>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div class="flex items-center gap-2 p-3 rounded-2xl bg-white border border-slate-100">
+                                            <div class="w-7 h-7 rounded-xl bg-blue-50 flex items-center justify-center">
+                                                <app-icon name="calendar" class-name="w-3.5 h-3.5 text-blue-600"></app-icon>
+                                            </div>
+                                            <div>
+                                                <div class="text-[9px] font-black uppercase tracking-widest text-slate-300">場次</div>
+                                                <div class="text-sm font-black text-slate-700">@{{ stats?.matches || 0 }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-2 p-3 rounded-2xl bg-white border border-slate-100">
+                                            <div class="w-7 h-7 rounded-xl bg-rose-50 flex items-center justify-center">
+                                                <app-icon name="heart" class-name="w-3.5 h-3.5 text-rose-500"></app-icon>
+                                            </div>
+                                            <div>
+                                                <div class="text-[9px] font-black uppercase tracking-widest text-slate-300">按讚</div>
+                                                <div class="text-sm font-black text-slate-700">@{{ stats?.likes || 0 }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Floating Action Bar (Desktop) --}}
+                                <div class="hidden md:block sticky bottom-0 mt-8 rounded-[24px] border border-slate-100 overflow-hidden shadow-[0_-6px_24px_rgba(15,23,42,0.06)] bg-white/95 backdrop-blur">
                                     <div class="flex divide-x divide-slate-100">
                                         <button type="button" @click="$emit('open-match', player)" 
                                                 class="flex-1 py-5 flex flex-col items-center justify-center gap-2 bg-blue-600 text-white hover:bg-blue-500 transition-all group">
@@ -138,7 +183,7 @@
                                 <div class="flex items-center justify-between mb-6">
                                     <div class="flex items-center gap-2">
                                         <div class="w-1 h-3 bg-blue-600 rounded-full"></div>
-                                        <span class="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 italic">互動留言 / Comments</span>
+                                        <span class="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 italic">留言 / Comments</span>
                                     </div>
                                     <span class="text-[9px] font-black text-slate-300">@{{ comments.length }} COMMENTS</span>
                                 </div>

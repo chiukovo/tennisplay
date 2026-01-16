@@ -911,12 +911,14 @@ createApp({
                 document.body.classList.add('warmup-hidden');
                 const warmupPlayer = { id: 0, name: '', level: '3.5', region: '' };
                 detailPlayer.value = warmupPlayer;
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                        detailPlayer.value = null;
+                // 等待 Vue 渲染完成
+                setTimeout(() => {
+                    detailPlayer.value = null;
+                    // 等 Modal 完全關閉後再移除隱藏 class
+                    setTimeout(() => {
                         document.body.classList.remove('warmup-hidden');
-                    });
-                });
+                    }, 50);
+                }, 50);
             }, 500);
         });
 

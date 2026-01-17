@@ -1,13 +1,13 @@
 {{-- Navigation --}}
 <nav class="bg-white/90 backdrop-blur-xl border-b sticky top-0 z-[100]">
     <div class="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between gap-2">
-        <div class="flex items-center gap-2 sm:gap-3 cursor-pointer shrink-0" @click="navigateTo('home')">
+        <a href="/" class="flex items-center gap-2 sm:gap-3 shrink-0">
             <img src="/img/logo.png" alt="LoveTennis Logo" class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl object-contain">
             <div class="flex flex-col leading-none">
                 <span class="font-black text-base sm:text-2xl tracking-tighter italic uppercase text-slate-900">LOVE<span class="text-blue-600">TENNIS</span></span>
                 <span class="hidden sm:block text-[8px] sm:text-[10px] font-bold text-slate-400 tracking-[0.2em] uppercase">愛網球</span>
             </div>
-        </div>
+        </a>
         
         <div class="hidden md:flex gap-10 text-sm font-black uppercase tracking-[0.2em] text-slate-400">
             <a href="/list" @click.prevent="navigateTo('list')" :class="view === 'list' ? 'text-blue-600 border-b-2 border-blue-600 pb-1' : 'hover:text-slate-900 transition-colors'">

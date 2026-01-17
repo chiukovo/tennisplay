@@ -990,7 +990,10 @@ createApp({
         // Re-initialize Swiper when navigating back to home
         watch(() => view.value, async (newView) => {
             if (newView === 'home') {
-                await loadRandomPlayers();
+                // 只在資料為空時才重新載入
+                if (randomPlayers.value.length === 0) {
+                    await loadRandomPlayers();
+                }
                 nextTick(() => initHomeSwiper());
             }
         });

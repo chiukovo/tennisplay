@@ -512,8 +512,8 @@ const MessageDetailModal = {
                     if (isPolling) {
                         newItems = response.data.data.map(m => ({ ...m, is_me: m.sender?.uid === props.currentUser.uid }));
                         if (newItems.length > 0) {
-                            const existingIds = new Set(messages.value.map(m => m.id));
-                            const uniqueNewItems = newItems.filter(m => !existingIds.has(m.id));
+                            const existingIds = new Set(messages.value.map(m => String(m.id)));
+                            const uniqueNewItems = newItems.filter(m => !existingIds.has(String(m.id)));
                             if (uniqueNewItems.length > 0) { messages.value = [...messages.value, ...uniqueNewItems]; scrollToBottom(); }
                         }
                     } else {
@@ -521,8 +521,8 @@ const MessageDetailModal = {
                         newItems = rawMessages.map(m => ({ ...m, is_me: m.sender?.uid === props.currentUser.uid })).reverse();
                         if (page.value === 1) { messages.value = newItems; scrollToBottom(); }
                         else {
-                            const existingIds = new Set(messages.value.map(m => m.id));
-                            const uniqueNewItems = newItems.filter(m => !existingIds.has(m.id));
+                            const existingIds = new Set(messages.value.map(m => String(m.id)));
+                            const uniqueNewItems = newItems.filter(m => !existingIds.has(String(m.id)));
                             if (uniqueNewItems.length > 0) {
                                 const currentHeight = chatContainer.value.scrollHeight;
                                 messages.value = [...uniqueNewItems, ...messages.value];

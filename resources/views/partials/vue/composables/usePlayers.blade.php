@@ -73,6 +73,19 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
         playersCache.clear();
     };
 
+    // 載入首頁隨機球友
+    const randomPlayers = ref([]);
+    const loadRandomPlayers = async () => {
+        try {
+            const response = await api.get('/players/random');
+            if (response.data.success) {
+                randomPlayers.value = response.data.data.filter(p => p && p.id);
+            }
+        } catch (error) {
+            console.error('Load random players error:', error);
+        }
+    };
+
     const loadMyCards = async () => {
         if (!isLoggedIn.value) return;
         try {
@@ -155,5 +168,5 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
         });
     };
 
-    return { players, myPlayers, isPlayersLoading, playersPagination, loadPlayers, loadMyCards, saveCard, deleteCard, clearPlayersCache };
+    return { players, myPlayers, randomPlayers, isPlayersLoading, playersPagination, loadPlayers, loadRandomPlayers, loadMyCards, saveCard, deleteCard, clearPlayersCache };
 };

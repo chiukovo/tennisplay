@@ -41,10 +41,10 @@
                 <div class="lg:hidden flex flex-col items-center mb-4">
                     <div class="swiper home-cards-swiper" style="width: 140px; height: 210px;">
                         <div class="swiper-wrapper">
-                            <div v-if="players.length > 0" v-for="p in players.slice(0, 10)" :key="'swiper-' + p.id" class="swiper-slide">
+                            <div v-if="randomPlayers.length > 0" v-for="p in randomPlayers" :key="'swiper-' + p.id" class="swiper-slide">
                                 <player-card :player="p" size="sm" class="w-full h-full"></player-card>
                             </div>
-                            <template v-if="players.length === 0">
+                            <template v-if="randomPlayers.length === 0">
                                 <div v-for="i in 3" :key="'placeholder-' + i" class="swiper-slide">
                                     <div class="w-full h-full rounded-xl overflow-hidden shadow-xl border border-white/10 bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center">
                                         <div class="text-center p-3">
@@ -98,10 +98,10 @@
             <div class="relative hidden lg:flex justify-center py-8 lg:py-0">
                 <div class="swiper home-cards-swiper-desktop" style="width: 240px; height: 360px;">
                     <div class="swiper-wrapper">
-                        <div v-if="players.length > 0" v-for="p in players.slice(0, 10)" :key="'swiper-desktop-' + p.id" class="swiper-slide">
+                        <div v-if="randomPlayers.length > 0" v-for="p in randomPlayers" :key="'swiper-desktop-' + p.id" class="swiper-slide">
                             <player-card :player="p" size="sm" class="w-full h-full"></player-card>
                         </div>
-                        <template v-if="players.length === 0">
+                        <template v-if="randomPlayers.length === 0">
                             <div v-for="i in 3" :key="'placeholder-desktop-' + i" class="swiper-slide">
                                 <div class="w-full h-full rounded-2xl overflow-hidden shadow-2xl border-2 border-white/10 bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center">
                                     <div class="text-center p-4">

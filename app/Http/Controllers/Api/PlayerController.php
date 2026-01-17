@@ -38,6 +38,23 @@ class PlayerController extends Controller
         ]);
     }
 
+    public function random(Request $request)
+    {
+        $players = Player::with('user')
+            ->withCount(['likes', 'comments'])
+            ->active()
+            ->inRandomOrder()
+            ->take(10)
+            ->get();
+
+        Player::hydrateSocialStatus($players, $this->resolveUser($request));
+
+        return response()->json([
+            'success' => true,
+            'data' => $players,
+        ]);
+    }
+
     public function show($id)
     {
         $player = Player::with('user')->withCount(['likes', 'comments'])->findOrFail($id);

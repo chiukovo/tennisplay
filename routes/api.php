@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\CardCaptureController;
 Route::post('/line/webhook', [AuthController::class, 'handleWebhook']);
 
 // Public Player Routes
+Route::get('/players/random', [PlayerController::class, 'random']);
 Route::get('/players', [PlayerController::class, 'index']);
 Route::get('/players/{id}', [PlayerController::class, 'show'])->withoutMiddleware(['auth:sanctum', 'throttle:60,1']);
 Route::get('/players/{id}/card-image', [CardCaptureController::class, 'capture']);

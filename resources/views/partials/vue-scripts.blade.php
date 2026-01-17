@@ -176,7 +176,7 @@ createApp({
         } = useProfile(isLoggedIn, currentUser, showToast, navigateTo);
 
         const { 
-            players, myPlayers, isPlayersLoading, playersPagination, loadPlayers, loadMyCards, saveCard, deleteCard, clearPlayersCache
+            players, myPlayers, randomPlayers, isPlayersLoading, playersPagination, loadPlayers, loadRandomPlayers, loadMyCards, saveCard, deleteCard, clearPlayersCache
         } = usePlayers(isLoggedIn, currentUser, showToast, navigateTo, showConfirm, (id) => loadProfile(id), form);
 
         const { 
@@ -922,7 +922,9 @@ createApp({
                         }
                         
                         // Initialize Home Cards Swiper (Mobile & Desktop)
-                        initHomeSwiper();
+                        loadRandomPlayers().then(() => {
+                            nextTick(() => initHomeSwiper());
+                        });
                     }, 200);
                 }, 100);
             }, 300);
@@ -971,9 +973,10 @@ createApp({
         }
 
         // Re-initialize Swiper when navigating back to home
-        watch(() => view.value, (newView) => {
+        watch(() => view.value, async (newView) => {
             if (newView === 'home') {
-                setTimeout(() => initHomeSwiper(), 100);
+                await loadRandomPlayers();
+                nextTick(() => initHomeSwiper());
             }
         });
 
@@ -1131,7 +1134,7 @@ createApp({
             profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,
             selectedProfileRegions, toggleProfileRegion,
             // Computed
-            hasUnread, hasPlayerCard, myCards, activeRegions, activeEventRegions, filteredPlayers, totalPages, paginatedPlayers, displayPages, 
+            hasUnread, hasPlayerCard, myCards, activeRegions, activeEventRegions, filteredPlayers, totalPages, paginatedPlayers, displayPages, randomPlayers, 
             filteredEvents, eventTotalPages, paginatedEvents, eventDisplayPages,
             minEventDate: computed(() => formatLocalDateTime(new Date())),
             paginatedMessages, hasMoreMessages,

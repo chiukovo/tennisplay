@@ -41,7 +41,7 @@
                 <div class="lg:hidden flex flex-col items-center mb-4">
                     <div class="swiper home-cards-swiper" style="width: 140px; height: 210px;">
                         <div class="swiper-wrapper">
-                            <div v-if="players.length > 0" v-for="p in players.slice(0, 5)" :key="'swiper-' + p.id" class="swiper-slide">
+                            <div v-if="players.length > 0" v-for="p in players.slice(0, 10)" :key="'swiper-' + p.id" class="swiper-slide">
                                 <player-card :player="p" size="sm" class="w-full h-full"></player-card>
                             </div>
                             <template v-if="players.length === 0">
@@ -98,7 +98,7 @@
             <div class="relative hidden lg:flex justify-center py-8 lg:py-0">
                 <div class="swiper home-cards-swiper-desktop" style="width: 240px; height: 360px;">
                     <div class="swiper-wrapper">
-                        <div v-if="players.length > 0" v-for="p in players.slice(0, 5)" :key="'swiper-desktop-' + p.id" class="swiper-slide">
+                        <div v-if="players.length > 0" v-for="p in players.slice(0, 10)" :key="'swiper-desktop-' + p.id" class="swiper-slide">
                             <player-card :player="p" size="sm" class="w-full h-full"></player-card>
                         </div>
                         <template v-if="players.length === 0">

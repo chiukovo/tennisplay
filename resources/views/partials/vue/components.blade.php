@@ -202,8 +202,9 @@ const PlayerCard = {
         const handleLeave = () => {};
         const holoStyle = computed(() => ({}));
 
-        const cardScale = ref(1);
-        const containerHeight = ref(684);
+        const cardScale = ref(props.size === 'sm' ? 0 : 1);
+        const containerHeight = ref(props.size === 'sm' ? 0 : 684);
+        const isScaleReady = ref(props.size !== 'sm');
         let resizeObserver = null;
         let rafId = null;
         
@@ -215,6 +216,7 @@ const PlayerCard = {
                     if (containerWidth > 0) {
                         cardScale.value = containerWidth / 450;
                         containerHeight.value = 684 * cardScale.value;
+                        isScaleReady.value = true;
                     }
                 }
                 rafId = null;
@@ -238,7 +240,7 @@ const PlayerCard = {
             // Skip ResizeObserver in lite mode for better performance (used in Swiper)
             if (props.size === 'sm') {
                 // Just set initial scale once, no observers
-                requestAnimationFrame(() => updateScale());
+                nextTick(() => updateScale());
                 return;
             }
             
@@ -292,7 +294,7 @@ const PlayerCard = {
             return '30px';
         });
 
-        return { cardContainer, p, themeStyle, displayRegion, getLevelTag, handleMove, handleLeave, holoStyle, cardScale, containerHeight, nameFontSize, isVisible, isPhotoLoaded, photoUrl };
+        return { cardContainer, p, themeStyle, displayRegion, getLevelTag, handleMove, handleLeave, holoStyle, cardScale, containerHeight, nameFontSize, isVisible, isPhotoLoaded, photoUrl, isScaleReady };
     }
 };
 

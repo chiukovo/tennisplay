@@ -59,7 +59,8 @@
 {{-- Player Card Template --}}
 <script type="text/x-template" id="player-card-template">
     <div v-if="p || isPlaceholder" ref="cardContainer"
-        class="holo-container overflow-visible relative"
+        class="holo-container overflow-visible relative transition-opacity duration-150"
+        :class="isScaleReady ? 'opacity-100' : 'opacity-0'"
         :style="{ height: containerHeight + 'px' }">
         
         {{-- Internal Scalable Card --}}

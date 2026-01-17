@@ -41,7 +41,7 @@
                 <div class="lg:hidden flex flex-col items-center mb-4">
                     <div class="swiper home-cards-swiper" style="width: 140px; height: 210px;">
                         <div class="swiper-wrapper">
-                            <div v-if="randomPlayers.length > 0" v-for="p in randomPlayers" :key="'swiper-' + p.id" class="swiper-slide">
+                            <div v-if="randomPlayers.length > 0" v-for="p in randomPlayers.slice(0, 5)" :key="'swiper-' + p.id" class="swiper-slide">
                                 <player-card :player="p" size="sm" class="w-full h-full"></player-card>
                             </div>
                             <template v-if="randomPlayers.length === 0">

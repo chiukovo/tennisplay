@@ -944,8 +944,12 @@ createApp({
                     },
                     grabCursor: true,
                     initialSlide: 0,
-                    speed: 500,
+                    speed: 300,
                     rewind: true,
+                    // Performance optimizations
+                    touchRatio: 1.5,
+                    resistanceRatio: 0.85,
+                    watchSlidesProgress: false,
                 };
                 
                 // Destroy existing swipers first

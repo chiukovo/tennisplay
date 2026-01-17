@@ -904,34 +904,40 @@ createApp({
             });
 
             // 預渲染暖身：讓 Vue 提前編譯 PlayerDetailModal 模板
-            // Loading 保持顯示直到暖身完成，避免閃爍
+            // Loading 保持顯示直到所有效果與 API 載入完成
             document.body.classList.add('warmup-hidden');
             
-            setTimeout(() => {
+            const hideLoader = () => {
+                document.body.classList.remove('warmup-hidden');
+                // 額外延遲確保所有渲染完成
+                setTimeout(() => {
+                    const loader = document.getElementById('init-loader');
+                    if (loader) {
+                        loader.style.opacity = '0';
+                        setTimeout(() => loader.remove(), 300);
+                    }
+                }, 200);
+            };
+            
+            setTimeout(async () => {
+                // Step 1: 暖身 Modal
                 const warmupPlayer = { id: 0, name: '', level: '3.5', region: '' };
                 detailPlayer.value = warmupPlayer;
                 
-                // 等待 Vue 渲染完成
-                setTimeout(() => {
-                    detailPlayer.value = null;
-                    
-                    // 暖身完成，移除隱藏並淡出 Loading
-                    setTimeout(() => {
-                        document.body.classList.remove('warmup-hidden');
-                        
-                        // Initialize Home Cards Swiper
-                        loadRandomPlayers().then(() => {
-                            nextTick(() => initHomeSwiper());
-                        });
-                        
-                        // 最後才淡出 Loading
-                        const loader = document.getElementById('init-loader');
-                        if (loader) {
-                            loader.style.opacity = '0';
-                            setTimeout(() => loader.remove(), 300);
-                        }
-                    }, 150);
-                }, 150);
+                await new Promise(resolve => setTimeout(resolve, 150));
+                detailPlayer.value = null;
+                
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // Step 2: 載入 API 資料
+                await loadRandomPlayers();
+                
+                // Step 3: 初始化 Swiper
+                await nextTick();
+                initHomeSwiper();
+                
+                // Step 4: 最後才移除 Loading
+                hideLoader();
             }, 100);
         });
 

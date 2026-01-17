@@ -1,5 +1,5 @@
 {{-- Instant Play View --}}
-<div v-if="view === 'instant-play'" class="h-[calc(100vh-200px)] sm:h-[calc(100vh-160px)] flex flex-col">
+<div v-if="view === 'instant-play'" class="h-[calc(100vh-140px)] sm:h-[calc(100vh-160px)] flex flex-col -mx-4 sm:mx-0">
     
     {{-- Lobby View: Room Selection --}}
     <div v-if="!currentRoom" class="space-y-6 overflow-y-auto no-scrollbar pb-10">
@@ -75,7 +75,7 @@
     </div>
 
     {{-- Chat View: Active Chat Room --}}
-    <div v-else class="flex-grow flex flex-col bg-white rounded-[32px] border border-slate-200 shadow-2xl overflow-hidden relative">
+    <div v-else class="flex-grow flex flex-col bg-white rounded-2xl sm:rounded-[32px] border border-slate-200 shadow-2xl overflow-hidden relative">
         {{-- Chat Header --}}
         <div class="px-4 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
             <div class="flex items-center gap-3">
@@ -107,7 +107,7 @@
         </div>
 
         {{-- Messages Container --}}
-        <div id="instant-messages-container" class="flex-grow overflow-y-auto p-4 sm:p-6 space-y-4 no-scrollbar bg-slate-50/30">
+        <div id="instant-messages-container" class="flex-grow overflow-y-auto p-4 sm:p-6 space-y-4 no-scrollbar bg-slate-50/30 overscroll-contain touch-pan-y">
             <div v-if="instantMessages.length === 0" class="h-full flex flex-col items-center justify-center text-center opacity-50">
                 <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm">
                     <app-icon name="message-square" class-name="w-8 h-8 text-slate-300"></app-icon>

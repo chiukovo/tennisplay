@@ -1224,7 +1224,8 @@ createApp({
         'quick-edit-modal': QuickEditModal,
         'message-detail-modal': MessageDetailModal,
         'event-detail-modal': EventDetailModal,
-        'privacy-modal': PrivacyModal
+        'privacy-modal': PrivacyModal,
+        'emoji-picker': EmojiPicker
     }
 }).mount('#app');
 </script>

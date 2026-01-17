@@ -61,14 +61,17 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
         currentChannel = window.Echo.join(`instant-room.${room.slug}`)
             .here((users) => {
                 console.log(`Room [${room.slug}] Here:`, users.length);
+                if (currentRoom.value) currentRoom.value.active_count = users.length;
                 api.post(`/instant/rooms/${room.slug}/sync`);
             })
             .joining((user) => {
                 console.log('User joined room:', user.name);
+                if (currentRoom.value) currentRoom.value.active_count = (currentRoom.value.active_count || 0) + 1;
                 api.post(`/instant/rooms/${room.slug}/sync`);
             })
             .leaving((user) => {
                 console.log('User left room:', user.name);
+                if (currentRoom.value) currentRoom.value.active_count = Math.max(0, (currentRoom.value.active_count || 1) - 1);
                 api.post(`/instant/rooms/${room.slug}/sync`);
             })
             .listen('.message.sent', (e) => {

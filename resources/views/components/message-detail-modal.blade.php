@@ -63,9 +63,12 @@
                             <textarea v-model="newMessage" placeholder="輸入訊息..." rows="1"
                                 @keydown.enter="handleEnterKey"
                                 @input="$event.target.style.height = 'auto'; $event.target.style.height = Math.min($event.target.scrollHeight, 120) + 'px'"
-                                class="w-full bg-slate-100 border-0 rounded-2xl px-4 py-2.5 sm:py-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all resize-none overflow-hidden"
+                                class="w-full bg-slate-100 border-0 rounded-2xl px-4 py-2.5 sm:py-3 pr-10 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all resize-none overflow-hidden"
                                 style="min-height: 42px; max-height: 120px;"
                                 :disabled="sending"></textarea>
+                            <div class="absolute right-1 top-1/2 -translate-y-1/2">
+                                <emoji-picker @select="e => newMessage += e"></emoji-picker>
+                            </div>
                         </div>
                         <button type="submit" :disabled="!newMessage.trim() || sending" 
                             class="bg-blue-600 text-white w-10 h-10 sm:w-auto sm:h-auto sm:px-6 sm:py-3 rounded-xl sm:rounded-xl font-black uppercase tracking-widest shadow-lg shadow-blue-600/20 hover:bg-blue-700 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shrink-0">

@@ -21,6 +21,24 @@ class InstantChatController extends Controller
             $stats = $this->fetchRoomStatsData($room);
             $room->active_count = $stats['active_count'];
             $room->active_avatars = $stats['active_avatars'];
+            
+            // Add last message preview (within 48 hours)
+            $lastMessage = $room->messages()
+                ->with(['user:id,name'])
+                ->where('created_at', '>=', Carbon::now()->subHours(48))
+                ->latest()
+                ->first();
+            
+            if ($lastMessage) {
+                $room->last_message = $lastMessage->content;
+                $room->last_message_by = $lastMessage->user->name ?? null;
+                $room->last_message_at = $lastMessage->created_at;
+            } else {
+                $room->last_message = null;
+                $room->last_message_by = null;
+                $room->last_message_at = null;
+            }
+            
             return $room;
         });
 
@@ -29,10 +47,12 @@ class InstantChatController extends Controller
 
     public function getMessages(InstantRoom $room)
     {
+        // Only show messages from the past 48 hours for relevance
         $messages = $room->messages()
             ->with(['user' => function($q) {
                 $q->select('id', 'name', 'line_picture_url', 'uid');
             }])
+            ->where('created_at', '>=', Carbon::now()->subHours(48))
             ->latest()
             ->limit(50)
             ->get()

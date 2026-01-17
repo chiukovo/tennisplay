@@ -44,7 +44,18 @@
                     <div class="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] mb-1">REGION</div>
                     <div class="text-lg sm:text-xl font-black text-slate-900 mb-1">@{{ room.name }}</div>
                     
-                    <div class="mt-4 flex flex-col gap-2">
+                    {{-- Last Message Preview --}}
+                    <div v-if="room.last_message" class="mt-2 mb-3 p-2 bg-slate-50 rounded-xl border border-slate-100">
+                        <p class="text-xs text-slate-600 font-semibold line-clamp-2 leading-relaxed">
+                            <span class="text-blue-600">@{{ room.last_message_by }}:</span> @{{ room.last_message }}
+                        </p>
+                        <p class="text-[9px] text-slate-400 font-bold mt-1">@{{ formatDate(room.last_message_at) }}</p>
+                    </div>
+                    <div v-else class="mt-2 mb-3 p-2 bg-slate-50/50 rounded-xl border border-dashed border-slate-200 text-center">
+                        <p class="text-[10px] text-slate-300 font-bold uppercase tracking-widest">尚無訊息</p>
+                    </div>
+                    
+                    <div class="flex flex-col gap-2">
                         <!-- Room Avatars -->
                         <div class="flex items-center -space-x-2" v-if="room.active_avatars && room.active_avatars.length">
                             <img v-for="(u, idx) in room.active_avatars" :key="idx" 
@@ -76,7 +87,7 @@
                     <div class="flex items-center gap-1.5 mt-0.5">
                         <div class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                            目前有 @{{ globalInstantStats.display_count }} 位球友在線
+                            本房間有 @{{ currentRoom.active_count || 0 }} 位球友在線
                         </p>
                     </div>
                 </div>
@@ -145,12 +156,15 @@
             </div>
 
             <div class="flex items-center gap-2">
-                <div class="flex-grow relative">
+                <div class="flex-grow relative flex items-center">
                     <textarea v-model="instantMessageDraft" 
                         @keydown.enter.exact.prevent="sendInstantMessage()"
                         rows="1"
                         placeholder="輸入訊息或使用上方模板..." 
-                        class="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none overflow-hidden"></textarea>
+                        class="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 pr-10 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none overflow-hidden"></textarea>
+                    <div class="absolute right-1 top-1/2 -translate-y-1/2">
+                        <emoji-picker @select="e => instantMessageDraft += e"></emoji-picker>
+                    </div>
                 </div>
                 <button @click="sendInstantMessage()" 
                     :disabled="!instantMessageDraft || isSending"

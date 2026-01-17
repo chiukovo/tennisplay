@@ -8,6 +8,43 @@ const AppIcon = {
   }
 };
 
+// Emoji Picker Component (defined early so other components can use it)
+const EmojiPicker = {
+    template: '#emoji-picker-template',
+    emits: ['select'],
+    data() {
+        return {
+            open: false,
+            emojis: [
+                '😀','😂','🥹','😍','🤩','😎','🤔','😅','😊','🥰',
+                '😘','😜','🤗','🙌','👏','🎾','🏸','⚽','🏓','🎯',
+                '💪','🔥','✨','❤️','💙','👍','👋','🙏','🎉','🤝',
+                '😭','🥺','😤','😈','🤣','😇','🤭','😏','🙂','😉',
+                '👀','💯','⭐','🌟','💥','💫','🎊','🏆','🥇','🏅'
+            ]
+        };
+    },
+    methods: {
+        selectEmoji(emoji) {
+            this.$emit('select', emoji);
+            this.open = false;
+        }
+    },
+    directives: {
+        'click-outside': {
+            mounted(el, binding) {
+                el._clickOutside = (e) => {
+                    if (!el.contains(e.target)) binding.value();
+                };
+                document.addEventListener('click', el._clickOutside);
+            },
+            unmounted(el) {
+                document.removeEventListener('click', el._clickOutside);
+            }
+        }
+    }
+};
+
 const SignaturePad = {
     props: ['active'],
     components: { AppIcon },
@@ -300,7 +337,7 @@ const PlayerCard = {
 
 const PlayerDetailModal = {
     props: ['player', 'stats', 'players', 'isLoggedIn', 'showToast', 'navigateTo', 'currentUser'],
-    components: { AppIcon, PlayerCard },
+    components: { AppIcon, PlayerCard, EmojiPicker },
     template: '#player-detail-modal-template',
     emits: ['close', 'open-match', 'update:player', 'open-profile', 'open-ntrp-guide', 'share'],
     setup(props, { emit }) {
@@ -551,7 +588,7 @@ const PlayerDetailModal = {
 
 const MessageDetailModal = {
     props: ['open', 'targetUser', 'currentUser'],
-    components: { AppIcon },
+    components: { AppIcon, EmojiPicker },
     template: '#message-detail-modal-template',
     emits: ['update:open', 'message-sent', 'navigate-to-profile'],
     setup(props, { emit }) {
@@ -776,7 +813,7 @@ const QuickEditModal = {
 
 const EventDetailModal = {
     props: ['open', 'event', 'likes', 'comments', 'commentDraft', 'currentUser', 'isSubmitting'],
-    components: { AppIcon },
+    components: { AppIcon, EmojiPicker },
     template: '#event-detail-modal-template',
     emits: ['update:open', 'like', 'join', 'comment', 'leave', 'update:comment-draft', 'delete-comment', 'open-profile'],
     setup(props, { emit }) {

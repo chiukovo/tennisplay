@@ -207,7 +207,10 @@
                                                 rows="1"
                                                 @keydown.enter.exact.prevent="postComment"
                                                 placeholder="留個言打聲招呼吧..." 
-                                                class="w-full bg-slate-50 border-none rounded-2xl px-5 py-3 pr-12 text-sm font-bold focus:bg-slate-100 outline-none transition-all placeholder:text-slate-300 resize-none overflow-hidden"></textarea>
+                                                class="w-full bg-slate-50 border-none rounded-2xl px-5 py-3 pr-20 text-sm font-bold focus:bg-slate-100 outline-none transition-all placeholder:text-slate-300 resize-none overflow-hidden"></textarea>
+                                            <div class="absolute right-10 top-1.5">
+                                                <emoji-picker @select="e => commentDraft += e"></emoji-picker>
+                                            </div>
                                             <button @click="postComment" :disabled="!commentDraft.trim() || isSubmitting" class="absolute right-2 top-1.5 p-2 text-blue-600 disabled:opacity-20 transition-all">
                                                 <app-icon v-if="!isSubmitting" name="send" class-name="w-5 h-5"></app-icon>
                                                 <div v-else class="w-4 h-4 border-2 border-blue-600/30 border-t-blue-600 rounded-full animate-spin"></div>
@@ -445,7 +448,10 @@
                                             @input="$emit('update:comment-draft', $event.target.value)"
                                             @keydown.enter.exact.prevent="$emit('comment', event.id)"
                                             rows="1" placeholder="寫下你的訊息..." 
-                                            class="w-full bg-slate-50 border-none rounded-2xl px-5 py-3 pr-12 text-sm font-bold focus:bg-slate-100 outline-none transition-all placeholder:text-slate-300 resize-none overflow-hidden min-h-[48px]"></textarea>
+                                            class="w-full bg-slate-50 border-none rounded-2xl px-5 py-3 pr-20 text-sm font-bold focus:bg-slate-100 outline-none transition-all placeholder:text-slate-300 resize-none overflow-hidden min-h-[48px]"></textarea>
+                                        <div class="absolute right-10 top-1.5">
+                                            <emoji-picker @select="e => $emit('update:comment-draft', (commentDraft || '') + e)"></emoji-picker>
+                                        </div>
                                         <button type="button" @click="$emit('comment', event.id)" :disabled="!commentDraft?.trim() || isSubmitting" class="absolute right-2 top-1.5 p-2 text-blue-600 disabled:opacity-20 transition-all">
                                             <app-icon v-if="!isSubmitting" name="send" class-name="w-5 h-5"></app-icon>
                                             <div v-else class="w-4 h-4 border-2 border-blue-600/30 border-t-blue-600 rounded-full animate-spin"></div>
@@ -765,4 +771,25 @@
             </div>
         </div>
     </transition>
+</script>
+
+{{-- Emoji Picker Component Template --}}
+<script type="text/x-template" id="emoji-picker-template">
+    <div class="relative" v-click-outside="() => open = false">
+        <button type="button" @click.stop="open = !open" class="p-2 text-slate-400 hover:text-yellow-500 transition-colors" title="插入表情符號">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                <line x1="15" y1="9" x2="15.01" y2="9"></line>
+            </svg>
+        </button>
+        <transition name="fade">
+            <div v-if="open" class="absolute bottom-full right-0 mb-2 p-2.5 bg-white rounded-2xl shadow-2xl border border-slate-100 grid grid-cols-8 gap-0.5 z-[999] w-72 max-h-48 overflow-y-auto">
+                <button v-for="e in emojis" :key="e" @click="selectEmoji(e)" type="button" class="text-xl hover:bg-blue-50 rounded-lg p-1.5 transition-colors active:scale-90">
+                    @{{ e }}
+                </button>
+            </div>
+        </transition>
+    </div>
 </script>

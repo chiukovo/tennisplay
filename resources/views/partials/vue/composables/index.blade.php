@@ -10,3 +10,4 @@
 @include('partials.vue.composables.useCardCreation')
 @include('partials.vue.composables.useDrag')
 @include('partials.vue.composables.useCapture')
+@include('partials.vue.composables.useInstantPlay')

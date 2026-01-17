@@ -52,6 +52,10 @@ $seoData = [
     'privacy' => [
         'title' => '隱私權政策 | LoveTennis',
         'description' => '了解 LoveTennis 如何保護您的個人資料與使用規範，安心網球約打。',
+    ],
+    'instant-play' => [
+        'title' => '現在想打 | 即時揪球聊天室 | LoveTennis',
+        'description' => '即時發布揪球訊息，找到現在就能上場的網球球友。分區聊天室，媒合更快速！',
     ]
 ];
 
@@ -134,6 +138,10 @@ Route::get('/privacy', function () use ($seoData) {
     return view('index', ['seo' => $seoData['privacy']]);
 });
 
+Route::get('/instant-play', function () use ($seoData) {
+    return view('index', ['seo' => $seoData['instant-play']]);
+});
+
 Route::get('/profile/{uid}', function ($uid) use ($seoData) {
     return view('index', [
         'seo' => [
@@ -168,6 +176,7 @@ Route::get('/sitemap.xml', function () {
         url('/create-event'),
         url('/settings'),
         url('/privacy'),
+        url('/instant-play'),
     ];
 
     $eventUrls = \App\Models\Event::select('id', 'updated_at')

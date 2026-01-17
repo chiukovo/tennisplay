@@ -149,10 +149,10 @@ createApp({
 
         // --- 3. Initialize Composables ---
         const { view, lastNavigationTap, navigateTo, parseRoute } = useNavigation(
-            { '/': 'home', '/list': 'list', '/create': 'create', '/messages': 'messages', '/auth': 'auth', '/profile': 'profile', '/events': 'events', '/create-event': 'create-event', '/settings': 'settings', '/privacy': 'privacy', '/sitemap': 'sitemap' },
-            { 'home': '/', 'list': '/list', 'create': '/create', 'messages': '/messages', 'auth': '/auth', 'profile': '/profile', 'events': '/events', 'create-event': '/create-event', 'settings': '/settings', 'privacy': '/privacy', 'sitemap': '/sitemap' },
+            { '/': 'home', '/list': 'list', '/create': 'create', '/messages': 'messages', '/auth': 'auth', '/profile': 'profile', '/events': 'events', '/create-event': 'create-event', '/settings': 'settings', '/privacy': 'privacy', '/sitemap': 'sitemap', '/instant-play': 'instant-play' },
+            { 'home': '/', 'list': '/list', 'create': '/create', 'messages': '/messages', 'auth': '/auth', 'profile': '/profile', 'events': '/events', 'create-event': '/create-event', 'settings': '/settings', 'privacy': '/privacy', 'sitemap': '/sitemap', 'instant-play': '/instant-play' },
             { 
-                'home': 'LoveTennis | 全台最專業的網球約打媒合與球友卡社群', 'list': '找球友 | 發現您的最佳網球夥伴', 'create': '建立球友卡 | 展現您的網球風格', 'messages': '我的訊息 | 網球約打邀請管理', 'events': '揪球開團 | 搜尋全台網球場次', 'create-event': '發佈揪球 | 建立新的網球場次', 'auth': '登入/註冊 | 加入 LoveTennis 社群', 'profile': '個人主頁 | LoveTennis', 'settings': '帳號設置 | 個性化您的網球體驗', 'privacy': '隱私權政策 | LoveTennis', 'sitemap': '網站地圖 | LoveTennis' 
+                'home': 'LoveTennis | 全台最專業的網球約打媒合與球友卡社群', 'list': '找球友 | 發現您的最佳網球夥伴', 'create': '建立球友卡 | 展現您的網球風格', 'messages': '我的訊息 | 網球約打邀請管理', 'events': '揪球開團 | 搜尋全台網球場次', 'create-event': '發佈揪球 | 建立新的網球場次', 'auth': '登入/註冊 | 加入 LoveTennis 社群', 'profile': '個人主頁 | LoveTennis', 'settings': '帳號設置 | 個性化您的網球體驗', 'privacy': '隱私權政策 | LoveTennis', 'sitemap': '網站地圖 | LoveTennis', 'instant-play': '現在想打 | 即時揪球聊天室'
             },
             showToast,
             (viewName) => applyDefaultFilters(viewName),
@@ -196,6 +196,11 @@ createApp({
         const { dragInfo, startDrag, handleDrag, stopDrag } = useDrag(form);
 
         const { isCapturing: isCapturingImage, captureCardImage } = useCapture(showToast);
+
+        const { 
+            instantRooms, currentRoom, instantMessages, isInstantLoading, globalInstantStats, instantMessageDraft,
+            fetchRooms, selectRoom, sendInstantMessage, fetchMessages, joinBySlug
+        } = useInstantPlay(isLoggedIn, currentUser, showToast, view);
 
         // Full reset including steps (now that currentStep is available)
         const resetFormFull = () => {
@@ -1173,6 +1178,7 @@ createApp({
             settingsForm, isSavingSettings, toasts, confirmDialog, dragInfo,
             profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,
             selectedProfileRegions, toggleProfileRegion, reportModal, isReporting, isBlocking, profileActionMenu,
+            instantRooms, currentRoom, instantMessages, isInstantLoading, globalInstantStats, instantMessageDraft,
             // Computed
             hasUnread, hasPlayerCard, myCards, activeRegions, activeEventRegions, filteredPlayers, totalPages, paginatedPlayers, displayPages, randomPlayers, 
             filteredEvents, eventTotalPages, paginatedEvents, eventDisplayPages,
@@ -1192,6 +1198,7 @@ createApp({
             loadProfile, loadProfileEvents, saveProfile, openProfile, toggleFollow, toggleLike,
             loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment, deletePlayerComment,
             openReportModal, submitReport, toggleBlock,
+            selectRoom, sendInstantMessage, fetchMessages, joinBySlug,
             loadMessages, markMessageRead, openMessage, onMessageSent, loadMoreMessages,
             handlePlayerUpdate,
             showToast, removeToast, showConfirm, hideConfirm, executeConfirm,

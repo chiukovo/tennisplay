@@ -100,17 +100,21 @@ const useEvents = (isLoggedIn, showToast, navigateTo, formatLocalDateTime, event
     };
 
     const deleteEvent = async (id) => {
-        if (!isLoggedIn.value) return;
+        if (!isLoggedIn.value || eventSubmitting.value) return;
+        eventSubmitting.value = true;
         try {
             await api.delete(`/events/${id}`);
             await loadEvents();
         } catch (error) {
             showToast(error.response?.data?.error || '刪除失敗', 'error');
-        }
+        } finally { eventSubmitting.value = false; }
     };
 
     const joinEvent = async (eventId) => {
         if (!isLoggedIn.value) { showToast('請先登入', 'error'); navigateTo('auth'); return null; }
+        if (eventSubmitting.value) return null;
+        
+        eventSubmitting.value = true;
         try {
             const response = await api.post(`/events/${eventId}/join`);
             await loadEvents();
@@ -118,10 +122,13 @@ const useEvents = (isLoggedIn, showToast, navigateTo, formatLocalDateTime, event
         } catch (error) { 
             showToast(error.response?.data?.error || '報名失敗', 'error'); 
             return null;
-        }
+        } finally { eventSubmitting.value = false; }
     };
 
     const leaveEvent = async (eventId) => {
+        if (eventSubmitting.value) return null;
+        
+        eventSubmitting.value = true;
         try {
             const response = await api.post(`/events/${eventId}/leave`);
             await loadEvents();
@@ -129,7 +136,7 @@ const useEvents = (isLoggedIn, showToast, navigateTo, formatLocalDateTime, event
         } catch (error) { 
             showToast(error.response?.data?.error || '取消失敗', 'error'); 
             return null;
-        }
+        } finally { eventSubmitting.value = false; }
     };
 
     return { events, eventsLoading, eventSubmitting, eventsPagination, loadEvents, createEvent, updateEvent, deleteEvent, joinEvent, leaveEvent };

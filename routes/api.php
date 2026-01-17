@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\LikeController;
 use App\Http\Controllers\Api\PlayerCommentController;
 use App\Http\Controllers\Api\CardCaptureController;
 use App\Http\Controllers\Api\UserSafetyController;
+use App\Http\Controllers\Api\InstantChatController;
 
 // LINE Webhook
 Route::post('/line/webhook', [AuthController::class, 'handleWebhook']);
@@ -38,6 +39,13 @@ Route::get('/players/{id}/comments', [PlayerCommentController::class, 'index']);
 Route::get('/following/{uid}', [FollowController::class, 'following']);
 Route::get('/followers/{uid}', [FollowController::class, 'followers']);
 Route::get('/likes/{uid}', [LikeController::class, 'index']);
+
+// Instant Play (Public Read)
+Route::group(['prefix' => 'instant'], function() {
+    Route::get('/rooms', [InstantChatController::class, 'getRooms']);
+    Route::get('/rooms/{room:slug}/messages', [InstantChatController::class, 'getMessages']);
+    Route::get('/stats', [InstantChatController::class, 'getGlobalStats']);
+});
 
 // Protected Routes (requires LINE login)
 Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
@@ -95,4 +103,10 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::post('/users/{uid}/report', [UserSafetyController::class, 'report']);
     Route::post('/users/{uid}/block', [UserSafetyController::class, 'block']);
     Route::post('/users/{uid}/unblock', [UserSafetyController::class, 'unblock']);
+
+    // Instant Play (Authenticated Write)
+    Route::post('/instant/rooms/{room:slug}/messages', [InstantChatController::class, 'sendMessage']);
+    Route::post('/instant/rooms/{room:slug}/sync', [InstantChatController::class, 'syncRoomStats']);
+    Route::post('/instant/sync-global', [InstantChatController::class, 'syncGlobalStats']);
+    Route::post('/instant/exit-room', [InstantChatController::class, 'exitRoom']);
 });

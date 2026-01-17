@@ -24,6 +24,8 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
         });
     };
 
+    const isSubmitting = ref(false);
+
     const loadPlayers = async (params = {}, force = false) => {
         const cacheKey = getCacheKey(params);
         
@@ -96,7 +98,8 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
 
     const saveCard = async (resetForm) => {
         if (!isLoggedIn.value) { showToast('請先登入', 'error'); navigateTo('auth'); return; }
-        
+        if (isSubmitting.value) return;
+
         // Internal validation check
         const canProceedStep1 = !!form.photo;
         const canProceedStep2 = !!form.level && !!form.handed && !!form.backhand;
@@ -107,6 +110,7 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
             return; 
         }
         
+        isSubmitting.value = true;
         try {
             const payload = {
                 name: form.name, region: form.region, level: form.level, gender: form.gender,
@@ -147,13 +151,15 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
                 const msg = error.response?.data?.error || error.response?.data?.message || '儲存失敗';
                 showToast(msg, 'error');
             }
-        }
+        } finally { isSubmitting.value = false; }
     };
 
     const deleteCard = (cardId, view) => {
         showConfirm({
             title: '刪除球友卡', message: '確定要刪除嗎？', confirmText: '確認刪除', type: 'danger',
             onConfirm: async () => {
+                if (isSubmitting.value) return;
+                isSubmitting.value = true;
                 try {
                     await api.delete(`/players/${cardId}`);
                     // 清除快取確保資料最新
@@ -163,10 +169,10 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
                 } catch (error) {
                     const msg = error.response?.data?.error || error.response?.data?.message || '刪除失敗';
                     showToast(msg, 'error');
-                }
+                } finally { isSubmitting.value = false; }
             }
         });
     };
 
-    return { players, myPlayers, randomPlayers, isPlayersLoading, playersPagination, loadPlayers, loadRandomPlayers, loadMyCards, saveCard, deleteCard, clearPlayersCache };
+    return { players, myPlayers, randomPlayers, isPlayersLoading, isSubmitting, playersPagination, loadPlayers, loadRandomPlayers, loadMyCards, saveCard, deleteCard, clearPlayersCache };
 };

@@ -1,0 +1,38 @@
+{
+    "authHost": "https://lovetennis.tw",
+    "authEndpoint": "/broadcasting/auth",
+    "clients": [
+        {
+            "appId": "lovetennis",
+            "key": "lkKDASzzABC01"
+        }
+    ],
+    "database": "redis",
+    "databaseConfig": {
+        "redis": {
+            "host": "127.0.0.1",
+            "port": "6379",
+            "keyPrefix": ""
+        }
+    },
+    "devMode": false,
+    "host": null,
+    "port": "6001",
+    "protocol": "http",
+    "socketio": {},
+    "secureOptions": 67108864,
+    "sslCertPath": "",
+    "sslKeyPath": "",
+    "sslCertChainPath": "",
+    "sslPassphrase": "",
+    "subscribers": {
+        "http": true,
+        "redis": true
+    },
+    "apiOriginAllow": {
+        "allowCors": true,
+        "allowOrigin": "https://lovetennis.tw",
+        "allowMethods": "GET, POST",
+        "allowHeaders": "Origin, Content-Type, X-Auth-Token, X-Requested-With, Accept, Authorization, X-CSRF-TOKEN, X-Socket-Id"
+    }
+}

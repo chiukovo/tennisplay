@@ -14,11 +14,15 @@
         <div v-if="view === 'list'" class="absolute -bottom-0.5 w-1 h-1 bg-blue-400 rounded-full"></div>
     </a>
 
-    {{-- Central Create Button --}}
-    <div class="px-0.5">
-        <a href="/create" @click.prevent="resetForm(); navigateTo('create')" class="flex items-center justify-center w-10 h-10 bg-blue-600 text-white rounded-xl hover:scale-105 active:scale-95 transition-all border-[3px] border-slate-900">
-            <app-icon name="plus" class-name="w-5 h-5"></app-icon>
-        </a>
+    {{-- Central Action Button --}}
+    <div class="px-0.5 -mt-6">
+        <button @click="showToast('功能開發中，敬請期待', 'info')" 
+            class="flex flex-col items-center justify-center -mt-8 relative animate-in zoom-in duration-500 delay-300">
+            <div class="w-16 h-16 bg-blue-600 rounded-full flex flex-col items-center justify-center shadow-xl shadow-blue-500/40 border-4 border-white active:scale-95 transition-all group">
+                <app-icon name="zap" class-name="w-6 h-6 text-white group-hover:animate-pulse"></app-icon>
+                <span class="text-[9px] font-black text-white uppercase tracking-tighter -mt-0.5">打球拉</span>
+            </div>
+        </button>
     </div>
 
     {{-- Messages --}}

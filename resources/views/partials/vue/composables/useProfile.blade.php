@@ -22,6 +22,7 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
     const reportModal = reactive({ open: false, message: '' });
     const isReporting = ref(false);
     const isBlocking = ref(false);
+    const isSubmitting = ref(false);
     
     // 多地區選擇
     const selectedProfileRegions = ref([]);
@@ -126,28 +127,41 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
 
     const submitPlayerComment = async (playerId) => {
         if (!isLoggedIn.value) { showToast('請先登入', 'error'); navigateTo('auth'); return; }
+        if (isSubmitting.value) return;
         const text = playerCommentDraft.value.trim();
         if (!text) return;
+        
+        isSubmitting.value = true;
         try {
             const response = await api.post(`/players/${playerId}/comments`, { content: text });
             profileComments.value.unshift(response.data.comment);
             playerCommentDraft.value = '';
-        } catch (error) { showToast('發送失敗', 'error'); }
+        } catch (error) { 
+            showToast('發送失敗', 'error'); 
+        } finally {
+            isSubmitting.value = false;
+        }
     };
 
     const deletePlayerComment = async (commentId) => {
-        if (!isLoggedIn.value) { showToast('請先登入', 'error'); navigateTo('auth'); return; }
+        if (!isLoggedIn.value || isSubmitting.value) { showToast('請先登入', 'error'); navigateTo('auth'); return; }
         if (!confirm('確定要刪除這則留言嗎？')) return;
+        
+        isSubmitting.value = true;
         try {
             await api.delete(`/players/comments/${commentId}`);
             profileComments.value = profileComments.value.filter(c => c.id !== commentId);
             showToast('留言已刪除', 'success');
         } catch (error) {
             showToast('刪除失敗', 'error');
+        } finally {
+            isSubmitting.value = false;
         }
     };
 
     const saveProfile = async () => {
+        if (isSubmitting.value) return;
+        isSubmitting.value = true;
         try {
             const response = await api.post('/profile/update', profileForm);
             if (response.data.user) {
@@ -156,7 +170,11 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
                 await loadProfile(currentUser.value.uid, loadProfileEvents);
                 isEditingProfile.value = false;
             }
-        } catch (error) { showToast('儲存失敗', 'error'); }
+        } catch (error) { 
+            showToast('儲存失敗', 'error'); 
+        } finally {
+            isSubmitting.value = false;
+        }
     };
 
     const openReportModal = () => {
@@ -205,8 +223,9 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
     };
 
     const toggleFollow = async () => {
-        if (!isLoggedIn.value) { showToast('請先登入', 'error'); navigateTo('auth'); return; }
+        if (!isLoggedIn.value || isSubmitting.value) { showToast('請先登入', 'error'); navigateTo('auth'); return; }
         const userId = profileData.user.uid || profileData.user.id;
+        isSubmitting.value = true;
         try {
             const endpoint = profileData.status.is_following ? `/unfollow/${userId}` : `/follow/${userId}`;
             const response = await api.post(endpoint);
@@ -215,13 +234,16 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
         } catch (error) {
             const msg = error.response?.data?.error || error.response?.data?.message || '操作失敗';
             showToast(msg, 'error');
+        } finally {
+            isSubmitting.value = false;
         }
     };
 
     const toggleLike = async () => {
-        if (!isLoggedIn.value) { showToast('請先登入', 'error'); navigateTo('auth'); return; }
+        if (!isLoggedIn.value || isSubmitting.value) { showToast('請先登入', 'error'); navigateTo('auth'); return; }
         const playerId = profileData.user.player?.id;
         if (!playerId) return;
+        isSubmitting.value = true;
         try {
             const endpoint = profileData.status.is_liked ? `/unlike/${playerId}` : `/like/${playerId}`;
             const response = await api.post(endpoint);
@@ -230,6 +252,8 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
         } catch (error) {
             const msg = error.response?.data?.error || error.response?.data?.message || '操作失敗';
             showToast(msg, 'error');
+        } finally {
+            isSubmitting.value = false;
         }
     };
 
@@ -256,6 +280,6 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
         selectedProfileRegions, toggleProfileRegion,
         loadProfile, loadProfileEvents, saveProfile, openProfile, toggleFollow, toggleLike,
         loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment, deletePlayerComment,
-        reportModal, isReporting, isBlocking, openReportModal, submitReport, toggleBlock
+        reportModal, isReporting, isBlocking, isSubmitting, openReportModal, submitReport, toggleBlock
     };
 };

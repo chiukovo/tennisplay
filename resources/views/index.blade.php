@@ -140,6 +140,7 @@
         @include('pages.settings')
         @include('pages.privacy')
         @include('pages.sitemap')
+        @include('pages.instant-play')
     </main>
 
     {{-- Footer --}}
@@ -179,6 +180,7 @@
         :comments="eventComments" 
         :comment-draft="eventCommentDraft"
         :current-user="currentUser"
+        :is-submitting="eventSubmitting"
         @update:comment-draft="v => eventCommentDraft = v"
         @like="toggleEventLike"
         @join="joinEvent"
@@ -321,6 +323,7 @@
             events: @json($initialEvents ?? [])
         };
     </script>
+    <script src="{{ asset('js/app.js') }}"></script>
     @include('partials.vue-scripts')
 
 </body>

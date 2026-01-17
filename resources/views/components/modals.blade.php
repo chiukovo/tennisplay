@@ -205,11 +205,12 @@
                                         <div class="flex-1 relative">
                                             <textarea v-model="commentDraft" 
                                                 rows="1"
-                                                @keyup.enter.prevent="postComment"
+                                                @keydown.enter.exact.prevent="postComment"
                                                 placeholder="留個言打聲招呼吧..." 
                                                 class="w-full bg-slate-50 border-none rounded-2xl px-5 py-3 pr-12 text-sm font-bold focus:bg-slate-100 outline-none transition-all placeholder:text-slate-300 resize-none overflow-hidden"></textarea>
-                                            <button @click="postComment" :disabled="!commentDraft.trim()" class="absolute right-2 top-1.5 p-2 text-blue-600 disabled:opacity-20 transition-all">
-                                                <app-icon name="send" class-name="w-5 h-5"></app-icon>
+                                            <button @click="postComment" :disabled="!commentDraft.trim() || isSubmitting" class="absolute right-2 top-1.5 p-2 text-blue-600 disabled:opacity-20 transition-all">
+                                                <app-icon v-if="!isSubmitting" name="send" class-name="w-5 h-5"></app-icon>
+                                                <div v-else class="w-4 h-4 border-2 border-blue-600/30 border-t-blue-600 rounded-full animate-spin"></div>
                                             </button>
                                         </div>
                                     </div>
@@ -237,7 +238,7 @@
                                                             <app-icon name="trash" class-name="w-3 h-3"></app-icon>
                                                         </button>
                                                     </div>
-                                                    <div class="text">@{{ c.text }}</div>
+                                                    <div class="text whitespace-pre-line">@{{ c.text }}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -442,11 +443,12 @@
                                     <div class="flex-1 relative">
                                         <textarea :value="commentDraft" 
                                             @input="$emit('update:comment-draft', $event.target.value)"
-                                            @keydown.enter.prevent="$emit('comment', event.id)"
+                                            @keydown.enter.exact.prevent="$emit('comment', event.id)"
                                             rows="1" placeholder="寫下你的訊息..." 
                                             class="w-full bg-slate-50 border-none rounded-2xl px-5 py-3 pr-12 text-sm font-bold focus:bg-slate-100 outline-none transition-all placeholder:text-slate-300 resize-none overflow-hidden min-h-[48px]"></textarea>
-                                        <button type="button" @click="$emit('comment', event.id)" :disabled="!commentDraft?.trim()" class="absolute right-2 top-1.5 p-2 text-blue-600 disabled:opacity-20 transition-all">
-                                            <app-icon name="send" class-name="w-5 h-5"></app-icon>
+                                        <button type="button" @click="$emit('comment', event.id)" :disabled="!commentDraft?.trim() || isSubmitting" class="absolute right-2 top-1.5 p-2 text-blue-600 disabled:opacity-20 transition-all">
+                                            <app-icon v-if="!isSubmitting" name="send" class-name="w-5 h-5"></app-icon>
+                                            <div v-else class="w-4 h-4 border-2 border-blue-600/30 border-t-blue-600 rounded-full animate-spin"></div>
                                         </button>
                                     </div>
                                 </div>
@@ -474,7 +476,7 @@
                                                 <app-icon name="trash" class-name="w-3 h-3"></app-icon>
                                             </button>
                                         </div>
-                                        <div class="text">@{{ c.text }}</div>
+                                        <div class="text whitespace-pre-line">@{{ c.text }}</div>
                                     </div>
                                 </div>
                             </div>

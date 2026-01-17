@@ -317,6 +317,7 @@ const PlayerDetailModal = {
         const isLoadingComments = ref(false);
         const socialStatus = reactive({ is_liked: false, is_following: false, likes_count: 0 });
         const commentsCache = reactive(new Map());  // 留言快取
+        const isSubmitting = ref(false);
 
         const loadComments = async () => {
             if (!props.player) return;
@@ -339,6 +340,8 @@ const PlayerDetailModal = {
 
         const toggleFollowModal = async () => {
             if (!props.isLoggedIn) { props.showToast('請先登入', 'error'); props.navigateTo('auth'); return; }
+            if (isSubmitting.value) return;
+            
             const uid = props.player.user?.uid || props.player.user_id;
             
             // Optimistic Update
@@ -346,6 +349,7 @@ const PlayerDetailModal = {
             socialStatus.is_following = !prevFollowing;
             emit('update:player', { ...props.player, is_following: socialStatus.is_following });
 
+            isSubmitting.value = true;
             try {
                 const action = prevFollowing ? 'unfollow' : 'follow';
                 await api.post(`/${action}/${uid}`);
@@ -354,11 +358,14 @@ const PlayerDetailModal = {
                 socialStatus.is_following = prevFollowing;
                 emit('update:player', { ...props.player, is_following: prevFollowing });
                 props.showToast(error.response?.data?.message || '操作失敗', 'error');
+            } finally {
+                isSubmitting.value = false;
             }
         };
 
         const toggleLikeModal = async () => {
             if (!props.isLoggedIn) { props.showToast('請先登入', 'error'); props.navigateTo('auth'); return; }
+            if (isSubmitting.value) return;
             
             // Optimistic Update
             const prevLiked = socialStatus.is_liked;
@@ -371,6 +378,7 @@ const PlayerDetailModal = {
                 likes_count: socialStatus.likes_count 
             });
 
+            isSubmitting.value = true;
             try {
                 const action = prevLiked ? 'unlike' : 'like';
                 const response = await api.post(`/${action}/${props.player.id}`);
@@ -387,13 +395,18 @@ const PlayerDetailModal = {
                     likes_count: prevLikesCount 
                 });
                 props.showToast(error.response?.data?.message || '操作失敗', 'error');
+            } finally {
+                isSubmitting.value = false;
             }
         };
 
         const postComment = async () => {
             if (!props.isLoggedIn) { props.showToast('請先登入', 'error'); props.navigateTo('auth'); return; }
+            if (isSubmitting.value) return;
             const text = commentDraft.value.trim();
             if (!text) return;
+            
+            isSubmitting.value = true;
             try {
                 const response = await api.post(`/players/${props.player.id}/comments`, { content: text });
                 comments.value.unshift(response.data.comment);
@@ -401,11 +414,15 @@ const PlayerDetailModal = {
                 commentDraft.value = '';
                 emit('update:player', { ...props.player, comments_count: (props.player.comments_count || 0) + 1 });
             } catch (error) { props.showToast('發送失敗', 'error'); }
+            finally { isSubmitting.value = false; }
         };
 
         const deleteComment = async (commentId) => {
             if (!props.isLoggedIn) { props.showToast('請先登入', 'error'); props.navigateTo('auth'); return; }
+            if (isSubmitting.value) return;
             if (!confirm('確定要刪除這則留言嗎？')) return;
+            
+            isSubmitting.value = true;
             try {
                 await api.delete(`/players/comments/${commentId}`);
                 comments.value = comments.value.filter(c => c.id !== commentId);
@@ -415,6 +432,8 @@ const PlayerDetailModal = {
                 props.showToast('留言已刪除', 'success');
             } catch (error) {
                 props.showToast('刪除失敗', 'error');
+            } finally {
+                isSubmitting.value = false;
             }
         };
 
@@ -526,7 +545,7 @@ const PlayerDetailModal = {
             return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
         };
 
-        return { currentIndex, hasPrev, hasNext, transitionName, isTransitioning, navigate, handleTouchStart, handleTouchEnd, backStats, formatDate, comments, commentDraft, isLoadingComments, socialStatus, toggleFollowModal, toggleLikeModal, postComment, deleteComment };
+        return { currentIndex, hasPrev, hasNext, transitionName, isTransitioning, navigate, handleTouchStart, handleTouchEnd, backStats, formatDate, comments, commentDraft, isLoadingComments, socialStatus, toggleFollowModal, toggleLikeModal, postComment, deleteComment, isSubmitting };
     }
 };
 
@@ -756,13 +775,13 @@ const QuickEditModal = {
 };
 
 const EventDetailModal = {
-    props: ['open', 'event', 'likes', 'comments', 'commentDraft', 'currentUser'],
+    props: ['open', 'event', 'likes', 'comments', 'commentDraft', 'currentUser', 'isSubmitting'],
     components: { AppIcon },
     template: '#event-detail-modal-template',
     emits: ['update:open', 'like', 'join', 'comment', 'leave', 'update:comment-draft', 'delete-comment', 'open-profile'],
     setup(props, { emit }) {
         const { formatEventDate, formatDate } = useUtils();
-        return { formatEventDate, formatDate, openProfile: (uid) => emit('open-profile', uid) };
+        return { formatEventDate, formatDate, openProfile: (uid) => emit('open-profile', uid), isSubmitting: computed(() => props.isSubmitting) };
     }
 };
 

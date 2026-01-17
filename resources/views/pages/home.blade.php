@@ -37,17 +37,41 @@
                     LINE 快速登入，建立專屬球友卡，30秒即刻開打！
                 </p>
                 
-                <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
-                    <a href="/create" @click.prevent="navigateTo('create')" class="group/btn relative px-8 py-4 sm:px-10 sm:py-5 bg-blue-600 rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_0_40px_-10px_rgba(37,99,235,0.5)] transition-transform active:scale-95">
+                {{-- Mobile Swiper Cards (Above Buttons) --}}
+                <div class="lg:hidden flex flex-col items-center mb-4">
+                    <div class="swiper home-cards-swiper" style="width: 140px; height: 210px;">
+                        <div class="swiper-wrapper">
+                            <div v-if="players.length > 0" v-for="p in players.slice(0, 5)" :key="'swiper-' + p.id" class="swiper-slide">
+                                <player-card :player="p" size="sm" class="w-full h-full"></player-card>
+                            </div>
+                            <template v-if="players.length === 0">
+                                <div v-for="i in 3" :key="'placeholder-' + i" class="swiper-slide">
+                                    <div class="w-full h-full rounded-xl overflow-hidden shadow-xl border border-white/10 bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center">
+                                        <div class="text-center p-3">
+                                            <div class="w-10 h-10 bg-slate-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                                                <app-icon name="user" class-name="w-5 h-5 text-slate-400"></app-icon>
+                                            </div>
+                                            <p class="text-slate-400 text-[10px] font-bold">成為第一位球友</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    <span class="text-white/40 text-[10px] font-medium mt-2">← 滑動探索 →</span>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+                    <a href="/create" @click.prevent="navigateTo('create')" class="group/btn relative px-6 py-3 sm:px-10 sm:py-5 bg-blue-600 rounded-xl sm:rounded-3xl overflow-hidden shadow-[0_0_40px_-10px_rgba(37,99,235,0.5)] transition-transform active:scale-95">
                         <div class="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-white/20 to-blue-400/0 translate-x-[-200%] group-hover/btn:translate-x-[200%] transition-transform duration-1000 ease-in-out"></div>
-                        <span class="relative font-black text-base sm:text-xl text-white tracking-wider flex items-center justify-center gap-2">
+                        <span class="relative font-black text-sm sm:text-xl text-white tracking-wider flex items-center justify-center gap-2">
                             <span>製作球友卡</span>
-                            <app-icon name="arrow-right" class-name="w-5 h-5 group-hover/btn:translate-x-1 transition-transform"></app-icon>
+                            <app-icon name="arrow-right" class-name="w-4 h-4 sm:w-5 sm:h-5 group-hover/btn:translate-x-1 transition-transform"></app-icon>
                         </span>
                     </a>
                     
-                    <a href="/list" @click.prevent="navigateTo('list')" class="px-8 py-4 sm:px-10 sm:py-5 bg-white/5 border border-white/10 rounded-2xl sm:rounded-3xl hover:bg-white/10 transition-all active:scale-95 backdrop-blur-sm flex items-center justify-center">
-                        <span class="font-black text-base sm:text-xl text-white tracking-wider">瀏覽列表</span>
+                    <a href="/list" @click.prevent="navigateTo('list')" class="px-6 py-3 sm:px-10 sm:py-5 bg-white/5 border border-white/10 rounded-xl sm:rounded-3xl hover:bg-white/10 transition-all active:scale-95 backdrop-blur-sm flex items-center justify-center">
+                        <span class="font-black text-sm sm:text-xl text-white tracking-wider">瀏覽列表</span>
                     </a>
                 </div>
                 
@@ -70,28 +94,31 @@
                 </div>
             </div>
 
-            {{-- Right: Card Showcase Mockup --}}
-            <div class="relative flex justify-center lg:justify-center py-8 lg:py-0 perspective-[1000px]">
-                <div class="relative w-[180px] sm:w-[260px] aspect-[2.5/3.5] group-hover:scale-[1.02] transition-transform duration-700 ease-out my-4 mr-4">
-                    {{-- Glow Effect --}}
-                    <div class="absolute inset-0 bg-blue-500 rounded-[32px] blur-[60px] opacity-20 animate-pulse"></div>
-                    
-                    {{-- Secondary Image (Action) --}}
-                    <div class="absolute top-10 -left-12 sm:-left-16 w-full h-full z-10 transform -rotate-12 translate-y-4 shadow-2xl rounded-[24px] overflow-hidden border-[3px] border-white/10 bg-slate-800">
-                        <img src="/img/card2.jpg" alt="Player Action" class="w-full h-full object-cover opacity-60 mix-blend-luminosity">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
-                    </div>
-                    
-                    {{-- Primary Image (Card) --}}
-                    <div class="relative w-full h-full z-20 transform rotate-6 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] rounded-[24px] sm:rounded-[32px] overflow-hidden border-[3px] border-white/20 bg-slate-900">
-                        <img src="/img/card1.jpg" alt="Player Card Mockup" class="w-full h-full object-cover">
-                        {{-- Gloss Effect --}}
-                        <div class="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 pointer-events-none"></div>
+            {{-- Right: Swiper Cards (Desktop Only) --}}
+            <div class="relative hidden lg:flex justify-center py-8 lg:py-0">
+                <div class="swiper home-cards-swiper-desktop" style="width: 240px; height: 360px;">
+                    <div class="swiper-wrapper">
+                        <div v-if="players.length > 0" v-for="p in players.slice(0, 5)" :key="'swiper-desktop-' + p.id" class="swiper-slide">
+                            <player-card :player="p" size="sm" class="w-full h-full"></player-card>
+                        </div>
+                        <template v-if="players.length === 0">
+                            <div v-for="i in 3" :key="'placeholder-desktop-' + i" class="swiper-slide">
+                                <div class="w-full h-full rounded-2xl overflow-hidden shadow-2xl border-2 border-white/10 bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center">
+                                    <div class="text-center p-4">
+                                        <div class="w-12 h-12 bg-slate-600 rounded-xl flex items-center justify-center mx-auto mb-3">
+                                            <app-icon name="user" class-name="w-6 h-6 text-slate-400"></app-icon>
+                                        </div>
+                                        <p class="text-slate-400 text-xs font-bold">成為第一位球友</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
 
     {{-- How It Works - 3 Steps --}}
     <section class="pt-8 sm:pt-12">
@@ -180,54 +207,6 @@
         </div>
     </section>
 
-    {{-- Featured Players --}}
-    <section class="relative">
-        <div class="flex items-center justify-between mb-12">
-            <h2 class="text-3xl font-black italic uppercase tracking-tighter flex items-center gap-4">
-                <div class="w-1.5 h-10 bg-blue-600 rounded-full"></div> 推薦戰友
-            </h2>
-            <div class="flex items-center gap-3">
-                {{-- Desktop Navigation Arrows --}}
-                <div class="hidden sm:flex items-center gap-2">
-                    <button @click="scrollFeaturedPlayers(-1)" class="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm">
-                        <app-icon name="chevron-left" class-name="w-5 h-5"></app-icon>
-                    </button>
-                    <button @click="scrollFeaturedPlayers(1)" class="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm">
-                        <app-icon name="chevron-right" class-name="w-5 h-5"></app-icon>
-                    </button>
-                </div>
-                <a v-if="players.length > 0" href="/list" @click.prevent="navigateTo('list')" class="text-blue-600 text-sm font-black uppercase tracking-widest border-b-2 border-blue-600/10 pb-1">顯示更多</a>
-            </div>
-        </div>
-        
-        {{-- SEO Content for Crawlers (SSR) --}}
-        <div class="sr-only" aria-hidden="true">
-            @foreach($initialPlayers ?? [] as $p)
-                <h3>{{ $p->name }} - {{ $p->level }} ({{ $p->region }})</h3>
-                <p>{{ $p->intro }}</p>
-            @endforeach
-        </div>
-
-        {{-- Has Players --}}
-        <div v-if="players.length > 0" ref="featuredPlayersContainer" class="flex overflow-x-auto no-scrollbar gap-5 sm:gap-10 pb-8 -mx-4 px-4 snap-x snap-mandatory scroll-smooth">
-            <div v-for="p in players.slice(0, 10)" :key="p.id" class="snap-center shrink-0 w-[240px] sm:w-[300px]">
-                <player-card :player="p" @click="showDetail(p)" size="sm" class="w-full"></player-card>
-            </div>
-        </div>
-        
-        {{-- Empty State --}}
-        <div v-else class="bg-gradient-to-br from-slate-50 to-white rounded-[48px] border-2 border-dashed border-slate-200 p-12 text-center">
-            <div class="bg-blue-50 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                <app-icon name="user" class-name="w-10 h-10 text-blue-300"></app-icon>
-            </div>
-            <h3 class="text-xl font-black italic uppercase tracking-tight mb-3">成為第一位球友！</h3>
-            <p class="text-slate-400 font-medium mb-6 max-w-md mx-auto">目前還沒有球友加入，立即建立您的專業球友卡，開始您的網球社交之旅！</p>
-            <a href="/create" @click.prevent="navigateTo('create')" class="inline-flex items-center gap-3 bg-blue-600 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl">
-                <app-icon name="plus" class-name="w-5 h-5"></app-icon>
-                建立球友卡
-            </a>
-        </div>
-    </section>
 
     {{-- Stats Counter --}}
     <section class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-[32px] sm:rounded-[48px] p-8 sm:p-20 text-white relative overflow-hidden">

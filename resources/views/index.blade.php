@@ -71,6 +71,10 @@
     <script src="/vendor/html2canvas/html2canvas.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
     
+    {{-- Swiper for Cards Effect --}}
+    <link rel="stylesheet" href="/vendor/swiper/swiper-bundle.min.css" />
+    <script src="/vendor/swiper/swiper-bundle.min.js"></script>
+    
     @include('partials.styles')
 </head>
 <body class="bg-slate-50 text-slate-900 leading-normal min-h-screen">

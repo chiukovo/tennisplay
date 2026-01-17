@@ -1,4 +1,4 @@
-<div v-if="view === 'profile'" class="bg-slate-50/50">
+<div v-if="view === 'profile'" v-show="!isProfileLoading || profileData.user" class="bg-slate-50/50">
     <!-- Sticky Header -->
     <div class="bg-white/80 backdrop-blur-xl border-b sticky top-20 z-[90]">
         <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">

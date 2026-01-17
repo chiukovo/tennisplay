@@ -920,9 +920,61 @@ createApp({
                             loader.style.opacity = '0';
                             setTimeout(() => loader.remove(), 300);
                         }
+                        
+                        // Initialize Home Cards Swiper (Mobile & Desktop)
+                        initHomeSwiper();
                     }, 200);
                 }, 100);
             }, 300);
+        });
+
+        // Swiper initialization function
+        function initHomeSwiper() {
+            if (typeof Swiper === 'undefined') return;
+            
+            nextTick(() => {
+                const swiperConfig = {
+                    effect: 'cards',
+                    cardsEffect: {
+                        rotate: true,
+                        perSlideRotate: 3,
+                        perSlideOffset: 8,
+                    },
+                    grabCursor: true,
+                    initialSlide: 0,
+                    speed: 500,
+                    rewind: true,
+                };
+                
+                // Destroy existing swipers first
+                const existingMobile = document.querySelector('.home-cards-swiper');
+                if (existingMobile && existingMobile.swiper) {
+                    existingMobile.swiper.destroy(true, true);
+                }
+                const existingDesktop = document.querySelector('.home-cards-swiper-desktop');
+                if (existingDesktop && existingDesktop.swiper) {
+                    existingDesktop.swiper.destroy(true, true);
+                }
+                
+                // Mobile Swiper
+                const mobileEl = document.querySelector('.home-cards-swiper');
+                if (mobileEl) {
+                    new Swiper('.home-cards-swiper', swiperConfig);
+                }
+                
+                // Desktop Swiper
+                const desktopEl = document.querySelector('.home-cards-swiper-desktop');
+                if (desktopEl) {
+                    new Swiper('.home-cards-swiper-desktop', swiperConfig);
+                }
+            });
+        }
+
+        // Re-initialize Swiper when navigating back to home
+        watch(() => view.value, (newView) => {
+            if (newView === 'home') {
+                setTimeout(() => initHomeSwiper(), 100);
+            }
         });
 
         // 當預設地區載入時，如果目前在列表頁或首頁且尚未篩選，則自動套用

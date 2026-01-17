@@ -946,7 +946,8 @@ createApp({
             if (typeof Swiper === 'undefined') return;
             
             nextTick(() => {
-                const swiperConfig = {
+                // Desktop config: full effects
+                const desktopConfig = {
                     effect: 'cards',
                     cardsEffect: {
                         rotate: true,
@@ -957,10 +958,20 @@ createApp({
                     initialSlide: 0,
                     speed: 300,
                     rewind: true,
-                    // Performance optimizations
-                    touchRatio: 1.5,
-                    resistanceRatio: 0.85,
-                    watchSlidesProgress: false,
+                };
+                
+                // Mobile config: keep stacking, disable rotation only
+                const mobileConfig = {
+                    effect: 'cards',
+                    cardsEffect: {
+                        rotate: true,
+                        perSlideRotate: 3,
+                        perSlideOffset: 8,
+                    },
+                    grabCursor: false,
+                    initialSlide: 10,
+                    speed: 200,
+                    rewind: true,
                 };
                 
                 // Destroy existing swipers first
@@ -973,16 +984,16 @@ createApp({
                     existingDesktop.swiper.destroy(true, true);
                 }
                 
-                // Mobile Swiper
+                // Mobile Swiper (use simplified config)
                 const mobileEl = document.querySelector('.home-cards-swiper');
                 if (mobileEl) {
-                    new Swiper('.home-cards-swiper', swiperConfig);
+                    new Swiper('.home-cards-swiper', mobileConfig);
                 }
                 
-                // Desktop Swiper
+                // Desktop Swiper (use full effects config)
                 const desktopEl = document.querySelector('.home-cards-swiper-desktop');
                 if (desktopEl) {
-                    new Swiper('.home-cards-swiper-desktop', swiperConfig);
+                    new Swiper('.home-cards-swiper-desktop', desktopConfig);
                 }
             });
         }

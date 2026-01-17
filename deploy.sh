@@ -68,9 +68,11 @@ build_frontend() {
 
 # 執行資料庫遷移
 run_migrations() {
-    info "執行資料庫遷移..."
+    info "執行資料庫遷移與初始化..."
     php artisan migrate --force
-    success "資料庫遷移完成"
+    # 初始化即時揪球房間 (使用 updateOrCreate，重複執行也安全)
+    php artisan db:seed --class=InstantRoomSeeder --force
+    success "資料庫處理完成"
 }
 
 # 快取優化

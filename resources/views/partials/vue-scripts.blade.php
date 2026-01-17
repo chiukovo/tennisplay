@@ -198,7 +198,7 @@ createApp({
         const { isCapturing: isCapturingImage, captureCardImage } = useCapture(showToast);
 
         const { 
-            instantRooms, currentRoom, instantMessages, isInstantLoading, globalInstantStats, instantMessageDraft,
+            instantRooms, currentRoom, instantMessages, isInstantLoading, globalInstantStats, instantMessageDraft, isSending,
             fetchRooms, selectRoom, sendInstantMessage, fetchMessages, joinBySlug
         } = useInstantPlay(isLoggedIn, currentUser, showToast, view);
 
@@ -1178,7 +1178,7 @@ createApp({
             settingsForm, isSavingSettings, toasts, confirmDialog, dragInfo,
             profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,
             selectedProfileRegions, toggleProfileRegion, reportModal, isReporting, isBlocking, profileActionMenu,
-            instantRooms, currentRoom, instantMessages, isInstantLoading, globalInstantStats, instantMessageDraft,
+            instantRooms, currentRoom, instantMessages, isInstantLoading, globalInstantStats, instantMessageDraft, isSending,
             // Computed
             hasUnread, hasPlayerCard, myCards, activeRegions, activeEventRegions, filteredPlayers, totalPages, paginatedPlayers, displayPages, randomPlayers, 
             filteredEvents, eventTotalPages, paginatedEvents, eventDisplayPages,

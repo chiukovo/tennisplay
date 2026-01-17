@@ -965,13 +965,17 @@ createApp({
                     effect: 'cards',
                     cardsEffect: {
                         rotate: true,
-                        perSlideRotate: 1,
-                        perSlideOffset: 12,
+                        perSlideRotate: 0.5,
+                        perSlideOffset: 10,
                         slideShadows: false,
                     },
                     grabCursor: false,
                     initialSlide: 0,
-                    speed: 200,
+                    speed: 160,
+                    threshold: 4,
+                    longSwipesRatio: 0.1,
+                    longSwipesMs: 100,
+                    resistanceRatio: 0.5,
                     rewind: true,
                 };
                 

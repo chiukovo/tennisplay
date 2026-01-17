@@ -82,7 +82,23 @@ const SignaturePad = {
             }
         };
 
-        watch(() => props.active, (val) => { if (val) initCanvas(); });
+        let savedScrollY = 0;
+        watch(() => props.active, (val) => { 
+            if (val) {
+                savedScrollY = window.scrollY;
+                document.body.style.overflow = 'hidden';
+                document.body.style.position = 'fixed';
+                document.body.style.width = '100%';
+                document.body.style.top = `-${savedScrollY}px`;
+                initCanvas(); 
+            } else {
+                document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
+                document.body.style.top = '';
+                window.scrollTo(0, savedScrollY);
+            }
+        });
         onMounted(() => { if (props.active) initCanvas(); });
 
         const getPos = (e) => {
@@ -474,8 +490,16 @@ const PlayerDetailModal = {
             }
         };
 
+        let savedScrollY = 0;
         watch(() => props.player, (newP) => {
             if (newP) {
+                // Scroll lock
+                savedScrollY = window.scrollY;
+                document.body.style.overflow = 'hidden';
+                document.body.style.position = 'fixed';
+                document.body.style.width = '100%';
+                document.body.style.top = `-${savedScrollY}px`;
+
                 // 更新社交狀態
                 socialStatus.is_liked = newP.is_liked || false;
                 socialStatus.is_following = newP.is_following || false;
@@ -492,6 +516,13 @@ const PlayerDetailModal = {
                         setTimeout(() => loadComments(), 50);
                     });
                 }
+            } else {
+                // Restore scroll
+                document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
+                document.body.style.top = '';
+                window.scrollTo(0, savedScrollY);
             }
         }, { immediate: true });
 
@@ -656,15 +687,28 @@ const MessageDetailModal = {
 
         const handleEnterKey = (e) => { if (!e.shiftKey && !(/Android|iPhone/i.test(navigator.userAgent))) { e.preventDefault(); sendMessage(); } };
         let pollInterval;
+        let savedScrollY = 0;
         watch(() => props.open, async (newVal) => {
             if (newVal) {
+                // Full scroll lock for mobile
+                savedScrollY = window.scrollY;
                 document.body.style.overflow = 'hidden';
+                document.body.style.position = 'fixed';
+                document.body.style.width = '100%';
+                document.body.style.top = `-${savedScrollY}px`;
+                
                 page.value = 1;
                 await loadChat(false);
                 scrollToBottom();
                 pollInterval = setInterval(() => loadChat(true), 5000);
             } else {
+                // Restore scroll
                 document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
+                document.body.style.top = '';
+                window.scrollTo(0, savedScrollY);
+                
                 messages.value = [];
                 if (pollInterval) clearInterval(pollInterval);
             }
@@ -680,6 +724,22 @@ const ShareModal = {
     template: '#share-modal-template',
     emits: ['update:modelValue'],
     setup(props, { emit }) {
+        let savedScrollY = 0;
+        watch(() => props.modelValue, (newVal) => {
+            if (newVal) {
+                savedScrollY = window.scrollY;
+                document.body.style.overflow = 'hidden';
+                document.body.style.position = 'fixed';
+                document.body.style.width = '100%';
+                document.body.style.top = `-${savedScrollY}px`;
+            } else {
+                document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
+                document.body.style.top = '';
+                window.scrollTo(0, savedScrollY);
+            }
+        });
         const { showToast } = useUtils();
         const isCapturing = ref(false);
         const shareUrl = computed(() => {
@@ -771,11 +831,51 @@ const MatchModal = {
             if (path.startsWith('http') || path.startsWith('data:')) return path;
             return `/storage/${path}`;
         });
+        let savedScrollY = 0;
+        watch(() => props.open, (newVal) => {
+            if (newVal) {
+                savedScrollY = window.scrollY;
+                document.body.style.overflow = 'hidden';
+                document.body.style.position = 'fixed';
+                document.body.style.width = '100%';
+                document.body.style.top = `-${savedScrollY}px`;
+            } else {
+                document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
+                document.body.style.top = '';
+                window.scrollTo(0, savedScrollY);
+            }
+        });
         return { textModel, photoUrl };
     }
 };
 
-const NtrpGuideModal = { props: ['open', 'descs'], components: { AppIcon }, template: '#ntrp-guide-modal-template', emits: ['update:open'] };
+const NtrpGuideModal = { 
+    props: ['open', 'descs'], 
+    components: { AppIcon }, 
+    template: '#ntrp-guide-modal-template', 
+    emits: ['update:open'],
+    setup(props) {
+        let savedScrollY = 0;
+        watch(() => props.open, (newVal) => {
+            if (newVal) {
+                savedScrollY = window.scrollY;
+                document.body.style.overflow = 'hidden';
+                document.body.style.position = 'fixed';
+                document.body.style.width = '100%';
+                document.body.style.top = `-${savedScrollY}px`;
+            } else {
+                document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
+                document.body.style.top = '';
+                window.scrollTo(0, savedScrollY);
+            }
+        });
+        return {};
+    }
+};
 
 const QuickEditModal = {
     props: ['open', 'form', 'levels', 'regions'],
@@ -806,6 +906,23 @@ const QuickEditModal = {
             // 同步到 form.region（逗點分隔）
             props.form.region = selectedRegions.value.join(',');
         };
+
+        let savedScrollY = 0;
+        watch(() => props.open, (newVal) => {
+            if (newVal) {
+                savedScrollY = window.scrollY;
+                document.body.style.overflow = 'hidden';
+                document.body.style.position = 'fixed';
+                document.body.style.width = '100%';
+                document.body.style.top = `-${savedScrollY}px`;
+            } else {
+                document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
+                document.body.style.top = '';
+                window.scrollTo(0, savedScrollY);
+            }
+        });
         
         return { selectedRegions, toggleRegion };
     }
@@ -818,8 +935,48 @@ const EventDetailModal = {
     emits: ['update:open', 'like', 'join', 'comment', 'leave', 'update:comment-draft', 'delete-comment', 'open-profile'],
     setup(props, { emit }) {
         const { formatEventDate, formatDate } = useUtils();
+        let savedScrollY = 0;
+        watch(() => props.open, (newVal) => {
+            if (newVal) {
+                savedScrollY = window.scrollY;
+                document.body.style.overflow = 'hidden';
+                document.body.style.position = 'fixed';
+                document.body.style.width = '100%';
+                document.body.style.top = `-${savedScrollY}px`;
+            } else {
+                document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
+                document.body.style.top = '';
+                window.scrollTo(0, savedScrollY);
+            }
+        });
         return { formatEventDate, formatDate, openProfile: (uid) => emit('open-profile', uid), isSubmitting: computed(() => props.isSubmitting) };
     }
 };
 
-const PrivacyModal = { props: ['modelValue', 'navigateTo'], components: { AppIcon }, template: '#privacy-modal-template', emits: ['update:modelValue'] };
+const PrivacyModal = { 
+    props: ['modelValue', 'navigateTo'], 
+    components: { AppIcon }, 
+    template: '#privacy-modal-template', 
+    emits: ['update:modelValue'],
+    setup(props) {
+        let savedScrollY = 0;
+        watch(() => props.modelValue, (newVal) => {
+            if (newVal) {
+                savedScrollY = window.scrollY;
+                document.body.style.overflow = 'hidden';
+                document.body.style.position = 'fixed';
+                document.body.style.width = '100%';
+                document.body.style.top = `-${savedScrollY}px`;
+            } else {
+                document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
+                document.body.style.top = '';
+                window.scrollTo(0, savedScrollY);
+            }
+        });
+        return {};
+    }
+};

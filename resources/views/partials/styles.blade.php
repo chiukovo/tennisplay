@@ -479,5 +479,17 @@
         .home-cards-swiper .card-holo::after {
             animation: none !important;
         }
+        .home-cards-swiper .card-holo {
+            box-shadow: none !important;
+            transition: none !important;
+        }
+        .home-cards-swiper .card-holo::before,
+        .home-cards-swiper .card-holo::after {
+            opacity: 0 !important;
+            animation: none !important;
+        }
+        .home-cards-swiper .capture-target {
+            box-shadow: none !important;
+        }
     }
 </style>

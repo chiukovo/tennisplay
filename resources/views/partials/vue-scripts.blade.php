@@ -960,16 +960,17 @@ createApp({
                     rewind: true,
                 };
                 
-                // Mobile config: keep stacking, disable rotation only
+                // Mobile config: keep cards stacking but lower cost
                 const mobileConfig = {
                     effect: 'cards',
                     cardsEffect: {
                         rotate: true,
-                        perSlideRotate: 3,
-                        perSlideOffset: 8,
+                        perSlideRotate: 1,
+                        perSlideOffset: 12,
+                        slideShadows: false,
                     },
                     grabCursor: false,
-                    initialSlide: 10,
+                    initialSlide: 0,
                     speed: 200,
                     rewind: true,
                 };

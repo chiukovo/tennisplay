@@ -976,8 +976,8 @@ createApp({
                     effect: 'cards',
                     cardsEffect: {
                         rotate: true,
-                        perSlideRotate: 0.5,
-                        perSlideOffset: 10,
+                        perSlideRotate: 1.5,
+                        perSlideOffset: 18,
                         slideShadows: false,
                     },
                     grabCursor: false,

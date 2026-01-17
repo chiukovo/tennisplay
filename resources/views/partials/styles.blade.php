@@ -455,4 +455,29 @@
         color: #334155;
         white-space: pre-line;
     }
+
+    /* Swiper Performance Optimization */
+    .home-cards-swiper,
+    .home-cards-swiper-desktop {
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+    }
+    .home-cards-swiper .swiper-slide,
+    .home-cards-swiper-desktop .swiper-slide {
+        will-change: transform;
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+        contain: layout style paint;
+    }
+    /* Disable heavy effects in Swiper cards on mobile */
+    @media (max-width: 1024px) {
+        .home-cards-swiper .card-shine {
+            display: none !important;
+        }
+        .home-cards-swiper .card-holo::after {
+            animation: none !important;
+        }
+    }
 </style>

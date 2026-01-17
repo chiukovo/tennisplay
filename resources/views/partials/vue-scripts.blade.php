@@ -904,30 +904,35 @@ createApp({
             });
 
             // 預渲染暖身：讓 Vue 提前編譯 PlayerDetailModal 模板
-            // 使用 CSS 隱藏，避免畫面閃爍
+            // Loading 保持顯示直到暖身完成，避免閃爍
+            document.body.classList.add('warmup-hidden');
+            
             setTimeout(() => {
-                document.body.classList.add('warmup-hidden');
                 const warmupPlayer = { id: 0, name: '', level: '3.5', region: '' };
                 detailPlayer.value = warmupPlayer;
-                // 等待 Vue 渲染完成（真實手機需要更長時間）
+                
+                // 等待 Vue 渲染完成
                 setTimeout(() => {
                     detailPlayer.value = null;
-                    // 等 Modal 完全關閉後再移除隱藏 class 並淡出 Loading
+                    
+                    // 暖身完成，移除隱藏並淡出 Loading
                     setTimeout(() => {
                         document.body.classList.remove('warmup-hidden');
+                        
+                        // Initialize Home Cards Swiper
+                        loadRandomPlayers().then(() => {
+                            nextTick(() => initHomeSwiper());
+                        });
+                        
+                        // 最後才淡出 Loading
                         const loader = document.getElementById('init-loader');
                         if (loader) {
                             loader.style.opacity = '0';
                             setTimeout(() => loader.remove(), 300);
                         }
-                        
-                        // Initialize Home Cards Swiper (Mobile & Desktop)
-                        loadRandomPlayers().then(() => {
-                            nextTick(() => initHomeSwiper());
-                        });
-                    }, 200);
-                }, 100);
-            }, 300);
+                    }, 150);
+                }, 150);
+            }, 100);
         });
 
         // Swiper initialization function

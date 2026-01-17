@@ -202,7 +202,7 @@ class AuthController extends Controller
         // We just need to return 200 to acknowledge.
         // You can add signature verification here for security.
         
-        Log::info('LINE Webhook received', ['payload' => $request->all()]);
+        //Log::info('LINE Webhook received', ['payload' => $request->all()]);
         
         return response('OK', 200);
     }

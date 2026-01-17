@@ -142,6 +142,23 @@
         animation: skeleton-shimmer 1.5s infinite;
     }
 
+    /* Card Photo Loading */
+    .card-photo-loader {
+        background: rgba(15, 23, 42, 0.2);
+        backdrop-filter: blur(2px);
+    }
+    .card-photo-spinner {
+        width: 28px;
+        height: 28px;
+        border: 3px solid rgba(255, 255, 255, 0.4);
+        border-top-color: rgba(255, 255, 255, 0.95);
+        border-radius: 9999px;
+        animation: card-spin 0.8s linear infinite;
+    }
+    @keyframes card-spin {
+        to { transform: rotate(360deg); }
+    }
+
     /* Page Transition Effects */
     .page-enter-active, .page-leave-active {
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

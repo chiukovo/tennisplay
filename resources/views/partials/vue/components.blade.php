@@ -143,6 +143,8 @@ const PlayerCard = {
     template: '#player-card-template',
     setup(props) {
         const cardContainer = ref(null);
+        const isVisible = ref(false);
+        let io = null;
         const themes = {
             gold: { border: 'bg-gradient-to-br from-amber-500 via-yellow-300 to-amber-600', accent: 'text-yellow-500', name: 'text-yellow-400', bg: 'bg-slate-900' },
             platinum: { border: 'bg-gradient-to-br from-slate-400 via-white to-slate-500', accent: 'text-blue-400', name: 'text-slate-100', bg: 'bg-slate-900' },
@@ -174,6 +176,12 @@ const PlayerCard = {
                 sigWidth: raw.sigWidth ?? raw.sig_width ?? 100,
             };
         });
+
+        const photoUrl = computed(() => {
+            return p.value?.photo || 'https://images.unsplash.com/photo-1614743758466-e569f4791116?q=80&w=650&auto=format&fit=crop';
+        });
+        const isPhotoLoaded = ref(false);
+        let photoToken = 0;
         
         const themeStyle = computed(() => {
             if (!p.value) return themes.standard;
@@ -214,6 +222,19 @@ const PlayerCard = {
         };
 
         onMounted(() => {
+            if ('IntersectionObserver' in window) {
+                io = new IntersectionObserver((entries) => {
+                    if (entries.some(entry => entry.isIntersecting)) {
+                        isVisible.value = true;
+                        if (io) io.disconnect();
+                        io = null;
+                    }
+                }, { rootMargin: '200px 0px', threshold: 0.01 });
+                if (cardContainer.value) io.observe(cardContainer.value);
+            } else {
+                isVisible.value = true;
+            }
+
             // Skip ResizeObserver in lite mode for better performance (used in Swiper)
             if (props.size === 'sm') {
                 // Just set initial scale once, no observers
@@ -235,7 +256,23 @@ const PlayerCard = {
             window.removeEventListener('resize', updateScale);
             if (resizeObserver) resizeObserver.disconnect();
             if (rafId) cancelAnimationFrame(rafId);
+            if (io) io.disconnect();
         });
+
+        watch([isVisible, photoUrl], ([visible, url]) => {
+            if (!visible) return;
+            const currentToken = ++photoToken;
+            isPhotoLoaded.value = false;
+            const img = new Image();
+            img.decoding = 'async';
+            img.onload = () => {
+                if (currentToken === photoToken) isPhotoLoaded.value = true;
+            };
+            img.onerror = () => {
+                if (currentToken === photoToken) isPhotoLoaded.value = true;
+            };
+            img.src = url;
+        }, { immediate: true });
 
         const nameFontSize = computed(() => {
             const name = p.value?.name || '';
@@ -255,7 +292,7 @@ const PlayerCard = {
             return '30px';
         });
 
-        return { cardContainer, p, themeStyle, displayRegion, getLevelTag, handleMove, handleLeave, holoStyle, cardScale, containerHeight, nameFontSize };
+        return { cardContainer, p, themeStyle, displayRegion, getLevelTag, handleMove, handleLeave, holoStyle, cardScale, containerHeight, nameFontSize, isVisible, isPhotoLoaded, photoUrl };
     }
 };
 

@@ -93,12 +93,16 @@
                         </div>
 
                         {{-- Player Photo --}}
-                        <div :class="['absolute inset-0 transition-transform duration-500 bg-no-repeat bg-center bg-cover z-10', isAdjustingSig ? 'pointer-events-none select-none' : '']"
-                             :style="{ 
-                                backgroundImage: `url(${(p?.photo) || 'https://images.unsplash.com/photo-1614743758466-e569f4791116?q=80&w=650&auto=format&fit=crop'})`,
-                                transform: `translate(${p?.photoX || 0}%, ${p?.photoY || 0}%) scale(${p?.photoScale || 1})` 
-                             }">
-                        </div>
+                                <div :class="['absolute inset-0 transition-transform duration-500 bg-no-repeat bg-center bg-cover z-10', isAdjustingSig ? 'pointer-events-none select-none' : '']"
+                                      :style="{ 
+                                          backgroundImage: (isVisible && isPhotoLoaded) ? `url(${photoUrl})` : 'none',
+                                          backgroundColor: isVisible ? 'transparent' : '#e2e8f0',
+                                          transform: `translate(${p?.photoX || 0}%, ${p?.photoY || 0}%) scale(${p?.photoScale || 1})` 
+                                      }">
+                                </div>
+                                <div v-if="isVisible && !isPhotoLoaded" class="absolute inset-0 z-[18] flex items-center justify-center card-photo-loader">
+                                     <span class="card-photo-spinner"></span>
+                                </div>
                         
                         {{-- Gradient Overlay --}}
                         <div class="absolute inset-0 bg-gradient-to-b from-white/15 via-transparent to-transparent opacity-50 pointer-events-none z-[14]"></div>
@@ -157,6 +161,8 @@
                     <div v-if="p?.signature" :class="['absolute inset-0 z-[100] group/sig signature-layer', isAdjustingSig ? 'pointer-events-auto' : 'pointer-events-none']">
                         <div class="relative w-full h-full">
                             <img :src="p.signature" 
+                                loading="lazy"
+                                decoding="async"
                                 id="target-signature"
                                 crossorigin="anonymous"
                                 draggable="false"

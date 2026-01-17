@@ -440,11 +440,13 @@ createApp({
 
         const displayPages = computed(() => {
             const total = totalPages.value;
-            if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+            if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1);
             const current = playersPagination.value.current_page;
-            if (current <= 4) return [1, 2, 3, 4, 5, '...', total];
-            if (current >= total - 3) return [1, '...', total - 4, total - 3, total - 2, total - 1, total];
-            return [1, '...', current - 1, current, current + 1, '...', total];
+            
+            // 更精簡的顯示邏輯 (最多 5 個區塊)
+            if (current <= 3) return [1, 2, 3, '...', total];
+            if (current >= total - 2) return [1, '...', total - 2, total - 1, total];
+            return [1, '...', current, '...', total];
         });
 
         const filteredEvents = computed(() => events.value);
@@ -453,11 +455,13 @@ createApp({
 
         const eventDisplayPages = computed(() => {
             const total = eventTotalPages.value;
-            if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+            if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1);
             const current = eventsPagination.value.current_page;
-            if (current <= 4) return [1, 2, 3, 4, 5, '...', total];
-            if (current >= total - 3) return [1, '...', total - 4, total - 3, total - 2, total - 1, total];
-            return [1, '...', current - 1, current, current + 1, '...', total];
+            
+            // 更精簡的顯示邏輯 (最多 5 個區塊)
+            if (current <= 3) return [1, 2, 3, '...', total];
+            if (current >= total - 2) return [1, '...', total - 2, total - 1, total];
+            return [1, '...', current, '...', total];
         });
 
         const hasUnread = computed(() => Array.isArray(messages.value) && messages.value.some(m => m.unread_count > 0));

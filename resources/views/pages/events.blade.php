@@ -221,25 +221,25 @@
         </div>
 
         {{-- Pagination --}}
-        <div v-if="eventTotalPages > 1" class="flex flex-wrap items-center justify-center gap-2 pt-12">
+        <div v-if="eventTotalPages > 1" class="flex items-center justify-center gap-1 sm:gap-2 pt-12 pb-12 overflow-x-auto no-scrollbar flex-nowrap min-w-0 w-full">
             {{-- Previous Button --}}
             <button type="button" @click="eventCurrentPage = Math.max(1, eventsPagination.current_page - 1)" :disabled="eventsPagination.current_page === 1"
-                :class="['w-10 h-10 rounded-xl font-black text-sm transition-all', eventsPagination.current_page === 1 ? 'bg-slate-100 text-slate-300 cursor-not-allowed' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50']">
+                :class="['w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-lg sm:rounded-xl font-black text-xs sm:text-sm transition-all', eventsPagination.current_page === 1 ? 'bg-slate-100 text-slate-300 cursor-not-allowed' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50']">
                 ←
             </button>
             
             {{-- Page Numbers --}}
-            <div v-for="(page, idx) in eventDisplayPages" :key="'ep-' + idx" class="flex">
-                <span v-if="page === '...'" class="w-10 h-10 flex items-center justify-center text-slate-400">...</span>
+            <div v-for="(page, idx) in eventDisplayPages" :key="'ep-' + idx" class="flex shrink-0">
+                <span v-if="page === '...'" class="w-6 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-slate-400 text-xs">...</span>
                 <button v-else type="button" @click="eventCurrentPage = page"
-                    :class="['w-10 h-10 rounded-xl font-black text-sm transition-all', eventsPagination.current_page === page ? 'bg-blue-600 text-white shadow-lg' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50']">
+                    :class="['w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl font-black text-xs sm:text-sm transition-all', eventsPagination.current_page === page ? 'bg-blue-600 text-white shadow-lg' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50']">
                     @{{ page }}
                 </button>
             </div>
             
             {{-- Next Button --}}
             <button type="button" @click="eventCurrentPage = Math.min(eventTotalPages, eventsPagination.current_page + 1)" :disabled="eventsPagination.current_page === eventTotalPages"
-                :class="['w-10 h-10 rounded-xl font-black text-sm transition-all', eventsPagination.current_page === eventTotalPages ? 'bg-slate-100 text-slate-300 cursor-not-allowed' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50']">
+                :class="['w-8 h-8 sm:w-10 sm:h-10 shrink-0 rounded-lg sm:rounded-xl font-black text-xs sm:text-sm transition-all', eventsPagination.current_page === eventTotalPages ? 'bg-slate-100 text-slate-300 cursor-not-allowed' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50']">
                 →
             </button>
         </div>

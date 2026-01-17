@@ -107,13 +107,7 @@
                                         class="px-4 sm:px-8 py-3 sm:py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] sm:text-xs transition-all active:scale-95 whitespace-nowrap">
                                     @{{ profileData.status.is_following ? '已追蹤' : '追蹤球友' }}
                                 </button>
-                                <button v-if="profileData.user?.player" @click="toggleLike"
-                                        :class="profileData.status.is_liked ? 'bg-rose-50 text-rose-500' : 'bg-white border border-slate-200 text-slate-600 hover:text-rose-500'"
-                                        class="px-4 sm:px-6 py-3 sm:py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] sm:text-xs transition-all flex items-center gap-2 shrink-0">
-                                    <app-icon name="heart" class-name="w-4 h-4"></app-icon>
-                                    <span>@{{ profileData.status.is_liked ? '已按讚' : '按讚' }}</span>
-                                </button>
-                                <button @click="openMessage({from_user_id: profileData.user.id, sender: profileData.user})" class="px-4 sm:px-6 py-3 sm:py-3.5 bg-white border border-slate-200 text-slate-700 rounded-2xl font-black uppercase tracking-widest text-[10px] sm:text-xs hover:bg-slate-50 transition-all flex items-center gap-2 shrink-0">
+                                <button v-if="!profileData.status.is_blocked && !profileData.status.is_blocked_by" @click="openMessage({from_user_id: profileData.user.id, sender: profileData.user})" class="px-4 sm:px-6 py-3 sm:py-3.5 bg-white border border-slate-200 text-slate-700 rounded-2xl font-black uppercase tracking-widest text-[10px] sm:text-xs hover:bg-slate-50 transition-all flex items-center gap-2 shrink-0">
                                     <app-icon name="mail" class-name="w-4 h-4"></app-icon>
                                 </button>
                                 <button v-if="profileData.user?.player" 
@@ -121,6 +115,17 @@
                                         class="px-5 sm:px-6 py-3.5 bg-white border border-slate-200 text-slate-400 rounded-2xl font-black uppercase tracking-widest text-[10px] sm:text-xs hover:text-blue-600 transition-all flex items-center gap-2 shrink-0">
                                     <app-icon name="share-2" class-name="w-4 h-4"></app-icon>
                                 </button>
+                                <button @click="profileActionMenu.open = true" class="px-3.5 sm:px-4 py-3.5 bg-white border border-slate-200 text-slate-500 rounded-2xl font-black uppercase tracking-widest text-[10px] sm:text-xs hover:text-slate-700 transition-all flex items-center gap-2 shrink-0">
+                                    <app-icon name="more-horizontal" class-name="w-4 h-4"></app-icon>
+                                </button>
+                            </div>
+                            <div v-if="profileData.status.is_blocked_by" class="mt-3 text-[10px] font-black uppercase tracking-widest text-rose-500 bg-rose-50 border border-rose-100 px-3 py-2 rounded-xl inline-flex items-center gap-2">
+                                <app-icon name="alert-triangle" class-name="w-3.5 h-3.5"></app-icon>
+                                對方已封鎖你，無法私訊
+                            </div>
+                            <div v-else-if="profileData.status.is_blocked" class="mt-3 text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-100 border border-slate-200 px-3 py-2 rounded-xl inline-flex items-center gap-2">
+                                <app-icon name="slash" class-name="w-3.5 h-3.5"></app-icon>
+                                已封鎖對方，私訊已隱藏
                             </div>
                         </div>
 
@@ -447,3 +452,52 @@
         </div>
     </div>
 </div>
+
+{{-- Profile Action Menu (Report / Block) --}}
+<div v-if="profileActionMenu.open" class="fixed inset-0 z-[290] flex items-center justify-center p-4 sm:p-6 premium-blur" @click.self="profileActionMenu.open = false">
+    <div class="bg-white w-full max-w-sm rounded-[28px] shadow-2xl overflow-hidden border border-slate-100">
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div>
+                <h3 class="text-base font-black uppercase tracking-tight text-slate-900">功能</h3>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Report / Block</p>
+            </div>
+            <button @click="profileActionMenu.open = false" class="w-9 h-9 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:border-slate-300 transition-all shadow-sm">
+                <app-icon name="x" class-name="w-4 h-4"></app-icon>
+            </button>
+        </div>
+        <div class="p-6 space-y-3">
+            <button @click="profileActionMenu.open = false; openReportModal()" class="w-full px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-700 font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:text-rose-600 hover:border-rose-200 transition-all">
+                <app-icon name="flag" class-name="w-4 h-4"></app-icon>
+                檢舉此用戶
+            </button>
+            <button @click="profileActionMenu.open = false; toggleBlock()" :class="profileData.status.is_blocked ? 'bg-slate-100 text-slate-600 border-slate-200' : 'bg-slate-900 text-white border-slate-900'" class="w-full px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 border transition-all">
+                <app-icon :name="profileData.status.is_blocked ? 'unlock' : 'slash'" class-name="w-4 h-4"></app-icon>
+                @{{ profileData.status.is_blocked ? '解除封鎖' : '封鎖此用戶' }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<transition name="modal">
+    <div v-if="reportModal.open" class="fixed inset-0 z-[300] flex items-center justify-center p-4 sm:p-6 premium-blur" @click.self="reportModal.open = false">
+        <div class="bg-white w-full max-w-lg rounded-[28px] shadow-2xl overflow-hidden modal-content">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <div>
+                    <h3 class="text-lg font-black italic uppercase tracking-tight text-slate-900">檢舉用戶</h3>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Report User</p>
+                </div>
+                <button @click="reportModal.open = false" class="w-9 h-9 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:border-slate-300 transition-all shadow-sm">
+                    <app-icon name="x" class-name="w-4 h-4"></app-icon>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <p class="text-sm text-slate-600 font-semibold">請簡述檢舉原因（可留空）</p>
+                <textarea v-model="reportModal.message" rows="4" maxlength="2000" class="w-full rounded-2xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-4 py-3 text-sm font-medium text-slate-700" placeholder="例如：不當言論、騷擾、冒用他人照片..."></textarea>
+                <div class="flex items-center justify-end gap-2">
+                    <button @click="reportModal.open = false" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-black text-xs uppercase tracking-widest">取消</button>
+                    <button @click="submitReport" class="px-5 py-2 rounded-xl bg-rose-600 text-white font-black text-xs uppercase tracking-widest hover:bg-rose-700 transition-all">送出檢舉</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</transition>

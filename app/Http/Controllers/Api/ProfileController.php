@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Event;
 use App\Models\Follow;
 use App\Models\Like;
+use App\Models\UserBlock;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -41,6 +42,8 @@ class ProfileController extends Controller
             'is_following' => $me ? \App\Models\Follow::where('follower_id', $me->id)->where('following_id', $user->id)->exists() : false,
             'is_liked' => ($me && $user->player) ? \App\Models\Like::where('user_id', $me->id)->where('player_id', $user->player->id)->exists() : false,
             'is_me' => $me ? (string)$me->id === (string)$user->id : false,
+            'is_blocked' => $me ? UserBlock::where('blocker_id', $me->id)->where('blocked_id', $user->id)->exists() : false,
+            'is_blocked_by' => $me ? UserBlock::where('blocker_id', $user->id)->where('blocked_id', $me->id)->exists() : false,
         ];
 
         return response()->json([

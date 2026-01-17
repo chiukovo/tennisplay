@@ -65,6 +65,7 @@ createApp({
         const showLinePromo = ref(false);
         const showPreview = ref(false);
         const showQuickEditModal = ref(false);
+        const profileActionMenu = reactive({ open: false });
         const navRefreshing = ref(false);
         const navRefreshView = ref('');
         const settingsForm = reactive({ 
@@ -170,9 +171,10 @@ createApp({
         const { 
             profileData, isProfileLoading, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm, 
             profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,
-            selectedProfileRegions, toggleProfileRegion,
+            selectedProfileRegions, toggleProfileRegion, reportModal, isReporting, isBlocking,
             loadProfile, loadProfileEvents, saveProfile, openProfile, toggleFollow, toggleLike,
-            loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment, deletePlayerComment
+            loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment, deletePlayerComment,
+            openReportModal, submitReport, toggleBlock
         } = useProfile(isLoggedIn, currentUser, showToast, navigateTo);
 
         const { 
@@ -1170,7 +1172,7 @@ createApp({
             shareModal, isSendingMatch, scrollFeaturedPlayers,
             settingsForm, isSavingSettings, toasts, confirmDialog, dragInfo,
             profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,
-            selectedProfileRegions, toggleProfileRegion,
+            selectedProfileRegions, toggleProfileRegion, reportModal, isReporting, isBlocking, profileActionMenu,
             // Computed
             hasUnread, hasPlayerCard, myCards, activeRegions, activeEventRegions, filteredPlayers, totalPages, paginatedPlayers, displayPages, randomPlayers, 
             filteredEvents, eventTotalPages, paginatedEvents, eventDisplayPages,
@@ -1189,6 +1191,7 @@ createApp({
             openProfileWithEdit: () => { loadProfile(currentUser.value.uid, loadProfileEvents, true); navigateTo('profile', false, currentUser.value.uid); },
             loadProfile, loadProfileEvents, saveProfile, openProfile, toggleFollow, toggleLike,
             loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment, deletePlayerComment,
+            openReportModal, submitReport, toggleBlock,
             loadMessages, markMessageRead, openMessage, onMessageSent, loadMoreMessages,
             handlePlayerUpdate,
             showToast, removeToast, showConfirm, hideConfirm, executeConfirm,

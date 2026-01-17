@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Message;
 use App\Models\Player;
+use App\Models\UserBlock;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -22,11 +23,19 @@ class MessageController extends Controller
             return response()->json(['success' => false, 'message' => '未授權'], 401);
         }
         $userId = $user->id;
+        $blockedIds = $this->getBlockedUserIds($userId);
 
-        $latestIds = Message::where(function ($q) use ($userId) {
+        $baseQuery = Message::where(function ($q) use ($userId) {
                 $q->where('from_user_id', $userId)
                   ->orWhere('to_user_id', $userId);
-            })
+            });
+
+        if (!empty($blockedIds)) {
+            $baseQuery->whereNotIn('from_user_id', $blockedIds)
+                      ->whereNotIn('to_user_id', $blockedIds);
+        }
+
+        $latestIds = $baseQuery
             ->selectRaw('MAX(id) as id')
             ->groupBy(DB::raw('LEAST(from_user_id, to_user_id), GREATEST(from_user_id, to_user_id)'))
             ->pluck('id');
@@ -65,6 +74,10 @@ class MessageController extends Controller
             ? \App\Models\User::findOrFail($uid)
             : \App\Models\User::where('uid', $uid)->firstOrFail();
         $otherUserId = $otherUser->id;
+
+        if ($this->isBlockedBetween($userId, $otherUserId)) {
+            return response()->json(['success' => false, 'message' => '已封鎖或被封鎖，無法查看私訊'], 403);
+        }
 
         $query = Message::where(function ($q) use ($userId, $otherUserId) {
             $q->where('from_user_id', $userId)->where('to_user_id', $otherUserId);
@@ -122,6 +135,10 @@ class MessageController extends Controller
         if ($playerId && !$toUserId) {
             $player = Player::findOrFail($playerId);
             $toUserId = $player->user_id;
+        }
+
+        if ($toUserId && $this->isBlockedBetween($user->id, $toUserId)) {
+            return response()->json(['success' => false, 'message' => '已封鎖或被封鎖，無法傳送私訊'], 403);
         }
 
         // 阻擋重複點擊 (5秒內相同內容)
@@ -284,6 +301,11 @@ class MessageController extends Controller
             ], 403);
         }
 
+        $otherUserId = $message->from_user_id == $user->id ? $message->to_user_id : $message->from_user_id;
+        if ($this->isBlockedBetween($user->id, $otherUserId)) {
+            return response()->json(['success' => false, 'message' => '已封鎖或被封鎖，無法查看私訊'], 403);
+        }
+
         return response()->json([
             'success' => true,
             'data' => $message,
@@ -323,8 +345,12 @@ class MessageController extends Controller
         if (!$user) {
             return response()->json(['success' => false, 'message' => '未授權'], 401);
         }
-
-        $count = Message::forUser($user->id)->unread()->count();
+        $blockedIds = $this->getBlockedUserIds($user->id);
+        $query = Message::forUser($user->id)->unread();
+        if (!empty($blockedIds)) {
+            $query->whereNotIn('from_user_id', $blockedIds);
+        }
+        $count = $query->count();
 
         return response()->json([
             'success' => true,
@@ -376,5 +402,17 @@ class MessageController extends Controller
             $user = Auth::user();
         }
         return $user;
+    }
+
+    private function getBlockedUserIds(int $userId): array
+    {
+        $blocked = UserBlock::where('blocker_id', $userId)->pluck('blocked_id')->toArray();
+        $blockedBy = UserBlock::where('blocked_id', $userId)->pluck('blocker_id')->toArray();
+        return array_values(array_unique(array_merge($blocked, $blockedBy)));
+    }
+
+    private function isBlockedBetween(int $userId, int $otherUserId): bool
+    {
+        return UserBlock::isBlockedBetween($userId, $otherUserId);
     }
 }

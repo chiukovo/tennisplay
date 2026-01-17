@@ -5,7 +5,7 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
     const profileData = reactive({
         user: { player: null },
         stats: { followers_count: 0, following_count: 0, likes_count: 0, events_count: 0 },
-        status: { is_following: false, is_liked: false, is_me: false }
+        status: { is_following: false, is_liked: false, is_me: false, is_blocked: false, is_blocked_by: false }
     });
     const isProfileLoading = ref(true); // Added: loading state to prevent flash
     const profileTab = ref('comments');
@@ -19,6 +19,9 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
     const followerUsers = ref([]);
     const likedPlayers = ref([]);
     const playerCommentDraft = ref('');
+    const reportModal = reactive({ open: false, message: '' });
+    const isReporting = ref(false);
+    const isBlocking = ref(false);
     
     // 多地區選擇
     const selectedProfileRegions = ref([]);
@@ -156,6 +159,51 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
         } catch (error) { showToast('儲存失敗', 'error'); }
     };
 
+    const openReportModal = () => {
+        if (!isLoggedIn.value) { showToast('請先登入', 'error'); navigateTo('auth'); return; }
+        reportModal.message = '';
+        reportModal.open = true;
+    };
+
+    const submitReport = async () => {
+        if (!isLoggedIn.value) { showToast('請先登入', 'error'); navigateTo('auth'); return; }
+        if (!profileData.user?.uid && !profileData.user?.id) return;
+        try {
+            isReporting.value = true;
+            const uid = profileData.user.uid || profileData.user.id;
+            await api.post(`/users/${uid}/report`, { message: reportModal.message.trim() || null });
+            reportModal.open = false;
+            reportModal.message = '';
+            showToast('已送出檢舉', 'success');
+        } catch (error) {
+            showToast('送出失敗', 'error');
+        } finally {
+            isReporting.value = false;
+        }
+    };
+
+    const toggleBlock = async () => {
+        if (!isLoggedIn.value) { showToast('請先登入', 'error'); navigateTo('auth'); return; }
+        const uid = profileData.user?.uid || profileData.user?.id;
+        if (!uid) return;
+        try {
+            isBlocking.value = true;
+            if (profileData.status.is_blocked) {
+                await api.post(`/users/${uid}/unblock`);
+                profileData.status.is_blocked = false;
+                showToast('已解除封鎖', 'success');
+            } else {
+                await api.post(`/users/${uid}/block`);
+                profileData.status.is_blocked = true;
+                showToast('已封鎖對方', 'success');
+            }
+        } catch (error) {
+            showToast('操作失敗', 'error');
+        } finally {
+            isBlocking.value = false;
+        }
+    };
+
     const toggleFollow = async () => {
         if (!isLoggedIn.value) { showToast('請先登入', 'error'); navigateTo('auth'); return; }
         const userId = profileData.user.uid || profileData.user.id;
@@ -207,6 +255,7 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
         profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,
         selectedProfileRegions, toggleProfileRegion,
         loadProfile, loadProfileEvents, saveProfile, openProfile, toggleFollow, toggleLike,
-        loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment, deletePlayerComment
+        loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment, deletePlayerComment,
+        reportModal, isReporting, isBlocking, openReportModal, submitReport, toggleBlock
     };
 };

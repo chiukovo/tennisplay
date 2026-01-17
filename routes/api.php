@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\FollowController;
 use App\Http\Controllers\Api\LikeController;
 use App\Http\Controllers\Api\PlayerCommentController;
 use App\Http\Controllers\Api\CardCaptureController;
+use App\Http\Controllers\Api\UserSafetyController;
 
 // LINE Webhook
 Route::post('/line/webhook', [AuthController::class, 'handleWebhook']);
@@ -89,4 +90,9 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::post('/like/{playerId}', [LikeController::class, 'like']);
     Route::post('/unlike/{playerId}', [LikeController::class, 'unlike']);
     Route::get('/like/status/{playerId}', [LikeController::class, 'status']);
+
+    // Safety
+    Route::post('/users/{uid}/report', [UserSafetyController::class, 'report']);
+    Route::post('/users/{uid}/block', [UserSafetyController::class, 'block']);
+    Route::post('/users/{uid}/unblock', [UserSafetyController::class, 'unblock']);
 });

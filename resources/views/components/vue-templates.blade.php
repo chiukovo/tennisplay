@@ -133,7 +133,7 @@
                         <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 opacity-80 rounded-b-[32px]"></div>
                         
                         <div class="relative z-10">
-                            <h3 :class="['font-black uppercase tracking-tighter italic leading-[1.0] whitespace-nowrap pb-[5px] text-left drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] overflow-hidden text-ellipsis', isPlaceholder ? 'opacity-50 text-white' : themeStyle.name]" 
+                            <h3 :class="['font-black uppercase tracking-tighter italic leading-[0.9] pb-[5px] text-left drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] overflow-hidden line-clamp-2', isPlaceholder ? 'opacity-50 text-white' : themeStyle.name]" 
                                 :style="{ fontSize: nameFontSize, textShadow: '0 4px 12px rgba(0,0,0,0.5)' }">
                                 @{{ p?.name || '請更新卡片' }}
                             </h3>

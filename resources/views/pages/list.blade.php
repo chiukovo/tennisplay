@@ -8,73 +8,78 @@
         @endforeach
     </div>
     {{-- Header --}}
-    <div class="flex flex-col gap-4">
+    {{-- Header --}}
+    <div class="flex flex-col gap-6 sm:gap-8">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-3xl sm:text-5xl font-black italic uppercase tracking-tighter leading-tight">球友列表</h2>
-                <p class="text-slate-400 font-bold text-xs sm:text-base uppercase tracking-[0.2em] mt-1">Find your matching</p>
+                <h2 class="text-3xl sm:text-5xl font-black italic uppercase tracking-tighter leading-tight text-slate-900">球友列表</h2>
+                <p class="text-slate-400 font-bold text-xs sm:text-base uppercase tracking-[0.2em] mt-1">Found Your Partners</p>
             </div>
-            <div class="text-right">
+            <div class="text-right hidden sm:block">
                 <div class="text-2xl font-black text-blue-600">@{{ playersPagination.total }}</div>
                 <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">位球友</div>
             </div>
         </div>
         
-        {{-- Search Bar with Region Select --}}
-        <div class="relative flex flex-col sm:flex-row gap-3">
-            <div class="relative flex-1">
-                <app-icon name="search" class-name="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-5 h-5"></app-icon>
-                <input type="text" v-model="searchDraft" @keyup.enter="handleSearch" placeholder="搜尋姓名、程度或地區..." class="w-full pl-12 pr-12 py-3 sm:py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 font-bold text-base transition-all shadow-sm">
-                <button v-if="searchDraft" type="button" @click="searchDraft = ''; searchQuery = ''; handleSearch();" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors">
-                    <app-icon name="x" class-name="w-4 h-4"></app-icon>
-                </button>
-            </div>
-            <div class="flex gap-2">
-                <select v-model="regionDraft" @change="handleSearch" class="flex-1 sm:flex-none px-4 py-3 sm:py-4 bg-white border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 font-black text-sm uppercase tracking-widest cursor-pointer appearance-none min-w-[100px] sm:min-w-[120px] shadow-sm">
+        {{-- Unified Filter Bar --}}
+        <div class="flex flex-col xl:flex-row items-stretch xl:items-center gap-4 bg-white p-4 sm:p-5 rounded-[32px] border border-slate-200 shadow-sm relative z-20">
+            {{-- Region Select --}}
+            <div class="shrink-0 flex items-center bg-slate-50 px-3 py-1 rounded-2xl border border-slate-100">
+                <div class="text-slate-400 pl-1"><app-icon name="map-pin" class-name="w-4 h-4"></app-icon></div>
+                <select v-model="regionDraft" class="bg-transparent pl-2 pr-8 py-3 sm:py-3.5 focus:outline-none font-black text-sm uppercase tracking-widest cursor-pointer appearance-none min-w-[100px] sm:min-w-[120px]">
                     <option value="全部">全部地區</option>
                     <option v-for="r in activeRegions" :key="r" :value="r">@{{ r }}</option>
                 </select>
-                <button @click="showAdvancedFilters = !showAdvancedFilters" :class="['px-4 rounded-2xl border transition-all flex items-center justify-center gap-2 shadow-sm', showAdvancedFilters ? 'bg-blue-50 border-blue-200 text-blue-600' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50']">
-                    <app-icon name="filter" class-name="w-5 h-5"></app-icon>
-                    <span class="hidden sm:inline font-black text-sm uppercase tracking-widest">篩選</span>
+            </div>
+
+            {{-- Quick NTRP Shortcuts (Scrollable) --}}
+            <div class="flex items-center gap-1 p-1 bg-slate-50 rounded-2xl overflow-x-auto no-scrollbar scroll-smooth flex-grow xl:flex-grow-0 xl:w-auto">
+                <button type="button" @click="applyQuickLevel('', '', 'all')" 
+                    :class="['px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all whitespace-nowrap shrink-0', activeQuickLevel === 'all' ? 'bg-white text-blue-600 shadow-sm ring-1 ring-blue-50' : 'text-slate-400 hover:text-slate-600']">
+                    全部
                 </button>
-                <button @click="handleSearch" class="px-6 sm:px-8 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-sm sm:text-base hover:bg-blue-600 transition-all shadow-lg active:scale-95">
-                    搜尋
+                <button type="button" @click="applyQuickLevel('1.0', '2.5', 'starter')" 
+                    :class="['px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all whitespace-nowrap shrink-0', activeQuickLevel === 'starter' ? 'bg-white text-green-600 shadow-sm ring-1 ring-green-50' : 'text-slate-400 hover:text-slate-600']">
+                    新手
+                </button>
+                <button type="button" @click="applyQuickLevel('3.0', '3.5', 'steady')" 
+                    :class="['px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all whitespace-nowrap shrink-0', activeQuickLevel === 'steady' ? 'bg-white text-blue-600 shadow-sm ring-1 ring-blue-50' : 'text-slate-400 hover:text-slate-600']">
+                    穩定
+                </button>
+                <button type="button" @click="applyQuickLevel('4.0', '5.0', 'battle')" 
+                    :class="['px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all whitespace-nowrap shrink-0', activeQuickLevel === 'battle' ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-indigo-50' : 'text-slate-400 hover:text-slate-600']">
+                    競技
+                </button>
+                <button type="button" @click="applyQuickLevel('5.0', '7.0', 'pro')" 
+                    :class="['px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all whitespace-nowrap shrink-0', activeQuickLevel === 'pro' ? 'bg-white text-amber-500 shadow-sm ring-1 ring-amber-50' : 'text-slate-400 hover:text-slate-600']">
+                    職業
                 </button>
             </div>
-        </div>
 
-        {{-- Quick NTRP Filters --}}
-        <div class="bg-slate-50/60 border border-slate-200 rounded-[22px] p-3 sm:p-4 shadow-sm ring-1 ring-slate-100/60">
-            <div class="flex flex-nowrap items-center gap-2 overflow-x-auto no-scrollbar">
-                <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900 text-white text-[10px] sm:text-[11px] font-black uppercase tracking-[0.2em] shrink-0">
-                    <app-icon name="filter" class-name="w-4 h-4"></app-icon>
-                    快速篩選
+            {{-- Search & Advanced --}}
+            <div class="flex items-center gap-2 flex-grow min-w-0">
+                <div class="relative flex-1 group">
+                    <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                        <app-icon name="search" class-name="w-5 h-5"></app-icon>
+                    </div>
+                    <input type="text" v-model="searchDraft" @keyup.enter="handleSearch" placeholder="搜尋姓名..." 
+                        class="w-full pl-12 pr-4 py-3 sm:py-3.5 bg-slate-50 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none font-bold text-base transition-all text-slate-700 placeholder:text-slate-400">
                 </div>
-                <button type="button" @click="applyQuickLevel('5.0', '7.0', 'pro')" :class="['px-3 py-1.5 rounded-full text-[11px] sm:text-sm font-black uppercase tracking-widest border transition-all shrink-0', activeQuickLevel === 'pro' ? 'bg-slate-900 text-white border-slate-900 shadow-sm' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50']">
-                    🏆 找大神
+                
+                <button @click="showAdvancedFilters = !showAdvancedFilters" 
+                    :class="['px-4 py-3.5 rounded-2xl border-2 transition-all flex items-center justify-center gap-2 shrink-0', showAdvancedFilters ? 'bg-blue-50 border-blue-200 text-blue-600' : 'bg-slate-50 border-transparent text-slate-400 hover:bg-slate-100']">
+                    <app-icon name="filter" class-name="w-5 h-5"></app-icon>
                 </button>
-                <button type="button" @click="applyQuickLevel('4.0', '5.0', 'battle')" :class="['px-3 py-1.5 rounded-full text-[11px] sm:text-sm font-black uppercase tracking-widest border transition-all shrink-0', activeQuickLevel === 'battle' ? 'bg-slate-900 text-white border-slate-900 shadow-sm' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50']">
-                    ⚔️ 競技對戰
-                </button>
-                <button type="button" @click="applyQuickLevel('3.5', '4.5', 'mid')" :class="['px-3 py-1.5 rounded-full text-[11px] sm:text-sm font-black uppercase tracking-widest border transition-all shrink-0', activeQuickLevel === 'mid' ? 'bg-slate-900 text-white border-slate-900 shadow-sm' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50']">
-                    🚀 中高級
-                </button>
-                <button type="button" @click="applyQuickLevel('3.0', '3.5', 'steady')" :class="['px-3 py-1.5 rounded-full text-[11px] sm:text-sm font-black uppercase tracking-widest border transition-all shrink-0', activeQuickLevel === 'steady' ? 'bg-slate-900 text-white border-slate-900 shadow-sm' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50']">
-                    🎯 穩定練習
-                </button>
-                <button type="button" @click="applyQuickLevel('1.0', '2.5', 'starter')" :class="['px-3 py-1.5 rounded-full text-[11px] sm:text-sm font-black uppercase tracking-widest border transition-all shrink-0', activeQuickLevel === 'starter' ? 'bg-slate-900 text-white border-slate-900 shadow-sm' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50']">
-                    🌱 初學友善
-                </button>
-                <button type="button" @click="applyQuickLevel('', '', 'all')" :class="['px-3 py-1.5 rounded-full text-[11px] sm:text-sm font-black uppercase tracking-widest border transition-all shrink-0', activeQuickLevel === 'all' ? 'bg-slate-900 text-white border-slate-900 shadow-sm' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50']">
-                    🎾 不限程度
+                
+                <button @click="handleSearch" class="px-6 sm:px-8 py-3.5 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-sm sm:text-base hover:bg-blue-600 transition-all shadow-lg active:scale-95 shrink-0">
+                    搜尋
                 </button>
             </div>
         </div>
 
         {{-- Advanced Filters Panel --}}
         <transition name="fade-slide">
-            <div v-if="showAdvancedFilters" class="bg-white border border-slate-100 rounded-[32px] p-6 sm:p-8 shadow-xl shadow-slate-200/50 space-y-8">
+            <div v-if="showAdvancedFilters" class="bg-white border border-slate-100 rounded-[32px] p-6 sm:p-8 shadow-xl shadow-slate-200/50 space-y-8 relative z-10 -mt-4 pt-12">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {{-- Gender Filter --}}
                     <div class="space-y-3">
@@ -113,12 +118,12 @@
                     <div class="space-y-3">
                         <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">NTRP 程度範圍</label>
                         <div class="flex items-center gap-2">
-                            <select v-model="levelMinDraft" class="flex-1 px-3 py-3 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:border-blue-500 font-black text-xs transition-all appearance-none">
+                            <select v-model="levelMinDraft" class="flex-1 px-3 py-3 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:border-blue-500 font-black text-xs transition-all appearance-none cursor-pointer">
                                 <option value="">Min</option>
                                 <option v-for="l in levels" :key="'min-'+l" :value="l">@{{ l }}</option>
                             </select>
                             <span class="text-slate-300 font-black text-xs">~</span>
-                            <select v-model="levelMaxDraft" class="flex-1 px-3 py-3 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:border-blue-500 font-black text-xs transition-all appearance-none">
+                            <select v-model="levelMaxDraft" class="flex-1 px-3 py-3 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:border-blue-500 font-black text-xs transition-all appearance-none cursor-pointer">
                                 <option value="">Max</option>
                                 <option v-for="l in levels" :key="'max-'+l" :value="l">@{{ l }}</option>
                             </select>
@@ -137,16 +142,14 @@
     </div>
 
     {{-- Results Info --}}
-    <div v-if="searchQuery || selectedRegion !== '全部' || selectedGender !== '全部' || selectedLevelMin || selectedLevelMax || selectedHanded !== '全部' || selectedBackhand !== '全部'" class="flex items-center gap-3 text-sm">
-        <span class="text-slate-400">篩選條件:</span>
+    <div v-if="searchQuery || selectedRegion !== '全部' || selectedGender !== '全部' || selectedLevelMin || selectedLevelMax || selectedHanded !== '全部' || selectedBackhand !== '全部'" class="flex items-center gap-3 text-sm px-1">
+        <span class="text-slate-400 font-medium">篩選條件:</span>
         <div class="flex flex-wrap gap-2">
-            <span v-if="searchQuery" class="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-wider">關鍵字: @{{ searchQuery }}</span>
-            <span v-if="selectedRegion !== '全部'" class="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-wider">地區: @{{ selectedRegion }}</span>
-            <span v-if="selectedGender !== '全部'" class="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-wider">性別: @{{ selectedGender }}</span>
-            <span v-if="selectedHanded !== '全部'" class="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-wider">持拍: @{{ selectedHanded }}</span>
-            <span v-if="selectedBackhand !== '全部'" class="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-wider">反手: @{{ selectedBackhand }}</span>
-            <span v-if="selectedLevelMin || selectedLevelMax" class="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-wider">
-                程度: @{{ selectedLevelMin || '1.0' }} - @{{ selectedLevelMax || '7.0' }}
+            <span v-if="searchQuery" class="px-3 py-1 bg-white border border-blue-100 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm">關鍵字: @{{ searchQuery }}</span>
+            <span v-if="selectedRegion !== '全部'" class="px-3 py-1 bg-white border border-slate-200 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm">@{{ selectedRegion }}</span>
+            <span v-if="selectedGender !== '全部'" class="px-3 py-1 bg-white border border-slate-200 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm">@{{ selectedGender }}</span>
+            <span v-if="selectedLevelMin || selectedLevelMax" class="px-3 py-1 bg-white border border-slate-200 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm">
+                NTRP @{{ selectedLevelMin || '1.0' }} - @{{ selectedLevelMax || '7.0' }}
             </span>
         </div>
         <span class="text-slate-300 text-xs font-black uppercase tracking-widest hidden sm:inline">第 @{{ playersPagination.current_page }} / @{{ totalPages }} 頁</span>

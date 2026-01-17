@@ -1,72 +1,92 @@
 {{-- Home View --}}
 <div v-if="view === 'home'" class="space-y-12 sm:space-y-20">
     {{-- Unified Premium Hero --}}
-    <div class="bg-slate-950 rounded-[32px] sm:rounded-[64px] p-6 sm:p-16 lg:p-24 text-white relative overflow-hidden shadow-2xl">
-        <div class="absolute inset-0 opacity-20 pointer-events-none bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.3),transparent)]"></div>
-        {{-- Floating Tennis Balls Decoration --}}
-        <div class="absolute top-10 left-10 w-20 h-20 bg-yellow-400 rounded-full blur-3xl opacity-10 animate-pulse"></div>
-        <div class="absolute bottom-20 right-16 w-16 h-16 bg-blue-500 rounded-full blur-2xl opacity-20 animate-pulse"></div>
+    <div class="group relative bg-[#0f172a] rounded-[32px] sm:rounded-[48px] p-6 sm:p-16 lg:p-24 text-white overflow-hidden shadow-2xl border border-white/5">
+        {{-- Animated Grid Background --}}
+        <div class="absolute inset-0 opacity-[0.15]" 
+             style="background-image: linear-gradient(#3b82f6 1.5px, transparent 1.5px), linear-gradient(90deg, #3b82f6 1.5px, transparent 1.5px);
+                    background-size: 40px 40px;
+                    background-position: center center;
+                    mask-image: radial-gradient(circle at center, black 0%, transparent 80%);
+                    -webkit-mask-image: radial-gradient(circle at center, black 0%, transparent 80%);">
+        </div>
+        
+        {{-- Ambient Lighting --}}
+        <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/30 rounded-full blur-[120px] pointer-events-none mix-blend-screen opacity-50 animate-subtle-pulse"></div>
+        <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-600/20 rounded-full blur-[100px] pointer-events-none mix-blend-screen opacity-30"></div>
         
         <div class="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-20 items-center">
             {{-- Left: Text Content --}}
-            <div class="space-y-5 sm:space-y-6 text-center lg:text-left">
-                <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2">
-                    <div class="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-white/5 rounded-full border border-white/10 text-white text-[10px] sm:text-xs font-black uppercase tracking-[0.15em]">
-                        <app-icon name="shield-check" class-name="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400"></app-icon> 全台網球媒合新標竿
-                    </div>
-                    <div class="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 bg-[#06C755]/20 rounded-full border border-[#06C755]/30 text-[#06C755] text-[10px] sm:text-xs font-black uppercase tracking-wider">
-                        <app-icon name="line" fill="currentColor" stroke="none" class-name="w-3.5 h-3.5 sm:w-4 sm:h-4"></app-icon> LINE 秒註冊
+            <div class="space-y-6 sm:space-y-8 text-center lg:text-left">
+                <div class="flex flex-wrap items-center justify-center lg:justify-start gap-3">
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-sm">
+                        <app-icon name="shield-check" class-name="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400"></app-icon> 
+                        <span class="text-[10px] sm:text-xs font-black uppercase tracking-[0.15em] text-slate-200">全台網球媒合新標竿</span>
                     </div>
                 </div>
-                <h1 class="text-3xl sm:text-6xl lg:text-7xl font-black italic uppercase tracking-tighter leading-[0.9]">
-                    約球友<br><span class="text-blue-500">來 LoveTennis</span>
+                
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black italic uppercase tracking-tighter leading-none drop-shadow-xl">
+                    <span class="block text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400">約球友</span>
+                    <span class="block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-blue-500 to-indigo-500 pr-8 pb-2">
+                        來 LoveTennis
+                    </span>
                 </h1>
-                <p class="text-slate-400 max-w-xl mx-auto lg:mx-0 text-sm sm:text-xl font-medium leading-relaxed">
-                    全台最專業的網球約打平台。
-                    <br>LINE 快速登入，建立球友卡，即刻開始約打！
+                
+                <p class="text-slate-300 max-w-xl mx-auto lg:mx-0 text-sm sm:text-lg font-medium leading-relaxed tracking-wide opacity-90">
+                    全台最專業的網球約打平台。<br class="hidden sm:block">
+                    LINE 快速登入，建立專屬球友卡，30秒即刻開打！
                 </p>
-                <div class="flex flex-col sm:flex-row gap-3 sm:gap-5 justify-center lg:justify-start pt-2">
-                    <a href="/create" @click.prevent="navigateTo('create')" class="bg-blue-600 text-white px-8 py-4 sm:px-10 sm:py-5 rounded-2xl sm:rounded-3xl font-black text-base sm:text-xl hover:scale-105 transition-all shadow-2xl shadow-blue-500/40 text-center">製作球友卡</a>
-                    <a href="/list" @click.prevent.prevent="navigateTo('list')" class="bg-white/5 text-white border border-white/10 px-8 py-4 sm:px-10 sm:py-5 rounded-2xl sm:rounded-3xl font-black text-base sm:text-xl hover:bg-white/10 transition-all backdrop-blur-md text-center">球友列表</a>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
+                    <a href="/create" @click.prevent="navigateTo('create')" class="group/btn relative px-8 py-4 sm:px-10 sm:py-5 bg-blue-600 rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_0_40px_-10px_rgba(37,99,235,0.5)] transition-transform active:scale-95">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-white/20 to-blue-400/0 translate-x-[-200%] group-hover/btn:translate-x-[200%] transition-transform duration-1000 ease-in-out"></div>
+                        <span class="relative font-black text-base sm:text-xl text-white tracking-wider flex items-center justify-center gap-2">
+                            <span>製作球友卡</span>
+                            <app-icon name="arrow-right" class-name="w-5 h-5 group-hover/btn:translate-x-1 transition-transform"></app-icon>
+                        </span>
+                    </a>
+                    
+                    <a href="/list" @click.prevent="navigateTo('list')" class="px-8 py-4 sm:px-10 sm:py-5 bg-white/5 border border-white/10 rounded-2xl sm:rounded-3xl hover:bg-white/10 transition-all active:scale-95 backdrop-blur-sm flex items-center justify-center">
+                        <span class="font-black text-base sm:text-xl text-white tracking-wider">瀏覽列表</span>
+                    </a>
                 </div>
-                <div class="pt-4">
-                    <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2 sm:gap-3">
-                        <button type="button" @click="navigateTo('list')" class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/10 text-white text-[11px] sm:text-xs font-black uppercase tracking-widest border border-white/10 hover:bg-white/20 transition-all">
-                            <app-icon name="search" class-name="w-4 h-4"></app-icon>
-                            找球友
-                        </button>
-                        <button type="button" @click="navigateTo('events')" class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/10 text-white text-[11px] sm:text-xs font-black uppercase tracking-widest border border-white/10 hover:bg-white/20 transition-all">
-                            <app-icon name="calendar" class-name="w-4 h-4"></app-icon>
-                            揪團揪球
-                        </button>
-                        <button type="button" @click="navigateTo('create-event')" class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/10 text-white text-[11px] sm:text-xs font-black uppercase tracking-widest border border-white/10 hover:bg-white/20 transition-all">
-                            <app-icon name="plus" class-name="w-4 h-4"></app-icon>
-                            發佈揪球
-                        </button>
-                        <button type="button" @click="navigateTo('messages')" class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/10 text-white text-[11px] sm:text-xs font-black uppercase tracking-widest border border-white/10 hover:bg-white/20 transition-all">
-                            <app-icon name="mail" class-name="w-4 h-4"></app-icon>
-                            約打訊息
+                
+                {{-- Quick Links --}}
+                <div class="pt-6 border-t border-white/5">
+                    <div class="flex flex-wrap items-center justify-center lg:justify-start gap-3 opacity-80">
+                         <button v-for="item in [
+                            {icon: 'search', label: '找球友', to: 'list'},
+                            {icon: 'calendar', label: '揪團', to: 'events'},
+                            {icon: 'plus', label: '開團', to: 'create-event'}
+                         ]" :key="item.label" 
+                           @click="navigateTo(item.to)" 
+                           class="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800/50 hover:bg-slate-700/50 border border-white/5 transition-colors group/link">
+                            <div class="p-1 rounded-lg bg-white/10 group-hover/link:bg-blue-500 group-hover/link:text-white transition-colors">
+                                <app-icon :name="item.icon" class-name="w-3 h-3"></app-icon>
+                            </div>
+                            <span class="text-[11px] font-bold uppercase tracking-widest text-slate-300 group-hover/link:text-white">@{{ item.label }}</span>
                         </button>
                     </div>
                 </div>
             </div>
 
             {{-- Right: Card Showcase Mockup --}}
-            <div class="relative flex justify-center lg:justify-end py-4 sm:py-6 lg:py-0 overflow-hidden">
-                <div class="relative w-[200px] sm:w-full sm:max-w-[340px] aspect-[2.5/3.5] group">
+            <div class="relative flex justify-center lg:justify-center py-8 lg:py-0 perspective-[1000px]">
+                <div class="relative w-[180px] sm:w-[260px] aspect-[2.5/3.5] group-hover:scale-[1.02] transition-transform duration-700 ease-out my-4 mr-4">
+                    {{-- Glow Effect --}}
+                    <div class="absolute inset-0 bg-blue-500 rounded-[32px] blur-[60px] opacity-20 animate-pulse"></div>
+                    
                     {{-- Secondary Image (Action) --}}
-                    <div class="absolute -bottom-3 -left-3 sm:-bottom-10 sm:-left-10 w-full z-10 transform -rotate-6 group-hover:-rotate-3 transition-transform duration-1000 shadow-[0_40px_80px_-15px_rgba(0,0,0,0.7)] rounded-[16px] sm:rounded-[32px] overflow-hidden border-2 sm:border-4 border-white/10">
-                        <img src="/img/card2.jpg" alt="Player Action" class="w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 to-transparent"></div>
-                    </div>
-                    {{-- Primary Image (Card) --}}
-                    <div class="relative w-full z-20 transform rotate-3 group-hover:rotate-0 transition-transform duration-1000 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] rounded-[16px] sm:rounded-[32px] overflow-hidden border-2 sm:border-4 border-white/10">
-                        <img src="/img/card1.jpg" alt="Player Card Mockup" class="w-full h-full object-cover">
+                    <div class="absolute top-10 -left-12 sm:-left-16 w-full h-full z-10 transform -rotate-12 translate-y-4 shadow-2xl rounded-[24px] overflow-hidden border-[3px] border-white/10 bg-slate-800">
+                        <img src="/img/card2.jpg" alt="Player Action" class="w-full h-full object-cover opacity-60 mix-blend-luminosity">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent"></div>
                     </div>
                     
-                    {{-- Floating Badges --}}
-                    <div class="absolute top-1/2 -right-12 z-0 hidden lg:block opacity-20 transform rotate-90 scale-150">
-                        <span class="text-6xl font-black tracking-tighter italic uppercase text-white">LoveTennis</span>
+                    {{-- Primary Image (Card) --}}
+                    <div class="relative w-full h-full z-20 transform rotate-6 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)] rounded-[24px] sm:rounded-[32px] overflow-hidden border-[3px] border-white/20 bg-slate-900">
+                        <img src="/img/card1.jpg" alt="Player Card Mockup" class="w-full h-full object-cover">
+                        {{-- Gloss Effect --}}
+                        <div class="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 pointer-events-none"></div>
                     </div>
                 </div>
             </div>

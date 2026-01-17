@@ -208,36 +208,6 @@
     </section>
 
 
-    {{-- Stats Counter --}}
-    <section class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-[32px] sm:rounded-[48px] p-8 sm:p-20 text-white relative overflow-hidden">
-        <div class="absolute inset-0 opacity-10">
-            <div class="absolute top-0 left-0 w-full h-full bg-pattern"></div>
-        </div>
-        <div class="relative z-10">
-            <div class="text-center mb-6 sm:mb-12">
-                <h2 class="text-xl sm:text-4xl font-black italic uppercase tracking-tighter">為什麼選擇 LoveTennis？</h2>
-            </div>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8 text-center">
-                <div class="space-y-1 sm:space-y-2">
-                    <div class="text-3xl sm:text-6xl font-black italic">100%</div>
-                    <div class="text-[10px] sm:text-sm font-black uppercase tracking-widest text-blue-100">完全免費</div>
-                </div>
-                <div class="space-y-1 sm:space-y-2">
-                    <div class="text-3xl sm:text-6xl font-black italic">22</div>
-                    <div class="text-[10px] sm:text-sm font-black uppercase tracking-widest text-blue-100">全台縣市</div>
-                </div>
-                <div class="space-y-1 sm:space-y-2">
-                    <div class="text-3xl sm:text-6xl font-black italic">7.0</div>
-                    <div class="text-[10px] sm:text-sm font-black uppercase tracking-widest text-blue-100">NTRP 分級</div>
-                </div>
-                <div class="space-y-1 sm:space-y-2">
-                    <div class="text-3xl sm:text-6xl font-black italic">30秒</div>
-                    <div class="text-[10px] sm:text-sm font-black uppercase tracking-widest text-blue-100">快速建卡</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     {{-- Professional Standards --}}
     <div class="bg-white rounded-[32px] sm:rounded-[48px] p-6 sm:p-20 border border-slate-100 shadow-sm relative overflow-hidden">
         <div class="absolute top-0 right-0 w-64 h-64 bg-blue-50/50 blur-3xl rounded-full -mr-32 -mt-32"></div>

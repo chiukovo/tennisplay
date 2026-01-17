@@ -2,7 +2,8 @@
 <div v-if="view === 'instant-play'" class="h-[calc(100vh-140px)] sm:h-[calc(100vh-160px)] flex flex-col -mx-4 sm:mx-0">
     
     {{-- Lobby View: Room Selection --}}
-    <div v-if="!currentRoom" class="space-y-6 overflow-y-auto no-scrollbar pb-10">
+    <div v-if="!currentRoom" class="flex-grow overflow-y-auto no-scrollbar pb-10 px-2 sm:px-0 overscroll-contain touch-pan-y">
+        <div class="space-y-4 pt-2">
         {{-- Header & Stats --}}
         <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
@@ -35,7 +36,7 @@
         </div>
 
         {{-- Region Grid --}}
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-4">
             <button v-for="room in instantRooms" :key="room.id" 
                 @click="selectRoom(room)"
                 class="group bg-white border border-slate-100 p-4 sm:p-6 rounded-[32px] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all text-left relative overflow-hidden">
@@ -72,35 +73,33 @@
                 </div>
             </button>
         </div>
+        </div>
     </div>
 
-    {{-- Chat View: Active Chat Room --}}
-    <div v-else class="flex-grow flex flex-col bg-white rounded-2xl sm:rounded-[32px] border border-slate-200 shadow-2xl overflow-hidden relative">
-        {{-- Chat Header --}}
-        <div class="px-4 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+    {{-- Chat View: Active Chat Room (Full Screen Overlay on Mobile) --}}
+    <div v-else class="fixed sm:relative inset-0 sm:inset-auto z-[300] sm:z-auto flex-grow flex flex-col bg-white sm:rounded-[32px] sm:border border-slate-200 sm:shadow-2xl overflow-hidden overscroll-none" @touchmove.stop>
+        {{-- Chat Header (Blue like message modal) --}}
+        <div class="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between bg-gradient-to-r from-slate-800 to-slate-900 shrink-0">
             <div class="flex items-center gap-3">
-                <button @click="currentRoom = null" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm">
-                    <app-icon name="arrow-left" class-name="w-5 h-5"></app-icon>
+                <button @click="currentRoom = null" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-all">
+                    <app-icon name="chevron-left" class-name="w-5 h-5"></app-icon>
                 </button>
                 <div>
-                    <h3 class="text-base sm:text-lg font-black text-slate-900 leading-tight">@{{ currentRoom.name }} 揪球室</h3>
-                    <div class="flex items-center gap-1.5 mt-0.5">
-                        <div class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                            本房間有 @{{ currentRoom.active_count || 0 }} 位球友在線
-                        </p>
-                    </div>
+                    <h3 class="text-base sm:text-lg font-black text-white leading-tight">@{{ currentRoom.name }} 揪球室</h3>
+                    <p class="text-[10px] font-bold text-white/60 uppercase tracking-widest">
+                        本房間有 @{{ currentRoom.active_count || 0 }} 位球友在線
+                    </p>
                 </div>
             </div>
-            <!-- Avatars Stack (Inside Room) -->
+            {{-- Avatars Stack (Inside Room) --}}
             <div class="flex items-center -space-x-2" v-if="globalInstantStats.avatars && globalInstantStats.avatars.length">
                 <img v-for="(u, idx) in globalInstantStats.avatars.slice(0, 3)" :key="idx" 
                     :src="u.avatar" 
                     @click="openProfile(u.uid)"
-                    class="w-8 h-8 rounded-full border-2 border-white shadow-sm object-cover bg-slate-100 ring-1 ring-slate-100 cursor-pointer hover:scale-110 active:scale-95 transition-all"
+                    class="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-slate-800 shadow-sm object-cover bg-slate-100 cursor-pointer hover:scale-110 active:scale-95 transition-all"
                     :style="{ zIndex: 10 - idx }">
                 <div v-if="globalInstantStats.display_count > 3" 
-                    class="w-8 h-8 rounded-full border-2 border-white bg-slate-900 flex items-center justify-center text-[9px] font-black text-white shadow-sm z-0">
+                    class="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-slate-800 bg-white/20 flex items-center justify-center text-[9px] font-black text-white shadow-sm z-0">
                     +@{{ globalInstantStats.display_count - 3 }}
                 </div>
             </div>
@@ -139,7 +138,7 @@
         </div>
 
         {{-- Chat Footer / Input --}}
-        <div class="p-4 pb-24 sm:p-6 border-t border-slate-100 bg-white">
+        <div class="p-4 sm:p-6 border-t border-slate-100 bg-white shrink-0" style="padding-bottom: max(1rem, env(safe-area-inset-bottom));">
             {{-- Quick Templates --}}
             <div class="flex gap-2 overflow-x-auto no-scrollbar pb-3 mb-1">
                 <button v-for="t in [

@@ -38,9 +38,13 @@
                     :class="['px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all whitespace-nowrap shrink-0', activeQuickLevel === 'all' ? 'bg-white text-blue-600 shadow-sm ring-1 ring-blue-50' : 'text-slate-400 hover:text-slate-600']">
                     全部
                 </button>
-                <button type="button" @click="applyQuickLevel('1.0', '2.5', 'starter')" 
+                <button type="button" @click="applyQuickLevel('1.0', '1.5', 'starter')" 
                     :class="['px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all whitespace-nowrap shrink-0', activeQuickLevel === 'starter' ? 'bg-white text-green-600 shadow-sm ring-1 ring-green-50' : 'text-slate-400 hover:text-slate-600']">
                     新手
+                </button>
+                <button type="button" @click="applyQuickLevel('2.0', '2.5', 'beginner')" 
+                    :class="['px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all whitespace-nowrap shrink-0', activeQuickLevel === 'beginner' ? 'bg-white text-teal-600 shadow-sm ring-1 ring-teal-50' : 'text-slate-400 hover:text-slate-600']">
+                    初階
                 </button>
                 <button type="button" @click="applyQuickLevel('3.0', '3.5', 'steady')" 
                     :class="['px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all whitespace-nowrap shrink-0', activeQuickLevel === 'steady' ? 'bg-white text-blue-600 shadow-sm ring-1 ring-blue-50' : 'text-slate-400 hover:text-slate-600']">

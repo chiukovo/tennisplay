@@ -214,6 +214,13 @@ const PlayerCard = {
         };
 
         onMounted(() => {
+            // Skip ResizeObserver in lite mode for better performance (used in Swiper)
+            if (props.size === 'sm') {
+                // Just set initial scale once, no observers
+                requestAnimationFrame(() => updateScale());
+                return;
+            }
+            
             // Delay ResizeObserver setup to prioritize first paint
             requestAnimationFrame(() => {
                 updateScale();

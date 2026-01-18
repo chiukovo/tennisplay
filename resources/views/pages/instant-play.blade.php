@@ -100,7 +100,9 @@
                     </div>
                     <div class="flex-grow overflow-hidden relative h-6">
                         <transition-group name="slide-up">
-                            <div v-for="(msg, idx) in globalData.recent_messages.slice(0, 1)" :key="msg.id" 
+                            <div v-for="(msg, idx) in globalData.recent_messages" 
+                                v-show="idx === currentTickerIndex"
+                                :key="msg.id" 
                                 @click="joinBySlug(msg.room.slug)"
                                 class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-all absolute inset-0">
                                 <span class="text-[10px] font-black text-blue-400 uppercase tracking-widest shrink-0">[@{{ msg.room.name }}]</span>

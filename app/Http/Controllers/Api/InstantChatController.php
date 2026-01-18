@@ -36,10 +36,10 @@ class InstantChatController extends Controller
                 $room->last_message_by = $lastMessage->user->name ?? null;
                 $room->last_message_at = $lastMessage->created_at;
             } else {
-                // Fallback to 48 hours for preview only
+                // Fallback to 24 hours for preview only
                 $previewMessage = $room->messages()
                     ->with(['user:id,name'])
-                    ->where('created_at', '>=', Carbon::now()->subHours(48))
+                    ->where('created_at', '>=', Carbon::now()->subHours(24))
                     ->latest()
                     ->first();
                 if ($previewMessage) {
@@ -123,7 +123,7 @@ class InstantChatController extends Controller
             }, 
             'room:id,name,slug'
         ])
-            ->where('created_at', '>=', Carbon::now()->subHours(48))
+            ->where('created_at', '>=', Carbon::now()->subHours(6))
             ->latest()
             ->limit(10)
             ->get();
@@ -263,61 +263,68 @@ class InstantChatController extends Controller
         $json = Redis::connection('echo')->get($key);
         $members = $json ? json_decode($json, true) : [];
         
-        $activeUsers = [];
+        $uniqueUsers = [];
+        $uniqueIds = [];
         if (is_array($members)) {
             foreach ($members as $member) {
                 $userData = $member['user_info'] ?? null;
                 if ($userData) {
                     $userId = $userData['id'] ?? null;
-                    if ($userId) {
-                        // State Reconciliation: Only count if this is the user's LATEST authoritative room
-                        $currentLocation = Redis::connection('echo')->get('user_location:' . $userId);
-                        if ($currentLocation !== $room->slug) {
-                            continue; // This is a ghost/shadow from a previous or concurrent connection
-                        }
+                    if (!$userId) continue;
+
+                    // Deduplication: Only take the first connection for this user
+                    if (in_array($userId, $uniqueIds)) continue;
+                    
+                    // State Reconciliation: Only count if this is the user's LATEST authoritative room
+                    $currentLocation = Redis::connection('echo')->get('user_location:' . $userId);
+                    if ($currentLocation !== $room->slug) {
+                        continue; // This is a ghost/shadow from a previous or concurrent connection
                     }
-                    $activeUsers[] = $userData;
+
+                    $uniqueIds[] = $userId;
+                    $uniqueUsers[] = $userData;
                 }
             }
         }
 
         return [
-            'active_count' => count($activeUsers),
-            'active_avatars' => array_slice(array_reverse($activeUsers), 0, 3)
+            'active_count' => count($uniqueUsers),
+            'active_avatars' => array_slice(array_reverse($uniqueUsers), 0, 3)
         ];
     }
 
     private function fetchGlobalStatsData()
     {
-        $count = (int) Redis::connection('echo')->get('presence-instant-lobby:members_count');
-        
-        // Explicitly get member list for avatars
+        // Explicitly get member list for avatars and unique count
         $json = Redis::connection('echo')->get('presence-instant-lobby:members');
         $members = $json ? json_decode($json, true) : [];
         
-        // ROBUSTNESS: If count key is missing or 0 but members list has people, use member count
-        if ($count <= 0 && !empty($members)) {
-            $count = count($members);
-        }
-
-        $avatars = [];
+        $uniqueUsers = [];
+        $uniqueIds = [];
         if (is_array($members)) {
-            foreach (array_slice($members, 0, 8) as $m) {
+            foreach ($members as $m) {
                 if (isset($m['user_info'])) {
                     $uInfo = $m['user_info'];
-                    $avatars[] = [
-                        'avatar' => $uInfo['avatar'], 
-                        'uid' => $uInfo['uid'],
-                        'level' => $uInfo['level'] ?? null
-                    ];
+                    $uid = $uInfo['uid'] ?? null;
+                    if ($uid && !in_array($uid, $uniqueIds)) {
+                        $uniqueIds[] = $uid;
+                        $uniqueUsers[] = [
+                            'avatar' => $uInfo['avatar'] ?? null, 
+                            'uid' => $uid,
+                            'name' => $uInfo['name'] ?? null,
+                            'level' => $uInfo['level'] ?? null
+                        ];
+                    }
                 }
             }
         }
 
+        $count = count($uniqueUsers);
+
         return [
             'active_count' => $count,
             'display_count' => $count,
-            'avatars' => $avatars
+            'avatars' => array_slice($uniqueUsers, 0, 15) // Return up to 15 unique avatars
         ];
     }
 }

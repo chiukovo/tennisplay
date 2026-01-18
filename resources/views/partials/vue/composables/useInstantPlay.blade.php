@@ -18,6 +18,7 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
     const activityNotifications = ref([]);
     const roomSearch = ref('');
     const roomCategory = ref('全部');
+    const currentTickerIndex = ref(0);
     
     // Geographic Mapping
     const REGION_GROUPS = {
@@ -70,6 +71,7 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
     let statsTimer = null;
     let globalTimer = null;
     let heartbeatTimer = null;
+    let tickerTimer = null;
     let currentChannel = null;
 
     // Mobile scroll lock: prevent body scroll when chat room is open
@@ -115,6 +117,11 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
             const response = await api.get('/instant/global-data');
             globalData.recent_messages = response.data.recent_messages;
             globalData.lfg_users = response.data.lfg_users;
+            
+            // Reset ticker if data changed substantially
+            if (currentTickerIndex.value >= globalData.recent_messages.length) {
+                currentTickerIndex.value = 0;
+            }
             
             // Sync current user's LFG status if found in list
             if (isLoggedIn.value && currentUser.value) {
@@ -412,15 +419,24 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
         if (view.value === 'instant-play') {
             activatePresence();
         }
+
+        // Global Ticker Timer
+        tickerTimer = setInterval(() => {
+            if (globalData.recent_messages.length > 1) {
+                currentTickerIndex.value = (currentTickerIndex.value + 1) % globalData.recent_messages.length;
+            }
+        }, 5000); // Rotate every 5 seconds
     });
 
     onUnmounted(() => {
         deactivatePresence();
+        if (tickerTimer) clearInterval(tickerTimer);
     });
 
     return {
         instantRooms, currentRoom, instantMessages, isInstantLoading, globalInstantStats, instantMessageDraft, isSending,
         globalData, isLfg, selectedLfgRemark, roomSearch, roomCategory, sortedAndFilteredRooms, activityNotifications,
+        currentTickerIndex,
         fetchRooms, selectRoom, sendInstantMessage, fetchMessages, joinBySlug, fetchGlobalData, toggleLfg
     };
 };

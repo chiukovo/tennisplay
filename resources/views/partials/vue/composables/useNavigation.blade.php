@@ -78,5 +78,13 @@ const useNavigation = (routes, routePaths, viewTitles, showToast, applyDefaultFi
         return viewName;
     };
 
-    return { view, lastNavigationTap, navigateTo, parseRoute };
+    const goBack = (fallbackView = 'home') => {
+        if (window.history.length > 1) {
+            window.history.back();
+        } else {
+            navigateTo(fallbackView);
+        }
+    };
+
+    return { view, lastNavigationTap, navigateTo, parseRoute, goBack };
 };

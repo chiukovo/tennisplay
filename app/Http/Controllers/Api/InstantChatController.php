@@ -103,6 +103,9 @@ class InstantChatController extends Controller
         // Broadcast the message via WebSocket
         broadcast(new \App\Events\InstantMessageSent($message))->toOthers();
 
+        // Trigger a room stats sync to update the lobby card preview
+        $this->syncRoomStats($room);
+
         return response()->json($message);
     }
 
@@ -215,16 +218,25 @@ class InstantChatController extends Controller
      */
     public function syncRoomStats(InstantRoom $room)
     {
-        // Pulse Signal Architecture: Just tell the frontend to REFRESH from API
-        $payload = [
-            'event' => 'stats.changed',
-            'data' => ['type' => 'room', 'room_slug' => $room->slug],
-            'socket' => null
-        ];
+        $stats = $this->fetchRoomStatsData($room);
         
-        Redis::connection('echo')->publish('instant-public', json_encode($payload));
+        // Fetch latest preview message
+        $lastMessage = $room->messages()
+            ->with(['user:id,name'])
+            ->latest()
+            ->first();
+
+        broadcast(new \App\Events\InstantRoomStatsUpdated(
+            $room->slug,
+            $stats['active_count'],
+            $stats['active_avatars'],
+            $lastMessage->content ?? null,
+            $lastMessage->user->name ?? null,
+            $lastMessage->created_at ?? null,
+            $lastMessage->id ?? null
+        ));
         
-        return response()->json(['status' => 'synced']);
+        return response()->json(['status' => 'synced', 'stats' => $stats]);
     }
 
     /**
@@ -246,15 +258,14 @@ class InstantChatController extends Controller
      */
     public function syncGlobalStats()
     {
-        $payload = [
-            'event' => 'stats.changed',
-            'data' => ['type' => 'global'],
-            'socket' => null
-        ];
+        $stats = $this->fetchGlobalStatsData();
         
-        Redis::connection('echo')->publish('instant-public', json_encode($payload));
+        broadcast(new \App\Events\InstantGlobalStatsUpdated(
+            $stats['active_count'],
+            $stats['avatars']
+        ));
 
-        return response()->json(['status' => 'synced']);
+        return response()->json(['status' => 'synced', 'stats' => $stats]);
     }
 
     private function fetchRoomStatsData(InstantRoom $room)

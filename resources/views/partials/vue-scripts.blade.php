@@ -148,7 +148,7 @@ createApp({
         };
 
         // --- 3. Initialize Composables ---
-        const { view, lastNavigationTap, navigateTo, parseRoute } = useNavigation(
+        const { view, lastNavigationTap, navigateTo, parseRoute, goBack } = useNavigation(
             { '/': 'home', '/list': 'list', '/create': 'create', '/messages': 'messages', '/auth': 'auth', '/profile': 'profile', '/events': 'events', '/create-event': 'create-event', '/settings': 'settings', '/privacy': 'privacy', '/sitemap': 'sitemap', '/instant-play': 'instant-play' },
             { 'home': '/', 'list': '/list', 'create': '/create', 'messages': '/messages', 'auth': '/auth', 'profile': '/profile', 'events': '/events', 'create-event': '/create-event', 'settings': '/settings', 'privacy': '/privacy', 'sitemap': '/sitemap', 'instant-play': '/instant-play' },
             { 
@@ -201,7 +201,7 @@ createApp({
 
         const { 
             instantRooms, currentRoom, instantMessages, isInstantLoading, globalInstantStats, instantMessageDraft, isSending,
-            globalData, isLfg, selectedLfgRemark, roomSearch, roomCategory, sortedAndFilteredRooms, activityNotifications, currentTickerIndex,
+            globalData, isLfg, selectedLfgRemark, roomSearch, roomCategory, sortedAndFilteredRooms, activityNotifications, currentTickerIndex, displayOtherAvatars, hiddenOthersCount,
             fetchRooms, selectRoom, sendInstantMessage, fetchMessages, joinBySlug, fetchGlobalData, toggleLfg
         } = useInstantPlay(isLoggedIn, currentUser, showToast, view);
 
@@ -1182,7 +1182,7 @@ createApp({
             profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,
             selectedProfileRegions, toggleProfileRegion, reportModal, isReporting, isBlocking, profileActionMenu,
             instantRooms, currentRoom, instantMessages, isInstantLoading, globalInstantStats, instantMessageDraft, isSending,
-            globalData, isLfg, selectedLfgRemark, showLfgPicker, customLfgRemark, roomSearch, roomCategory, sortedAndFilteredRooms, activityNotifications, currentTickerIndex,
+            globalData, isLfg, selectedLfgRemark, showLfgPicker, customLfgRemark, roomSearch, roomCategory, sortedAndFilteredRooms, activityNotifications, currentTickerIndex, displayOtherAvatars, hiddenOthersCount,
             // Computed
             hasUnread, hasPlayerCard, myCards, activeRegions, activeEventRegions, filteredPlayers, totalPages, paginatedPlayers, displayPages, randomPlayers, 
             filteredEvents, eventTotalPages, paginatedEvents, eventDisplayPages,
@@ -1190,7 +1190,7 @@ createApp({
             paginatedMessages, hasMoreMessages,
             canProceedStep1, canProceedStep2, canProceedStep3, canGoToStep,
             // Methods
-            navigateTo: navigateToWithProfile, logout, checkAuth, saveSettings, loadPlayers, loadMyCards, saveCard: handleSaveCard, deleteCard, editCard, resetForm, resetFormFull,
+            navigateTo: navigateToWithProfile, goBack, logout, checkAuth, saveSettings, loadPlayers, loadMyCards, saveCard: handleSaveCard, deleteCard, editCard, resetForm, resetFormFull,
             loadEvents, createEvent, updateEvent, deleteEvent: handleDeleteEvent, resetEventForm, openEventDetail, submitEventComment, deleteEventComment, setDateRange, editEvent, submitEvent, 
             joinEvent, 
             leaveEvent,

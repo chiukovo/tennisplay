@@ -93,8 +93,8 @@
             </section>
 
             <div class="pt-10 border-t border-slate-100 flex justify-center">
-                <button @click="navigateTo('home')" class="px-10 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-blue-600 transition-all shadow-xl active:scale-95">
-                    返回首頁
+                <button @click="goBack()" class="px-10 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-blue-600 transition-all shadow-xl active:scale-95">
+                    上一頁
                 </button>
             </div>
         </div>

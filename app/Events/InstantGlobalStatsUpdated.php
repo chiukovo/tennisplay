@@ -47,8 +47,8 @@ class InstantGlobalStatsUpdated implements ShouldBroadcastNow
      *
      * @return string
      */
-    // public function broadcastAs()
-    // {
-    //     return 'global.stats.updated';
-    // }
+    public function broadcastAs()
+    {
+        return 'global.stats.updated';
+    }
 }

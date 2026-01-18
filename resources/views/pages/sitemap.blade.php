@@ -142,8 +142,8 @@
         </div>
 
         <div class="mt-12 text-center">
-            <button @click="navigateTo('home')" class="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-xl">
-                返回首頁
+            <button @click="goBack()" class="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-blue-600 transition-all shadow-xl">
+                上一頁
             </button>
         </div>
     </div>

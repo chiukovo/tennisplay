@@ -1,5 +1,5 @@
 {{-- Instant Play View --}}
-<div v-if="view === 'instant-play'" class="h-[calc(100vh-140px)] sm:h-[calc(100vh-160px)] flex flex-col -mx-4 sm:mx-0">
+<div v-if="view === 'instant-play'" class="h-[calc(100vh-140px)] sm:h-[calc(100vh-160px)] flex flex-col -mx-4 sm:mx-0 overflow-x-hidden">
     
     {{-- Lobby View: Room Selection --}}
     <div v-if="!currentRoom" class="flex-grow overflow-y-auto no-scrollbar pb-10 px-2 sm:px-0 overscroll-contain touch-pan-y">
@@ -111,7 +111,7 @@
                             </div>
                         </transition-group>
                         
-                        <div v-if="!globalData.recent_messages.length" class="text-xs font-bold text-slate-500 italic">全台灣目前正在暖身中...</div>
+                        <div v-if="!globalData.recent_messages.length" class="text-xs font-bold text-slate-500 italic">好想打球阿~~~</div>
                     </div>
                     <app-icon name="chevron-right" class-name="w-4 h-4 text-slate-600 shrink-0"></app-icon>
                 </div>
@@ -138,15 +138,23 @@
                             <div v-if="user.remark" class="bg-blue-50 text-blue-600 text-[7px] font-black px-1.5 py-0.5 rounded-md border border-blue-100/30 line-clamp-1">@{{ user.remark }}</div>
                         </div>
 
-                        {{-- Others (Presence) --}}
-                        <div v-for="user in globalInstantStats.avatars.filter(a => !globalData.lfg_users.some(l => String(l.uid) === String(a.uid)))" :key="'pres-'+user.uid" 
+                        {{-- Others (Presence) - Capped at 20 --}}
+                        <div v-for="user in displayOtherAvatars" :key="'pres-'+user.uid" 
                             @click="openProfile(user.uid)"
                             class="flex flex-col items-center gap-2 shrink-0 group cursor-pointer p-1 opacity-60 hover:opacity-100 transition-opacity">
                             <img :src="user.avatar" class="w-12 h-12 rounded-full border-2 border-white object-cover shadow-sm bg-slate-100 group-hover:scale-110 transition-transform">
                             <span class="text-[9px] font-bold text-slate-500 max-w-[56px] truncate">@{{ user.name || '球友' }}</span>
                         </div>
 
-                        <div v-if="!globalData.lfg_users.length && !globalInstantStats.avatars.length" class="flex items-center gap-3 p-3 bg-slate-50 rounded-[20px] border border-dashed border-slate-200 w-full">
+                        {{-- Hidden Count Indicator --}}
+                        <div v-if="hiddenOthersCount > 0" class="flex flex-col items-center gap-2 shrink-0 p-1">
+                            <div class="w-12 h-12 rounded-full bg-slate-100 border-2 border-dashed border-slate-200 flex items-center justify-center text-[10px] font-black text-slate-400">
+                                +@{{ hiddenOthersCount }}
+                            </div>
+                            <span class="text-[9px] font-black text-slate-300 uppercase tracking-widest">More</span>
+                        </div>
+
+                        <div v-if="!globalData.lfg_users.length && !displayOtherAvatars.length" class="flex items-center gap-3 p-3 bg-slate-50 rounded-[20px] border border-dashed border-slate-200 w-full">
                             <div class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center">
                                 <app-icon name="users" class-name="w-3 h-3 text-slate-300"></app-icon>
                             </div>
@@ -277,7 +285,7 @@
                 <p class="text-sm font-bold text-slate-400 uppercase tracking-widest">目前還沒有訊息<br>成為第一個揪球的人吧！</p>
             </div>
             <div v-for="msg in instantMessages" :key="msg.id" 
-                :class="['flex gap-3', msg.user_id === currentUser?.id ? 'flex-row-reverse' : '']">
+                :class="['flex gap-3 transition-all duration-300', String(msg.user_id) === String(currentUser?.id) ? 'flex-row-reverse' : '']">
                 {{-- Avatar --}}
                 <div class="shrink-0 pt-1">
                     <div @click="openProfile(msg.user.uid)" class="relative w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-white shadow-sm cursor-pointer group">
@@ -287,15 +295,15 @@
                     </div>
                 </div>
                 {{-- Content --}}
-                <div :class="['max-w-[80%]', msg.user_id === currentUser?.id ? 'text-right' : '']">
-                    <div v-if="msg.user_id !== currentUser?.id" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 ml-1">
+                <div :class="['max-w-[75%]', String(msg.user_id) === String(currentUser?.id) ? 'flex flex-col items-end' : '']">
+                    <div v-if="String(msg.user_id) !== String(currentUser?.id)" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 ml-1">
                         @{{ msg.user.name }}
                     </div>
-                    <div :class="['px-4 py-2.5 rounded-[20px] text-sm font-semibold shadow-sm inline-block break-words text-left whitespace-pre-line', 
-                        msg.user_id === currentUser?.id ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none']">
+                    <div :class="['px-4 py-2.5 rounded-[22px] text-[13px] font-bold shadow-sm inline-block break-words text-left whitespace-pre-line leading-relaxed', 
+                        String(msg.user_id) === String(currentUser?.id) ? 'bg-blue-600 text-white rounded-tr-none shadow-blue-100' : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none']">
                         @{{ msg.content }}
                     </div>
-                    <div class="text-[9px] font-bold text-slate-300 uppercase mt-1 mx-1">
+                    <div :class="['text-[9px] font-bold text-slate-300 uppercase mt-1', String(msg.user_id) === String(currentUser?.id) ? 'mr-1' : 'ml-1']">
                         @{{ formatDate(msg.created_at) }}
                     </div>
                 </div>
@@ -340,19 +348,4 @@
         </div>
     </div>
 
-    {{-- Activity Notifications Tray --}}
-    <div class="fixed bottom-24 left-1/2 -translate-x-1/2 z-[500] pointer-events-none w-full max-w-sm px-4">
-        <transition-group name="slide-up">
-            <div v-for="note in activityNotifications" :key="note.id" 
-                class="bg-slate-900/90 backdrop-blur-md text-white px-5 py-3 rounded-[24px] shadow-2xl border border-white/10 mb-2 flex items-center gap-3">
-                <div class="shrink-0 w-8 h-8 rounded-full border-2 border-blue-500 overflow-hidden">
-                    <img :src="note.user.avatar" class="w-full h-full object-cover">
-                </div>
-                <div class="flex-grow">
-                    <p class="text-[11px] font-bold leading-tight">@{{ note.text }}</p>
-                </div>
-                <div class="shrink-0 w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
-            </div>
-        </transition-group>
-    </div>
 </div>

@@ -17,17 +17,25 @@ class InstantRoomStatsUpdated implements ShouldBroadcastNow
     public $room_slug;
     public $active_count;
     public $active_avatars;
+    public $message_id;
+    public $last_message;
+    public $last_message_by;
+    public $last_message_at;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(string $roomSlug, int $activeCount, array $activeAvatars)
+    public function __construct(string $roomSlug, int $activeCount, array $activeAvatars, $lastMsg = null, $lastBy = null, $lastAt = null, $msgId = null)
     {
         $this->room_slug = $roomSlug;
         $this->active_count = $activeCount;
         $this->active_avatars = $activeAvatars;
+        $this->message_id = $msgId;
+        $this->last_message = $lastMsg;
+        $this->last_message_by = $lastBy;
+        $this->last_message_at = $lastAt;
     }
 
     /**
@@ -48,8 +56,8 @@ class InstantRoomStatsUpdated implements ShouldBroadcastNow
      *
      * @return string
      */
-    // public function broadcastAs()
-    // {
-    //     return 'room.stats.updated';
-    // }
+    public function broadcastAs()
+    {
+        return 'room.stats.updated';
+    }
 }

@@ -3,7 +3,7 @@
     <div class="bg-white/80 backdrop-blur-xl border-b sticky top-20 z-[90]">
         <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-2 sm:gap-4">
-                <button @click="navigateTo('home')" class="p-2 hover:bg-slate-100 rounded-xl transition-colors">
+                <button @click="goBack()" class="p-2 hover:bg-slate-100 rounded-xl transition-colors">
                     <app-icon name="arrow-left" class-name="w-5 h-5 text-slate-600"></app-icon>
                 </button>
                 <h1 class="text-base sm:text-lg font-black italic uppercase tracking-tight text-slate-900 whitespace-nowrap">個人主頁</h1>

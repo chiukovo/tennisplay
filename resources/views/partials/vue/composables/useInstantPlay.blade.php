@@ -7,6 +7,7 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
     const instantMessages = ref([]);
     const isInstantLoading = ref(false);
     const globalInstantStats = reactive({ active_count: 0, display_count: 0, avatars: [] });
+    const presenceUsers = ref([]);
     const instantMessageDraft = ref('');
     
     // Global Features
@@ -68,10 +69,28 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
         });
     });
 
+    // Avatars display logic for scalability (Cap at 20)
+    const sortedOtherAvatars = computed(() => {
+        const users = presenceUsers.value.length > 0 ? presenceUsers.value : globalInstantStats.avatars;
+        return users.filter(a => 
+            !globalData.lfg_users.some(l => String(l.uid) === String(a.uid))
+        );
+    });
+
+    const displayOtherAvatars = computed(() => {
+        return sortedOtherAvatars.value.slice(0, 20);
+    });
+
+    const hiddenOthersCount = computed(() => {
+        return Math.max(0, sortedOtherAvatars.value.length - 20);
+    });
+
     let statsTimer = null;
     let globalTimer = null;
     let heartbeatTimer = null;
     let tickerTimer = null;
+    let failsafeTimer = null;
+    let lastEventTime = Date.now();
     let currentChannel = null;
 
     // Mobile scroll lock: prevent body scroll when chat room is open
@@ -226,17 +245,27 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
             .here((users) => {
                 console.log(`Room [${room.slug}] Here:`, users.length);
                 if (currentRoom.value) currentRoom.value.active_count = users.length;
+                // Everyone can trigger sync once on enter to be sure
                 api.post(`/instant/rooms/${room.slug}/sync`);
             })
             .joining((user) => {
                 console.log('User joined room:', user.name);
-                if (currentRoom.value) currentRoom.value.active_count = (currentRoom.value.active_count || 0) + 1;
-                api.post(`/instant/rooms/${room.slug}/sync`);
+                if (currentRoom.value) {
+                    currentRoom.value.active_count = (currentRoom.value.active_count || 0) + 1;
+                }
+                // Only the joiner already called sync via selectRoom? 
+                // No, selectRoom doesn't know when joining is done.
+                // Let's rely on the direct state update above.
             })
             .leaving((user) => {
                 console.log('User left room:', user.name);
-                if (currentRoom.value) currentRoom.value.active_count = Math.max(0, (currentRoom.value.active_count || 1) - 1);
-                api.post(`/instant/rooms/${room.slug}/sync`);
+                if (currentRoom.value) {
+                    currentRoom.value.active_count = Math.max(0, (currentRoom.value.active_count || 1) - 1);
+                }
+                // To consider performance (Avoid Thundering Herd):
+                // We sync room cards via direct push broadcast from the server.
+                // Since this user is leaving, one REMAINING user triggers the broadcast.
+                // Simple thundering herd prevention: only the user with the smallest UID who is still here.
             })
             .listen('.message.sent', (e) => {
                 instantMessages.value.push(e);
@@ -266,12 +295,37 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
         const finalContent = content || instantMessageDraft.value;
         if (!finalContent || !currentRoom.value) return;
 
-        isSending.value = true;
         try {
             const response = await api.post(`/instant/rooms/${currentRoom.value.slug}/messages`, {
                 content: finalContent
             });
-            instantMessages.value.push(response.data);
+            const newMessage = response.data;
+            instantMessages.value.push(newMessage);
+            
+            // 同步更新大廳卡片預覽 (確保回列表時立即看到)
+            const room = instantRooms.value.find(r => r.slug === currentRoom.value.slug);
+            if (room) {
+                room.last_message = newMessage.content;
+                room.last_message_by = newMessage.user.name;
+                room.last_message_at = newMessage.created_at;
+            }
+
+            // 同步注入頂部看板
+            if (newMessage.content) {
+                const msgId = newMessage.id || Date.now();
+                if (!globalData.recent_messages.some(m => m.id === msgId)) {
+                    globalData.recent_messages.unshift({
+                        id: msgId,
+                        content: newMessage.content,
+                        last_message_by: newMessage.user.name,
+                        created_at: newMessage.created_at,
+                        user: { name: newMessage.user.name, avatar: newMessage.user.avatar },
+                        room: { slug: currentRoom.value.slug, name: currentRoom.value.name }
+                    });
+                    if (globalData.recent_messages.length > 15) globalData.recent_messages.pop();
+                }
+            }
+
             instantMessageDraft.value = '';
             scrollToBottom();
         } catch (error) {
@@ -329,53 +383,107 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
             window.Echo.connector.socket.on('connect_error', (err) => console.error('WebSocket Connection Error:', err));
         }
 
+        // 2. Listen for Events
         statsChannel
-            .listen('.stats.changed', (payload) => {
-                console.log('Pulse Signal received [stats.changed]: Triggering API Refresh');
-                fetchRooms();
-                fetchStats();
+            .listen('.room.stats.updated', (payload) => {
+                console.log('--- WebSocket Event: [room.stats.updated] ---', payload.room_slug);
+                lastEventTime = Date.now();
+                const room = instantRooms.value.find(r => r.slug === payload.room_slug);
+                if (room) {
+                    room.active_count = payload.active_count;
+                    room.active_avatars = payload.active_avatars;
+                    // Update message preview
+                    room.last_message = payload.last_message;
+                    room.last_message_by = payload.last_message_by;
+                    room.last_message_at = payload.last_message_at;
+
+                    // SYNC TICKER: If this is new information, inject it into the top ticker
+                    if (payload.last_message) {
+                        const msgId = payload.message_id || payload.id || Date.now();
+                        const existingMsg = globalData.recent_messages.find(m => m.id === msgId);
+                        if (!existingMsg) {
+                            globalData.recent_messages.unshift({
+                                id: msgId,
+                                content: payload.last_message,
+                                last_message_by: payload.last_message_by,
+                                created_at: payload.last_message_at,
+                                user: { name: payload.last_message_by, avatar: null },
+                                room: { slug: payload.room_slug, name: room.name }
+                            });
+                            // Keep max 15 ticker items
+                            if (globalData.recent_messages.length > 15) globalData.recent_messages.pop();
+                        }
+                    }
+                }
             })
-            // Fallbacks if needed
-            .listen('stats.changed', (payload) => {
-                console.log('Pulse Signal received [stats.changed fallback]: Triggering API Refresh');
-                fetchRooms();
-                fetchStats();
+            .listen('.global.stats.updated', (payload) => {
+                console.log('--- WebSocket Event: [global.stats.updated] ---');
+                lastEventTime = Date.now();
+                // Only update if not already managed by local presence
+                if (presenceUsers.value.length === 0) {
+                    globalInstantStats.active_count = payload.active_count;
+                    globalInstantStats.display_count = payload.active_count;
+                    globalInstantStats.avatars = payload.avatars;
+                }
+            })
+            .listen('.stats.changed', (payload) => {
+                console.log('--- WebSocket Event: [stats.changed (Pulse)] ---', payload);
+                lastEventTime = Date.now();
+                if (payload.type === 'global') fetchStats();
+                if (payload.type === 'room' && payload.room_slug) fetchRooms();
             });
 
-        // 2. Join PRESENCE channel for identity tracking (Members only)
+        // 3. Join PRESENCE channel for identity tracking (Members only)
         if (isLoggedIn.value) {
             console.log('Connecting to Presence Lobby...');
             lobbyChannel = window.Echo.join('instant-lobby')
                 .here((users) => {
-                    console.log('Presence Lobby Here:', users.length);
-                    api.post('/instant/sync-global');
+                    console.log('Presence Lobby [here]:', users.length);
+                    lastEventTime = Date.now();
+                    // Deduplicate and set local state
+                    const unique = [];
+                    const uids = new Set();
+                    users.forEach(u => {
+                        if (!u.uid || uids.has(u.uid)) return;
+                        uids.add(u.uid);
+                        unique.push(u);
+                    });
+                    presenceUsers.value = unique;
+                    globalInstantStats.active_count = unique.length;
+                    globalInstantStats.display_count = unique.length;
                 })
                 .joining((user) => {
-                    console.log('Lobby Join:', user.name);
-                    api.post('/instant/sync-global');
-                    
-                    // Entry Notification
-                    const notification = {
-                        id: Date.now(),
-                        type: 'join',
-                        user: user,
-                        text: `球友 ${user.name} 剛進入了網球大廳`
-                    };
-                    activityNotifications.value.push(notification);
-                    setTimeout(() => {
-                        activityNotifications.value = activityNotifications.value.filter(n => n.id !== notification.id);
-                    }, 5000);
+                    console.log('Presence Lobby [joining]:', user.name);
+                    lastEventTime = Date.now();
+                    if (!presenceUsers.value.some(u => u.uid === user.uid)) {
+                        presenceUsers.value.push(user);
+                        globalInstantStats.active_count = presenceUsers.value.length;
+                        globalInstantStats.display_count = presenceUsers.value.length;
+                    }
                 })
                 .leaving((user) => {
-                    console.log('Lobby Leave:', user.name);
-                    api.post('/instant/exit-room');
-                    api.post('/instant/sync-global');
+                    console.log('Presence Lobby [leaving]:', user.name);
+                    lastEventTime = Date.now();
+                    presenceUsers.value = presenceUsers.value.filter(u => u.uid !== user.uid);
+                    globalInstantStats.active_count = presenceUsers.value.length;
+                    globalInstantStats.display_count = presenceUsers.value.length;
                 });
         }
 
-        // 3. Start Global Poller (Every 30s as heartbeat for activity feed)
+        // 4. Start Pollers
         fetchGlobalData();
         globalTimer = setInterval(fetchGlobalData, 30000);
+        
+        // FAILSAFE Heartbeat: If no events for 15s while in lobby, trigger one manual fetch
+        failsafeTimer = setInterval(() => {
+            const idleTime = Date.now() - lastEventTime;
+            if (idleTime > 15000 && view.value === 'instant-play') {
+                console.log('[Self-Healing] Idle too long, refreshing room data');
+                fetchRooms();
+                fetchStats();
+                lastEventTime = Date.now(); // Reset
+            }
+        }, 5000);
         
         if (isLfg.value) {
             startHeartbeat();
@@ -385,6 +493,7 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
     const deactivatePresence = () => {
         stopHeartbeat();
         if (globalTimer) clearInterval(globalTimer);
+        if (failsafeTimer) clearInterval(failsafeTimer);
         if (currentChannel && currentRoom.value && window.Echo) {
             window.Echo.leave(`instant-room.${currentRoom.value.slug}`);
             currentChannel = null;
@@ -436,7 +545,7 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
     return {
         instantRooms, currentRoom, instantMessages, isInstantLoading, globalInstantStats, instantMessageDraft, isSending,
         globalData, isLfg, selectedLfgRemark, roomSearch, roomCategory, sortedAndFilteredRooms, activityNotifications,
-        currentTickerIndex,
+        currentTickerIndex, displayOtherAvatars, hiddenOthersCount,
         fetchRooms, selectRoom, sendInstantMessage, fetchMessages, joinBySlug, fetchGlobalData, toggleLfg
     };
 };

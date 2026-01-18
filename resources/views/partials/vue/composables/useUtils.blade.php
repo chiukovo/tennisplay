@@ -83,7 +83,7 @@ const useUtils = () => {
         });
     };
 
-    const compressImage = (base64, maxWidth = 1200, maxHeight = 1200, quality = 0.8) => {
+    const compressImage = (base64, maxWidth = 1000, maxHeight = 1000, quality = 0.7) => {
         return new Promise((resolve) => {
             const img = new Image();
             img.src = base64;

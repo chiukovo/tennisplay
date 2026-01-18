@@ -16,9 +16,10 @@
 
     {{-- Central Action Button --}}
     <div class="px-0.5 -mt-4">
-        <button @click="showToast('功能開發中，敬請期待', 'info')" 
+        <button @click="navigateTo('instant-play')" 
             class="flex flex-col items-center justify-center relative animate-in zoom-in duration-500 delay-300">
-            <div class="w-14 h-14 bg-blue-600 rounded-full flex flex-col items-center justify-center shadow-xl shadow-blue-500/40 border-4 border-slate-950 active:scale-95 transition-all group">
+            <div class="w-14 h-14 bg-blue-600 rounded-full flex flex-col items-center justify-center shadow-xl shadow-blue-500/40 border-4 border-slate-950 active:scale-95 transition-all group"
+                :class="view === 'instant-play' ? 'bg-blue-500' : 'bg-blue-600'">
                 <app-icon name="zap" class-name="w-5 h-5 text-white group-hover:animate-pulse"></app-icon>
                 <span class="text-[9px] font-black text-white uppercase tracking-tighter -mt-0.5">打球拉</span>
             </div>

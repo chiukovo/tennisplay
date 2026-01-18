@@ -175,7 +175,7 @@ class InstantChatController extends Controller
             ];
             
             Redis::connection('echo')->hset($key, $userId, json_encode($userData));
-            Redis::connection('echo')->setex($userKey, 3600, '1'); // TTL 1 hour
+            Redis::connection('echo')->setex($userKey, 120, '1'); // TTL 120 seconds (2 mins)
             
             // Pulse notify everyone
             $this->syncGlobalStats();

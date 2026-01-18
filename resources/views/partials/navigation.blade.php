@@ -18,7 +18,7 @@
                 開團揪球
                 <span v-if="navRefreshing && navRefreshView === 'events'" class="ml-2 inline-block w-2.5 h-2.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></span>
             </a>
-            <a href="/instant-play" @click.prevent="showToast('功能開發中，敬請期待', 'info')" :class="['relative', view === 'instant-play' ? 'text-blue-600 border-b-2 border-blue-600 pb-1' : 'hover:text-slate-900 transition-colors']">
+            <a href="/instant-play" @click.prevent="navigateTo('instant-play')" :class="['relative', view === 'instant-play' ? 'text-blue-600 border-b-2 border-blue-600 pb-1' : 'hover:text-slate-900 transition-colors']">
                 現在想打
                 <span v-if="navRefreshing && navRefreshView === 'instant-play'" class="ml-2 inline-block w-2.5 h-2.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></span>
             </a>

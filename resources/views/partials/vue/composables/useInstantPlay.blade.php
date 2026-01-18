@@ -69,6 +69,7 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
 
     let statsTimer = null;
     let globalTimer = null;
+    let heartbeatTimer = null;
     let currentChannel = null;
 
     // Mobile scroll lock: prevent body scroll when chat room is open
@@ -147,12 +148,44 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
                 isLfg.value = newStatus;
                 if (newStatus) {
                     selectedLfgRemark.value = finalRemark;
+                    startHeartbeat();
+                } else {
+                    stopHeartbeat();
                 }
                 showToast(newStatus ? '已開啟「想打球」狀態！' : '已關閉「想打球」狀態', 'success');
                 fetchGlobalData();
             }
         } catch (error) {
             showToast('操作失敗', 'error');
+        }
+    };
+
+
+    const startHeartbeat = () => {
+        stopHeartbeat();
+        console.log('LFG Heartbeat: Started');
+        heartbeatTimer = setInterval(async () => {
+            if (isLfg.value && isLoggedIn.value) {
+                try {
+                    await api.post('/instant/toggle-lfg', { 
+                        status: true,
+                        remark: selectedLfgRemark.value
+                    });
+                    console.log('LFG Heartbeat: Pulsed');
+                } catch (e) {
+                    console.warn('LFG Heartbeat: Failed', e);
+                }
+            } else {
+                stopHeartbeat();
+            }
+        }, 60000); // 1 minute
+    };
+
+    const stopHeartbeat = () => {
+        if (heartbeatTimer) {
+            clearInterval(heartbeatTimer);
+            heartbeatTimer = null;
+            console.log('LFG Heartbeat: Stopped');
         }
     };
 
@@ -336,9 +369,14 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
         // 3. Start Global Poller (Every 30s as heartbeat for activity feed)
         fetchGlobalData();
         globalTimer = setInterval(fetchGlobalData, 30000);
+        
+        if (isLfg.value) {
+            startHeartbeat();
+        }
     };
 
     const deactivatePresence = () => {
+        stopHeartbeat();
         if (globalTimer) clearInterval(globalTimer);
         if (currentChannel && currentRoom.value && window.Echo) {
             window.Echo.leave(`instant-room.${currentRoom.value.slug}`);

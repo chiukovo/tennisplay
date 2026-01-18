@@ -48,7 +48,29 @@
                         <div v-if="showLfgPicker" class="absolute top-full right-0 mt-3 w-56 bg-white border border-slate-100 shadow-2xl rounded-[28px] p-3 z-[100] origin-top-right">
                             <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-3 py-2">選擇您的備註</div>
                             <div class="grid grid-cols-1 gap-1">
-                                <button v-for="remark in ['徵雙打', '就在球場', '新手友善', '徵發球機', '徵高手', '隨便打打']" 
+                                {{-- Option to turn on without remark --}}
+                                <button @click="toggleLfg(''); showLfgPicker = false"
+                                    class="w-full text-left px-4 py-3 text-xs font-black text-blue-600 hover:bg-blue-50 rounded-xl transition-all border border-dashed border-blue-200 mb-1">
+                                    ✨ 直接開啟 (不設備註)
+                                </button>
+                                
+                                {{-- Custom Input --}}
+                                <div class="px-1 py-2 mb-1">
+                                    <div class="relative flex items-center">
+                                        <input v-model="customLfgRemark" 
+                                            type="text" 
+                                            maxlength="10"
+                                            placeholder="自訂動態 (限10字)..." 
+                                            class="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-2.5 text-[11px] font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all pr-10"
+                                            @keydown.enter="toggleLfg(customLfgRemark); showLfgPicker = false">
+                                        <button v-if="customLfgRemark" @click="toggleLfg(customLfgRemark); showLfgPicker = false" 
+                                            class="absolute right-1 w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20 active:scale-95 transition-all">
+                                            <app-icon name="send" class-name="w-4 h-4"></app-icon>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <button v-for="remark in ['想抽球/練習', '徵比賽/開局', '正在球場缺人', '晚點有人嗎？', '新手求帶', '高手請進']" 
                                     :key="remark"
                                     @click="toggleLfg(remark); showLfgPicker = false"
                                     class="w-full text-left px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-all">

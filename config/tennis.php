@@ -26,4 +26,5 @@ return [
         '6.0' => '頂尖職業球友 (ATP/WTA 排名)。',
         '7.0' => '世界頂尖職業球友。'
     ],
+    'sponsor_url' => env('SPONSOR_URL', 'https://www.buymeacoffee.com/chiuko'),
 ];

@@ -245,7 +245,6 @@
                             </div>
                         </div>
                     </div>
-                </button>
             </div>
         </div>
     </div><div v-else class="fixed sm:relative inset-0 sm:inset-auto z-[300] sm:z-auto flex-grow flex flex-col bg-white sm:rounded-[32px] sm:border border-slate-200 sm:shadow-2xl overflow-hidden overscroll-none" @touchmove.stop>

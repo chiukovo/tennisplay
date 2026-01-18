@@ -23,7 +23,10 @@
 
                 {{-- LFG Connectivity Control --}}
                 <div class="relative group">
-                    <div class="bg-white/90 backdrop-blur-md border-2 p-3 pr-5 rounded-[24px] shadow-sm flex items-center gap-4 transition-all duration-300"
+                    {{-- Click-Outside Mask --}}
+                    <div v-if="showLfgPicker" @click="showLfgPicker = false" class="fixed inset-0 z-[90]"></div>
+
+                    <div class="bg-white/90 backdrop-blur-md border-2 p-3 pr-5 rounded-[24px] shadow-sm flex items-center gap-4 transition-all duration-300 relative z-[95]"
                         :class="isLfg ? 'border-blue-500 bg-blue-50/30' : 'border-slate-100 hover:border-slate-200'">
                         <div @click="!isLfg ? (showLfgPicker = !showLfgPicker) : toggleLfg()" 
                             class="relative w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300"
@@ -79,7 +82,7 @@
                                 @click="joinBySlug(msg.room.slug)"
                                 class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-all absolute inset-0">
                                 <span class="text-[10px] font-black text-blue-400 uppercase tracking-widest shrink-0">[@{{ msg.room.name }}]</span>
-                                <span class="text-xs font-bold text-slate-400 shrink-0">@{{ msg.user.name }}:</span>
+                                <span class="text-xs font-bold text-slate-400 shrink-0">@{{ msg.user.name }}<span v-if="msg.user.level" class="text-[9px] opacity-70 ml-0.5">(@{{ msg.user.level }})</span>:</span>
                                 <span class="text-xs font-semibold text-white truncate">@{{ msg.content }}</span>
                             </div>
                         </transition-group>
@@ -104,6 +107,8 @@
                                 <div class="absolute -inset-1 bg-gradient-to-tr from-blue-600 to-indigo-400 rounded-full animate-spin-slow opacity-70 blur-[2px]"></div>
                                 <img :src="user.avatar" class="relative w-12 h-12 rounded-full border-2 border-white object-cover shadow-sm bg-slate-100 group-hover:scale-110 transition-transform">
                                 <div class="absolute bottom-0 right-0 bg-blue-600 text-[7px] font-black text-white px-1.5 py-0.5 rounded-full border-2 border-white uppercase shadow-lg z-20">LIVE</div>
+                                {{-- NTRP Badge (Small) --}}
+                                <div v-if="user.level" class="absolute -top-1 -right-1 bg-slate-900 text-white text-[7px] font-black px-1 rounded-sm border border-white shadow-sm">@{{ user.level }}</div>
                             </div>
                             <span class="text-[9px] font-black text-slate-900 max-w-[56px] truncate">@{{ user.name }}</span>
                             <div v-if="user.remark" class="bg-blue-50 text-blue-600 text-[7px] font-black px-1.5 py-0.5 rounded-md border border-blue-100/30 line-clamp-1">@{{ user.remark }}</div>
@@ -164,7 +169,14 @@
                     :class="{'border-blue-500/30 ring-4 ring-blue-500/5': room.active_count > 0 || room.last_message}">
                     
                     {{-- Activity Indicator for Active Rooms --}}
-                    <div v-if="room.active_count > 0 || room.last_message" class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                    <div v-if="room.active_count > 0 || room.last_message || room.is_hot" class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+
+                    {{-- HOT Badge --}}
+                    <div v-if="room.is_hot" class="absolute top-3 right-3 z-10 animate-bounce">
+                        <div class="bg-orange-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full shadow-lg border border-white/20 flex items-center gap-1 uppercase tracking-tighter">
+                            🔥 HOT
+                        </div>
+                    </div>
 
                     <div class="absolute top-0 right-0 w-24 h-24 bg-blue-50/50 rounded-full -mr-12 -mt-12 group-hover:scale-125 transition-transform duration-500"></div>
                     <div class="relative">
@@ -190,10 +202,10 @@
 
                             <!-- Room Avatars Wall -->
                             <div class="flex items-center -space-x-2" v-if="room.active_avatars && room.active_avatars.length">
-                                <img v-for="(u, idx) in room.active_avatars.slice(0, 3)" :key="idx" 
-                                    :src="u.avatar" 
-                                    class="w-6 h-6 rounded-full border-2 border-white shadow-sm object-cover bg-slate-100"
-                                    :style="{ zIndex: 10 - idx }">
+                                <div v-for="(u, idx) in room.active_avatars.slice(0, 3)" :key="idx" class="relative" :style="{ zIndex: 10 - idx }">
+                                    <img :src="u.avatar" class="w-6 h-6 rounded-full border-2 border-white shadow-sm object-cover bg-slate-100">
+                                    <div v-if="u.level" class="absolute -top-1 -right-1 bg-slate-800 text-white text-[5px] font-black px-0.5 rounded-[1px] border-[0.5px] border-white/50">@{{ u.level }}</div>
+                                </div>
                                 <div v-if="room.active_count > 3" 
                                     class="w-6 h-6 rounded-full border-2 border-white bg-slate-50 flex items-center justify-center text-[7px] font-black text-slate-400 z-0">
                                     +@{{ room.active_count - 3 }}
@@ -220,11 +232,11 @@
             </div>
             {{-- Avatars Stack (Inside Room) --}}
             <div class="flex items-center -space-x-2" v-if="globalInstantStats.avatars && globalInstantStats.avatars.length">
-                <img v-for="(u, idx) in globalInstantStats.avatars.slice(0, 3)" :key="idx" 
-                    :src="u.avatar" 
-                    @click="openProfile(u.uid)"
-                    class="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-slate-800 shadow-sm object-cover bg-slate-100 cursor-pointer hover:scale-110 active:scale-95 transition-all"
-                    :style="{ zIndex: 10 - idx }">
+                <div v-for="(u, idx) in globalInstantStats.avatars.slice(0, 3)" :key="idx" class="relative cursor-pointer hover:scale-110 active:scale-95 transition-all"
+                    @click="openProfile(u.uid)" :style="{ zIndex: 10 - idx }">
+                    <img :src="u.avatar" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-slate-800 shadow-sm object-cover bg-slate-100">
+                    <div v-if="u.level" class="absolute -top-0.5 -right-0.5 bg-blue-500 text-white text-[7px] font-black px-1 rounded-sm border border-slate-800">@{{ u.level }}</div>
+                </div>
                 <div v-if="globalInstantStats.display_count > 3" 
                     class="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-slate-800 bg-white/20 flex items-center justify-center text-[9px] font-black text-white shadow-sm z-0">
                     +@{{ globalInstantStats.display_count - 3 }}
@@ -244,8 +256,10 @@
                 :class="['flex gap-3', msg.user_id === currentUser?.id ? 'flex-row-reverse' : '']">
                 {{-- Avatar --}}
                 <div class="shrink-0 pt-1">
-                    <div @click="openProfile(msg.user.uid)" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-white shadow-sm overflow-hidden cursor-pointer">
-                        <img :src="msg.user.line_picture_url" class="w-full h-full object-cover">
+                    <div @click="openProfile(msg.user.uid)" class="relative w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-white shadow-sm cursor-pointer group">
+                        <img :src="msg.user.line_picture_url" class="w-full h-full object-cover rounded-full">
+                        {{-- NTRP Badge (Message) --}}
+                        <div v-if="msg.user.level" class="absolute -top-1 -right-1 bg-slate-900 text-white text-[7px] font-black px-1 rounded-sm border border-white shadow-sm z-10">@{{ msg.user.level }}</div>
                     </div>
                 </div>
                 {{-- Content --}}
@@ -300,5 +314,21 @@
                 </button>
             </div>
         </div>
+    </div>
+
+    {{-- Activity Notifications Tray --}}
+    <div class="fixed bottom-24 left-1/2 -translate-x-1/2 z-[500] pointer-events-none w-full max-w-sm px-4">
+        <transition-group name="slide-up">
+            <div v-for="note in activityNotifications" :key="note.id" 
+                class="bg-slate-900/90 backdrop-blur-md text-white px-5 py-3 rounded-[24px] shadow-2xl border border-white/10 mb-2 flex items-center gap-3">
+                <div class="shrink-0 w-8 h-8 rounded-full border-2 border-blue-500 overflow-hidden">
+                    <img :src="note.user.avatar" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-grow">
+                    <p class="text-[11px] font-bold leading-tight">@{{ note.text }}</p>
+                </div>
+                <div class="shrink-0 w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
+            </div>
+        </transition-group>
     </div>
 </div>

@@ -200,7 +200,7 @@ createApp({
 
         const { 
             instantRooms, currentRoom, instantMessages, isInstantLoading, globalInstantStats, instantMessageDraft, isSending,
-            globalData, isLfg, selectedLfgRemark, roomSearch, roomCategory, sortedAndFilteredRooms,
+            globalData, isLfg, selectedLfgRemark, roomSearch, roomCategory, sortedAndFilteredRooms, activityNotifications,
             fetchRooms, selectRoom, sendInstantMessage, fetchMessages, joinBySlug, fetchGlobalData, toggleLfg
         } = useInstantPlay(isLoggedIn, currentUser, showToast, view);
 
@@ -1181,7 +1181,7 @@ createApp({
             profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,
             selectedProfileRegions, toggleProfileRegion, reportModal, isReporting, isBlocking, profileActionMenu,
             instantRooms, currentRoom, instantMessages, isInstantLoading, globalInstantStats, instantMessageDraft, isSending,
-            globalData, isLfg, selectedLfgRemark, showLfgPicker, roomSearch, roomCategory, sortedAndFilteredRooms,
+            globalData, isLfg, selectedLfgRemark, showLfgPicker, roomSearch, roomCategory, sortedAndFilteredRooms, activityNotifications,
             // Computed
             hasUnread, hasPlayerCard, myCards, activeRegions, activeEventRegions, filteredPlayers, totalPages, paginatedPlayers, displayPages, randomPlayers, 
             filteredEvents, eventTotalPages, paginatedEvents, eventDisplayPages,

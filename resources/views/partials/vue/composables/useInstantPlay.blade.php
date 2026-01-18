@@ -15,6 +15,7 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
     const selectedLfgRemark = ref('');
     
     const isSending = ref(false);
+    const activityNotifications = ref([]);
     const roomSearch = ref('');
     const roomCategory = ref('全部');
     
@@ -312,9 +313,22 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
                 .joining((user) => {
                     console.log('Lobby Join:', user.name);
                     api.post('/instant/sync-global');
+                    
+                    // Entry Notification
+                    const notification = {
+                        id: Date.now(),
+                        type: 'join',
+                        user: user,
+                        text: `球友 ${user.name} 剛進入了網球大廳`
+                    };
+                    activityNotifications.value.push(notification);
+                    setTimeout(() => {
+                        activityNotifications.value = activityNotifications.value.filter(n => n.id !== notification.id);
+                    }, 5000);
                 })
                 .leaving((user) => {
                     console.log('Lobby Leave:', user.name);
+                    api.post('/instant/exit-room');
                     api.post('/instant/sync-global');
                 });
         }
@@ -368,7 +382,7 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
 
     return {
         instantRooms, currentRoom, instantMessages, isInstantLoading, globalInstantStats, instantMessageDraft, isSending,
-        globalData, isLfg, selectedLfgRemark, roomSearch, roomCategory, sortedAndFilteredRooms,
+        globalData, isLfg, selectedLfgRemark, roomSearch, roomCategory, sortedAndFilteredRooms, activityNotifications,
         fetchRooms, selectRoom, sendInstantMessage, fetchMessages, joinBySlug, fetchGlobalData, toggleLfg
     };
 };

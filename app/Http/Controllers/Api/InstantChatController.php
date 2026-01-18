@@ -22,22 +22,34 @@ class InstantChatController extends Controller
             $room->active_count = $stats['active_count'];
             $room->active_avatars = $stats['active_avatars'];
             
-            // Add last message preview (within 48 hours)
+            // 3. HOT Logic: Active > 5 OR (Active > 2 AND Recent Message < 15min)
+            $isRecent = false;
             $lastMessage = $room->messages()
                 ->with(['user:id,name'])
-                ->where('created_at', '>=', Carbon::now()->subHours(48))
+                ->where('created_at', '>=', Carbon::now()->subMinutes(15))
                 ->latest()
                 ->first();
-            
+
             if ($lastMessage) {
+                $isRecent = true;
                 $room->last_message = $lastMessage->content;
                 $room->last_message_by = $lastMessage->user->name ?? null;
                 $room->last_message_at = $lastMessage->created_at;
             } else {
-                $room->last_message = null;
-                $room->last_message_by = null;
-                $room->last_message_at = null;
+                // Fallback to 48 hours for preview only
+                $previewMessage = $room->messages()
+                    ->with(['user:id,name'])
+                    ->where('created_at', '>=', Carbon::now()->subHours(48))
+                    ->latest()
+                    ->first();
+                if ($previewMessage) {
+                    $room->last_message = $previewMessage->content;
+                    $room->last_message_by = $previewMessage->user->name ?? null;
+                    $room->last_message_at = $previewMessage->created_at;
+                }
             }
+
+            $room->is_hot = ($room->active_count >= 5) || ($room->active_count >= 2 && $isRecent);
             
             return $room;
         });
@@ -50,7 +62,7 @@ class InstantChatController extends Controller
         // Only show messages from the past 48 hours for relevance
         $messages = $room->messages()
             ->with(['user' => function($q) {
-                $q->select('id', 'name', 'line_picture_url', 'uid');
+                $q->select('id', 'name', 'line_picture_url', 'uid')->with('player:user_id,level');
             }])
             ->where('created_at', '>=', Carbon::now()->subHours(48))
             ->latest()
@@ -58,6 +70,13 @@ class InstantChatController extends Controller
             ->get()
             ->reverse()
             ->values();
+
+        $messages->map(function($msg) {
+            if ($msg->user && $msg->user->player) {
+                $msg->user->level = $msg->user->player->level;
+            }
+            return $msg;
+        });
 
         return response()->json($messages);
     }
@@ -73,7 +92,13 @@ class InstantChatController extends Controller
             'content' => $request->content,
         ]);
 
-        $message->load('user');
+        $message->load(['user' => function($q) {
+            $q->with('player:user_id,level');
+        }]);
+
+        if ($message->user && $message->user->player) {
+            $message->user->level = $message->user->player->level;
+        }
 
         // Broadcast the message via WebSocket
         broadcast(new \App\Events\InstantMessageSent($message))->toOthers();
@@ -92,11 +117,23 @@ class InstantChatController extends Controller
     public function getGlobalData()
     {
         // 1. Fetch 10 most recent messages from ALL rooms (within 48 hours)
-        $recentMessages = InstantMessage::with(['user:id,name,line_picture_url,uid', 'room:id,name,slug'])
+        $recentMessages = InstantMessage::with([
+            'user' => function($q) {
+                $q->select('id', 'name', 'line_picture_url', 'uid')->with('player:user_id,level');
+            }, 
+            'room:id,name,slug'
+        ])
             ->where('created_at', '>=', Carbon::now()->subHours(48))
             ->latest()
             ->limit(10)
             ->get();
+
+        $recentMessages->map(function($msg) {
+            if ($msg->user && $msg->user->player) {
+                $msg->user->level = $msg->user->player->level;
+            }
+            return $msg;
+        });
 
         // 2. Fetch LFG (Looking For Group) users from Redis
         $lfgUsers = $this->getLfgUsers();
@@ -125,11 +162,14 @@ class InstantChatController extends Controller
         if ($isLfg) {
             // Store user info in a hash or set with 1 hour TTL
             $user = Auth::user();
+            $player = $user->player; // Get NTRP Level
+            
             $userData = [
                 'id' => $user->id,
                 'name' => $user->name,
                 'avatar' => $user->line_picture_url,
                 'uid' => $user->uid,
+                'level' => $player->level ?? '?',
                 'remark' => $remark,
                 'timestamp' => now()->timestamp
             ];
@@ -264,7 +304,12 @@ class InstantChatController extends Controller
         if (is_array($members)) {
             foreach (array_slice($members, 0, 8) as $m) {
                 if (isset($m['user_info'])) {
-                    $avatars[] = ['avatar' => $m['user_info']['avatar'], 'uid' => $m['user_info']['uid']];
+                    $uInfo = $m['user_info'];
+                    $avatars[] = [
+                        'avatar' => $uInfo['avatar'], 
+                        'uid' => $uInfo['uid'],
+                        'level' => $uInfo['level'] ?? null
+                    ];
                 }
             }
         }

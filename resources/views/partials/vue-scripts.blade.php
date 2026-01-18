@@ -178,7 +178,7 @@ createApp({
         } = useProfile(isLoggedIn, currentUser, showToast, navigateTo);
 
         const { 
-            players, myPlayers, randomPlayers, isPlayersLoading, playersPagination, loadPlayers, loadRandomPlayers, loadMyCards, saveCard, deleteCard, clearPlayersCache
+            players, myPlayers, randomPlayers, isPlayersLoading, isSubmitting, playersPagination, loadPlayers, loadRandomPlayers, loadMyCards, saveCard, deleteCard, clearPlayersCache
         } = usePlayers(isLoggedIn, currentUser, showToast, navigateTo, showConfirm, (id) => loadProfile(id), form);
 
         const { 
@@ -1170,7 +1170,7 @@ createApp({
         return {
             // State
             view, isLoggedIn, currentUser, isLoginMode, showUserMenu, isSigning, messageTab,
-            players, myPlayers, isPlayersLoading, playersPagination, messages, events, eventsLoading, eventSubmitting, eventsPagination,
+            players, myPlayers, isPlayersLoading, isSubmitting, playersPagination, messages, events, eventsLoading, eventSubmitting, eventsPagination,
             profileData, isProfileLoading, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm,
             form, eventForm, currentStep, stepAttempted, isAdjustingPhoto, isAdjustingSig, isCapturing, isPhotoAdjustLoading, isSigAdjustLoading,
             searchQuery, searchDraft, selectedRegion, regionDraft, selectedGender, genderDraft, selectedLevelMin, levelMinDraft, selectedLevelMax, levelMaxDraft, selectedHanded, handedDraft, selectedBackhand, backhandDraft, showAdvancedFilters, currentPage, perPage, matchModal, detailPlayer, featuredPlayersContainer,

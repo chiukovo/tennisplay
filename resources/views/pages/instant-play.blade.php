@@ -21,22 +21,42 @@
                     </div>
                 </div>
 
-                {{-- LFG Toggle Switch --}}
-                <div @click="toggleLfg()" 
-                    class="group relative flex items-center gap-4 bg-white border-2 p-3 pr-5 rounded-[24px] cursor-pointer transition-all duration-300 active:scale-95 shadow-sm"
-                    :class="isLfg ? 'border-blue-500 bg-blue-50/30' : 'border-slate-100 hover:border-slate-200'">
-                    <div class="relative w-12 h-6 rounded-full transition-colors duration-300"
-                        :class="isLfg ? 'bg-blue-600' : 'bg-slate-200'">
-                        <div class="absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 shadow-sm"
-                            :class="isLfg ? 'translate-x-6' : 'translate-x-0'"></div>
-                    </div>
-                    <div>
-                        <div class="text-[10px] font-black uppercase tracking-widest leading-none mb-0.5"
-                            :class="isLfg ? 'text-blue-600' : 'text-slate-400'">Connect Status</div>
-                        <div class="text-sm font-black text-slate-900 leading-none">
-                            @{{ isLfg ? '我現在想打球！' : '開啟「想打球」狀態' }}
+                {{-- LFG Connectivity Control --}}
+                <div class="relative group">
+                    <div class="bg-white/90 backdrop-blur-md border-2 p-3 pr-5 rounded-[24px] shadow-sm flex items-center gap-4 transition-all duration-300"
+                        :class="isLfg ? 'border-blue-500 bg-blue-50/30' : 'border-slate-100 hover:border-slate-200'">
+                        <div @click="!isLfg ? (showLfgPicker = !showLfgPicker) : toggleLfg()" 
+                            class="relative w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300"
+                            :class="isLfg ? 'bg-blue-600' : 'bg-slate-200'">
+                            <div class="bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300"
+                                :class="isLfg ? 'translate-x-6' : 'translate-x-0'"></div>
+                        </div>
+                        <div class="flex flex-col cursor-pointer" @click="!isLfg ? (showLfgPicker = !showLfgPicker) : null">
+                            <span class="text-[10px] font-black uppercase tracking-widest leading-none mb-0.5"
+                                :class="isLfg ? 'text-blue-600' : 'text-slate-400'">Connect Status</span>
+                            <span class="text-sm font-black text-slate-900 leading-none">
+                                @{{ isLfg ? (selectedLfgRemark || '我現在想打球！') : '開啟「想打球」狀態' }}
+                            </span>
                         </div>
                     </div>
+
+                    {{-- LFG Status Picker Popover --}}
+                    <transition name="fade">
+                        <div v-if="showLfgPicker" class="absolute top-full right-0 mt-3 w-56 bg-white border border-slate-100 shadow-2xl rounded-[28px] p-3 z-[100] origin-top-right">
+                            <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-3 py-2">選擇您的備註</div>
+                            <div class="grid grid-cols-1 gap-1">
+                                <button v-for="remark in ['徵雙打', '就在球場', '新手友善', '徵發球機', '徵高手', '隨便打打']" 
+                                    :key="remark"
+                                    @click="toggleLfg(remark); showLfgPicker = false"
+                                    class="w-full text-left px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-all">
+                                    @{{ remark }}
+                                </button>
+                                <div class="h-[1px] bg-slate-50 my-1 mx-2"></div>
+                                <button @click="showLfgPicker = false" class="w-full text-center py-2 text-[10px] font-black text-slate-300 uppercase hover:text-slate-400">取消</button>
+                            </div>
+                        </div>
+                    </transition>
+                    
                     <!-- Pulsing Glow for LFG -->
                     <div v-if="isLfg" class="absolute -inset-0.5 bg-blue-500/20 rounded-[24px] animate-pulse -z-10"></div>
                 </div>
@@ -63,6 +83,7 @@
                                 <span class="text-xs font-semibold text-white truncate">@{{ msg.content }}</span>
                             </div>
                         </transition-group>
+                        
                         <div v-if="!globalData.recent_messages.length" class="text-xs font-bold text-slate-500 italic">全台灣目前正在暖身中...</div>
                     </div>
                     <app-icon name="chevron-right" class-name="w-4 h-4 text-slate-600 shrink-0"></app-icon>
@@ -85,6 +106,7 @@
                                 <div class="absolute bottom-0 right-0 bg-blue-600 text-[7px] font-black text-white px-1.5 py-0.5 rounded-full border-2 border-white uppercase shadow-lg z-20">LIVE</div>
                             </div>
                             <span class="text-[9px] font-black text-slate-900 max-w-[56px] truncate">@{{ user.name }}</span>
+                            <div v-if="user.remark" class="bg-blue-50 text-blue-600 text-[7px] font-black px-1.5 py-0.5 rounded-md border border-blue-100/30 line-clamp-1">@{{ user.remark }}</div>
                         </div>
 
                         {{-- Others (Presence) --}}
@@ -160,18 +182,22 @@
                             <p class="text-[10px] text-slate-300 font-bold uppercase tracking-widest">尚無訊息</p>
                         </div>
                         
-                        <div class="flex flex-col gap-2">
-                            <!-- Room Avatars -->
-                            <div class="flex items-center -space-x-2" v-if="room.active_avatars && room.active_avatars.length">
-                                <img v-for="(u, idx) in room.active_avatars" :key="idx" 
-                                    :src="u.avatar" 
-                                    class="w-6 h-6 rounded-full border-2 border-white shadow-sm object-cover bg-slate-100"
-                                    :style="{ zIndex: 10 - idx }">
-                            </div>
-                            
+                        <div class="flex items-center justify-between mt-4">
                             <div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                                 <div class="w-1.5 h-1.5 rounded-full" :class="room.active_count > 0 ? 'bg-green-500 animate-pulse' : 'bg-slate-300'"></div>
                                 <span>@{{ room.active_count || 0 }} 位在線</span>
+                            </div>
+
+                            <!-- Room Avatars Wall -->
+                            <div class="flex items-center -space-x-2" v-if="room.active_avatars && room.active_avatars.length">
+                                <img v-for="(u, idx) in room.active_avatars.slice(0, 3)" :key="idx" 
+                                    :src="u.avatar" 
+                                    class="w-6 h-6 rounded-full border-2 border-white shadow-sm object-cover bg-slate-100"
+                                    :style="{ zIndex: 10 - idx }">
+                                <div v-if="room.active_count > 3" 
+                                    class="w-6 h-6 rounded-full border-2 border-white bg-slate-50 flex items-center justify-center text-[7px] font-black text-slate-400 z-0">
+                                    +@{{ room.active_count - 3 }}
+                                </div>
                             </div>
                         </div>
                     </div>

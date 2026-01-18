@@ -118,6 +118,7 @@ class InstantChatController extends Controller
     {
         $userId = Auth::id();
         $isLfg = $request->input('status', false);
+        $remark = $request->input('remark');
         $key = 'instant_lfg_users';
         $userKey = "user_lfg:{$userId}";
 
@@ -129,6 +130,7 @@ class InstantChatController extends Controller
                 'name' => $user->name,
                 'avatar' => $user->line_picture_url,
                 'uid' => $user->uid,
+                'remark' => $remark,
                 'timestamp' => now()->timestamp
             ];
             

@@ -196,10 +196,11 @@ createApp({
         const { dragInfo, startDrag, handleDrag, stopDrag } = useDrag(form);
 
         const { isCapturing: isCapturingImage, captureCardImage } = useCapture(showToast);
+        const showLfgPicker = ref(false);
 
         const { 
             instantRooms, currentRoom, instantMessages, isInstantLoading, globalInstantStats, instantMessageDraft, isSending,
-            globalData, isLfg, roomSearch, roomCategory, sortedAndFilteredRooms,
+            globalData, isLfg, selectedLfgRemark, roomSearch, roomCategory, sortedAndFilteredRooms,
             fetchRooms, selectRoom, sendInstantMessage, fetchMessages, joinBySlug, fetchGlobalData, toggleLfg
         } = useInstantPlay(isLoggedIn, currentUser, showToast, view);
 
@@ -1180,7 +1181,7 @@ createApp({
             profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,
             selectedProfileRegions, toggleProfileRegion, reportModal, isReporting, isBlocking, profileActionMenu,
             instantRooms, currentRoom, instantMessages, isInstantLoading, globalInstantStats, instantMessageDraft, isSending,
-            globalData, isLfg, roomSearch, roomCategory, sortedAndFilteredRooms,
+            globalData, isLfg, selectedLfgRemark, showLfgPicker, roomSearch, roomCategory, sortedAndFilteredRooms,
             // Computed
             hasUnread, hasPlayerCard, myCards, activeRegions, activeEventRegions, filteredPlayers, totalPages, paginatedPlayers, displayPages, randomPlayers, 
             filteredEvents, eventTotalPages, paginatedEvents, eventDisplayPages,

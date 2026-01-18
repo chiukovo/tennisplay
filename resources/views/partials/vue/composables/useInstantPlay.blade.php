@@ -12,6 +12,7 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
     // Global Features
     const globalData = reactive({ recent_messages: [], lfg_users: [] });
     const isLfg = ref(false); // Local state for toggle
+    const selectedLfgRemark = ref('');
     
     const isSending = ref(false);
     const roomSearch = ref('');
@@ -115,24 +116,38 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
             
             // Sync current user's LFG status if found in list
             if (isLoggedIn.value && currentUser.value) {
-                isLfg.value = globalData.lfg_users.some(u => String(u.uid) === String(currentUser.value.uid));
+                const me = globalData.lfg_users.find(u => String(u.uid) === String(currentUser.value.uid));
+                isLfg.value = !!me;
+                if (me && me.remark) {
+                    selectedLfgRemark.value = me.remark;
+                }
             }
         } catch (error) {
             console.error('Failed to fetch global data', error);
         }
     };
 
-    const toggleLfg = async () => {
+    const toggleLfg = async (remark = null) => {
         if (!isLoggedIn.value) {
             showToast('請先登入後再發佈狀態', 'warning');
             return;
         }
+        
+        // If turning ON and no remark provided, we might want to handle it in UI
         const newStatus = !isLfg.value;
+        const finalRemark = remark || selectedLfgRemark.value;
+
         try {
-            const response = await api.post('/instant/toggle-lfg', { status: newStatus });
+            const response = await api.post('/instant/toggle-lfg', { 
+                status: newStatus,
+                remark: newStatus ? finalRemark : null
+            });
             if (response.data.status === 'success') {
                 isLfg.value = newStatus;
-                showToast(newStatus ? '已開啟「想打球」狀態，大家會看到你喔！' : '已關閉「想打球」狀態', 'success');
+                if (newStatus) {
+                    selectedLfgRemark.value = finalRemark;
+                }
+                showToast(newStatus ? '已開啟「想打球」狀態！' : '已關閉「想打球」狀態', 'success');
                 fetchGlobalData();
             }
         } catch (error) {
@@ -353,7 +368,7 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
 
     return {
         instantRooms, currentRoom, instantMessages, isInstantLoading, globalInstantStats, instantMessageDraft, isSending,
-        globalData, isLfg, roomSearch, roomCategory, sortedAndFilteredRooms,
+        globalData, isLfg, selectedLfgRemark, roomSearch, roomCategory, sortedAndFilteredRooms,
         fetchRooms, selectRoom, sendInstantMessage, fetchMessages, joinBySlug, fetchGlobalData, toggleLfg
     };
 };

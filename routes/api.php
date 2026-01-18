@@ -45,6 +45,7 @@ Route::group(['prefix' => 'instant'], function() {
     Route::get('/rooms', [InstantChatController::class, 'getRooms']);
     Route::get('/rooms/{room:slug}/messages', [InstantChatController::class, 'getMessages']);
     Route::get('/stats', [InstantChatController::class, 'getGlobalStats']);
+    Route::get('/global-data', [InstantChatController::class, 'getGlobalData']);
 });
 
 // Protected Routes (requires LINE login)
@@ -109,4 +110,5 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::post('/instant/rooms/{room:slug}/sync', [InstantChatController::class, 'syncRoomStats']);
     Route::post('/instant/sync-global', [InstantChatController::class, 'syncGlobalStats']);
     Route::post('/instant/exit-room', [InstantChatController::class, 'exitRoom']);
+    Route::post('/instant/toggle-lfg', [InstantChatController::class, 'toggleLfg']);
 });

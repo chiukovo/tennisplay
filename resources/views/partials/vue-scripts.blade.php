@@ -199,7 +199,8 @@ createApp({
 
         const { 
             instantRooms, currentRoom, instantMessages, isInstantLoading, globalInstantStats, instantMessageDraft, isSending,
-            fetchRooms, selectRoom, sendInstantMessage, fetchMessages, joinBySlug
+            globalData, isLfg, roomSearch, roomCategory, sortedAndFilteredRooms,
+            fetchRooms, selectRoom, sendInstantMessage, fetchMessages, joinBySlug, fetchGlobalData, toggleLfg
         } = useInstantPlay(isLoggedIn, currentUser, showToast, view);
 
         // Full reset including steps (now that currentStep is available)
@@ -1179,6 +1180,7 @@ createApp({
             profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,
             selectedProfileRegions, toggleProfileRegion, reportModal, isReporting, isBlocking, profileActionMenu,
             instantRooms, currentRoom, instantMessages, isInstantLoading, globalInstantStats, instantMessageDraft, isSending,
+            globalData, isLfg, roomSearch, roomCategory, sortedAndFilteredRooms,
             // Computed
             hasUnread, hasPlayerCard, myCards, activeRegions, activeEventRegions, filteredPlayers, totalPages, paginatedPlayers, displayPages, randomPlayers, 
             filteredEvents, eventTotalPages, paginatedEvents, eventDisplayPages,
@@ -1199,6 +1201,7 @@ createApp({
             loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment, deletePlayerComment,
             openReportModal, submitReport, toggleBlock,
             selectRoom, sendInstantMessage, fetchMessages, joinBySlug,
+            fetchGlobalData, toggleLfg,
             loadMessages, markMessageRead, openMessage, onMessageSent, loadMoreMessages,
             handlePlayerUpdate,
             showToast, removeToast, showConfirm, hideConfirm, executeConfirm,

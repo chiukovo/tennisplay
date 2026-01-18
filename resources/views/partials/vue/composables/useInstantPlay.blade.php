@@ -9,8 +9,64 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
     const globalInstantStats = reactive({ active_count: 0, display_count: 0, avatars: [] });
     const instantMessageDraft = ref('');
     
+    // Global Features
+    const globalData = reactive({ recent_messages: [], lfg_users: [] });
+    const isLfg = ref(false); // Local state for toggle
+    
     const isSending = ref(false);
+    const roomSearch = ref('');
+    const roomCategory = ref('全部');
+    
+    // Geographic Mapping
+    const REGION_GROUPS = {
+        '北部': ['基隆市', '台北市', '新北市', '桃園市', '新竹市', '新竹縣'],
+        '中部': ['苗栗縣', '台中市', '彰化縣', '南投縣', '雲林縣'],
+        '南部': ['嘉義市', '嘉義縣', '台南市', '高雄市', '屏東縣'],
+        '東部/離島': ['宜蘭縣', '花蓮縣', '台東縣', '澎湖縣', '金門縣', '連江縣']
+    };
+
+    const sortedAndFilteredRooms = computed(() => {
+        let rooms = [...instantRooms.value];
+
+        // 1. Search Filter
+        if (roomSearch.value) {
+            const s = roomSearch.value.toLowerCase();
+            rooms = rooms.filter(r => r.name.toLowerCase().includes(s));
+        }
+
+        // 2. Category Filter
+        if (roomCategory.value !== '全部') {
+            const targetRegions = REGION_GROUPS[roomCategory.value] || [];
+            rooms = rooms.filter(r => targetRegions.includes(r.name));
+        }
+
+        // 3. Smart Sorting (Activity First)
+        return rooms.sort((a, b) => {
+            // Priority 1: Has unread-like activity (last message time)
+            const timeA = a.last_message_at ? new Date(a.last_message_at).getTime() : 0;
+            const timeB = b.last_message_at ? new Date(b.last_message_at).getTime() : 0;
+            
+            // Only prioritize messages within the last 24 hours
+            const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+            const hasRecentA = timeA > oneDayAgo;
+            const hasRecentB = timeB > oneDayAgo;
+
+            if (hasRecentA && !hasRecentB) return -1;
+            if (!hasRecentA && hasRecentB) return 1;
+            if (hasRecentA && hasRecentB) return timeB - timeA;
+
+            // Priority 2: Active user count
+            if ((b.active_count || 0) !== (a.active_count || 0)) {
+                return (b.active_count || 0) - (a.active_count || 0);
+            }
+
+            // Priority 3: Default sort order
+            return (a.sort_order || 0) - (b.sort_order || 0);
+        });
+    });
+
     let statsTimer = null;
+    let globalTimer = null;
     let currentChannel = null;
 
     // Mobile scroll lock: prevent body scroll when chat room is open
@@ -48,6 +104,39 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
             Object.assign(globalInstantStats, response.data);
         } catch (error) {
             console.error('Failed to fetch stats', error);
+        }
+    };
+
+    const fetchGlobalData = async () => {
+        try {
+            const response = await api.get('/instant/global-data');
+            globalData.recent_messages = response.data.recent_messages;
+            globalData.lfg_users = response.data.lfg_users;
+            
+            // Sync current user's LFG status if found in list
+            if (isLoggedIn.value && currentUser.value) {
+                isLfg.value = globalData.lfg_users.some(u => String(u.uid) === String(currentUser.value.uid));
+            }
+        } catch (error) {
+            console.error('Failed to fetch global data', error);
+        }
+    };
+
+    const toggleLfg = async () => {
+        if (!isLoggedIn.value) {
+            showToast('請先登入後再發佈狀態', 'warning');
+            return;
+        }
+        const newStatus = !isLfg.value;
+        try {
+            const response = await api.post('/instant/toggle-lfg', { status: newStatus });
+            if (response.data.status === 'success') {
+                isLfg.value = newStatus;
+                showToast(newStatus ? '已開啟「想打球」狀態，大家會看到你喔！' : '已關閉「想打球」狀態', 'success');
+                fetchGlobalData();
+            }
+        } catch (error) {
+            showToast('操作失敗', 'error');
         }
     };
 
@@ -214,9 +303,14 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
                     api.post('/instant/sync-global');
                 });
         }
+
+        // 3. Start Global Poller (Every 30s as heartbeat for activity feed)
+        fetchGlobalData();
+        globalTimer = setInterval(fetchGlobalData, 30000);
     };
 
     const deactivatePresence = () => {
+        if (globalTimer) clearInterval(globalTimer);
         if (currentChannel && currentRoom.value && window.Echo) {
             window.Echo.leave(`instant-room.${currentRoom.value.slug}`);
             currentChannel = null;
@@ -259,6 +353,7 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
 
     return {
         instantRooms, currentRoom, instantMessages, isInstantLoading, globalInstantStats, instantMessageDraft, isSending,
-        fetchRooms, selectRoom, sendInstantMessage, fetchMessages, joinBySlug
+        globalData, isLfg, roomSearch, roomCategory, sortedAndFilteredRooms,
+        fetchRooms, selectRoom, sendInstantMessage, fetchMessages, joinBySlug, fetchGlobalData, toggleLfg
     };
 };

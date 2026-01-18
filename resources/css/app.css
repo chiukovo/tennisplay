@@ -240,3 +240,32 @@ body {
 .capture-target {
     transform-origin: center center;
 }
+
+/* --- Instant Play Assets --- */
+/* Activity Ticker Animation */
+.slide-up-enter-active, .slide-up-leave-active {
+    transition: all 0.5s ease;
+}
+.slide-up-enter-from {
+    transform: translateY(20px);
+    opacity: 0;
+}
+.slide-up-leave-to {
+    transform: translateY(-20px);
+    opacity: 0;
+}
+
+/* LFG Spin Animation */
+@keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+    animation: spin-slow 8s linear infinite;
+}
+
+/* Glass Effect for Region Tags */
+.region-badge {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(4px);
+}

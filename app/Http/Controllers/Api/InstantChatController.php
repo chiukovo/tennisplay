@@ -87,6 +87,88 @@ class InstantChatController extends Controller
     }
 
     /**
+     * Get consolidated global data: Recent messages from all rooms + Active users + LFG users.
+     */
+    public function getGlobalData()
+    {
+        // 1. Fetch 10 most recent messages from ALL rooms (within 48 hours)
+        $recentMessages = InstantMessage::with(['user:id,name,line_picture_url,uid', 'room:id,name,slug'])
+            ->where('created_at', '>=', Carbon::now()->subHours(48))
+            ->latest()
+            ->limit(10)
+            ->get();
+
+        // 2. Fetch LFG (Looking For Group) users from Redis
+        $lfgUsers = $this->getLfgUsers();
+
+        // 3. Global Stats
+        $stats = $this->fetchGlobalStatsData();
+
+        return response()->json([
+            'recent_messages' => $recentMessages,
+            'lfg_users' => $lfgUsers,
+            'global_stats' => $stats
+        ]);
+    }
+
+    /**
+     * Toggle "Looking For Group" status.
+     */
+    public function toggleLfg(Request $request)
+    {
+        $userId = Auth::id();
+        $isLfg = $request->input('status', false);
+        $key = 'instant_lfg_users';
+        $userKey = "user_lfg:{$userId}";
+
+        if ($isLfg) {
+            // Store user info in a hash or set with 1 hour TTL
+            $user = Auth::user();
+            $userData = [
+                'id' => $user->id,
+                'name' => $user->name,
+                'avatar' => $user->line_picture_url,
+                'uid' => $user->uid,
+                'timestamp' => now()->timestamp
+            ];
+            
+            Redis::connection('echo')->hset($key, $userId, json_encode($userData));
+            Redis::connection('echo')->setex($userKey, 3600, '1'); // TTL 1 hour
+            
+            // Pulse notify everyone
+            $this->syncGlobalStats();
+        } else {
+            Redis::connection('echo')->hdel($key, $userId);
+            Redis::connection('echo')->del($userKey);
+            $this->syncGlobalStats();
+        }
+
+        return response()->json(['status' => 'success', 'is_lfg' => $isLfg]);
+    }
+
+    private function getLfgUsers()
+    {
+        $key = 'instant_lfg_users';
+        $allLfg = Redis::connection('echo')->hgetall($key);
+        $users = [];
+        
+        foreach ($allLfg as $userId => $data) {
+            // Check if still valid (using TTL key as source of truth)
+            if (Redis::connection('echo')->exists("user_lfg:{$userId}")) {
+                $users[] = json_decode($data, true);
+            } else {
+                // Cleanup expired
+                Redis::connection('echo')->hdel($key, $userId);
+            }
+        }
+        
+        // Sort by timestamp desc
+        usort($users, fn($a, $b) => $b['timestamp'] <=> $a['timestamp']);
+        
+        return $users;
+    }
+
+    /**
      * Trigger a broadcast update for a specific room's stats to the lobby.
      */
     public function syncRoomStats(InstantRoom $room)

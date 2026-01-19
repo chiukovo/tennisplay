@@ -27,26 +27,34 @@ return new class extends Migration
             $table->index(['is_active', 'region', 'level'], 'idx_players_active_region_level');
         });
 
-        // Messages 表索引
-        Schema::table('messages', function (Blueprint $table) {
-            // 發送者查詢
-            $table->index('sender_id', 'idx_messages_sender_id');
-            // 接收者查詢
-            $table->index('receiver_id', 'idx_messages_receiver_id');
-            // 時間排序
-            $table->index('created_at', 'idx_messages_created_at');
-            // 複合索引：查詢對話列表
-            $table->index(['sender_id', 'receiver_id', 'created_at'], 'idx_messages_conversation');
-        });
+        // Messages 表已在原始 migration 中建立索引，跳過
 
         // LINE 通知日誌索引
         if (Schema::hasTable('line_notification_logs')) {
             Schema::table('line_notification_logs', function (Blueprint $table) {
-                $table->index('user_id', 'idx_line_logs_user_id');
-                $table->index('status', 'idx_line_logs_status');
-                $table->index('created_at', 'idx_line_logs_created_at');
+                // 檢查索引是否已存在再建立
+                if (!$this->hasIndex('line_notification_logs', 'idx_line_logs_user_id')) {
+                    $table->index('user_id', 'idx_line_logs_user_id');
+                }
+                if (!$this->hasIndex('line_notification_logs', 'idx_line_logs_status')) {
+                    $table->index('status', 'idx_line_logs_status');
+                }
+                if (!$this->hasIndex('line_notification_logs', 'idx_line_logs_created_at')) {
+                    $table->index('created_at', 'idx_line_logs_created_at');
+                }
             });
         }
+    }
+
+    /**
+     * 檢查索引是否存在
+     */
+    private function hasIndex($table, $indexName)
+    {
+        $conn = Schema::getConnection();
+        $dbSchemaManager = $conn->getDoctrineSchemaManager();
+        $indexes = $dbSchemaManager->listTableIndexes($table);
+        return array_key_exists($indexName, $indexes);
     }
 
     /**
@@ -63,13 +71,6 @@ return new class extends Migration
             $table->dropIndex('idx_players_active_region_level');
         });
 
-        Schema::table('messages', function (Blueprint $table) {
-            $table->dropIndex('idx_messages_sender_id');
-            $table->dropIndex('idx_messages_receiver_id');
-            $table->dropIndex('idx_messages_created_at');
-            $table->dropIndex('idx_messages_conversation');
-        });
-
         if (Schema::hasTable('line_notification_logs')) {
             Schema::table('line_notification_logs', function (Blueprint $table) {
                 $table->dropIndex('idx_line_logs_user_id');
@@ -79,3 +80,4 @@ return new class extends Migration
         }
     }
 };
+

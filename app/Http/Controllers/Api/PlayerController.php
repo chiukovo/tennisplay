@@ -39,6 +39,29 @@ class PlayerController extends Controller
         ]);
     }
 
+    /**
+     * 教練列表 API
+     */
+    public function coaches(Request $request)
+    {
+        $query = Player::with('user')->withCount(['likes', 'comments'])
+            ->active()
+            ->coachesOnly()
+            ->inRegion($request->region)
+            ->withCoachTag($request->tag)
+            ->search($request->search);
+
+        $players = $query->orderBy('updated_at', 'desc')
+            ->paginate($request->per_page ?? 20);
+
+        Player::hydrateSocialStatus($players, $this->resolveUser($request));
+
+        return response()->json([
+            'success' => true,
+            'data' => $players,
+        ]);
+    }
+
     public function random(Request $request)
     {
         // 快取 30 秒，減少首頁載入對資料庫的壓力

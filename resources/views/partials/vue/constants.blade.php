@@ -48,6 +48,20 @@ const LEVELS = config.levels || [];
 // No initial players - will be loaded from API
 const INITIAL_PLAYERS = [];
 
+// 教練專長標籤
+const COACH_TAGS = [
+    '親子友善',
+    '初學者專屬',
+    '高強度訓練',
+    '比賽強化',
+    '銀髮族友善',
+    '體適能整合',
+    '女性專屬',
+    '團體課程',
+    '技術矯正',
+    '戰術分析'
+];
+
 const SVG_ICONS = {
   gender: '<circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/>',
   mars: '<circle cx="10" cy="14" r="5"/><path d="m19 5-5.4 5.4"/><path d="M15 5h4v4"/>',

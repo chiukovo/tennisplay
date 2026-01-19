@@ -36,6 +36,14 @@ class Player extends Model
         'sig_height',
         'is_active',
         'is_verified',
+        // 教練欄位
+        'is_coach',
+        'coach_hourly_rate',
+        'coach_experience',
+        'coach_tags',
+        'coach_locations',
+        'coach_certification',
+        'coach_available_times',
     ];
 
     protected $casts = [
@@ -50,6 +58,9 @@ class Player extends Model
         'sig_height' => 'float',
         'is_active' => 'boolean',
         'is_verified' => 'boolean',
+        // 教練欄位
+        'is_coach' => 'boolean',
+        'coach_tags' => 'array',
     ];
 
     protected $appends = ['photo_url', 'signature_url', 'likes_count', 'comments_count', 'user_uid'];
@@ -211,6 +222,25 @@ class Player extends Model
                   ->orWhere('level', 'like', "%{$search}%")
                   ->orWhere('intro', 'like', "%{$search}%");
             });
+        }
+        return $query;
+    }
+
+    /**
+     * Scope for coaches only.
+     */
+    public function scopeCoachesOnly($query)
+    {
+        return $query->where('is_coach', true);
+    }
+
+    /**
+     * Scope for filtering by coach tag.
+     */
+    public function scopeWithCoachTag($query, $tag)
+    {
+        if ($tag && $tag !== '全部') {
+            return $query->whereJsonContains('coach_tags', $tag);
         }
         return $query;
     }

@@ -531,5 +531,15 @@
         .modal-content .capture-target {
             box-shadow: none !important;
         }
+        .modal-content .detail-pane {
+            content-visibility: auto;
+            contain: layout paint;
+            contain-intrinsic-size: 800px;
+        }
+        .modal-content .comment-list {
+            content-visibility: auto;
+            contain: layout paint;
+            contain-intrinsic-size: 600px;
+        }
     }
 </style>

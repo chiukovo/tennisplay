@@ -48,7 +48,7 @@
                         </div>
 
                         {{-- Right: Detailed Stats --}}
-                        <div class="w-full md:w-1/2 p-8 sm:p-14 md:overflow-y-auto bg-white flex flex-col no-scrollbar">
+                        <div class="w-full md:w-1/2 p-8 sm:p-14 md:overflow-y-auto bg-white flex flex-col no-scrollbar detail-pane">
                             <div v-if="detailsReady">
                             <div class="space-y-4 mb-8">
                                 {{-- Row 1: Status, Level, Gender, Handedness --}}
@@ -251,7 +251,7 @@
                                     </div>
 
                                     <!-- Scrollable Comment List -->
-                                    <div class="max-h-[500px] overflow-y-auto pr-2 no-scrollbar">
+                                    <div class="max-h-[500px] overflow-y-auto pr-2 no-scrollbar comment-list">
                                         <div v-if="commentsReady">
                                             <div v-if="comments.length > 0" class="space-y-1">
                                                 <div v-for="(c, index) in comments" :key="c.id" class="comment-threads">

@@ -88,6 +88,8 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     // Player Comments (Authenticated Write)
     Route::post('/players/{id}/comments', [PlayerCommentController::class, 'store']);
     Route::put('/players/comments/{id}', [PlayerCommentController::class, 'update']);
+    Route::post('/players/comments/{id}/reply', [PlayerCommentController::class, 'reply']);
+    Route::delete('/players/comments/{id}/reply', [PlayerCommentController::class, 'destroyReply']);
     Route::delete('/players/comments/{id}', [PlayerCommentController::class, 'destroy']);
     Route::get('/my-events/organized', [EventController::class, 'myOrganized']);
     Route::get('/my-events/joined', [EventController::class, 'myJoined']);

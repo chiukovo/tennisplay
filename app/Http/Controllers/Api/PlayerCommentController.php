@@ -35,6 +35,8 @@ class PlayerCommentController extends Controller
                         'line_picture_url' => $comment->user->line_picture_url,
                         'uid' => $comment->user->uid,
                     ],
+                    'reply' => $comment->reply,
+                    'replied_at' => $comment->replied_at ? $comment->replied_at->toISOString() : null,
                 ];
             });
 
@@ -169,6 +171,68 @@ class PlayerCommentController extends Controller
                 'average_rating' => $player->average_rating,
                 'ratings_count' => $player->ratings_count,
             ]
+        ]);
+    }
+
+    /**
+     * Reply to a comment (Owner only).
+     */
+    public function reply(Request $request, $id)
+    {
+        $request->validate([
+            'reply' => 'required|string|max:1000',
+        ]);
+
+        $comment = PlayerComment::findOrFail($id);
+        $player = $comment->player;
+        $actor = $request->user('sanctum') ?: $request->user();
+
+        // Check if actor is the owner of the player card
+        if (!$actor || $player->user_id !== $actor->id) {
+            return response()->json(['message' => '只有版主可以回覆'], 403);
+        }
+
+        // Cannot reply to own comment
+        if ($comment->user_id === $actor->id) {
+            return response()->json(['message' => '不能回覆自己的留言'], 403);
+        }
+
+        $comment->update([
+            'reply' => $request->reply,
+            'replied_at' => now(),
+        ]);
+
+        return response()->json([
+            'message' => '回覆成功',
+            'comment' => [
+                'id' => $comment->id,
+                'reply' => $comment->reply,
+                'replied_at' => $comment->replied_at->toISOString(),
+            ]
+        ]);
+    }
+
+    /**
+     * Delete a reply (Owner only).
+     */
+    public function destroyReply(Request $request, $id)
+    {
+        $comment = PlayerComment::findOrFail($id);
+        $player = $comment->player;
+        $actor = $request->user('sanctum') ?: $request->user();
+
+        // Check if actor is the owner of the player card
+        if (!$actor || $player->user_id !== $actor->id) {
+            return response()->json(['message' => '只有版主可以刪除回覆'], 403);
+        }
+
+        $comment->update([
+            'reply' => null,
+            'replied_at' => null,
+        ]);
+
+        return response()->json([
+            'message' => '回覆已刪除',
         ]);
     }
 

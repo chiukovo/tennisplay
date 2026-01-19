@@ -32,6 +32,9 @@ class PlayerController extends Controller
 
         if ($sort === 'rated') {
             $query->withAvg('comments', 'rating')
+                  ->withCount(['comments as ratings_count' => function ($query) {
+                      $query->whereNotNull('rating');
+                  }])
                   ->orderBy('comments_avg_rating', 'desc')
                   ->orderBy('ratings_count', 'desc'); // Secondary sort by count
         } elseif ($sort === 'newest') {

@@ -14,6 +14,12 @@ class PlayerComment extends Model
         'user_id',
         'content',
         'rating',
+        'reply',
+        'replied_at',
+    ];
+
+    protected $casts = [
+        'replied_at' => 'datetime',
     ];
 
     /**

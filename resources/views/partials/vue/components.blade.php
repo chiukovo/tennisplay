@@ -521,7 +521,6 @@ const PlayerDetailModal = {
                     if (idx !== -1) {
                         comments.value[idx] = response.data.comment;
                     }
-                    props.showToast('評價已更新', 'success');
                 } else {
                     // Create new
                     response = await api.post(`/players/${props.player.id}/comments`, { 
@@ -530,7 +529,6 @@ const PlayerDetailModal = {
                     });
                     comments.value.unshift(response.data.comment);
                     myCommentId.value = response.data.comment.id;
-                    props.showToast('評價已送出', 'success');
                 }
 
                 commentsCache.set(props.player.id, [...comments.value]);  // 更新快取
@@ -556,6 +554,65 @@ const PlayerDetailModal = {
                 }
             }
             finally { isSubmitting.value = false; }
+        };
+
+        const replyDrafts = reactive({});
+        const activeReplyId = ref(null);
+
+        const toggleReply = (commentId) => {
+            if (activeReplyId.value === commentId) {
+                activeReplyId.value = null;
+            } else {
+                activeReplyId.value = commentId;
+                // Focus input after next tick if needed, but for now just toggle
+            }
+        };
+
+        const submitReply = async (commentId) => {
+            if (!props.isLoggedIn) return;
+            const text = replyDrafts[commentId]?.trim();
+            if (!text) return;
+
+            isSubmitting.value = true;
+            try {
+                const response = await api.post(`/players/comments/${commentId}/reply`, { reply: text });
+                
+                // Update local comment
+                const comment = comments.value.find(c => c.id === commentId);
+                if (comment) {
+                    comment.reply = response.data.comment.reply;
+                    comment.replied_at = response.data.comment.replied_at;
+                }
+                commentsCache.set(props.player.id, [...comments.value]);
+                replyDrafts[commentId] = ''; // Clear draft
+                activeReplyId.value = null; // Close input
+            } catch (error) {
+                props.showToast(error.response?.data?.message || '回覆失敗', 'error');
+            } finally {
+                isSubmitting.value = false;
+            }
+        };
+
+        const deleteReply = async (commentId) => {
+            if (!props.isLoggedIn) return;
+            if (isSubmitting.value) return;
+
+            isSubmitting.value = true;
+            try {
+                await api.delete(`/players/comments/${commentId}/reply`);
+                
+                // Update local comment
+                const comment = comments.value.find(c => c.id === commentId);
+                if (comment) {
+                    comment.reply = null;
+                    comment.replied_at = null;
+                }
+                commentsCache.set(props.player.id, [...comments.value]);
+            } catch (error) {
+                props.showToast(error.response?.data?.message || '刪除失敗', 'error');
+            } finally {
+                isSubmitting.value = false;
+            }
         };
 
         const deleteComment = async (commentId) => {
@@ -586,7 +643,6 @@ const PlayerDetailModal = {
                 }
 
                 emit('update:player', updatedPlayer);
-                props.showToast('留言已刪除', 'success');
             } catch (error) { props.showToast('刪除失敗', 'error'); }
             finally { isSubmitting.value = false; }
         };
@@ -720,7 +776,24 @@ const PlayerDetailModal = {
             return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
         };
 
-        return { currentIndex, hasPrev, hasNext, transitionName, isTransitioning, navigate, handleTouchStart, handleTouchEnd, backStats, formatDate, comments, commentDraft, isLoadingComments, socialStatus, toggleFollowModal, toggleLikeModal, postComment, deleteComment, isSubmitting, playerCommentRating, myCommentId, existingRatedComment, startEditRating, cancelEdit };
+        const isOwner = computed(() => {
+            if (!props.currentUser || !props.player) return false;
+            
+            const currentId = String(props.currentUser.id || '');
+            const currentUid = props.currentUser.uid || '';
+            
+            const playerOwnerId = String(props.player.user_id || '');
+            const playerOwnerUid = props.player.user_uid || (props.player.user ? props.player.user.uid : '');
+
+            if (currentId && playerOwnerId && currentId === playerOwnerId) return true;
+            if (currentUid && playerOwnerUid && currentUid === playerOwnerUid) return true;
+            
+            return false;
+        });
+
+        const player = computed(() => props.player);
+
+        return { isOwner, player, currentIndex, hasPrev, hasNext, transitionName, isTransitioning, navigate, handleTouchStart, handleTouchEnd, backStats, formatDate, comments, commentDraft, isLoadingComments, socialStatus, toggleFollowModal, toggleLikeModal, postComment, deleteComment, isSubmitting, playerCommentRating, myCommentId, existingRatedComment, startEditRating, cancelEdit, replyDrafts, submitReply, deleteReply, activeReplyId, toggleReply };
     }
 };
 

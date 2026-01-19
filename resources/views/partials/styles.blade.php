@@ -549,5 +549,13 @@
         .modal-content .comment-input-body textarea {
             width: 100%;
         }
+        .profile-comment-input-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .profile-comment-input-body,
+        .profile-comment-input-body textarea {
+            width: 100%;
+        }
     }
 </style>

@@ -403,12 +403,12 @@
 
                     <!-- Comment Input -->
                     <div class="bg-white rounded-[32px] p-2 sm:p-4">
-                        <div class="flex gap-3 mb-6 px-2">
-                            <div class="w-10 h-10 rounded-full overflow-hidden bg-slate-100 shrink-0 border border-slate-100">
+                        <div class="flex flex-col sm:flex-row gap-3 mb-6 px-2 profile-comment-input-row">
+                            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-slate-100 sm:shrink-0 border border-slate-100">
                                 <img v-if="currentUser?.line_picture_url" :src="currentUser.line_picture_url" class="w-full h-full object-cover">
                                 <app-icon v-else name="user" class-name="w-full h-full text-slate-300 p-2"></app-icon>
                             </div>
-                            <div class="flex-1">
+                            <div class="w-full sm:flex-1 profile-comment-input-body">
                                 <!-- Rating Selector -->
                                 <div v-if="!profileData.status?.is_me" class="flex items-center justify-between mb-3 pl-1">
                                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">評分 (選填)</span>

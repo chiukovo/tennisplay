@@ -279,6 +279,7 @@ createApp({
             
             // For profile navigation, load the profile data
             if (viewName === 'profile' && uid) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
                 // If we are navigating to our own profile and it's incomplete, auto-edit
                 const isMe = uid === currentUser.value?.uid || String(uid) === String(currentUser.value?.id);
                 const isIncomplete = isMe && (!currentUser.value?.gender || !currentUser.value?.region);

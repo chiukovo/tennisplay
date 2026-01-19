@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\InstantRoom;
 use App\Models\InstantMessage;
+use App\Models\User;
+use App\Services\LineNotifyService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
 
 class InstantChatController extends Controller
@@ -105,6 +107,9 @@ class InstantChatController extends Controller
 
         // Trigger a room stats sync to update the lobby card preview
         $this->syncRoomStats($room);
+
+        // 發送 LINE 通知給離線的聊天室參與者
+        $this->notifyOfflineParticipants($room, Auth::user());
 
         return response()->json($message);
     }
@@ -337,5 +342,66 @@ class InstantChatController extends Controller
             'display_count' => $count,
             'avatars' => array_slice($uniqueUsers, 0, 15) // Return up to 15 unique avatars
         ];
+    }
+
+    /**
+     * 發送 LINE 通知給離線的聊天室參與者
+     * - 只通知不在網站上的用戶
+     * - 每個用戶每個聊天室 5 分鐘節流
+     */
+    private function notifyOfflineParticipants(InstantRoom $room, $sender)
+    {
+        if (!$sender) return;
+
+        // 取得目前在線的用戶 ID
+        $onlineUserIds = $this->getOnlineUserIds();
+
+        // 取得聊天室最近 2 小時有發言的用戶（排除發送者）
+        $recentUserIds = $room->messages()
+            ->where('user_id', '!=', $sender->id)
+            ->where('created_at', '>=', now()->subHours(2))
+            ->distinct()
+            ->pluck('user_id')
+            ->toArray();
+
+        foreach ($recentUserIds as $userId) {
+            // 在線 → 跳過
+            if (in_array($userId, $onlineUserIds)) continue;
+
+            $user = User::find($userId);
+            if (!$user || !$user->line_user_id) continue;
+
+            // 節流：5 分鐘內只發一次
+            $throttleKey = "instant_notify:{$room->id}:{$userId}";
+            if (Cache::has($throttleKey)) continue;
+            Cache::put($throttleKey, true, now()->addMinutes(5));
+
+            // 發送 LINE 通知
+            LineNotifyService::dispatchTextMessage(
+                $user->id,
+                $user->line_user_id,
+                "🎾 即時聊天室\n「{$room->name}」有新訊息！\n點擊查看：" . url('/instant-play')
+            );
+        }
+    }
+
+    /**
+     * 取得目前在 instant-lobby Presence Channel 的用戶 ID
+     */
+    private function getOnlineUserIds()
+    {
+        $json = Redis::connection('echo')->get('presence-instant-lobby:members');
+        $members = $json ? json_decode($json, true) : [];
+        
+        $userIds = [];
+        if (is_array($members)) {
+            foreach ($members as $m) {
+                if (isset($m['user_info']['id'])) {
+                    $userIds[] = $m['user_info']['id'];
+                }
+            }
+        }
+        
+        return array_unique($userIds);
     }
 }

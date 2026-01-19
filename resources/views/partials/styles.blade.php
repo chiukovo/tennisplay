@@ -509,4 +509,27 @@
             box-shadow: none !important;
         }
     }
+
+    /* Reduce heavy card effects inside modal on mobile */
+    @media (max-width: 640px) {
+        .modal-content .card-shine {
+            display: none !important;
+        }
+        .modal-content .card-holo {
+            box-shadow: none !important;
+            transition: none !important;
+        }
+        .modal-content .card-holo::before,
+        .modal-content .card-holo::after {
+            opacity: 0 !important;
+            animation: none !important;
+        }
+        .modal-content .text-holo-gradient {
+            animation: none !important;
+            -webkit-text-fill-color: currentColor !important;
+        }
+        .modal-content .capture-target {
+            box-shadow: none !important;
+        }
+    }
 </style>

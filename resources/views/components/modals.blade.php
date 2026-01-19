@@ -48,8 +48,8 @@
                         </div>
 
                         {{-- Right: Detailed Stats --}}
-                        <template v-if="detailsReady">
                         <div class="w-full md:w-1/2 p-8 sm:p-14 md:overflow-y-auto bg-white flex flex-col no-scrollbar">
+                            <div v-if="detailsReady">
                             <div class="space-y-4 mb-8">
                                 {{-- Row 1: Status, Level, Gender, Handedness --}}
                                 <div class="flex flex-wrap items-center gap-2">
@@ -252,7 +252,7 @@
 
                                     <!-- Scrollable Comment List -->
                                     <div class="max-h-[500px] overflow-y-auto pr-2 no-scrollbar">
-                                        <template v-if="commentsReady">
+                                        <div v-if="commentsReady">
                                             <div v-if="comments.length > 0" class="space-y-1">
                                                 <div v-for="(c, index) in comments" :key="c.id" class="comment-threads">
                                                     <div class="avatar-container">
@@ -327,24 +327,20 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div v-else class="py-10 text-center">
+                                            <div v-if="comments.length === 0" class="py-10 text-center">
                                                 <p class="text-slate-300 font-black italic text-xs uppercase tracking-widest">目前還沒有留言...</p>
                                             </div>
-                                        </template>
-                                        <div v-else class="py-10 text-center">
+                                        </div>
+                                        <div v-if="!commentsReady" class="py-10 text-center">
                                             <p class="text-slate-300 font-black italic text-xs uppercase tracking-widest">載入中...</p>
                                         </div>
                                     </div>
                                 </div>
-                        </div>
-                        </template>
-                        <template v-else>
-                        <div class="w-full md:w-1/2 p-8 sm:p-14 md:overflow-y-auto bg-white flex flex-col no-scrollbar">
-                            <div class="py-10 text-center">
+                            </div>
+                            <div v-if="!detailsReady" class="py-10 text-center">
                                 <p class="text-slate-300 font-black italic text-xs uppercase tracking-widest">載入中...</p>
                             </div>
                         </div>
-                        </template>
                     </div>
                 </div>
 

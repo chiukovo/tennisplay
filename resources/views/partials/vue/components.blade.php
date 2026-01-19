@@ -678,8 +678,16 @@ const PlayerDetailModal = {
         };
 
         let savedScrollY = 0;
-        watch(() => props.player, (newP) => {
+        watch(() => props.player, (newP, oldP) => {
             if (newP) {
+                const isSamePlayer = !!(oldP && newP.id && oldP.id && newP.id === oldP.id);
+                // If only data updates for the same player, avoid re-locking scroll & re-init
+                if (isSamePlayer) {
+                    socialStatus.is_liked = newP.is_liked || false;
+                    socialStatus.is_following = newP.is_following || false;
+                    socialStatus.likes_count = newP.likes_count || 0;
+                    return;
+                }
                 // Scroll lock
                 savedScrollY = window.scrollY;
                 document.body.style.overflow = 'hidden';

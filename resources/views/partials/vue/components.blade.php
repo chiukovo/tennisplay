@@ -369,6 +369,7 @@ const PlayerDetailModal = {
         const commentDraft = ref('');
         const isLoadingComments = ref(false);
         const commentsReady = ref(false);
+        const detailsReady = ref(false);
         const socialStatus = reactive({ is_liked: false, is_following: false, likes_count: 0 });
         const commentsCache = reactive(new Map());  // 留言快取
         const isSubmitting = ref(false);
@@ -442,6 +443,16 @@ const PlayerDetailModal = {
                 requestIdleCallback(run, { timeout: isMobileViewport() ? 800 : 400 });
             } else {
                 setTimeout(run, isMobileViewport() ? 180 : 80);
+            }
+        };
+
+        const scheduleDetailsReady = () => {
+            detailsReady.value = false;
+            const run = () => { detailsReady.value = true; };
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(run, { timeout: isMobileViewport() ? 600 : 300 });
+            } else {
+                requestAnimationFrame(() => setTimeout(run, isMobileViewport() ? 120 : 60));
             }
         };
 
@@ -696,9 +707,11 @@ const PlayerDetailModal = {
                     comments.value = [];
                 }
                 scheduleCommentsLoad(!!cached);
+                scheduleDetailsReady();
             } else {
                 commentsReady.value = false;
                 comments.value = [];
+                detailsReady.value = false;
                 // Restore scroll
                 document.body.style.overflow = '';
                 document.body.style.position = '';
@@ -802,7 +815,7 @@ const PlayerDetailModal = {
 
         const player = computed(() => props.player);
 
-        return { isOwner, player, currentIndex, hasPrev, hasNext, transitionName, isTransitioning, navigate, handleTouchStart, handleTouchEnd, backStats, formatDate, comments, commentDraft, isLoadingComments, commentsReady, socialStatus, toggleFollowModal, toggleLikeModal, postComment, deleteComment, isSubmitting, playerCommentRating, myCommentId, existingRatedComment, startEditRating, cancelEdit, replyDrafts, submitReply, deleteReply, activeReplyId, toggleReply };
+        return { isOwner, player, currentIndex, hasPrev, hasNext, transitionName, isTransitioning, navigate, handleTouchStart, handleTouchEnd, backStats, formatDate, comments, commentDraft, isLoadingComments, commentsReady, detailsReady, socialStatus, toggleFollowModal, toggleLikeModal, postComment, deleteComment, isSubmitting, playerCommentRating, myCommentId, existingRatedComment, startEditRating, cancelEdit, replyDrafts, submitReply, deleteReply, activeReplyId, toggleReply };
     }
 };
 

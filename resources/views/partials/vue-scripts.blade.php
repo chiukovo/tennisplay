@@ -24,6 +24,7 @@ createApp({
         const handedDraft = ref('全部');
         const selectedBackhand = ref('全部');
         const backhandDraft = ref('全部');
+        const sortBy = ref('popular');
         const showAdvancedFilters = ref(false);
         const matchModal = reactive({ open: false, player: null, text: '' });
         const isSendingMatch = ref(false);
@@ -170,10 +171,10 @@ createApp({
 
         const { 
             profileData, isProfileLoading, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm, 
-            profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,
+            profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft, playerCommentRating,
             selectedProfileRegions, toggleProfileRegion, reportModal, isReporting, isBlocking,
             loadProfile, loadProfileEvents, saveProfile, openProfile, toggleFollow, toggleLike,
-            loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment, deletePlayerComment,
+            loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment, deletePlayerComment, getRatingPercentage,
             openReportModal, submitReport, toggleBlock
         } = useProfile(isLoggedIn, currentUser, showToast, navigateTo);
 
@@ -219,7 +220,7 @@ createApp({
             // 同一頁重複點擊時，直接重新載入資料
             if (viewName === view.value) {
                 if (viewName === 'home' || viewName === 'list') {
-                    triggerNavRefresh(viewName, () => loadPlayers({ search: searchQuery.value, region: selectedRegion.value, page: currentPage.value }));
+                    triggerNavRefresh(viewName, () => loadPlayers({ search: searchQuery.value, region: selectedRegion.value, page: currentPage.value, sort: sortBy.value }));
                 } else if (viewName === 'events' || viewName === 'create-event') {
                     triggerNavRefresh('events', () => loadEvents({
                         search: eventSearchQuery.value,
@@ -316,48 +317,41 @@ createApp({
                 photoScale: card.photo_scale || 1, sigX: card.sig_x ?? 50, sigY: card.sig_y ?? 50,
                 sigScale: card.sig_scale || 1, sigRotate: card.sig_rotate || 0, sigWidth: card.sig_width || 100, sigHeight: card.sig_height || 100,
             });
-            currentStep.value = 1; // Start from step 1 when editing
+            currentStep.value = 1;
             navigateTo('create', false);
         };
 
-        // Show player detail modal
         const showDetail = (player) => {
             detailPlayer.value = player;
+            playerCommentDraft.value = '';
+            playerCommentRating.value = 0;
         };
 
-        // Handle player state updates from modal or other components
         const handlePlayerUpdate = (updatedPlayer) => {
             if (!updatedPlayer || !updatedPlayer.id) return;
             
-            // 1. Update detailPlayer - this handles both navigation (new player) and state updates (same player)
             if (detailPlayer.value) {
                 if (detailPlayer.value.id === updatedPlayer.id) {
-                    // Same player - merge updates (like/follow state changes)
                     detailPlayer.value = { ...detailPlayer.value, ...updatedPlayer };
                 } else {
-                    // Different player - navigation, replace entirely
                     detailPlayer.value = updatedPlayer;
                 }
             }
             
-            // 2. Update in players list (Lobby)
             const pIdx = players.value.findIndex(p => p.id === updatedPlayer.id);
             if (pIdx !== -1) {
                 players.value[pIdx] = { ...players.value[pIdx], ...updatedPlayer };
             }
             
-            // 3. Update in myPlayers (My Cards)
             const mIdx = myPlayers.value.findIndex(p => p.id === updatedPlayer.id);
             if (mIdx !== -1) {
                 myPlayers.value[mIdx] = { ...myPlayers.value[mIdx], ...updatedPlayer };
             }
             
-            // 4. Update in profileData if viewing that player's profile
             if (profileData.player && profileData.player.id === updatedPlayer.id) {
                 profileData.player = { ...profileData.player, ...updatedPlayer };
             }
 
-            // 5. Update in profile sub-lists (Liked, Following, Followers)
             const lIdx = likedPlayers.value.findIndex(p => p.id === updatedPlayer.id);
             if (lIdx !== -1) {
                 likedPlayers.value[lIdx] = { ...likedPlayers.value[lIdx], ...updatedPlayer };
@@ -371,7 +365,6 @@ createApp({
                 followerUsers.value[frIdx] = { ...followerUsers.value[frIdx], ...updatedPlayer };
             }
 
-            // 6. Update in events participants & organizers
             events.value.forEach(event => {
                 if (event.player && event.player.id === updatedPlayer.id) {
                     event.player = { ...event.player, ...updatedPlayer };
@@ -932,6 +925,8 @@ createApp({
             messagesLimit.value += 20;
         };
 
+
+
         // --- 7. Lifecycle & Watchers ---
         onMounted(async () => {
             await checkAuth(() => loadMessages(), () => loadMyCards());
@@ -958,13 +953,14 @@ createApp({
                     if (event.state.view === 'messages' && event.state.uid) {
                         openChatByUid(event.state.uid);
                     }
+                } else {
+                    parseRoute(
+                        (id) => loadProfile(id, (append) => loadProfileEvents(append)), 
+                        () => resetFormFull(), 
+                        () => resetEventForm(),
+                        (uid) => openChatByUid(uid)
+                    );
                 }
-                else parseRoute(
-                    (id) => loadProfile(id, (append) => loadProfileEvents(append)), 
-                    () => resetFormFull(), 
-                    () => resetEventForm(),
-                    (uid) => openChatByUid(uid)
-                );
             });
 
             // 預渲染暖身：讓 Vue 提前編譯 PlayerDetailModal 模板
@@ -1083,7 +1079,7 @@ createApp({
             if (newRegion && newRegion !== '全部' && (view.value === 'list' || view.value === 'home') && selectedRegion.value === '全部') {
                 applyDefaultFilters(view.value);
                 // 觸發載入
-                loadPlayers({ search: searchQuery.value, region: selectedRegion.value, page: 1 });
+                loadPlayers({ search: searchQuery.value, region: selectedRegion.value, page: 1, sort: sortBy.value });
             }
         });
 
@@ -1093,7 +1089,7 @@ createApp({
         watch(lastNavigationTap, () => {
             const v = view.value;
             if (v === 'home' || v === 'list') {
-                loadPlayers({ search: searchQuery.value, region: selectedRegion.value, page: 1 }, true);
+                loadPlayers({ search: searchQuery.value, region: selectedRegion.value, page: 1, sort: sortBy.value }, true);
             } else if (v === 'events') {
                 loadEvents({ 
                     search: eventSearchQuery.value, 
@@ -1117,7 +1113,7 @@ createApp({
 
             if (newView === 'home' || newView === 'list') {
                  if (!isIntentionalNav) {
-                     loadPlayers({ search: searchQuery.value, region: selectedRegion.value, page: 1 });
+                     loadPlayers({ search: searchQuery.value, region: selectedRegion.value, page: 1, sort: sortBy.value });
                  }
             } else if (newView === 'events' || newView === 'create-event') {
                 if (!isIntentionalNav) {
@@ -1194,9 +1190,25 @@ createApp({
                 level_max: selectedLevelMax.value,
                 handed: selectedHanded.value,
                 backhand: selectedBackhand.value,
-                page: newPage 
+                page: newPage,
+                sort: sortBy.value
             });
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        watch(sortBy, (newSort) => {
+            currentPage.value = 1;
+            loadPlayers({ 
+                search: searchQuery.value, 
+                region: selectedRegion.value, 
+                gender: selectedGender.value,
+                level_min: selectedLevelMin.value,
+                level_max: selectedLevelMax.value,
+                handed: selectedHanded.value,
+                backhand: selectedBackhand.value,
+                page: 1,
+                sort: newSort
+            });
         });
 
         // Events Watchers
@@ -1238,7 +1250,7 @@ createApp({
             showPreview, showQuickEditModal, navRefreshing, navRefreshView, features, cardThemes,
             shareModal, isSendingMatch, scrollFeaturedPlayers,
             settingsForm, isSavingSettings, toasts, confirmDialog, dragInfo,
-            profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,
+            profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft, playerCommentRating,
             selectedProfileRegions, toggleProfileRegion, reportModal, isReporting, isBlocking, profileActionMenu,
             instantRooms, currentRoom, instantMessages, isInstantLoading, globalInstantStats, instantMessageDraft, isSending,
             globalData, isLfg, selectedLfgRemark, showLfgPicker, customLfgRemark, roomSearch, roomCategory, sortedAndFilteredRooms, activityNotifications, currentTickerIndex, displayOtherAvatars, hiddenOthersCount,
@@ -1259,7 +1271,7 @@ createApp({
             // Profile methods with edit mode support
             openProfileWithEdit: () => { loadProfile(currentUser.value.uid, loadProfileEvents, true); navigateTo('profile', false, currentUser.value.uid); },
             loadProfile, loadProfileEvents, saveProfile, openProfile, toggleFollow, toggleLike,
-            loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment, deletePlayerComment,
+            loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment, deletePlayerComment, getRatingPercentage,
             openReportModal, submitReport, toggleBlock,
             selectRoom, sendInstantMessage, fetchMessages, joinBySlug,
             fetchGlobalData, toggleLfg,
@@ -1275,7 +1287,8 @@ createApp({
             handleSearch, handleEventSearch,
             showDetail, getDetailStats, getEventsByMatchType, getEventsByRegion,
             // Constants
-            REGIONS, LEVELS, LEVEL_DESCS, LEVEL_TAGS, levelDescs, levels, regions
+            REGIONS, LEVELS, LEVEL_DESCS, LEVEL_TAGS, levelDescs, levels, regions,
+            sortBy
         };
     },
     components: {

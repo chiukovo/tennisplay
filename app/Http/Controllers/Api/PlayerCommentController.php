@@ -27,6 +27,7 @@ class PlayerCommentController extends Controller
                 return [
                     'id' => $comment->id,
                     'text' => $comment->content,
+                    'rating' => $comment->rating,
                     'at' => $comment->created_at->toISOString(),
                     'user_id' => $comment->user_id,
                     'user' => [
@@ -47,6 +48,7 @@ class PlayerCommentController extends Controller
     {
         $request->validate([
             'content' => 'required|string|max:1000',
+            'rating' => 'nullable|integer|min:1|max:5',
         ]);
  
         $player = Player::findOrFail($playerId);
@@ -58,24 +60,45 @@ class PlayerCommentController extends Controller
             return response()->json(['message' => '未授權'], 401);
         }
 
+        // Check self-rating
+        if ($request->rating && $player->user_id === $actor->id) {
+            return response()->json(['message' => '不能評價自己'], 403);
+        }
+
+        // Check if already rated
+        if ($request->rating) {
+            $hasRated = PlayerComment::where('player_id', $player->id)
+                ->where('user_id', $actor->id)
+                ->whereNotNull('rating')
+                ->exists();
+            if ($hasRated) {
+                return response()->json(['message' => '您已經評價過此球友'], 409);
+            }
+        }
+
         // 阻擋重複點擊 (5秒內相同內容)
         $lockKey = 'lock_player_comment_' . $actor->id . '_' . md5($playerId . $request->content);
         if (!Cache::add($lockKey, true, 5)) {
             return response()->json(['message' => '提交太快，請稍候再試'], 429);
         }
 
-            $comment = PlayerComment::create([
+        $comment = PlayerComment::create([
             'player_id' => $player->id,
             'user_id' => $actor->id,
             'content' => $request->content,
+            'rating' => $request->rating,
         ]);
-            SendPlayerCommentNotification::dispatch($player->id, $actor->id, $comment->id, $request->content);
+        SendPlayerCommentNotification::dispatch($player->id, $actor->id, $comment->id, $request->content);
+
+        // Refresh player to get updated stats
+        $player->refresh();
 
         return response()->json([
             'message' => '留言成功',
             'comment' => [
                 'id' => $comment->id,
                 'text' => $comment->content,
+                'rating' => $comment->rating,
                 'at' => $comment->created_at->toISOString(),
                 'user_id' => $comment->user_id,
                 'user' => [
@@ -83,6 +106,10 @@ class PlayerCommentController extends Controller
                     'line_picture_url' => $actor->line_picture_url,
                     'uid' => $actor->uid,
                 ],
+            ],
+            'player_stats' => [
+                'average_rating' => $player->average_rating,
+                'ratings_count' => $player->ratings_count,
             ],
         ]);
 
@@ -112,11 +139,18 @@ class PlayerCommentController extends Controller
         }
  
         Log::info('PlayerComment destroy deleting', ['actor' => $actor->id, 'comment_id' => $comment->id]);
+        $playerId = $comment->player_id;
         $comment->delete();
- 
+
+        $player = Player::find($playerId);
+        
         return response()->json([
             'message' => '留言已刪除',
             'comment_id' => $id,
+            'player_stats' => [
+                'average_rating' => $player->average_rating,
+                'ratings_count' => $player->ratings_count,
+            ],
         ]);
 
  

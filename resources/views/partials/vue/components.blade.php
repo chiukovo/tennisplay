@@ -453,6 +453,8 @@ const PlayerDetailModal = {
             }
         };
 
+        const playerCommentRating = ref(0);
+
         const postComment = async () => {
             if (!props.isLoggedIn) { props.showToast('請先登入', 'error'); props.navigateTo('auth'); return; }
             if (isSubmitting.value) return;
@@ -461,12 +463,35 @@ const PlayerDetailModal = {
             
             isSubmitting.value = true;
             try {
-                const response = await api.post(`/players/${props.player.id}/comments`, { content: text });
+                const response = await api.post(`/players/${props.player.id}/comments`, { 
+                    content: text,
+                    rating: playerCommentRating.value > 0 ? playerCommentRating.value : null
+                });
                 comments.value.unshift(response.data.comment);
                 commentsCache.set(props.player.id, [...comments.value]);  // 更新快取
                 commentDraft.value = '';
-                emit('update:player', { ...props.player, comments_count: (props.player.comments_count || 0) + 1 });
-            } catch (error) { props.showToast('發送失敗', 'error'); }
+                playerCommentRating.value = 0;
+                
+                const updatedPlayer = { 
+                    ...props.player, 
+                    comments_count: (props.player.comments_count || 0) + 1 
+                };
+                
+                if (response.data.player_stats) {
+                    updatedPlayer.average_rating = response.data.player_stats.average_rating;
+                    updatedPlayer.ratings_count = response.data.player_stats.ratings_count;
+                }
+                
+                emit('update:player', updatedPlayer);
+            } catch (error) { 
+                if (error.response?.status === 409) {
+                    props.showToast('您已經評價過此球友', 'error');
+                } else if (error.response?.status === 403) {
+                    props.showToast('不能評價自己', 'error');
+                } else {
+                    props.showToast('發送失敗', 'error'); 
+                }
+            }
             finally { isSubmitting.value = false; }
         };
 
@@ -477,17 +502,24 @@ const PlayerDetailModal = {
             
             isSubmitting.value = true;
             try {
-                await api.delete(`/players/comments/${commentId}`);
+                const response = await api.delete(`/players/comments/${commentId}`);
                 comments.value = comments.value.filter(c => c.id !== commentId);
                 commentsCache.set(props.player.id, [...comments.value]);
-                const nextCount = Math.max(0, (props.player.comments_count || 0) - 1);
-                emit('update:player', { ...props.player, comments_count: nextCount });
+                
+                const updatedPlayer = { 
+                    ...props.player, 
+                    comments_count: Math.max(0, (props.player.comments_count || 0) - 1) 
+                };
+
+                if (response.data.player_stats) {
+                    updatedPlayer.average_rating = response.data.player_stats.average_rating;
+                    updatedPlayer.ratings_count = response.data.player_stats.ratings_count;
+                }
+
+                emit('update:player', updatedPlayer);
                 props.showToast('留言已刪除', 'success');
-            } catch (error) {
-                props.showToast('刪除失敗', 'error');
-            } finally {
-                isSubmitting.value = false;
-            }
+            } catch (error) { props.showToast('刪除失敗', 'error'); }
+            finally { isSubmitting.value = false; }
         };
 
         let savedScrollY = 0;
@@ -516,6 +548,10 @@ const PlayerDetailModal = {
                         setTimeout(() => loadComments(), 50);
                     });
                 }
+                
+                // 重置輸入框與評分
+                commentDraft.value = '';
+                playerCommentRating.value = 0;
             } else {
                 // Restore scroll
                 document.body.style.overflow = '';
@@ -613,7 +649,7 @@ const PlayerDetailModal = {
             return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
         };
 
-        return { currentIndex, hasPrev, hasNext, transitionName, isTransitioning, navigate, handleTouchStart, handleTouchEnd, backStats, formatDate, comments, commentDraft, isLoadingComments, socialStatus, toggleFollowModal, toggleLikeModal, postComment, deleteComment, isSubmitting };
+        return { currentIndex, hasPrev, hasNext, transitionName, isTransitioning, navigate, handleTouchStart, handleTouchEnd, backStats, formatDate, comments, commentDraft, isLoadingComments, socialStatus, toggleFollowModal, toggleLikeModal, postComment, deleteComment, isSubmitting, playerCommentRating };
     }
 };
 

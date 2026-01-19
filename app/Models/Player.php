@@ -52,7 +52,7 @@ class Player extends Model
         'is_verified' => 'boolean',
     ];
 
-    protected $appends = ['photo_url', 'signature_url', 'likes_count', 'comments_count', 'user_uid'];
+    protected $appends = ['photo_url', 'signature_url', 'likes_count', 'comments_count', 'user_uid', 'average_rating', 'ratings_count'];
 
     /**
      * Get user UID.
@@ -110,6 +110,28 @@ class Player extends Model
             return $this->attributes['comments_count'];
         }
         return $this->comments()->count();
+    }
+
+    /**
+     * Get average rating.
+     */
+    public function getAverageRatingAttribute()
+    {
+        // 優先使用 withAvg 載入的結果 (如果有用 withAvg('comments', 'rating'))
+        if (array_key_exists('comments_avg_rating', $this->attributes)) {
+            return round($this->attributes['comments_avg_rating'], 1);
+        }
+        // Fallback to query if not eager loaded
+        $avg = $this->comments()->whereNotNull('rating')->avg('rating');
+        return $avg ? round($avg, 1) : null;
+    }
+
+    /**
+     * Get ratings count.
+     */
+    public function getRatingsCountAttribute()
+    {
+        return $this->comments()->whereNotNull('rating')->count();
     }
 
     /**

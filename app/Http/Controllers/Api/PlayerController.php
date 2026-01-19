@@ -28,8 +28,23 @@ class PlayerController extends Controller
             $query->atLevel($request->level);
         }
 
-        $players = $query->orderBy('updated_at', 'desc')
-            ->paginate($request->per_page ?? 20);
+        $sort = $request->sort ?? 'popular';
+
+        if ($sort === 'rated') {
+            $query->withAvg('comments', 'rating')
+                  ->orderBy('comments_avg_rating', 'desc')
+                  ->orderBy('ratings_count', 'desc'); // Secondary sort by count
+        } elseif ($sort === 'newest') {
+            $query->orderBy('created_at', 'desc');
+        } else {
+            // Default: popular (Weighted Score)
+            // Score = Likes (1x) + Comments (2x) + AvgRating (2x)
+            // Note: comments_avg_rating is null if no ratings, so we use COALESCE(..., 0)
+            $query->withAvg('comments', 'rating')
+                  ->orderByRaw('(likes_count + (comments_count * 2) + (COALESCE(comments_avg_rating, 0) * 2)) DESC');
+        }
+
+        $players = $query->paginate($request->per_page ?? 20);
 
         Player::hydrateSocialStatus($players, $this->resolveUser($request));
 

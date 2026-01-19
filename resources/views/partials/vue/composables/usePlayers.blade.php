@@ -20,7 +20,8 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
             level_max: params.level_max || '',
             handed: params.handed || '',
             backhand: params.backhand || '',
-            page: params.page || 1
+            page: params.page || 1,
+            sort: params.sort || 'popular'
         });
     };
 

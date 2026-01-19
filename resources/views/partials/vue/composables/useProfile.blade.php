@@ -19,6 +19,7 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
     const followerUsers = ref([]);
     const likedPlayers = ref([]);
     const playerCommentDraft = ref('');
+    const playerCommentRating = ref(0);
     const reportModal = reactive({ open: false, message: '' });
     const isReporting = ref(false);
     const isBlocking = ref(false);
@@ -133,14 +134,39 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
         
         isSubmitting.value = true;
         try {
-            const response = await api.post(`/players/${playerId}/comments`, { content: text });
+            const response = await api.post(`/players/${playerId}/comments`, { 
+                content: text,
+                rating: playerCommentRating.value > 0 ? playerCommentRating.value : null
+            });
             profileComments.value.unshift(response.data.comment);
             playerCommentDraft.value = '';
+            playerCommentRating.value = 0;
+            
+            // Refresh profile to update rating stats
+            if (response.data.comment.rating) {
+                const uid = profileData.user.uid || profileData.user.id;
+                const pRes = await api.get(`/profile/${uid}`);
+                if (pRes.data.user?.player) {
+                    profileData.user.player.average_rating = pRes.data.user.player.average_rating;
+                    profileData.user.player.ratings_count = pRes.data.user.player.ratings_count;
+                }
+            }
+            showToast('留言成功', 'success');
         } catch (error) { 
-            showToast('發送失敗', 'error'); 
+            const msg = error.response?.data?.message || '發送失敗';
+            showToast(msg, 'error'); 
         } finally {
             isSubmitting.value = false;
         }
+    };
+
+    const getRatingPercentage = (star) => {
+        // Calculate from loaded comments
+        const ratedComments = profileComments.value.filter(c => c.rating);
+        const total = ratedComments.length;
+        if (total === 0) return 0;
+        const count = ratedComments.filter(c => c.rating === star).length;
+        return Math.round((count / total) * 100);
     };
 
     const deletePlayerComment = async (commentId) => {
@@ -276,10 +302,10 @@ const useProfile = (isLoggedIn, currentUser, showToast, navigateTo) => {
 
     return { 
         profileData, isProfileLoading, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm, 
-        profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft,
+        profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft, playerCommentRating,
         selectedProfileRegions, toggleProfileRegion,
         loadProfile, loadProfileEvents, saveProfile, openProfile, toggleFollow, toggleLike,
-        loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment, deletePlayerComment,
+        loadProfileComments, loadFollowing, loadFollowers, loadLikedPlayers, submitPlayerComment, deletePlayerComment, getRatingPercentage,
         reportModal, isReporting, isBlocking, isSubmitting, openReportModal, submitReport, toggleBlock
     };
 };

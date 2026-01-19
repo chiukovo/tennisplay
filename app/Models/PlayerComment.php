@@ -13,6 +13,7 @@ class PlayerComment extends Model
         'player_id',
         'user_id',
         'content',
+        'rating',
     ];
 
     /**

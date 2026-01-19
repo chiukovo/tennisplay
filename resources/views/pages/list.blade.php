@@ -23,13 +23,25 @@
         
         {{-- Unified Filter Bar --}}
         <div class="flex flex-col xl:flex-row items-stretch xl:items-center gap-4 bg-white p-4 sm:p-5 rounded-[32px] border border-slate-200 shadow-sm relative z-20">
-            {{-- Region Select --}}
-            <div class="shrink-0 flex items-center bg-slate-50 px-3 py-1 rounded-2xl border border-slate-100">
-                <div class="text-slate-400 pl-1"><app-icon name="map-pin" class-name="w-4 h-4"></app-icon></div>
-                <select v-model="regionDraft" @change="handleSearch" class="bg-transparent pl-2 pr-8 py-3 sm:py-3.5 focus:outline-none font-black text-sm uppercase tracking-widest cursor-pointer appearance-none min-w-[100px] sm:min-w-[120px]">
-                    <option value="全部">全部地區</option>
-                    <option v-for="r in activeRegions" :key="r" :value="r">@{{ r }}</option>
-                </select>
+            <div class="flex items-center gap-4 w-full xl:w-auto">
+                {{-- Region Select --}}
+                <div class="flex-1 xl:flex-none shrink-0 flex items-center bg-slate-50 px-3 py-1 rounded-2xl border border-slate-100">
+                    <div class="text-slate-400 pl-1"><app-icon name="map-pin" class-name="w-4 h-4"></app-icon></div>
+                    <select v-model="regionDraft" @change="handleSearch" class="w-full bg-transparent pl-2 pr-8 py-3 sm:py-3.5 focus:outline-none font-black text-sm uppercase tracking-widest cursor-pointer appearance-none min-w-[100px] sm:min-w-[120px]">
+                        <option value="全部">全部地區</option>
+                        <option v-for="r in activeRegions" :key="r" :value="r">@{{ r }}</option>
+                    </select>
+                </div>
+
+                {{-- Sort Select --}}
+                <div class="flex-1 xl:flex-none shrink-0 flex items-center bg-slate-50 px-3 py-1 rounded-2xl border border-slate-100">
+                    <div class="text-slate-400 pl-1"><app-icon name="bar-chart-3" class-name="w-4 h-4"></app-icon></div>
+                    <select v-model="sortBy" class="w-full bg-transparent pl-2 pr-8 py-3 sm:py-3.5 focus:outline-none font-black text-sm uppercase tracking-widest cursor-pointer appearance-none min-w-[100px]">
+                        <option value="popular">熱門</option>
+                        <option value="rated">好評</option>
+                        <option value="newest">最新</option>
+                    </select>
+                </div>
             </div>
 
             {{-- Quick NTRP Shortcuts (Scrollable) --}}

@@ -369,24 +369,69 @@
                     </div>
 
                     <!-- Comment Input -->
+                    <!-- Rating Summary -->
+                    <div v-if="profileData.user?.player?.ratings_count > 0" class="mb-8 pb-8 border-b border-slate-100 px-2">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center gap-4">
+                                <div class="w-1 h-8 bg-amber-400 rounded-full"></div>
+                                <div>
+                                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">綜合評價</span>
+                                    <div class="flex items-center gap-3 mt-1">
+                                        <div class="flex text-amber-400 gap-0.5">
+                                            <app-icon v-for="i in 5" :key="i" name="star" :class-name="i <= Math.round(profileData.user.player.average_rating) ? 'w-5 h-5 text-amber-400' : 'w-5 h-5 text-slate-200'" :fill="i <= Math.round(profileData.user.player.average_rating) ? 'currentColor' : 'none'"></app-icon>
+                                        </div>
+                                        <span class="font-black text-2xl text-slate-900">@{{ profileData.user.player.average_rating }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-3xl font-black text-blue-600">@{{ profileData.user.player.ratings_count }}</div>
+                                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">則評價</div>
+                            </div>
+                        </div>
+                        <!-- Distribution Bars -->
+                        <div class="space-y-2">
+                            <div v-for="star in [5,4,3,2,1]" :key="star" class="flex items-center gap-3 text-xs">
+                                <span class="w-8 text-slate-400 font-bold">@{{ star }}星</span>
+                                <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                                    <div class="h-full bg-amber-400 rounded-full" :style="{ width: getRatingPercentage(star) + '%' }"></div>
+                                </div>
+                                <span class="w-8 text-right text-slate-500 font-bold">@{{ getRatingPercentage(star) }}%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comment Input -->
                     <div class="bg-white rounded-[32px] p-2 sm:p-4">
                         <div class="flex gap-3 mb-6 px-2">
                             <div class="w-10 h-10 rounded-full overflow-hidden bg-slate-100 shrink-0 border border-slate-100">
                                 <img v-if="currentUser?.line_picture_url" :src="currentUser.line_picture_url" class="w-full h-full object-cover">
                                 <app-icon v-else name="user" class-name="w-full h-full text-slate-300 p-2"></app-icon>
                             </div>
-                            <div class="flex-1 relative">
-                                <textarea v-model="playerCommentDraft" 
-                                    rows="1" maxlength="200" :disabled="!isLoggedIn"
-                                    @keyup.enter.prevent="submitPlayerComment(profileData.user.player.id)"
-                                    placeholder="對這位球友有什麼想說的嗎..." 
-                                    class="w-full bg-slate-50 border-none rounded-2xl px-5 py-3 pr-20 text-sm font-bold focus:bg-slate-100 outline-none transition-all placeholder:text-slate-300 resize-none overflow-hidden disabled:opacity-60"></textarea>
-                                <div class="absolute right-10 top-1.5">
-                                    <emoji-picker @select="e => playerCommentDraft += e"></emoji-picker>
+                            <div class="flex-1">
+                                <!-- Rating Selector -->
+                                <div v-if="!profileData.status?.is_me" class="flex items-center justify-between mb-3 pl-1">
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">評分 (選填)</span>
+                                    <div class="flex gap-1">
+                                        <button v-for="i in 5" :key="i" @click="playerCommentRating = (playerCommentRating === i ? 0 : i)" class="p-1 hover:scale-110 transition-transform">
+                                            <app-icon name="star" :class-name="i <= playerCommentRating ? 'w-5 h-5 text-amber-400' : 'w-5 h-5 text-slate-200'" :fill="i <= playerCommentRating ? 'currentColor' : 'none'"></app-icon>
+                                        </button>
+                                    </div>
                                 </div>
-                                <button @click="submitPlayerComment(profileData.user.player.id)" :disabled="!playerCommentDraft.trim()" class="absolute right-2 top-1.5 p-2 text-blue-600 disabled:opacity-20 transition-all">
-                                    <app-icon name="send" class-name="w-5 h-5"></app-icon>
-                                </button>
+
+                                <div class="relative">
+                                    <textarea v-model="playerCommentDraft" 
+                                        rows="1" maxlength="200" :disabled="!isLoggedIn"
+                                        @keyup.enter.prevent="submitPlayerComment(profileData.user.player.id)"
+                                        placeholder="對這位球友有什麼想說的嗎..." 
+                                        class="w-full bg-slate-50 border-none rounded-2xl px-5 py-3 pr-20 text-sm font-bold focus:bg-slate-100 outline-none transition-all placeholder:text-slate-300 resize-none overflow-hidden disabled:opacity-60"></textarea>
+                                    <div class="absolute right-10 top-1.5">
+                                        <emoji-picker @select="e => playerCommentDraft += e"></emoji-picker>
+                                    </div>
+                                    <button @click="submitPlayerComment(profileData.user.player.id)" :disabled="!playerCommentDraft.trim()" class="absolute right-2 top-1.5 p-2 text-blue-600 disabled:opacity-20 transition-all">
+                                        <app-icon name="send" class-name="w-5 h-5"></app-icon>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -403,13 +448,18 @@
                                     </div>
                                     <div class="content-container">
                                         <div class="header">
-                                            <div class="flex items-center gap-2">
-                                                <span class="username cursor-pointer hover:underline" @click="openProfile(c.user.uid)">@{{ c.user.name }}</span>
-                                                <span class="timestamp">@{{ formatDate(c.at) }}</span>
+                                            <div class="flex items-center justify-between w-full">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="username cursor-pointer hover:underline" @click="openProfile(c.user.uid)">@{{ c.user.name }}</span>
+                                                    <span class="timestamp">@{{ formatDate(c.at) }}</span>
+                                                </div>
+                                                <div v-if="c.rating" class="flex text-amber-400 gap-0.5">
+                                                    <app-icon v-for="i in 5" :key="i" name="star" :class-name="i <= c.rating ? 'w-3 h-3 text-amber-400' : 'w-3 h-3 text-slate-200'" :fill="i <= c.rating ? 'currentColor' : 'none'"></app-icon>
+                                                </div>
                                             </div>
                                             <button v-if="currentUser && c.user?.uid === currentUser.uid" type="button"
                                                 @click="deletePlayerComment(c.id)"
-                                                class="p-1 text-slate-300 hover:text-red-500 transition-colors">
+                                                class="p-1 text-slate-300 hover:text-red-500 transition-colors ml-2">
                                                 <app-icon name="trash" class-name="w-3 h-3"></app-icon>
                                             </button>
                                         </div>

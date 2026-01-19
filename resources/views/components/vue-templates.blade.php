@@ -143,15 +143,24 @@
                                 @{{ p?.name || '請更新卡片' }}
                             </h3>
                             <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-[14px] text-white/80">
-                                    <div class="flex items-center gap-[7px]">
-                                        <app-icon name="map-pin" class-name="w-[22px] h-[22px]" :class="themeStyle.accent"></app-icon>
-                                        <span class="font-bold uppercase tracking-wider italic text-[27px]">@{{ displayRegion }}</span>
+                                <div class="flex flex-col gap-1">
+                                    <div class="flex items-center gap-[14px] text-white/80">
+                                        <div class="flex items-center gap-[7px]">
+                                            <app-icon name="map-pin" class-name="w-[22px] h-[22px]" :class="themeStyle.accent"></app-icon>
+                                            <span class="font-bold uppercase tracking-wider italic text-[27px]">@{{ displayRegion }}</span>
+                                        </div>
+                                        <div class="w-[2px] h-[18px] bg-white/30 rounded-full"></div>
+                                        <div class="flex items-center gap-[7px]">
+                                            <app-icon :name="p?.gender === '女' ? 'female' : 'male'" class-name="w-[22px] h-[22px]" :class="themeStyle.accent"></app-icon>
+                                            <span class="font-bold uppercase tracking-wider italic text-[27px]">@{{ p?.gender || '男' }}</span>
+                                        </div>
                                     </div>
-                                    <div class="w-[2px] h-[18px] bg-white/30 rounded-full"></div>
-                                    <div class="flex items-center gap-[7px]">
-                                        <app-icon :name="p?.gender === '女' ? 'female' : 'male'" class-name="w-[22px] h-[22px]" :class="themeStyle.accent"></app-icon>
-                                        <span class="font-bold uppercase tracking-wider italic text-[27px]">@{{ p?.gender || '男' }}</span>
+                                    <div v-if="p?.average_rating" class="flex items-center gap-[7px] mt-1">
+                                        <span class="text-[22px] font-black text-white leading-none">@{{ p.average_rating }}</span>
+                                        <div class="flex gap-0.5">
+                                            <app-icon v-for="i in 5" :key="i" name="star" :class-name="i <= Math.round(p.average_rating) ? 'w-[18px] h-[18px] text-amber-400' : 'w-[18px] h-[18px] text-slate-600'" :fill="i <= Math.round(p.average_rating) ? 'currentColor' : 'none'"></app-icon>
+                                        </div>
+                                        <span class="text-[18px] font-bold text-slate-400 leading-none">(@{{ p.ratings_count }})</span>
                                     </div>
                                 </div>
                             </div>

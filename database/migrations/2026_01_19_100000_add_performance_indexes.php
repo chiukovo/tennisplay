@@ -14,6 +14,9 @@ return new class extends Migration
     public function up()
     {
         // Players 表索引
+        // 先確保 region 是 string 類型，否則無法建立索引 (TEXT 類型需要指定長度)
+        DB::statement('ALTER TABLE players MODIFY COLUMN region VARCHAR(255)');
+
         $this->addIndexIfNotExists('players', 'is_active', 'idx_players_is_active');
         $this->addIndexIfNotExists('players', 'region', 'idx_players_region');
         $this->addIndexIfNotExists('players', 'level', 'idx_players_level');

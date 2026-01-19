@@ -251,82 +251,87 @@
 
                                     <!-- Scrollable Comment List -->
                                     <div class="max-h-[500px] overflow-y-auto pr-2 no-scrollbar">
-                                        <div v-if="comments.length > 0" class="space-y-1">
-                                            <div v-for="(c, index) in comments" :key="c.id" class="comment-threads">
-                                                <div class="avatar-container">
-                                                    <div class="avatar cursor-pointer" @click="$emit('open-profile', c.user.uid)">
-                                                        <img v-if="c.user.line_picture_url" :src="c.user.line_picture_url" class="w-full h-full object-cover">
-                                                        <app-icon v-else name="user" class-name="w-full h-full text-slate-200 p-2"></app-icon>
-                                                    </div>
-                                                    <div v-if="index < comments.length - 1" class="thread-line"></div>
-                                                </div>
-                                                <div class="content-container">
-                                                    <div class="header flex items-center justify-between">
-                                                        <div class="flex items-center gap-2">
-                                                            <span class="username cursor-pointer hover:underline" @click="$emit('open-profile', c.user?.uid || c.user_id)">@{{ c.user?.name || '匿名球友' }}</span>
-                                                            <span class="timestamp">@{{ formatDate(c.at) }}</span>
+                                        <template v-if="commentsReady">
+                                            <div v-if="comments.length > 0" class="space-y-1">
+                                                <div v-for="(c, index) in comments" :key="c.id" class="comment-threads">
+                                                    <div class="avatar-container">
+                                                        <div class="avatar cursor-pointer" @click="$emit('open-profile', c.user.uid)">
+                                                            <img v-if="c.user.line_picture_url" :src="c.user.line_picture_url" class="w-full h-full object-cover">
+                                                            <app-icon v-else name="user" class-name="w-full h-full text-slate-200 p-2"></app-icon>
                                                         </div>
-                                                        <div class="flex items-center gap-2">
-                                                            <div v-if="c.rating" class="flex text-amber-400 gap-0.5">
-                                                                <app-icon v-for="i in 5" :key="i" name="star" :class-name="i <= c.rating ? 'w-3 h-3 text-amber-400' : 'w-3 h-3 text-slate-200'" :fill="i <= c.rating ? 'currentColor' : 'none'"></app-icon>
+                                                        <div v-if="index < comments.length - 1" class="thread-line"></div>
+                                                    </div>
+                                                    <div class="content-container">
+                                                        <div class="header flex items-center justify-between">
+                                                            <div class="flex items-center gap-2">
+                                                                <span class="username cursor-pointer hover:underline" @click="$emit('open-profile', c.user?.uid || c.user_id)">@{{ c.user?.name || '匿名球友' }}</span>
+                                                                <span class="timestamp">@{{ formatDate(c.at) }}</span>
                                                             </div>
-                                                            <div v-if="currentUser" class="flex items-center gap-1">
-                                                                <!-- Reply Button (Owner Only, but not on own comment) -->
-                                                                <button v-if="isOwner && !c.reply && (c.user && c.user.uid !== currentUser.uid)" type="button"
-                                                                    @click="toggleReply(c.id)"
-                                                                    class="p-1 text-slate-300 hover:text-blue-500 transition-colors"
-                                                                    title="回覆留言">
-                                                                    <app-icon name="message-square" class-name="w-3 h-3"></app-icon>
-                                                                </button>
-                                                                <!-- Delete Button (Author Only) -->
-                                                                <button v-if="c.user && c.user.uid && currentUser.uid && c.user.uid === currentUser.uid" type="button"
-                                                                    @click="deleteComment(c.id)"
-                                                                    class="p-1 text-slate-300 hover:text-red-500 transition-colors"
-                                                                    title="刪除留言">
+                                                            <div class="flex items-center gap-2">
+                                                                <div v-if="c.rating" class="flex text-amber-400 gap-0.5">
+                                                                    <app-icon v-for="i in 5" :key="i" name="star" :class-name="i <= c.rating ? 'w-3 h-3 text-amber-400' : 'w-3 h-3 text-slate-200'" :fill="i <= c.rating ? 'currentColor' : 'none'"></app-icon>
+                                                                </div>
+                                                                <div v-if="currentUser" class="flex items-center gap-1">
+                                                                    <!-- Reply Button (Owner Only, but not on own comment) -->
+                                                                    <button v-if="isOwner && !c.reply && (c.user && c.user.uid !== currentUser.uid)" type="button"
+                                                                        @click="toggleReply(c.id)"
+                                                                        class="p-1 text-slate-300 hover:text-blue-500 transition-colors"
+                                                                        title="回覆留言">
+                                                                        <app-icon name="message-square" class-name="w-3 h-3"></app-icon>
+                                                                    </button>
+                                                                    <!-- Delete Button (Author Only) -->
+                                                                    <button v-if="c.user && c.user.uid && currentUser.uid && c.user.uid === currentUser.uid" type="button"
+                                                                        @click="deleteComment(c.id)"
+                                                                        class="p-1 text-slate-300 hover:text-red-500 transition-colors"
+                                                                        title="刪除留言">
+                                                                        <app-icon name="trash" class-name="w-3 h-3"></app-icon>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="text whitespace-pre-line">@{{ c.text }}</div>
+                                                        
+                                                        <!-- Owner Reply Display -->
+                                                        <div v-if="c.reply" class="mt-2 ml-2 p-3 bg-blue-50/50 rounded-xl border border-blue-100 relative">
+                                                            <div class="flex items-center justify-between mb-1">
+                                                                <div class="flex items-center gap-2">
+                                                                    <div class="w-4 h-4 rounded-full bg-blue-600 flex items-center justify-center">
+                                                                        <app-icon name="user" class-name="w-2.5 h-2.5 text-white"></app-icon>
+                                                                    </div>
+                                                                    <span class="text-[10px] font-bold text-blue-800">版主回覆</span>
+                                                                    <span class="text-[10px] text-blue-400">@{{ formatDate(c.replied_at) }}</span>
+                                                                </div>
+                                                                <button v-if="isOwner" 
+                                                                    @click="deleteReply(c.id)"
+                                                                    class="p-1 text-blue-300 hover:text-red-500 transition-colors">
                                                                     <app-icon name="trash" class-name="w-3 h-3"></app-icon>
                                                                 </button>
                                                             </div>
+                                                            <div class="text-xs text-slate-600 whitespace-pre-line pl-6">@{{ c.reply }}</div>
                                                         </div>
-                                                    </div>
-                                                    <div class="text whitespace-pre-line">@{{ c.text }}</div>
-                                                    
-                                                    <!-- Owner Reply Display -->
-                                                    <div v-if="c.reply" class="mt-2 ml-2 p-3 bg-blue-50/50 rounded-xl border border-blue-100 relative">
-                                                        <div class="flex items-center justify-between mb-1">
-                                                            <div class="flex items-center gap-2">
-                                                                <div class="w-4 h-4 rounded-full bg-blue-600 flex items-center justify-center">
-                                                                    <app-icon name="user" class-name="w-2.5 h-2.5 text-white"></app-icon>
-                                                                </div>
-                                                                <span class="text-[10px] font-bold text-blue-800">版主回覆</span>
-                                                                <span class="text-[10px] text-blue-400">@{{ formatDate(c.replied_at) }}</span>
-                                                            </div>
-                                                            <button v-if="isOwner" 
-                                                                @click="deleteReply(c.id)"
-                                                                class="p-1 text-blue-300 hover:text-red-500 transition-colors">
-                                                                <app-icon name="trash" class-name="w-3 h-3"></app-icon>
-                                                            </button>
-                                                        </div>
-                                                        <div class="text-xs text-slate-600 whitespace-pre-line pl-6">@{{ c.reply }}</div>
-                                                    </div>
 
-                                                    <!-- Owner Reply Input -->
-                                                    <div v-if="isOwner && !c.reply && activeReplyId === c.id" class="mt-2">
-                                                        <div class="flex gap-2">
-                                                            <input v-model="replyDrafts[c.id]" 
-                                                                @keydown.enter.prevent="submitReply(c.id)"
-                                                                type="text" 
-                                                                placeholder="回覆這則留言..." 
-                                                                class="flex-1 bg-slate-50 border-none rounded-lg px-3 py-2 text-xs font-bold focus:bg-slate-100 outline-none transition-all placeholder:text-slate-300">
-                                                            <button @click="submitReply(c.id)" :disabled="!replyDrafts[c.id]?.trim()" class="p-2 text-blue-600 disabled:opacity-20 hover:bg-blue-50 rounded-lg transition-all">
-                                                                <app-icon name="send" class-name="w-4 h-4"></app-icon>
-                                                            </button>
+                                                        <!-- Owner Reply Input -->
+                                                        <div v-if="isOwner && !c.reply && activeReplyId === c.id" class="mt-2">
+                                                            <div class="flex gap-2">
+                                                                <input v-model="replyDrafts[c.id]" 
+                                                                    @keydown.enter.prevent="submitReply(c.id)"
+                                                                    type="text" 
+                                                                    placeholder="回覆這則留言..." 
+                                                                    class="flex-1 bg-slate-50 border-none rounded-lg px-3 py-2 text-xs font-bold focus:bg-slate-100 outline-none transition-all placeholder:text-slate-300">
+                                                                <button @click="submitReply(c.id)" :disabled="!replyDrafts[c.id]?.trim()" class="p-2 text-blue-600 disabled:opacity-20 hover:bg-blue-50 rounded-lg transition-all">
+                                                                    <app-icon name="send" class-name="w-4 h-4"></app-icon>
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                            <div v-else class="py-10 text-center">
+                                                <p class="text-slate-300 font-black italic text-xs uppercase tracking-widest">目前還沒有留言...</p>
+                                            </div>
+                                        </template>
                                         <div v-else class="py-10 text-center">
-                                            <p class="text-slate-300 font-black italic text-xs uppercase tracking-widest">目前還沒有留言...</p>
+                                            <p class="text-slate-300 font-black italic text-xs uppercase tracking-widest">載入中...</p>
                                         </div>
                                     </div>
                                 </div>

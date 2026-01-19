@@ -368,6 +368,7 @@ const PlayerDetailModal = {
         const comments = ref([]);
         const commentDraft = ref('');
         const isLoadingComments = ref(false);
+        const commentsReady = ref(false);
         const socialStatus = reactive({ is_liked: false, is_following: false, likes_count: 0 });
         const commentsCache = reactive(new Map());  // 留言快取
         const isSubmitting = ref(false);
@@ -424,6 +425,24 @@ const PlayerDetailModal = {
                 checkMyComment();
             } catch (error) {}
             finally { isLoadingComments.value = false; }
+        };
+
+        const isMobileViewport = () => window.innerWidth < 640;
+        const scheduleCommentsLoad = (hasCache) => {
+            commentsReady.value = false;
+            const run = () => {
+                commentsReady.value = true;
+                if (!hasCache) loadComments();
+            };
+            if (hasCache) {
+                requestAnimationFrame(() => run());
+                return;
+            }
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(run, { timeout: isMobileViewport() ? 800 : 400 });
+            } else {
+                setTimeout(run, isMobileViewport() ? 180 : 80);
+            }
         };
 
         const toggleFollowModal = async () => {
@@ -656,6 +675,7 @@ const PlayerDetailModal = {
                 document.body.style.position = 'fixed';
                 document.body.style.width = '100%';
                 document.body.style.top = `-${savedScrollY}px`;
+                document.body.style.touchAction = 'none';
 
                 // 更新社交狀態
                 socialStatus.is_liked = newP.is_liked || false;
@@ -674,17 +694,17 @@ const PlayerDetailModal = {
                     checkMyComment();
                 } else {
                     comments.value = [];
-                    // 延遲載入留言，讓 UI 先渲染
-                    requestAnimationFrame(() => {
-                        setTimeout(() => loadComments(), 50);
-                    });
                 }
+                scheduleCommentsLoad(!!cached);
             } else {
+                commentsReady.value = false;
+                comments.value = [];
                 // Restore scroll
                 document.body.style.overflow = '';
                 document.body.style.position = '';
                 document.body.style.width = '';
                 document.body.style.top = '';
+                document.body.style.touchAction = '';
                 window.scrollTo(0, savedScrollY);
             }
         }, { immediate: true });
@@ -738,17 +758,6 @@ const PlayerDetailModal = {
             }
         };
 
-        // Lock body scroll when modal is open to prevent outer scroll interference
-        watch(() => props.player, (newPlayer) => {
-            if (newPlayer) {
-                document.body.style.overflow = 'hidden';
-                document.body.style.touchAction = 'none';
-            } else {
-                document.body.style.overflow = '';
-                document.body.style.touchAction = '';
-            }
-        }, { immediate: true });
-
         onMounted(() => {
             window.addEventListener('keydown', handleKeydown);
         });
@@ -793,7 +802,7 @@ const PlayerDetailModal = {
 
         const player = computed(() => props.player);
 
-        return { isOwner, player, currentIndex, hasPrev, hasNext, transitionName, isTransitioning, navigate, handleTouchStart, handleTouchEnd, backStats, formatDate, comments, commentDraft, isLoadingComments, socialStatus, toggleFollowModal, toggleLikeModal, postComment, deleteComment, isSubmitting, playerCommentRating, myCommentId, existingRatedComment, startEditRating, cancelEdit, replyDrafts, submitReply, deleteReply, activeReplyId, toggleReply };
+        return { isOwner, player, currentIndex, hasPrev, hasNext, transitionName, isTransitioning, navigate, handleTouchStart, handleTouchEnd, backStats, formatDate, comments, commentDraft, isLoadingComments, commentsReady, socialStatus, toggleFollowModal, toggleLikeModal, postComment, deleteComment, isSubmitting, playerCommentRating, myCommentId, existingRatedComment, startEditRating, cancelEdit, replyDrafts, submitReply, deleteReply, activeReplyId, toggleReply };
     }
 };
 

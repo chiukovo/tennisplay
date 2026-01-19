@@ -81,7 +81,7 @@ class SendLineNotification implements ShouldQueue
         // 防重複發送：檢查此通知是否已成功發送過
         $sentKey = $this->uniqueKey . '_sent';
         if (Cache::has($sentKey)) {
-            Log::info('LINE notification already sent, skipping', [
+            Log::channel('notify')->info('LINE notification already sent, skipping', [
                 'user_id' => $this->userId,
                 'unique_key' => $this->uniqueKey,
             ]);
@@ -130,7 +130,7 @@ class SendLineNotification implements ShouldQueue
                 Cache::put($sentKey, true, now()->addMinutes(5));
                 Cache::forget($logKey);
 
-                Log::info('LINE notification sent successfully', [
+                Log::channel('notify')->info('LINE notification sent successfully', [
                     'user_id' => $this->userId,
                     'type' => $this->type,
                 ]);
@@ -144,7 +144,7 @@ class SendLineNotification implements ShouldQueue
                 'attempts' => $this->attempts(),
             ]);
 
-            Log::error('LINE notification failed', [
+            Log::channel('notify')->error('LINE notification failed', [
                 'user_id' => $this->userId,
                 'type' => $this->type,
                 'error' => $e->getMessage(),
@@ -161,7 +161,7 @@ class SendLineNotification implements ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
-        Log::error('LINE notification permanently failed', [
+        Log::channel('notify')->error('LINE notification permanently failed', [
             'user_id' => $this->userId,
             'line_user_id' => $this->lineUserId,
             'type' => $this->type,

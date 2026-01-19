@@ -62,7 +62,7 @@ class LineNotifyService
     public function sendTextMessage($lineUserId, $text)
     {
         if (empty($this->channelAccessToken)) {
-            Log::warning('LINE Channel Access Token is not set.');
+            Log::channel('notify')->warning('LINE Channel Access Token is not set.');
             return false;
         }
 
@@ -81,10 +81,10 @@ class LineNotifyService
                 return true;
             }
 
-            Log::error('LINE Message Push Failed: ' . $response->body());
+            Log::channel('notify')->error('LINE Message Push Failed: ' . $response->body());
             return false;
         } catch (\Exception $e) {
-            Log::error('LINE Message Push Exception: ' . $e->getMessage());
+            Log::channel('notify')->error('LINE Message Push Exception: ' . $e->getMessage());
             return false;
         }
     }
@@ -100,7 +100,7 @@ class LineNotifyService
     public function sendFlexMessage($lineUserId, $altText, $flexContents)
     {
         if (empty($this->channelAccessToken)) {
-            Log::warning('LINE Channel Access Token is not set.');
+            Log::channel('notify')->warning('LINE Channel Access Token is not set.');
             return false;
         }
 
@@ -120,10 +120,10 @@ class LineNotifyService
                 return true;
             }
 
-            Log::error('LINE Flex Message Push Failed: ' . $response->body());
+            Log::channel('notify')->error('LINE Flex Message Push Failed: ' . $response->body());
             return false;
         } catch (\Exception $e) {
-            Log::error('LINE Flex Message Push Exception: ' . $e->getMessage());
+            Log::channel('notify')->error('LINE Flex Message Push Exception: ' . $e->getMessage());
             return false;
         }
     }

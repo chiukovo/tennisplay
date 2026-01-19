@@ -135,7 +135,7 @@
                                 <div v-if="user.level" class="absolute -top-1 -right-1 bg-slate-900 text-white text-[7px] font-black px-1 rounded-sm border border-white shadow-sm">@{{ user.level }}</div>
                             </div>
                             <span class="text-[9px] font-black text-slate-900 max-w-[56px] truncate">@{{ user.name }}</span>
-                            <div v-if="user.remark" class="bg-blue-50 text-blue-600 text-[7px] font-black px-1.5 py-0.5 rounded-md border border-blue-100/30 line-clamp-1">@{{ user.remark }}</div>
+                            <div v-if="user.remark" class="bg-blue-50 text-blue-600 text-[9px] font-black px-2 py-1 rounded-md border border-blue-100/30 line-clamp-1">@{{ user.remark }}</div>
                         </div>
 
                         {{-- Others (Presence) - Capped at 20 --}}

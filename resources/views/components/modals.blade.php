@@ -205,24 +205,45 @@
                                         <div class="flex-1 relative">
                                             <!-- Rating Selector -->
                                             <div v-if="currentUser && player.user_id !== currentUser.id" class="flex items-center justify-between mb-2 pl-1">
-                                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">評分 (選填)</span>
-                                                <div class="flex gap-1">
-                                                    <button v-for="i in 5" :key="i" @click="playerCommentRating = (playerCommentRating === i ? 0 : i)" class="p-1 hover:scale-110 transition-transform">
-                                                        <app-icon name="star" :class-name="i <= playerCommentRating ? 'w-4 h-4 text-amber-400' : 'w-4 h-4 text-slate-200'" :fill="i <= playerCommentRating ? 'currentColor' : 'none'"></app-icon>
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                                        @{{ myCommentId ? '更新評分' : (existingRatedComment ? '您已評分' : '評分 (選填)') }}
+                                                    </span>
+                                                    <button v-if="existingRatedComment && !myCommentId" @click="startEditRating" class="text-[10px] text-blue-500 font-bold hover:underline">
+                                                        (修改)
                                                     </button>
+                                                    <button v-if="myCommentId" @click="cancelEdit" class="text-[10px] text-slate-400 font-bold hover:underline">
+                                                        (取消)
+                                                    </button>
+                                                </div>
+                                                <div class="flex gap-1">
+                                                    <template v-if="!myCommentId && existingRatedComment">
+                                                        <div class="flex gap-0.5" title="點擊星星即可修改">
+                                                            <app-icon v-for="i in 5" :key="i" name="star" 
+                                                                :class-name="i <= existingRatedComment.rating ? 'w-4 h-4 text-amber-400' : 'w-4 h-4 text-slate-200'" 
+                                                                :fill="i <= existingRatedComment.rating ? 'currentColor' : 'none'"
+                                                                @click="startEditRating(); playerCommentRating = i"
+                                                                class="cursor-pointer hover:scale-110 transition-transform"></app-icon>
+                                                        </div>
+                                                    </template>
+                                                    <template v-else>
+                                                        <button v-for="i in 5" :key="i" @click="playerCommentRating = (playerCommentRating === i ? 0 : i)" class="p-1 hover:scale-110 transition-transform">
+                                                            <app-icon name="star" :class-name="i <= playerCommentRating ? 'w-4 h-4 text-amber-400' : 'w-4 h-4 text-slate-200'" :fill="i <= playerCommentRating ? 'currentColor' : 'none'"></app-icon>
+                                                        </button>
+                                                    </template>
                                                 </div>
                                             </div>
 
                                             <textarea v-model="commentDraft" 
                                                 rows="1"
                                                 @keydown.enter.exact.prevent="postComment"
-                                                placeholder="留個言打聲招呼吧..." 
+                                                :placeholder="myCommentId ? '更新您的留言...' : '留個言打聲招呼吧...'" 
                                                 class="w-full bg-slate-50 border-none rounded-2xl px-5 py-3 pr-20 text-sm font-bold focus:bg-slate-100 outline-none transition-all placeholder:text-slate-300 resize-none overflow-hidden"></textarea>
                                             <div class="absolute right-10 bottom-1.5">
                                                 <emoji-picker @select="e => commentDraft += e"></emoji-picker>
                                             </div>
-                                            <button @click="postComment" :disabled="!commentDraft.trim() || isSubmitting" class="absolute right-2 bottom-1.5 p-2 text-blue-600 disabled:opacity-20 transition-all">
-                                                <app-icon v-if="!isSubmitting" name="send" class-name="w-5 h-5"></app-icon>
+                                            <button @click="postComment" :disabled="(!commentDraft.trim() && playerCommentRating === 0) || isSubmitting" class="absolute right-2 bottom-1.5 p-2 text-blue-600 disabled:opacity-20 transition-all">
+                                                <app-icon v-if="!isSubmitting" :name="myCommentId ? 'edit' : 'send'" class-name="w-5 h-5"></app-icon>
                                                 <div v-else class="w-4 h-4 border-2 border-blue-600/30 border-t-blue-600 rounded-full animate-spin"></div>
                                             </button>
                                         </div>

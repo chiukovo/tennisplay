@@ -22,13 +22,15 @@ class SendPlayerCommentNotification implements ShouldQueue
     public $actorId;
     public $content;
     public $commentId;
+    public $rating;
 
-    public function __construct(int $playerId, int $actorId, int $commentId, string $content)
+    public function __construct(int $playerId, int $actorId, int $commentId, ?string $content, ?int $rating = null)
     {
         $this->playerId = $playerId;
         $this->actorId = $actorId;
         $this->commentId = $commentId;
         $this->content = $content;
+        $this->rating = $rating;
     }
 
     public function handle()
@@ -62,11 +64,22 @@ class SendPlayerCommentNotification implements ShouldQueue
         $senderAvatar = $actor ? $actor->line_picture_url : null;
         $avatarUrl = $senderAvatar ? (str_starts_with($senderAvatar, 'http') ? $senderAvatar : asset($senderAvatar)) : null;
 
+        // Construct message content
+        $messageBody = "";
+        if ($this->rating) {
+            $messageBody .= "⭐ 獲得 " . $this->rating . " 顆星評價\n";
+        }
+        if ($this->content) {
+            $messageBody .= "留言內容：" . Str::limit($this->content, 80);
+        } else if (!$this->rating) {
+            $messageBody .= "（無內容）";
+        }
+
         $text = sprintf(
-            "💬 有人留言了\n球友卡：%s\n來自：%s\n內容：%s\n👉 %s",
+            "💬 有人留言了\n球友卡：%s\n來自：%s\n%s\n👉 %s",
             $player->name ?: '球友卡',
             $senderName,
-            Str::limit($this->content, 80),
+            $messageBody,
             url('/profile/' . ($owner->uid ?? $owner->id))
         );
 
@@ -139,13 +152,30 @@ class SendPlayerCommentNotification implements ShouldQueue
                         'type' => 'separator',
                         'margin' => 'md'
                     ],
-                    [
+                    // Rating Display
+                    $this->rating ? [
+                        'type' => 'box',
+                        'layout' => 'horizontal',
+                        'contents' => [
+                            [
+                                'type' => 'text',
+                                'text' => '⭐ 獲得 ' . $this->rating . ' 顆星評價',
+                                'weight' => 'bold',
+                                'color' => '#F59E0B',
+                                'size' => 'sm'
+                            ]
+                        ],
+                        'margin' => 'md'
+                    ] : null,
+                    // Content Display
+                    $this->content ? [
                         'type' => 'text',
-                        'text' => '留言內容：' . Str::limit($this->content, 120),
+                        'text' => $this->content,
                         'size' => 'sm',
                         'wrap' => true,
-                        'color' => '#334155'
-                    ]
+                        'color' => '#334155',
+                        'margin' => 'sm'
+                    ] : null
                 ]))
             ],
             'footer' => [

@@ -372,6 +372,39 @@ const PlayerDetailModal = {
         const commentsCache = reactive(new Map());  // 留言快取
         const isSubmitting = ref(false);
 
+        const myCommentId = ref(null);
+        const existingRatedComment = ref(null);
+
+        const checkMyComment = () => {
+            myCommentId.value = null;
+            existingRatedComment.value = null;
+            if (!props.currentUser || !comments.value.length) return;
+            
+            // Find if user has a RATED comment
+            const rated = comments.value.find(c => 
+                (c.user_id === props.currentUser.id || (c.user && c.user.uid === props.currentUser.uid)) && 
+                c.rating > 0
+            );
+            
+            if (rated) {
+                existingRatedComment.value = rated;
+            }
+        };
+
+        const startEditRating = () => {
+            if (existingRatedComment.value) {
+                myCommentId.value = existingRatedComment.value.id;
+                commentDraft.value = existingRatedComment.value.text || '';
+                playerCommentRating.value = existingRatedComment.value.rating || 0;
+            }
+        };
+
+        const cancelEdit = () => {
+            myCommentId.value = null;
+            commentDraft.value = '';
+            playerCommentRating.value = 0;
+        };
+
         const loadComments = async () => {
             if (!props.player) return;
             
@@ -379,6 +412,7 @@ const PlayerDetailModal = {
             const cached = commentsCache.get(props.player.id);
             if (cached) {
                 comments.value = cached;
+                checkMyComment();
                 return;
             }
             
@@ -387,6 +421,7 @@ const PlayerDetailModal = {
                 const response = await api.get(`/players/${props.player.id}/comments`);
                 comments.value = response.data;
                 commentsCache.set(props.player.id, response.data);  // 存入快取
+                checkMyComment();
             } catch (error) {}
             finally { isLoadingComments.value = false; }
         };
@@ -454,27 +489,55 @@ const PlayerDetailModal = {
         };
 
         const playerCommentRating = ref(0);
+        
+        // Auto-switch to edit mode if user clicks stars and has existing rating
+        watch(playerCommentRating, (val) => {
+            if (val > 0 && existingRatedComment.value && !myCommentId.value) {
+                startEditRating();
+                // Ensure the rating they just clicked is preserved (startEditRating overwrites it with old rating)
+                playerCommentRating.value = val;
+            }
+        });
 
         const postComment = async () => {
             if (!props.isLoggedIn) { props.showToast('請先登入', 'error'); props.navigateTo('auth'); return; }
             if (isSubmitting.value) return;
             const text = commentDraft.value.trim();
-            if (!text) return;
+            // Allow rating only (no text) if rating > 0
+            if (!text && playerCommentRating.value === 0) return;
             
             isSubmitting.value = true;
             try {
-                const response = await api.post(`/players/${props.player.id}/comments`, { 
-                    content: text,
-                    rating: playerCommentRating.value > 0 ? playerCommentRating.value : null
-                });
-                comments.value.unshift(response.data.comment);
+                let response;
+                if (myCommentId.value) {
+                     // Update existing
+                     response = await api.put(`/players/comments/${myCommentId.value}`, { 
+                        content: text,
+                        rating: playerCommentRating.value > 0 ? playerCommentRating.value : null
+                    });
+                    
+                    // Update local list
+                    const idx = comments.value.findIndex(c => c.id === myCommentId.value);
+                    if (idx !== -1) {
+                        comments.value[idx] = response.data.comment;
+                    }
+                    props.showToast('評價已更新', 'success');
+                } else {
+                    // Create new
+                    response = await api.post(`/players/${props.player.id}/comments`, { 
+                        content: text,
+                        rating: playerCommentRating.value > 0 ? playerCommentRating.value : null
+                    });
+                    comments.value.unshift(response.data.comment);
+                    myCommentId.value = response.data.comment.id;
+                    props.showToast('評價已送出', 'success');
+                }
+
                 commentsCache.set(props.player.id, [...comments.value]);  // 更新快取
-                commentDraft.value = '';
-                playerCommentRating.value = 0;
                 
                 const updatedPlayer = { 
                     ...props.player, 
-                    comments_count: (props.player.comments_count || 0) + 1 
+                    comments_count: (props.player.comments_count || 0) + (myCommentId.value ? 0 : 1) // Only increment if new
                 };
                 
                 if (response.data.player_stats) {
@@ -506,6 +569,12 @@ const PlayerDetailModal = {
                 comments.value = comments.value.filter(c => c.id !== commentId);
                 commentsCache.set(props.player.id, [...comments.value]);
                 
+                if (commentId === myCommentId.value) {
+                    myCommentId.value = null;
+                    commentDraft.value = '';
+                    playerCommentRating.value = 0;
+                }
+
                 const updatedPlayer = { 
                     ...props.player, 
                     comments_count: Math.max(0, (props.player.comments_count || 0) - 1) 
@@ -537,10 +606,16 @@ const PlayerDetailModal = {
                 socialStatus.is_following = newP.is_following || false;
                 socialStatus.likes_count = newP.likes_count || 0;
                 
+                // 重置狀態
+                myCommentId.value = null;
+                commentDraft.value = '';
+                playerCommentRating.value = 0;
+
                 // 檢查快取，如果有就直接用
                 const cached = commentsCache.get(newP.id);
                 if (cached) {
                     comments.value = cached;
+                    checkMyComment();
                 } else {
                     comments.value = [];
                     // 延遲載入留言，讓 UI 先渲染
@@ -548,10 +623,6 @@ const PlayerDetailModal = {
                         setTimeout(() => loadComments(), 50);
                     });
                 }
-                
-                // 重置輸入框與評分
-                commentDraft.value = '';
-                playerCommentRating.value = 0;
             } else {
                 // Restore scroll
                 document.body.style.overflow = '';
@@ -649,7 +720,7 @@ const PlayerDetailModal = {
             return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
         };
 
-        return { currentIndex, hasPrev, hasNext, transitionName, isTransitioning, navigate, handleTouchStart, handleTouchEnd, backStats, formatDate, comments, commentDraft, isLoadingComments, socialStatus, toggleFollowModal, toggleLikeModal, postComment, deleteComment, isSubmitting, playerCommentRating };
+        return { currentIndex, hasPrev, hasNext, transitionName, isTransitioning, navigate, handleTouchStart, handleTouchEnd, backStats, formatDate, comments, commentDraft, isLoadingComments, socialStatus, toggleFollowModal, toggleLikeModal, postComment, deleteComment, isSubmitting, playerCommentRating, myCommentId, existingRatedComment, startEditRating, cancelEdit };
     }
 };
 

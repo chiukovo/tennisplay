@@ -47,9 +47,14 @@ class PlayerCommentController extends Controller
     public function store(Request $request, $playerId)
     {
         $request->validate([
-            'content' => 'required|string|max:1000',
+            'content' => 'nullable|string|max:1000',
             'rating' => 'nullable|integer|min:1|max:5',
         ]);
+
+        // Require at least one field
+        if (!$request->content && !$request->rating) {
+            return response()->json(['message' => '請輸入內容或評分'], 422);
+        }
  
         $player = Player::findOrFail($playerId);
         $actor = $request->user('sanctum') ?: $request->user();
@@ -85,10 +90,10 @@ class PlayerCommentController extends Controller
         $comment = PlayerComment::create([
             'player_id' => $player->id,
             'user_id' => $actor->id,
-            'content' => $request->content,
+            'content' => $request->content ?? '',
             'rating' => $request->rating,
         ]);
-        SendPlayerCommentNotification::dispatch($player->id, $actor->id, $comment->id, $request->content);
+        SendPlayerCommentNotification::dispatch($player->id, $actor->id, $comment->id, $request->content, $request->rating);
 
         // Refresh player to get updated stats
         $player->refresh();
@@ -112,14 +117,61 @@ class PlayerCommentController extends Controller
                 'ratings_count' => $player->ratings_count,
             ],
         ]);
-
-
     }
 
-
     /**
-     * Delete a comment.
+     * Update an existing comment.
      */
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'content' => 'nullable|string|max:1000',
+            'rating' => 'nullable|integer|min:1|max:5',
+        ]);
+
+        // Require at least one field
+        if (!$request->content && !$request->rating) {
+            return response()->json(['message' => '請輸入內容或評分'], 422);
+        }
+
+        $comment = PlayerComment::findOrFail($id);
+        $actor = $request->user('sanctum') ?: $request->user();
+        
+        if (!$actor || $comment->user_id !== $actor->id) {
+            return response()->json(['message' => '無權修改'], 403);
+        }
+
+        $comment->update([
+            'content' => $request->content ?? '',
+            'rating' => $request->rating,
+        ]);
+
+        // Refresh player stats
+        $player = $comment->player;
+        $player->refresh();
+
+        return response()->json([
+            'message' => '更新成功',
+            'comment' => [
+                'id' => $comment->id,
+                'text' => $comment->content,
+                'rating' => $comment->rating,
+                'at' => $comment->created_at->toISOString(),
+                'updated_at' => $comment->updated_at->toISOString(),
+                'user_id' => $actor->id,
+                'user' => [
+                    'name' => ($p = $actor->player) ? $p->name : $actor->name,
+                    'line_picture_url' => $actor->line_picture_url,
+                    'uid' => $actor->uid,
+                ],
+            ],
+            'player_stats' => [
+                'average_rating' => $player->average_rating,
+                'ratings_count' => $player->ratings_count,
+            ]
+        ]);
+    }
+
     public function destroy(Request $request, $id)
     {
         $comment = PlayerComment::findOrFail($id);

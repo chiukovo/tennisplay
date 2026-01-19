@@ -365,7 +365,6 @@ const PlayerDetailModal = {
         const hasNext = computed(() => props.players && props.players.length > 1);
         const transitionName = ref('slide-next');
         const isTransitioning = ref(false);  // 轉場動畫狀態
-        const modalBusy = ref(false);
         const comments = ref([]);
         const commentDraft = ref('');
         const isLoadingComments = ref(false);
@@ -689,7 +688,6 @@ const PlayerDetailModal = {
                     socialStatus.likes_count = newP.likes_count || 0;
                     return;
                 }
-                modalBusy.value = true;
                 // Scroll lock
                 savedScrollY = window.scrollY;
                 document.body.style.overflow = 'hidden';
@@ -718,11 +716,7 @@ const PlayerDetailModal = {
                 }
                 scheduleCommentsLoad(!!cached);
                 scheduleDetailsReady();
-                requestAnimationFrame(() => {
-                    setTimeout(() => { modalBusy.value = false; }, 180);
-                });
             } else {
-                modalBusy.value = false;
                 commentsReady.value = false;
                 comments.value = [];
                 detailsReady.value = false;
@@ -795,14 +789,6 @@ const PlayerDetailModal = {
             document.body.style.touchAction = '';
         });
 
-        const requestClose = () => {
-            modalBusy.value = true;
-            setTimeout(() => {
-                modalBusy.value = false;
-                emit('close');
-            }, 160);
-        };
-
         const backStats = computed(() => {
             const p = props.player;
             if (!p) return [];
@@ -837,7 +823,7 @@ const PlayerDetailModal = {
 
         const player = computed(() => props.player);
 
-        return { isOwner, player, currentIndex, hasPrev, hasNext, transitionName, isTransitioning, navigate, handleTouchStart, handleTouchEnd, backStats, formatDate, comments, commentDraft, isLoadingComments, commentsReady, detailsReady, modalBusy, requestClose, socialStatus, toggleFollowModal, toggleLikeModal, postComment, deleteComment, isSubmitting, playerCommentRating, myCommentId, existingRatedComment, startEditRating, cancelEdit, replyDrafts, submitReply, deleteReply, activeReplyId, toggleReply };
+        return { isOwner, player, currentIndex, hasPrev, hasNext, transitionName, isTransitioning, navigate, handleTouchStart, handleTouchEnd, backStats, formatDate, comments, commentDraft, isLoadingComments, commentsReady, detailsReady, socialStatus, toggleFollowModal, toggleLikeModal, postComment, deleteComment, isSubmitting, playerCommentRating, myCommentId, existingRatedComment, startEditRating, cancelEdit, replyDrafts, submitReply, deleteReply, activeReplyId, toggleReply };
     }
 };
 

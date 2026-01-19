@@ -3,17 +3,12 @@
 {{-- Player Detail Modal --}}
 <script type="text/x-template" id="player-detail-modal-template">
     <transition name="modal">
-        <div v-if="player" class="fixed inset-0 z-[200] flex items-center justify-center p-2 sm:p-10 premium-blur modal-content overflow-hidden" @click.self="requestClose">
+        <div v-if="player" class="fixed inset-0 z-[200] flex items-center justify-center p-2 sm:p-10 premium-blur modal-content overflow-hidden" @click.self="$emit('close')">
             <div class="bg-white w-full max-w-5xl h-full sm:h-auto max-h-[96vh] sm:max-h-[92vh] rounded-[32px] sm:rounded-[48px] overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.5)] flex flex-col md:flex-row relative">
                 {{-- Close Button --}}
-                <button type="button" @click="requestClose" class="absolute top-4 right-4 sm:top-8 sm:right-8 z-[120] p-2.5 bg-white/90 backdrop-blur-md hover:bg-red-50 hover:text-red-500 rounded-full shadow-xl transition-all border border-slate-100 group">
+                <button type="button" @click="$emit('close')" class="absolute top-4 right-4 sm:top-8 sm:right-8 z-[120] p-2.5 bg-white/90 backdrop-blur-md hover:bg-red-50 hover:text-red-500 rounded-full shadow-xl transition-all border border-slate-100 group">
                     <app-icon name="x" class-name="w-5 h-5 group-hover:scale-110 transition-transform"></app-icon>
                 </button>
-
-                {{-- Loading Overlay (Open/Close) --}}
-                <div v-if="modalBusy" class="absolute inset-0 z-[140] bg-white/70 backdrop-blur-sm flex items-center justify-center">
-                    <div class="w-6 h-6 border-2 border-slate-300 border-t-slate-700 rounded-full animate-spin"></div>
-                </div>
 
                 {{-- Page Counter with Mobile Navigation --}}
                 <div v-if="players && players.length > 1" class="absolute top-4 left-4 md:top-8 md:left-1/2 md:-translate-x-1/2 z-[120] flex items-center gap-1 md:gap-0">

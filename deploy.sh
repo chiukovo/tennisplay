@@ -110,10 +110,10 @@ restart_services() {
 full_update() {
     info "========== 開始完整部署模式 =========="
     pull_code
+    run_migrations
     install_composer
     install_npm
     build_frontend
-    run_migrations
     optimize_laravel
     set_permissions
     restart_services

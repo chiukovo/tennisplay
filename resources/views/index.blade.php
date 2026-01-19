@@ -15,7 +15,7 @@
     <title>{{ $seo['title'] ?? 'LoveTennis | 專業網球約打媒合與球友卡社群' }}</title>
     <!-- SEO Meta Tags -->
     <meta name="description" content="{{ $seo['description'] ?? 'LoveTennis 是全台最專業的網球約打平台，提供職業級球友卡製作、透明約打費用與安全站內信媒合系統。' }}">
-    <meta name="keywords" content="網球約打, 網球約球, 一起打網球, 網球揪球, 網球球友, 網球場次, 網球活動">
+    <meta name="keywords" content="網球約打, 陪打, 揪打, 找教練, 網球約球, 一起打網球, 網球揪球, 網球球友, 網球場次, 網球活動">
     @php
         $canonical = $seo['canonical'] ?? url()->current();
     @endphp

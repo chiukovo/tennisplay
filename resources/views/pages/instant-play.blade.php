@@ -1,8 +1,8 @@
 {{-- Instant Play View --}}
-<div v-if="view === 'instant-play'" class="h-[calc(100vh-140px)] sm:h-[calc(100vh-160px)] flex flex-col -mx-4 sm:mx-0 overflow-x-hidden">
+<div v-if="view === 'instant-play'" class="h-[calc(100vh-140px)] sm:h-[calc(100vh-160px)] flex flex-col sm:mx-0 overflow-x-hidden">
     
     {{-- Lobby View: Room Selection --}}
-    <div v-if="!currentRoom" class="flex-grow overflow-y-auto no-scrollbar pb-10 px-2 sm:px-0 overscroll-contain touch-pan-y">
+    <div v-if="!currentRoom" class="flex-grow overflow-y-auto no-scrollbar pb-10 px-1 sm:px-0 overscroll-contain touch-pan-y">
         <div class="space-y-4 pt-2">
             {{-- Header & Stats --}}
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-2">
@@ -122,7 +122,7 @@
                         <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Currently Online</h4>
                         <div class="text-[9px] font-bold text-blue-500 uppercase">@{{ globalData.lfg_users.length }} 人想打球</div>
                     </div>
-                    <div class="flex gap-4 overflow-x-auto no-scrollbar pb-4 px-4 -mx-4">
+                    <div class="flex gap-4 overflow-x-auto no-scrollbar pb-4 px-1">
                         {{-- LFG Users First (Glowing) --}}
                         <div v-for="user in globalData.lfg_users" :key="'lfg-'+user.id" 
                             @click="openProfile(user.uid)"

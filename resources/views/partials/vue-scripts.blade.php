@@ -24,7 +24,7 @@ createApp({
         const handedDraft = ref('全部');
         const selectedBackhand = ref('全部');
         const backhandDraft = ref('全部');
-        const sortBy = ref('popular');
+        const sortBy = ref('newest');
         const showAdvancedFilters = ref(false);
         const matchModal = reactive({ open: false, player: null, text: '' });
         const isSendingMatch = ref(false);

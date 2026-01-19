@@ -38,12 +38,13 @@ const useNavigation = (routes, routePaths, viewTitles, showToast, applyDefaultFi
         view.value = viewName;
         let path = routePaths[viewName] || '/';
         if (viewName === 'profile' && uid) path = `/profile/${uid}`;
+        if (viewName === 'messages' && uid) path = `/messages/${uid}`;
         
         window.history.pushState({ view: viewName, uid: uid }, '', path);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const parseRoute = (loadProfile, resetForm, resetEventForm) => {
+    const parseRoute = (loadProfile, resetForm, resetEventForm, openChatByUid) => {
         const path = window.location.pathname;
         let viewName = routes[path];
         let derivedUid = null;
@@ -62,10 +63,19 @@ const useNavigation = (routes, routePaths, viewTitles, showToast, applyDefaultFi
             }
         }
 
+        if (path.includes('/messages/')) {
+            const parts = path.split('/');
+            derivedUid = parts[parts.length - 1];
+            if (derivedUid) {
+                viewName = 'messages';
+                if (openChatByUid) openChatByUid(derivedUid);
+            }
+        }
+
         if (!viewName) viewName = 'home';
 
         // Protection for direct URL access
-        if (!isLoggedIn.value && (viewName === 'create' || (viewName === 'profile' && !derivedUid))) {
+        if (!isLoggedIn.value && (viewName === 'create' || viewName === 'messages' || (viewName === 'profile' && !derivedUid))) {
             if (showToast) showToast('請先登入以訪問此功能', 'warning');
             viewName = 'home';
             window.history.replaceState({ view: 'home' }, '', '/');

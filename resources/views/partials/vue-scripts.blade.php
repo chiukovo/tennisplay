@@ -893,6 +893,39 @@ createApp({
             if (message.player) otherUser.player = message.player;
             selectedChatUser.value = otherUser;
             showMessageDetail.value = true;
+
+            // 更新網址，方便分享與回退
+            if (otherUser?.uid) {
+                const currentPath = window.location.pathname;
+                const targetPath = `/messages/${otherUser.uid}`;
+                if (currentPath !== targetPath) {
+                    navigateTo('messages', false, otherUser.uid);
+                }
+            }
+        };
+
+        const openChatByUid = async (uid) => {
+            if (!uid) return;
+            try {
+                let msg = messages.value.find(m => {
+                    const other = (m.sender?.uid === currentUser.value.uid) ? m.receiver : m.sender;
+                    return other?.uid === uid;
+                });
+                
+                if (msg) {
+                    openMessage(msg);
+                } else {
+                    const response = await api.get(`/profile/${uid}`);
+                    if (response.data.success) {
+                        const user = response.data.user;
+                        if (response.data.player) user.player = response.data.player;
+                        selectedChatUser.value = user;
+                        showMessageDetail.value = true;
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to open chat by UID', error);
+            }
         };
 
         const loadMoreMessages = () => {
@@ -902,7 +935,12 @@ createApp({
         // --- 7. Lifecycle & Watchers ---
         onMounted(async () => {
             await checkAuth(() => loadMessages(), () => loadMyCards());
-            parseRoute((id) => loadProfile(id, (append) => loadProfileEvents(append)), () => resetFormFull(), () => resetEventForm());
+            parseRoute(
+                (id) => loadProfile(id, (append) => loadProfileEvents(append)), 
+                () => resetFormFull(), 
+                () => resetEventForm(),
+                (uid) => openChatByUid(uid)
+            );
 
             const eventMatch = window.location.pathname.match(/^\/events\/(\d+)$/);
             if (eventMatch) {
@@ -910,11 +948,23 @@ createApp({
                 openEventDetail({ id: Number(eventMatch[1]) });
             }
             window.addEventListener('popstate', (event) => {
+                if (showMessageDetail.value && (!event.state || !event.state.uid)) {
+                    showMessageDetail.value = false;
+                }
+
                 if (event.state && event.state.view) {
                     applyDefaultFilters(event.state.view);
                     view.value = event.state.view;
+                    if (event.state.view === 'messages' && event.state.uid) {
+                        openChatByUid(event.state.uid);
+                    }
                 }
-                else parseRoute((id) => loadProfile(id, (append) => loadProfileEvents(append)), () => resetFormFull(), () => resetEventForm());
+                else parseRoute(
+                    (id) => loadProfile(id, (append) => loadProfileEvents(append)), 
+                    () => resetFormFull(), 
+                    () => resetEventForm(),
+                    (uid) => openChatByUid(uid)
+                );
             });
 
             // 預渲染暖身：讓 Vue 提前編譯 PlayerDetailModal 模板
@@ -1113,6 +1163,15 @@ createApp({
 
         watch(profileTab, () => loadProfileEvents(false));
 
+        watch(showMessageDetail, (isOpen) => {
+            if (!isOpen && view.value === 'messages') {
+                const path = window.location.pathname;
+                if (path.split('/').length > 2 && path.includes('/messages/')) {
+                    navigateTo('messages', true); // 使用 replaceState 避免增加歷史紀錄
+                }
+            }
+        });
+
         // Disable body scroll ONLY when on 'create' view and adjustment modes are active
         watch([isAdjustingPhoto, isAdjustingSig, isSigning, view], ([photo, sig, signing, currentView]) => {
             // Only lock scroll on create page with active adjustment; otherwise always ensure scroll is enabled
@@ -1204,7 +1263,7 @@ createApp({
             openReportModal, submitReport, toggleBlock,
             selectRoom, sendInstantMessage, fetchMessages, joinBySlug,
             fetchGlobalData, toggleLfg,
-            loadMessages, markMessageRead, openMessage, onMessageSent, loadMoreMessages,
+            loadMessages, markMessageRead, openMessage, openChatByUid, onMessageSent, loadMoreMessages,
             handlePlayerUpdate,
             showToast, removeToast, showConfirm, hideConfirm, executeConfirm,
             formatDate, getUrl, formatLocalDateTime, formatEventDate,

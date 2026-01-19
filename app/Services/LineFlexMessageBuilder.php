@@ -109,4 +109,72 @@ class LineFlexMessageBuilder
             ]
         ];
     }
+
+    /**
+     * 建立即時聊天室通知的 Flex Message
+     *
+     * @param string $roomName 聊天室名稱
+     * @return array Flex Message 內容
+     */
+    public static function buildInstantChatNotification(string $roomName): array
+    {
+        return [
+            "type" => "bubble",
+            "header" => [
+                "type" => "box",
+                "layout" => "vertical",
+                "contents" => [
+                    [
+                        "type" => "text",
+                        "text" => "🎾 即時聊天室",
+                        "weight" => "bold",
+                        "color" => "#FFFFFF",
+                        "size" => "md"
+                    ]
+                ],
+                "backgroundColor" => "#06C755", // 使用 LINE 綠色系
+                "paddingAll" => "md"
+            ],
+            "body" => [
+                "type" => "box",
+                "layout" => "vertical",
+                "contents" => [
+                    [
+                        "type" => "text",
+                        "text" => "「{$roomName}」有新訊息！",
+                        "weight" => "bold",
+                        "size" => "sm",
+                        "color" => "#1E293B"
+                    ],
+                    [
+                        "type" => "text",
+                        "text" => "目前有多位球友在線等待，點擊下方按鈕加入揪球！",
+                        "wrap" => true,
+                        "size" => "xs",
+                        "color" => "#64748B",
+                        "margin" => "md"
+                    ]
+                ],
+                "paddingAll" => "lg"
+            ],
+            "footer" => [
+                "type" => "box",
+                "layout" => "vertical",
+                "contents" => [
+                    [
+                        "type" => "button",
+                        "action" => [
+                            "type" => "uri",
+                            "label" => "進入聊天室",
+                            "uri" => config('app.url') . "/instant-play"
+                        ],
+                        "style" => "primary",
+                        "color" => "#06C755",
+                        "height" => "sm"
+                    ]
+                ],
+                "paddingAll" => "md"
+            ]
+        ];
+    }
 }

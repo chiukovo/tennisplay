@@ -628,7 +628,15 @@ const MessageDetailModal = {
 
         const goToProfile = () => { if (props.targetUser?.uid) { emit('update:open', false); emit('navigate-to-profile', props.targetUser.uid); } };
         const formatDate = (dateString) => { if (!dateString) return ''; const date = new Date(dateString); return date.toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }); };
-        const scrollToBottom = () => { nextTick(() => { if (chatContainer.value) chatContainer.value.scrollTop = chatContainer.value.scrollHeight; }); };
+        const scrollToBottom = () => {
+            const doScroll = () => { if (chatContainer.value) chatContainer.value.scrollTop = chatContainer.value.scrollHeight; };
+            nextTick(() => {
+                doScroll();
+                setTimeout(doScroll, 50);
+                setTimeout(doScroll, 150);
+                setTimeout(doScroll, 300);
+            });
+        };
 
         const loadChat = async (isPolling = false) => {
             if (!props.targetUser || isFetching.value) return;

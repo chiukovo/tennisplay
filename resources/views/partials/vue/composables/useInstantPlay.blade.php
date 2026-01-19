@@ -336,11 +336,15 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
     };
 
     const scrollToBottom = () => {
-        nextTick(() => {
+        const doScroll = () => {
             const container = document.getElementById('instant-messages-container');
-            if (container) {
-                container.scrollTop = container.scrollHeight;
-            }
+            if (container) container.scrollTop = container.scrollHeight;
+        };
+        nextTick(() => {
+            doScroll();
+            setTimeout(doScroll, 50);
+            setTimeout(doScroll, 150);
+            setTimeout(doScroll, 300);
         });
     };
 

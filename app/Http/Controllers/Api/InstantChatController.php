@@ -8,6 +8,7 @@ use App\Models\InstantRoom;
 use App\Models\InstantMessage;
 use App\Models\User;
 use App\Services\LineNotifyService;
+use App\Services\LineFlexMessageBuilder;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -377,10 +378,10 @@ class InstantChatController extends Controller
             Cache::put($throttleKey, true, now()->addMinutes(5));
 
             // 發送 LINE 通知
-            LineNotifyService::dispatchTextMessage(
+            LineNotifyService::dispatchFlexMessage(
                 $user->id,
                 $user->line_user_id,
-                "🎾 即時聊天室\n「{$room->name}」有新訊息！\n點擊查看：" . url('/instant-play')
+                LineFlexMessageBuilder::buildInstantChatNotification($room->name)
             );
         }
     }

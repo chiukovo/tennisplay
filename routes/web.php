@@ -81,7 +81,7 @@ Route::get('/create', function () use ($seoData) {
     return view('index', ['seo' => $seoData['create']]);
 });
 
-Route::get('/messages', function () use ($seoData) {
+Route::get('/messages/{uid?}', function ($uid = null) use ($seoData) {
     return view('index', ['seo' => $seoData['messages']]);
 });
 

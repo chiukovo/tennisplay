@@ -381,6 +381,7 @@ class InstantChatController extends Controller
             LineNotifyService::dispatchFlexMessage(
                 $user->id,
                 $user->line_user_id,
+                "🎾 即時聊天室：「{$room->name}」有新訊息！",
                 LineFlexMessageBuilder::buildInstantChatNotification($room->name)
             );
         }

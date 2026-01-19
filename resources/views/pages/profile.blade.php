@@ -31,7 +31,7 @@
                             <span class="hidden sm:inline">編輯資料</span>
                         </button>
                         <button v-if="profileData.user?.player" @click="editCard(profileData.user.player)" class="p-2 sm:px-4 sm:py-2 bg-blue-600 text-white rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-sm whitespace-nowrap flex items-center gap-2 group" title="編輯卡片樣式">
-                            <app-icon name="zap" class-name="w-5 h-5 sm:w-4 sm:h-4 text-white"></app-icon>
+                            <app-icon name="edit" class-name="w-5 h-5 sm:w-4 sm:h-4 text-white"></app-icon>
                             <span class="hidden sm:inline">編輯卡片樣式</span>
                         </button>
                     </template>

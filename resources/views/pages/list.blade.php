@@ -26,7 +26,7 @@
             {{-- Region Select --}}
             <div class="shrink-0 flex items-center bg-slate-50 px-3 py-1 rounded-2xl border border-slate-100">
                 <div class="text-slate-400 pl-1"><app-icon name="map-pin" class-name="w-4 h-4"></app-icon></div>
-                <select v-model="regionDraft" class="bg-transparent pl-2 pr-8 py-3 sm:py-3.5 focus:outline-none font-black text-sm uppercase tracking-widest cursor-pointer appearance-none min-w-[100px] sm:min-w-[120px]">
+                <select v-model="regionDraft" @change="handleSearch" class="bg-transparent pl-2 pr-8 py-3 sm:py-3.5 focus:outline-none font-black text-sm uppercase tracking-widest cursor-pointer appearance-none min-w-[100px] sm:min-w-[120px]">
                     <option value="全部">全部地區</option>
                     <option v-for="r in activeRegions" :key="r" :value="r">@{{ r }}</option>
                 </select>

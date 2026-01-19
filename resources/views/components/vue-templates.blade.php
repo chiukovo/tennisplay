@@ -87,7 +87,7 @@
                                 </div>
                                 <div class="w-[2px] h-[14px] bg-white/20 rounded-full"></div>
                                 <div class="flex items-center gap-[7px] group/social">
-                                    <app-icon name="message-circle" class-name="w-[22px] h-[22px] text-white group-hover/social:text-blue-400 group-hover/social:scale-110 transition-all drop-shadow-sm"></app-icon>
+                                    <app-icon name="edit-3" class-name="w-[22px] h-[22px] text-white group-hover/social:text-blue-400 group-hover/social:scale-110 transition-all drop-shadow-sm"></app-icon>
                                     <span class="text-white font-black leading-none drop-shadow-sm text-[19px]">@{{ p?.comments_count || 0 }}</span>
                                 </div>
                             </div>

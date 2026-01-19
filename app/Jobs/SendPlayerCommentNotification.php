@@ -184,8 +184,8 @@ class SendPlayerCommentNotification implements ShouldQueue
             if (!Cache::add($cacheKey, true, now()->addDay())) {
                 continue;
             }
-
-            $lineService->sendFlexMessage($recipient->line_user_id, $text, $flexContents);
+            // 使用 Queue 非同步發送
+            $lineService->dispatchFlexMessage($recipient->id, $recipient->line_user_id, $text, $flexContents);
         }
     }
 }

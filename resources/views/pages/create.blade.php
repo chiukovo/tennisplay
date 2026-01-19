@@ -284,7 +284,7 @@
                         <div class="w-full space-y-4">
                             <div class="flex items-center gap-3">
                                 <span class="flex items-center justify-center w-6 h-6 bg-blue-600 text-white rounded-full text-[10px] font-black">2</span>
-                                <h4 class="text-sm font-black uppercase tracking-widest text-slate-900">在您卡片上簽名</h4>
+                                <h4 class="text-sm font-black uppercase tracking-widest text-slate-900">個性簽名</h4>
                             </div>
                             <div class="space-y-4 w-full">
                                 {{-- Signature Actions Grid --}}
@@ -304,7 +304,7 @@
                                 {{-- Initial Signature Button --}}
                                 <button v-else type="button" @click="isSigning = true" class="w-full bg-slate-900 text-white py-5 rounded-3xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-slate-800 transition-all shadow-xl active:scale-95">
                                     <app-icon name="eraser" class-name="w-5 h-5 text-blue-400"></app-icon>
-                                    點擊此處開始簽名 (推薦)
+                                    為您的卡片簽上專屬簽名(選填)
                                 </button>
 
 
@@ -326,7 +326,7 @@
                     下一步
                 </button>
                 <button v-if="currentStep === 4" type="submit" :disabled="isSubmitting"
-                    :class="['flex-[2] py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-2',
+                    :class="['flex-[2] py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-2 text-white',
                     isSubmitting ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/20']">
                     <svg v-if="isSubmitting" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

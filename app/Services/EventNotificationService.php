@@ -241,13 +241,13 @@ class EventNotificationService
                         if (!$wantsLine || !$wantsEvent) {
                             continue;
                         }
-                        $success = $lineService->sendFlexMessage($u->line_user_id, $text, $flexContents);
-                        Log::channel('notify')->info('event_notify_sent', [
+                        // 使用 Queue 非同步發送，不阻塞當前 Job
+                        $lineService->dispatchFlexMessage($u->id, $u->line_user_id, $text, $flexContents);
+                        
+                        Log::channel('notify')->info('event_notify_dispatched', [
                             'event_id' => $event->id,
                             'type' => $type,
                             'user_id' => $u->id,
-                            'line_user_id' => $u->line_user_id,
-                            'success' => $success,
                         ]);
                     }
                 });

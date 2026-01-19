@@ -157,6 +157,7 @@ class SendEventCommentNotification implements ShouldQueue
             ]
         ];
 
-        (new LineNotifyService())->sendFlexMessage($organizer->line_user_id, $text, $flexContents);
+        // 使用 Queue 非同步發送
+        (new LineNotifyService())->dispatchFlexMessage($organizer->id, $organizer->line_user_id, $text, $flexContents);
     }
 }

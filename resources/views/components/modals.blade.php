@@ -198,12 +198,12 @@
                                  <!-- Combined Comment Unit -->
                                 <div class="bg-white rounded-[32px] p-2 sm:p-4">
                                     <!-- Comment Input -->
-                                    <div class="flex flex-col sm:flex-row gap-3 mb-8 px-2">
+                                    <div class="flex flex-col sm:flex-row gap-3 mb-8 px-2 comment-input-row">
                                         <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-slate-100 sm:shrink-0 border border-slate-100">
                                             <img v-if="currentUser?.line_picture_url" :src="currentUser.line_picture_url" class="w-full h-full object-cover">
                                             <app-icon v-else name="user" class-name="w-full h-full text-slate-300 p-2"></app-icon>
                                         </div>
-                                        <div class="w-full sm:flex-1 relative">
+                                        <div class="w-full sm:flex-1 relative comment-input-body">
                                             <!-- Rating Selector -->
                                             <div v-if="currentUser && player.user_id !== currentUser.id" class="flex items-center justify-between mb-2 pl-1">
                                                 <div class="flex items-center gap-2">

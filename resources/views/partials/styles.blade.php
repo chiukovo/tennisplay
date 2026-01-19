@@ -541,5 +541,13 @@
             contain: layout paint;
             contain-intrinsic-size: 600px;
         }
+        .modal-content .comment-input-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .modal-content .comment-input-body,
+        .modal-content .comment-input-body textarea {
+            width: 100%;
+        }
     }
 </style>

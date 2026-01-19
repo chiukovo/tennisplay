@@ -28,7 +28,10 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
     const isSubmitting = ref(false);
 
     const loadPlayers = async (params = {}, force = false) => {
-        const cacheKey = getCacheKey(params);
+        const page = params.page || 1;
+        const sort = params.sort || 'popular';
+        const shouldMixPopular = sort === 'popular' && page === 1;
+        const cacheKey = getCacheKey({ ...params, sort: shouldMixPopular ? 'popular-mixed' : sort });
         
         // 如果不是強制刷新，則檢查快取
         if (!force) {
@@ -43,31 +46,70 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
         // 強制刷新或快取過期，執行請求並更新快取
         isPlayersLoading.value = true;
         try {
-            const response = await api.get('/players', { 
-                params: { per_page: 12, ...params } 
-            });
-            if (response.data.success) {
-                const data = response.data.data;
-                if (data.data) {
-                    players.value = data.data.filter(p => p && p.id);
-                    playersPagination.value = {
-                        total: data.total,
-                        current_page: data.current_page,
-                        last_page: data.last_page,
-                        per_page: data.per_page
+            const baseParams = { per_page: 12, ...params };
+
+            const normalize = (resp) => {
+                if (!resp?.data?.success) return { items: [], pagination: null };
+                const data = resp.data.data;
+                if (data?.data) {
+                    return {
+                        items: (data.data || []).filter(p => p && p.id),
+                        pagination: {
+                            total: data.total,
+                            current_page: data.current_page,
+                            last_page: data.last_page,
+                            per_page: data.per_page
+                        }
                     };
-                } else {
-                    players.value = (Array.isArray(data) ? data : []).filter(p => p && p.id);
-                    playersPagination.value = { total: players.value.length, current_page: 1, last_page: 1, per_page: 1000 };
                 }
-                
-                playersCache.set(cacheKey, {
-                    data: [...players.value],
-                    pagination: { ...playersPagination.value },
-                    timestamp: Date.now()
-                });
-                lastCacheKey = cacheKey;
+                const items = (Array.isArray(data) ? data : []).filter(p => p && p.id);
+                return { items, pagination: { total: items.length, current_page: 1, last_page: 1, per_page: 1000 } };
+            };
+
+            if (shouldMixPopular) {
+                const [popularRes, newestRes] = await Promise.all([
+                    api.get('/players', { params: baseParams }),
+                    api.get('/players', { params: { ...baseParams, sort: 'newest' } })
+                ]);
+
+                const popular = normalize(popularRes);
+                const newest = normalize(newestRes);
+
+                const perPage = popular.pagination?.per_page || 12;
+                const popularQuota = Math.round(perPage * 0.7);
+                const newestQuota = perPage - popularQuota;
+
+                const seen = new Set();
+                const mixed = [];
+                const pushUnique = (arr, limit) => {
+                    for (const p of arr) {
+                        if (mixed.length >= limit) break;
+                        if (p?.id && !seen.has(p.id)) {
+                            seen.add(p.id);
+                            mixed.push(p);
+                        }
+                    }
+                };
+
+                pushUnique(popular.items, popularQuota);
+                pushUnique(newest.items, popularQuota + newestQuota);
+                if (mixed.length < perPage) pushUnique(popular.items, perPage);
+
+                players.value = mixed;
+                playersPagination.value = popular.pagination || { total: mixed.length, current_page: 1, last_page: 1, per_page: perPage };
+            } else {
+                const response = await api.get('/players', { params: baseParams });
+                const normalized = normalize(response);
+                players.value = normalized.items;
+                playersPagination.value = normalized.pagination || { total: players.value.length, current_page: 1, last_page: 1, per_page: 1000 };
             }
+
+            playersCache.set(cacheKey, {
+                data: [...players.value],
+                pagination: { ...playersPagination.value },
+                timestamp: Date.now()
+            });
+            lastCacheKey = cacheKey;
         } catch (error) {} finally { isPlayersLoading.value = false; }
     };
 

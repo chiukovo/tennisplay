@@ -268,8 +268,10 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
                 // Simple thundering herd prevention: only the user with the smallest UID who is still here.
             })
             .listen('.message.sent', (e) => {
-                instantMessages.value.push(e);
-                scrollToBottom();
+                if (!instantMessages.value.some(m => m.id === e.id)) {
+                    instantMessages.value.push(e);
+                    scrollToBottom();
+                }
             });
     };
 
@@ -296,6 +298,7 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
         if (!finalContent || !currentRoom.value) return;
 
         try {
+            isSending.value = true;
             const response = await api.post(`/instant/rooms/${currentRoom.value.slug}/messages`, {
                 content: finalContent
             });

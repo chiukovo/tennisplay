@@ -423,7 +423,7 @@
                                     <textarea v-model="playerCommentDraft" 
                                         rows="1" maxlength="200" :disabled="!isLoggedIn"
                                         @keyup.enter.prevent="submitPlayerComment(profileData.user.player.id)"
-                                        placeholder="對這位球友有什麼想說的嗎..." 
+                                        placeholder="打聲招呼吧..." 
                                         class="w-full bg-slate-50 border-none rounded-2xl px-5 py-3 pr-20 text-sm font-bold focus:bg-slate-100 outline-none transition-all placeholder:text-slate-300 resize-none overflow-hidden disabled:opacity-60"></textarea>
                                     <div class="absolute right-10 top-1.5">
                                         <emoji-picker @select="e => playerCommentDraft += e"></emoji-picker>

@@ -48,7 +48,8 @@
                         </div>
 
                         {{-- Right: Detailed Stats --}}
-                        <div v-if="detailsReady" class="w-full md:w-1/2 p-8 sm:p-14 md:overflow-y-auto bg-white flex flex-col no-scrollbar">
+                        <template v-if="detailsReady">
+                        <div class="w-full md:w-1/2 p-8 sm:p-14 md:overflow-y-auto bg-white flex flex-col no-scrollbar">
                             <div class="space-y-4 mb-8">
                                 {{-- Row 1: Status, Level, Gender, Handedness --}}
                                 <div class="flex flex-wrap items-center gap-2">
@@ -336,11 +337,14 @@
                                     </div>
                                 </div>
                         </div>
-                        <div v-else class="w-full md:w-1/2 p-8 sm:p-14 md:overflow-y-auto bg-white flex flex-col no-scrollbar">
+                        </template>
+                        <template v-else>
+                        <div class="w-full md:w-1/2 p-8 sm:p-14 md:overflow-y-auto bg-white flex flex-col no-scrollbar">
                             <div class="py-10 text-center">
                                 <p class="text-slate-300 font-black italic text-xs uppercase tracking-widest">載入中...</p>
                             </div>
                         </div>
+                        </template>
                     </div>
                 </div>
 

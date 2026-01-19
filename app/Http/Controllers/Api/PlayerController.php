@@ -7,6 +7,7 @@ use App\Models\Follow;
 use App\Models\Player;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -40,13 +41,17 @@ class PlayerController extends Controller
 
     public function random(Request $request)
     {
-        $players = Player::with('user')
-            ->withCount(['likes', 'comments'])
-            ->active()
-            ->inRandomOrder()
-            ->take(10)
-            ->get();
+        // 快取 30 秒，減少首頁載入對資料庫的壓力
+        $players = Cache::remember('random_players', 30, function () {
+            return Player::with('user')
+                ->withCount(['likes', 'comments'])
+                ->active()
+                ->inRandomOrder()
+                ->take(10)
+                ->get();
+        });
 
+        // 社交狀態不快取，因為每個用戶不同
         Player::hydrateSocialStatus($players, $this->resolveUser($request));
 
         return response()->json([

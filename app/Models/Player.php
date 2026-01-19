@@ -88,17 +88,27 @@ class Player extends Model
 
     /**
      * Get likes count.
+     * 優先使用 withCount 的結果，避免 N+1 查詢問題
      */
     public function getLikesCountAttribute()
     {
+        // 優先使用 withCount 載入的結果
+        if (array_key_exists('likes_count', $this->attributes)) {
+            return $this->attributes['likes_count'];
+        }
         return $this->likes()->count();
     }
 
     /**
      * Get comments count.
+     * 優先使用 withCount 的結果，避免 N+1 查詢問題
      */
     public function getCommentsCountAttribute()
     {
+        // 優先使用 withCount 載入的結果
+        if (array_key_exists('comments_count', $this->attributes)) {
+            return $this->attributes['comments_count'];
+        }
         return $this->comments()->count();
     }
 

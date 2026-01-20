@@ -185,20 +185,36 @@
                         </text>
                     </svg>
                 </div>
-                <div class="flex items-center gap-[14px] text-white/95">
-                    <div class="flex items-center gap-[7px]">
-                        <svg class="w-[22px] h-[22px] accent" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                        <span class="font-bold uppercase tracking-wider italic text-[27px]">{{ $player->region ?? '全台' }}</span>
+                <div class="flex flex-col gap-1">
+                    <div class="flex items-center gap-[14px] text-white/95">
+                        <div class="flex items-center gap-[7px]">
+                            <svg class="w-[22px] h-[22px] accent" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                            <span class="font-bold uppercase tracking-wider italic text-[27px]">{{ $player->region ?? '全台' }}</span>
+                        </div>
+                        <div class="w-[2px] h-[18px] bg-white/30 rounded-full"></div>
+                        <div class="flex items-center gap-[7px]">
+                            @if(($player->gender ?? '男') === '女')
+                            <svg class="w-[22px] h-[22px] accent" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"></circle><path d="M12 13v8"></path><path d="M9 18h6"></path></svg>
+                            @else
+                            <svg class="w-[22px] h-[22px] accent" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="14" r="5"></circle><path d="M19 5l-5.4 5.4"></path><path d="M15 5h4v4"></path></svg>
+                            @endif
+                            <span class="font-bold uppercase tracking-wider italic text-[27px]">{{ $player->gender ?? '男' }}</span>
+                        </div>
                     </div>
-                    <div class="w-[2px] h-[18px] bg-white/30 rounded-full"></div>
-                    <div class="flex items-center gap-[7px]">
-                        @if(($player->gender ?? '男') === '女')
-                        <svg class="w-[22px] h-[22px] accent" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"></circle><path d="M12 13v8"></path><path d="M9 18h6"></path></svg>
-                        @else
-                        <svg class="w-[22px] h-[22px] accent" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="14" r="5"></circle><path d="M19 5l-5.4 5.4"></path><path d="M15 5h4v4"></path></svg>
-                        @endif
-                        <span class="font-bold uppercase tracking-wider italic text-[27px]">{{ $player->gender ?? '男' }}</span>
+
+                    @if($player->average_rating)
+                    <div class="flex items-center gap-[7px] mt-1">
+                        <span class="text-[22px] font-black text-white leading-none">{{ $player->average_rating }}</span>
+                        <div class="flex gap-0.5">
+                            @for($i = 1; $i <= 5; $i++)
+                                <svg class="w-[18px] h-[18px] {{ $i <= round($player->average_rating) ? 'text-amber-400' : 'text-slate-600' }}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="{{ $i <= round($player->average_rating) ? 'currentColor' : 'none' }}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                </svg>
+                            @endfor
+                        </div>
+                        <span class="text-[18px] font-bold text-slate-400 leading-none">({{ $player->ratings_count }})</span>
                     </div>
+                    @endif
                 </div>
             </div>
             </div>

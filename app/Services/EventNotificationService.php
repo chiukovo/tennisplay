@@ -8,6 +8,7 @@ use App\Models\Follow;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use App\Services\PushNotificationService;
 
 class EventNotificationService
 {
@@ -243,6 +244,14 @@ class EventNotificationService
                         }
                         // 使用 Queue 非同步發送，不阻塞當前 Job
                         $lineService->dispatchFlexMessage($u->id, $u->line_user_id, $text, $flexContents);
+
+                        // 發送原生推播通知 (Capacitor/FCM)
+                        app(PushNotificationService::class)->notifyUser(
+                            $u->id,
+                            $titlePrefix,
+                            "{$event->title} @ {$dateText}",
+                            ['event_id' => $event->id, 'type' => 'event']
+                        );
                         
                         Log::channel('notify')->info('event_notify_dispatched', [
                             'event_id' => $event->id,

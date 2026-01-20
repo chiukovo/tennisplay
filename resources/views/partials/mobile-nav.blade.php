@@ -1,5 +1,5 @@
 {{-- Premium Redesigned Mobile Navigation Dock --}}
-<div class="fixed bottom-0 left-0 right-0 w-full bg-slate-950/95 backdrop-blur-xl border-t border-white/10 p-1.5 flex justify-between items-center z-[150] md:hidden">
+<div class="fixed bottom-0 left-0 right-0 w-full bg-slate-950/95 backdrop-blur-xl border-t border-white/10 px-1.5 pt-1.5 pb-[calc(0.375rem+env(safe-area-inset-bottom))] flex justify-between items-center z-[150] md:hidden">
     {{-- Home --}}
     <a href="/" class="flex-1 flex flex-col items-center gap-0.5 py-1.5 rounded-xl transition-all relative" :class="view === 'home' ? 'text-blue-400' : 'text-slate-500'">
         <app-icon name="home" class-name="w-4 h-4"></app-icon>

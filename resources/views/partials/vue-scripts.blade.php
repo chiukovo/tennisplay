@@ -29,6 +29,11 @@ createApp({
         const matchModal = reactive({ open: false, player: null, text: '' });
         const isSendingMatch = ref(false);
         const detailPlayer = ref(null);
+        const eventMap = ref(null);
+        const createEventMap = ref(null);
+        let activeLeafletMap = null;
+        let createLeafletMap = null;
+        let createMapMarker = null;
         const featuredPlayersContainer = ref(null);  // 推薦戰友滾動容器
         const shareModal = reactive({ open: false, player: null });
         const isSigning = ref(false);
@@ -144,8 +149,15 @@ createApp({
             
             Object.assign(eventForm, {
                 title: '', region: defRegion, event_date: start, end_date: end, location: '', address: '',
-                fee: 0, max_participants: 0, match_type: 'all', gender: 'all', level_min: '', level_max: '', notes: ''
+                fee: 0, max_participants: 0, match_type: 'all', gender: 'all', level_min: '', level_max: '', notes: '',
+                latitude: null, longitude: null
             });
+
+            if (createLeafletMap) {
+                createLeafletMap.remove();
+                createLeafletMap = null;
+                createMapMarker = null;
+            }
         };
 
         // --- 3. Initialize Composables ---
@@ -302,6 +314,10 @@ createApp({
                 backhandDraft.value = '全部';
                 selectedBackhand.value = '全部';
                 activeQuickLevel.value = 'all';
+            }
+
+            if (viewName === 'create-event' && !uid) {
+                initCreateMap();
             }
 
             navigateTo(viewName, shouldReset, uid, resetFormFull, resetEventForm, loadProfile);
@@ -781,6 +797,93 @@ createApp({
             }
         };
 
+        const initCreateMap = (lat = null, lng = null) => {
+            nextTick(() => {
+                setTimeout(() => {
+                    if (!createEventMap.value) return;
+                    
+                    if (createLeafletMap) {
+                        createLeafletMap.remove();
+                        createLeafletMap = null;
+                    }
+
+                    // Default to Taiwan center if no coordinates
+                    const defaultLat = lat || 25.0478;
+                    const defaultLng = lng || 121.5170;
+
+                    createLeafletMap = L.map(createEventMap.value, {
+                        zoomControl: false
+                    }).setView([defaultLat, defaultLng], lat ? 16 : 8);
+
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; OpenStreetMap contributors'
+                    }).addTo(createLeafletMap);
+
+                    if (lat && lng) {
+                        createMapMarker = L.marker([lat, lng], { draggable: true }).addTo(createLeafletMap);
+                        createMapMarker.on('dragend', (e) => {
+                            const pos = e.target.getLatLng();
+                            eventForm.latitude = pos.lat;
+                            eventForm.longitude = pos.lng;
+                        });
+                    }
+
+                    createLeafletMap.on('click', (e) => {
+                        const { lat, lng } = e.latlng;
+                        eventForm.latitude = lat;
+                        eventForm.longitude = lng;
+
+                        if (createMapMarker) {
+                            createMapMarker.setLatLng(e.latlng);
+                        } else {
+                            createMapMarker = L.marker(e.latlng, { draggable: true }).addTo(createLeafletMap);
+                            createMapMarker.on('dragend', (ev) => {
+                                const pos = ev.target.getLatLng();
+                                eventForm.latitude = pos.lat;
+                                eventForm.longitude = pos.lng;
+                            });
+                        }
+                    });
+
+                    L.control.zoom({ position: 'bottomright' }).addTo(createLeafletMap);
+                }, 300);
+            });
+        };
+
+        const useCurrentLocation = async () => {
+            if (typeof window.MobileGeolocation === 'undefined') {
+                showToast('您的裝置不支援定位功能', 'warning');
+                return;
+            }
+
+            try {
+                // Request Permission
+                await window.MobileGeolocation.requestPermissions();
+                
+                const position = await window.MobileGeolocation.getCurrentPosition();
+                const { latitude, longitude } = position.coords;
+                
+                eventForm.latitude = latitude;
+                eventForm.longitude = longitude;
+
+                if (createLeafletMap) {
+                    createLeafletMap.setView([latitude, longitude], 16);
+                    if (createMapMarker) {
+                        createMapMarker.setLatLng([latitude, longitude]);
+                    } else {
+                        createMapMarker = L.marker([latitude, longitude], { draggable: true }).addTo(createLeafletMap);
+                    }
+                } else {
+                    initCreateMap(latitude, longitude);
+                }
+                
+                showToast('已取得目前位置', 'success');
+            } catch (error) {
+                console.error('Geolocation Error:', error);
+                showToast('無法取得位置', 'error');
+            }
+        };
+
         const sendMatchRequest = async () => {
             if (!isLoggedIn.value) { matchModal.open = false; navigateTo('auth'); return; }
             if (isSendingMatch.value) return; // 防止重複發送
@@ -810,6 +913,39 @@ createApp({
                 const targetId = eventData.id ?? event.id;
                 activeEvent.value = { ...eventData, loading: false };
                 eventComments[targetId] = Array.isArray(commentsData) ? commentsData : [];
+
+                // Initialize Map if coordinates exist
+                if (eventData.latitude && eventData.longitude) {
+                    nextTick(() => {
+                        setTimeout(() => {
+                            if (!eventMap.value) return;
+                            
+                            // Cleanup previous map instance if any
+                            if (activeLeafletMap) {
+                                activeLeafletMap.remove();
+                            }
+
+                            const lat = parseFloat(eventData.latitude);
+                            const lng = parseFloat(eventData.longitude);
+                            
+                            activeLeafletMap = L.map(eventMap.value, {
+                                zoomControl: false,
+                                scrollWheelZoom: false,
+                                dragging: !L.Browser.mobile,
+                                tap: !L.Browser.mobile
+                            }).setView([lat, lng], 15);
+
+                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                attribution: '&copy; OpenStreetMap contributors'
+                            }).addTo(activeLeafletMap);
+
+                            L.marker([lat, lng]).addTo(activeLeafletMap);
+
+                            // Add zoom control to a corner
+                            L.control.zoom({ position: 'bottomright' }).addTo(activeLeafletMap);
+                        }, 300);
+                    });
+                }
             } catch (error) {
                 activeEvent.value = { ...event, loading: false };
                 showToast('載入失敗', 'error');
@@ -856,6 +992,8 @@ createApp({
                 notes: event.notes
             });
             navigateTo('create-event', false);
+            // Initialize map with existing coordinates
+            initCreateMap(event.latitude, event.longitude);
         };
 
         const handleDeleteEvent = (id) => {
@@ -1289,7 +1427,9 @@ createApp({
             showDetail, getDetailStats, getEventsByMatchType, getEventsByRegion,
             // Constants
             REGIONS, LEVELS, LEVEL_DESCS, LEVEL_TAGS, levelDescs, levels, regions,
-            sortBy
+            sortBy,
+            // Map Refs & Methods
+            eventMap, createEventMap, useCurrentLocation, initCreateMap
         };
     },
     components: {

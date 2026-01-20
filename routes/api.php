@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\PlayerCommentController;
 use App\Http\Controllers\Api\CardCaptureController;
 use App\Http\Controllers\Api\UserSafetyController;
 use App\Http\Controllers\Api\InstantChatController;
+use App\Http\Controllers\Api\MobileController;
 
 // LINE Webhook
 Route::post('/line/webhook', [AuthController::class, 'handleWebhook']);
@@ -114,4 +115,8 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::post('/instant/sync-global', [InstantChatController::class, 'syncGlobalStats']);
     Route::post('/instant/exit-room', [InstantChatController::class, 'exitRoom']);
     Route::post('/instant/toggle-lfg', [InstantChatController::class, 'toggleLfg']);
+
+    // Mobile specific
+    Route::post('/mobile/register-token', [MobileController::class, 'registerToken']);
+Route::post('/auth/line/native', [AuthController::class, 'lineNativeLogin']);
 });

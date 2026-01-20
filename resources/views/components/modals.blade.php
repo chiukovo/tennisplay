@@ -501,15 +501,21 @@
                         </div>
 
                         {{-- Full-width Map/Address --}}
-                        <div class="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
-                            <div class="flex items-center gap-3 mb-4 text-emerald-600">
+                        <div class="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+                            <div class="flex items-center gap-3 mb-4 text-emerald-600 px-1">
                                 <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center">
                                     <app-icon name="map" class-name="w-5 h-5"></app-icon>
                                 </div>
                                 <span class="font-black uppercase tracking-widest text-xs">集合地點</span>
                             </div>
-                            <div class="text-slate-900 font-black text-lg mb-1 underline decoration-blue-500/30 decoration-4 underline-offset-4">@{{ event.address || event.location }}</div>
-                            <div class="text-slate-400 font-bold text-sm">@{{ event.location }}</div>
+                            
+                            {{-- Interactive Map --}}
+                            <div v-show="event.latitude && event.longitude" ref="eventMap" class="w-full h-48 sm:h-64 bg-slate-100 rounded-3xl mb-4 z-[5] border border-slate-100"></div>
+
+                            <div class="px-1">
+                                <div class="text-slate-900 font-black text-lg mb-1 underline decoration-blue-500/30 decoration-4 underline-offset-4">@{{ event.address || event.location }}</div>
+                                <div class="text-slate-400 font-bold text-sm">@{{ event.location }}</div>
+                            </div>
                         </div>
 
                         {{-- Content / Notes --}}

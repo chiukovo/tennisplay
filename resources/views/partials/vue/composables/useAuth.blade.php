@@ -155,5 +155,47 @@ const useAuth = (showToast, navigateTo, initSettings, isLoggedIn, currentUser, s
         }
     };
 
-    return { isLoginMode, showUserMenu, isSavingSettings, isAuthLoading, checkAuth, logout, saveSettings };
+    const loginWithLine = async () => {
+        // Detect if running in Capacitor (Mobile)
+        const isMobile = typeof window.MobileLineLogin !== 'undefined';
+
+        if (isMobile) {
+            isAuthLoading.value = true;
+            try {
+                // Call Native Plugin
+                const result = await window.MobileLineLogin.login();
+                
+                if (result && result.idToken) {
+                    // Send Token to Backend
+                    const response = await api.post('/auth/line/native', {
+                        id_token: result.idToken,
+                        access_token: result.accessToken
+                    });
+
+                    if (response.data.success) {
+                        const { token, user } = response.data;
+                        localStorage.setItem('auth_token', token);
+                        localStorage.setItem('auth_user', JSON.stringify(user));
+                        currentUser.value = user;
+                        isLoggedIn.value = true;
+                        
+                        showToast('登入成功', 'success');
+                        navigateTo('home');
+                    } else {
+                        showToast(response.data.message || '登入失敗', 'error');
+                    }
+                }
+            } catch (error) {
+                console.error('Native LINE Login Error:', error);
+                showToast('LINE 登入失敗', 'error');
+            } finally {
+                isAuthLoading.value = false;
+            }
+        } else {
+            // Standard Web Flow
+            window.location.href = '/auth/line';
+        }
+    };
+
+    return { isLoginMode, showUserMenu, isSavingSettings, isAuthLoading, checkAuth, logout, saveSettings, loginWithLine };
 };

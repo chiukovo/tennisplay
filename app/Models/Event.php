@@ -26,6 +26,8 @@ class Event extends Model
         'level_max',
         'notes',
         'status',
+        'latitude',
+        'longitude',
     ];
 
     protected $casts = [

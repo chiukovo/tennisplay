@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use App\Services\PushNotificationService;
 
 class MessageController extends Controller
 {
@@ -192,6 +193,14 @@ class MessageController extends Controller
                             $receiver->line_user_id,
                             "🎾 您收到來自 {$senderName} 的約打邀約信",
                             $flexContents
+                        );
+
+                        // 發送原生推播通知 (Capacitor/FCM)
+                        app(PushNotificationService::class)->notifyUser(
+                            $receiver->id,
+                            "🎾 您收到一封私訊邀約",
+                            "來自 {$senderName}：「" . mb_substr($request->content, 0, 30) . "...」",
+                            ['sender_uid' => $user->uid, 'type' => 'message']
                         );
                     }
                 }

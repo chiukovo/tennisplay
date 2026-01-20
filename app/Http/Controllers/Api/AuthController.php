@@ -206,4 +206,88 @@ class AuthController extends Controller
         
         return response('OK', 200);
     }
+    /**
+     * Handle LINE Native Login (from mobile app).
+     */
+    public function lineNativeLogin(Request $request)
+    {
+        $request->validate([
+            'id_token' => 'required_without:access_token',
+            'access_token' => 'required_without:id_token',
+        ]);
+
+        try {
+            $lineUserId = null;
+            $lineName = null;
+            $linePicture = null;
+
+            if ($request->id_token) {
+                // Verify ID Token (preferred for security)
+                $response = Http::asForm()->post('https://api.line.me/oauth2/v2.1/verify', [
+                    'id_token' => $request->id_token,
+                    'client_id' => config('services.line.client_id'),
+                ]);
+
+                if (!$response->successful()) {
+                    Log::error('LINE native ID token verification failed: ' . $response->body());
+                    return response()->json(['success' => false, 'message' => 'Token 驗證失敗'], 401);
+                }
+
+                $data = $response->json();
+                $lineUserId = $data['sub'];
+                $lineName = $data['name'] ?? '';
+                $linePicture = $data['picture'] ?? null;
+            } else {
+                // Fallback to Access Token
+                $profileResponse = Http::withToken($request->access_token)
+                    ->get('https://api.line.me/v2/profile');
+
+                if (!$profileResponse->successful()) {
+                    Log::error('LINE native profile fetch failed: ' . $profileResponse->body());
+                    return response()->json(['success' => false, 'message' => '無法取得用戶資料'], 401);
+                }
+
+                $lineUser = $profileResponse->json();
+                $lineUserId = $lineUser['userId'];
+                $lineName = $lineUser['displayName'];
+                $linePicture = $lineUser['pictureUrl'] ?? null;
+            }
+
+            // Find or create user
+            $user = User::where('line_user_id', $lineUserId)->first();
+
+            if (!$user) {
+                $user = User::create([
+                    'line_user_id' => $lineUserId,
+                    'name' => $lineName,
+                    'line_picture_url' => $linePicture,
+                ]);
+            } else {
+                $user->update([
+                    'line_picture_url' => $linePicture ?: $user->line_picture_url,
+                ]);
+            }
+
+            $token = $user->createToken('auth-token')->plainTextToken;
+
+            return response()->json([
+                'success' => true,
+                'token' => $token,
+                'user' => [
+                    'uid' => $user->uid,
+                    'name' => $user->name,
+                    'line_picture_url' => $user->line_picture_url,
+                    'gender' => $user->gender,
+                    'region' => $user->region,
+                    'level' => $user->level,
+                    'role' => $user->role,
+                    'id' => $user->id
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('LINE native login error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => '系統錯誤'], 500);
+        }
+    }
 }

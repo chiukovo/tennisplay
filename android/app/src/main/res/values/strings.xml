@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">LoveTennis</string>
+    <string name="title_activity_main">LoveTennis</string>
+    <string name="package_name">com.chiuko.tennisplay</string>
+    <string name="custom_url_scheme">com.chiuko.tennisplay</string>
+</resources>

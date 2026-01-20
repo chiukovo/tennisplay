@@ -17,6 +17,16 @@
         overflow-x: hidden;
         width: 100%;
         position: relative;
+        /* Safe Area support */
+        padding-top: env(safe-area-inset-top);
+    }
+    
+    .safe-padding-bottom {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+    
+    .safe-margin-bottom {
+        margin-bottom: env(safe-area-inset-bottom);
     }
     
     .card-shadow {

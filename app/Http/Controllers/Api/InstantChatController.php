@@ -11,6 +11,7 @@ use App\Services\LineNotifyService;
 use App\Services\LineFlexMessageBuilder;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use App\Services\PushNotificationService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redis;
 
@@ -383,6 +384,14 @@ class InstantChatController extends Controller
                 $user->line_user_id,
                 "🎾 即時聊天室：「{$room->name}」有新訊息！",
                 LineFlexMessageBuilder::buildInstantChatNotification($room->name)
+            );
+
+            // 發送原生推播通知 (Capacitor/FCM)
+            app(PushNotificationService::class)->notifyUser(
+                $user->id,
+                "🎾 即時聊天室有新訊息",
+                "「{$room->name}」正在熱烈討論中，快進來看看吧！",
+                ['room_slug' => $room->slug, 'type' => 'chat']
             );
         }
     }

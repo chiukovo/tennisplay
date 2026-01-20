@@ -37,10 +37,10 @@
                     為了提供更即時的約打通知與安全的社群環境，我們採用 LINE 快速登入。
                 </p>
 
-                <a href="/auth/line" class="w-full bg-[#06C755] text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-[#05b34c] transition-all shadow-xl shadow-green-500/20 flex items-center justify-center gap-4 text-lg group">
+                <button type="button" @click="loginWithLine" class="w-full bg-[#06C755] text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-[#05b34c] transition-all shadow-xl shadow-green-500/20 flex items-center justify-center gap-4 text-lg group">
                     <app-icon name="line" fill="currentColor" stroke="none" class-name="w-7 h-7"></app-icon>
                     使用 LINE 快速登入
-                </a>
+                </button>
 
                 <div class="flex items-center gap-4 py-4">
                     <div class="h-px flex-1 bg-slate-100"></div>

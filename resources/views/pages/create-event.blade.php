@@ -49,13 +49,28 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div class="space-y-6">
                 <div>
-                    <label class="block text-sm font-black uppercase tracking-widest text-slate-400 mb-3 ml-1">球場詳細地址</label>
+                    <label class="block text-sm font-black uppercase tracking-widest text-slate-400 mb-3 ml-1 flex items-center justify-between">
+                        <span>球場詳細地址</span>
+                        <button type="button" @click="useCurrentLocation" class="flex items-center gap-1.5 text-blue-600 hover:text-blue-700 transition-all text-[10px] font-black uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full">
+                            <app-icon name="map-pin" class-name="w-3 h-3"></app-icon>
+                            使用目前位置
+                        </button>
+                    </label>
                     <input v-model="eventForm.address" type="text"
                         class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl text-lg font-black focus:bg-white focus:border-blue-500 transition-all text-slate-900 placeholder:font-bold"
                         placeholder="例如：114台北市內湖區...">
                 </div>
+
+                {{-- Location Picker Map --}}
+                <div>
+                    <div ref="createEventMap" class="w-full h-48 sm:h-64 bg-slate-100 rounded-3xl border border-slate-100 z-[5]"></div>
+                    <p class="mt-2 text-xs font-bold text-slate-400 px-1">
+                        📍 點擊地圖標記集合地點 (@{{ eventForm.latitude ? '已標記' : '未標記' }})
+                    </p>
+                </div>
+
                 <div>
                     <label class="block text-sm font-black uppercase tracking-widest text-slate-400 mb-3 ml-1">每人費用 <span class="text-red-500">*</span></label>
                     <div class="relative">

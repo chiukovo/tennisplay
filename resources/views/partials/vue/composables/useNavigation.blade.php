@@ -36,6 +36,10 @@ const useNavigation = (routes, routePaths, viewTitles, showToast, applyDefaultFi
         
         lastNavigationTap.value = Date.now();
         view.value = viewName;
+
+        // Expose to window for Capacitor Deep Linking
+        window.AppNavigate = (v, s = true, u = null) => navigateTo(v, s, u, resetForm, resetEventForm, loadProfile);
+        
         let path = routePaths[viewName] || '/';
         if (viewName === 'profile' && uid) path = `/profile/${uid}`;
         if (viewName === 'messages' && uid) path = `/messages/${uid}`;
@@ -43,6 +47,20 @@ const useNavigation = (routes, routePaths, viewTitles, showToast, applyDefaultFi
         window.history.pushState({ view: viewName, uid: uid }, '', path);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
+
+    // Initial exposure
+    window.AppNavigate = (v, s = true, u = null) => navigateTo(v, s, u);
+
+    // Consume pending navigation from mobile.js (Cold Start)
+    if (window.PendingAppNavigate) {
+        const data = window.PendingAppNavigate;
+        setTimeout(() => {
+            if (data.event_id) navigateTo('events', true, data.event_id);
+            else if (data.uid) navigateTo('profile', true, data.uid);
+            else if (data.chat_uid) navigateTo('messages', true, data.chat_uid);
+            delete window.PendingAppNavigate;
+        }, 500);
+    }
 
     const parseRoute = (loadProfile, resetForm, resetEventForm, openChatByUid) => {
         const path = window.location.pathname;

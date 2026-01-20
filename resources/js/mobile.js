@@ -8,6 +8,8 @@ import { Device } from '@capacitor/device';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { Geolocation } from '@capacitor/geolocation';
 import { LineLogin } from 'aile-capacitor-line-login';
+import { App } from '@capacitor/app';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 
 async function initMobile() {
     console.log('Initializing Mobile Features...');
@@ -17,6 +19,23 @@ async function initMobile() {
     window.MobilePush = PushNotifications;
     window.MobileDevice = Device;
     window.MobileLineLogin = LineLogin;
+    window.MobileCamera = Camera;
+
+    // Helper for easier photography
+    window.takeAppPhoto = async () => {
+        try {
+            const image = await Camera.getPhoto({
+                quality: 90,
+                allowEditing: true,
+                resultType: CameraResultType.DataUrl,
+                source: CameraSource.Prompt // Prompt allows choice between Gallery or Camera
+            });
+            return image.dataUrl;
+        } catch (e) {
+            console.error('Camera Error:', e);
+            return null;
+        }
+    };
 
     try {
         // Set Status Bar Style
@@ -55,6 +74,34 @@ async function initMobile() {
 
         PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
             console.log('Push action performed: ' + JSON.stringify(notification));
+            const data = notification.notification.data;
+            if (data) {
+                if (window.AppNavigate) {
+                    if (data.event_id) {
+                        window.AppNavigate('events', true, data.event_id);
+                    } else if (data.uid) {
+                        window.AppNavigate('profile', true, data.uid);
+                    } else if (data.chat_uid) {
+                        window.AppNavigate('messages', true, data.chat_uid);
+                    }
+                } else {
+                    // Store for later consumption by Vue
+                    window.PendingAppNavigate = data;
+                }
+            }
+        });
+
+        // App State Change (Refresh data when app returns from background)
+        App.addListener('appStateChange', ({ isActive }) => {
+            if (isActive) {
+                console.log('App became active, triggering data refresh...');
+                if (window.vm && typeof window.vm.loadMessages === 'function') {
+                    window.vm.loadMessages();
+                }
+                if (window.vm && typeof window.vm.loadEvents === 'function') {
+                    window.vm.loadEvents();
+                }
+            }
         });
 
     } catch (e) {

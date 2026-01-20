@@ -3,7 +3,7 @@
 @include('partials.vue.components')
 @include('partials.vue.composables.index')
 
-createApp({
+window.vm = createApp({
     setup() {
         // --- 1. Basic State (Refs & Reactives) ---
         const isLoggedIn = ref(false);
@@ -516,7 +516,19 @@ createApp({
             reader.readAsDataURL(file);
         };
 
-        const triggerUpload = () => document.getElementById('photo-upload').click();
+        const triggerUpload = async () => {
+            if (typeof window.takeAppPhoto === 'function') {
+                const dataUrl = await window.takeAppPhoto();
+                if (dataUrl) {
+                    form.photo = await compressImage(dataUrl);
+                    form.photoX = 0; form.photoY = 0; form.photoScale = 1;
+                    isAdjustingPhoto.value = true;
+                }
+            } else {
+                const el = document.getElementById('photo-upload');
+                if (el) el.click();
+            }
+        };
 
         const useLinePhoto = async () => {
             if (!currentUser.value?.line_picture_url) return;

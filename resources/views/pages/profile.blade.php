@@ -11,7 +11,7 @@
             <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
                 {{-- Share Button (For everyone if player card exists) --}}
                 <button v-if="profileData.user?.player" 
-                        @click="shareModal.player = profileData.user.player; shareModal.open = true"
+                        @click="openShare(profileData.user.player)"
                         class="p-2 bg-white border border-slate-200 text-slate-400 hover:text-blue-600 rounded-xl transition-all shadow-sm group">
                     <app-icon name="share-2" class-name="w-5 h-5 group-hover:scale-110 transition-transform"></app-icon>
                 </button>
@@ -111,7 +111,7 @@
                                     <app-icon name="mail" class-name="w-4 h-4"></app-icon>
                                 </button>
                                 <button v-if="profileData.user?.player" 
-                                        @click="shareModal.player = profileData.user.player; shareModal.open = true"
+                                        @click="openShare(profileData.user.player)"
                                         class="px-5 sm:px-6 py-3.5 bg-white border border-slate-200 text-slate-400 rounded-2xl font-black uppercase tracking-widest text-[10px] sm:text-xs hover:text-blue-600 transition-all flex items-center gap-2 shrink-0">
                                     <app-icon name="share-2" class-name="w-4 h-4"></app-icon>
                                 </button>

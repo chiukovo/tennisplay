@@ -672,6 +672,21 @@ window.vm = createApp({
             });
         };
 
+        const openShare = (player) => {
+            if (typeof window.appShare === 'function') {
+                const uid = player.user_uid || player.user?.uid || player.user_id;
+                const shareUrl = `${window.location.origin}/profile/${uid}`;
+                window.appShare({
+                    title: `LoveTennis 球友 - ${player.name}`,
+                    text: `🎾 這是 ${player.name} 的網球個人資料，快來跟我約打吧！`,
+                    url: shareUrl
+                });
+            } else {
+                shareModal.player = player;
+                shareModal.open = true;
+            }
+        };
+
         const handleSaveCard = async () => {
             await saveCard(resetFormFull);
             showQuickEditModal.value = false;
@@ -1399,7 +1414,7 @@ window.vm = createApp({
             eventFilter, eventRegionFilter, eventSearchQuery, eventSearchDraft, eventStartDate, eventEndDate, eventDateShortcut, eventCurrentPage, eventPerPage, showEventDetail, activeEvent, eventComments, eventCommentDraft,
             showNtrpGuide, showPrivacy, showLinePromo, showMessageDetail, selectedChatUser, isLoading, isAuthLoading,
             showPreview, showQuickEditModal, navRefreshing, navRefreshView, features, cardThemes,
-            shareModal, isSendingMatch, scrollFeaturedPlayers,
+            shareModal, isSendingMatch, scrollFeaturedPlayers, openShare,
             settingsForm, isSavingSettings, toasts, confirmDialog, dragInfo,
             profileComments, followingUsers, followerUsers, likedPlayers, playerCommentDraft, playerCommentRating,
             selectedProfileRegions, toggleProfileRegion, reportModal, isReporting, isBlocking, profileActionMenu,

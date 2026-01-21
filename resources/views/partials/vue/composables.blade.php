@@ -10,6 +10,15 @@ const useUtils = () => {
         if (message === lastToastMessage && now - lastToastTime < 500) return;
         lastToastMessage = message;
         lastToastTime = now;
+
+        // Add Haptic Feedback for Mobile
+        if (typeof window.appHaptic === 'function') {
+            if (type === 'error') window.appHaptic('notification', 'error');
+            else if (type === 'success') window.appHaptic('notification', 'success');
+            else if (type === 'warning') window.appHaptic('notification', 'warning');
+            else window.appHaptic('impact', 'light');
+        }
+
         const id = now;
         toasts.value.push({ id, message, type });
         setTimeout(() => {

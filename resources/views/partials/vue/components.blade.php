@@ -1011,7 +1011,13 @@ const ShareModal = {
         };
 
         const shareNative = async () => {
-            if (navigator.share) {
+            if (typeof window.appShare === 'function') {
+                window.appShare({
+                    title: 'LoveTennis 球友個人資料',
+                    text: `🎾 這是 ${props.player.name} 的網球個人資料，快來跟我約打吧！`,
+                    url: shareUrl.value
+                });
+            } else if (navigator.share) {
                 try { await navigator.share({ title: 'LoveTennis 球友個人資料', text: `🎾 這是 ${props.player.name} 的網球個人資料，快來跟我約打吧！`, url: shareUrl.value }); } catch (err) {}
             } else { copyLink(); }
         };

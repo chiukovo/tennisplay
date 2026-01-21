@@ -2,6 +2,377 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./node_modules/@capacitor/app/dist/esm/definitions.js"
+/*!*************************************************************!*\
+  !*** ./node_modules/@capacitor/app/dist/esm/definitions.js ***!
+  \*************************************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/// <reference types="@capacitor/cli" />
+
+//# sourceMappingURL=definitions.js.map
+
+/***/ },
+
+/***/ "./node_modules/@capacitor/app/dist/esm/index.js"
+/*!*******************************************************!*\
+  !*** ./node_modules/@capacitor/app/dist/esm/index.js ***!
+  \*******************************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   App: () => (/* binding */ App)
+/* harmony export */ });
+/* harmony import */ var _capacitor_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @capacitor/core */ "./node_modules/@capacitor/core/dist/index.js");
+/* harmony import */ var _definitions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./definitions */ "./node_modules/@capacitor/app/dist/esm/definitions.js");
+
+const App = (0,_capacitor_core__WEBPACK_IMPORTED_MODULE_0__.registerPlugin)('App', {
+    web: () => __webpack_require__.e(/*! import() */ "node_modules_capacitor_app_dist_esm_web_js").then(__webpack_require__.bind(__webpack_require__, /*! ./web */ "./node_modules/@capacitor/app/dist/esm/web.js")).then((m) => new m.AppWeb()),
+});
+
+
+//# sourceMappingURL=index.js.map
+
+/***/ },
+
+/***/ "./node_modules/@capacitor/camera/dist/esm/definitions.js"
+/*!****************************************************************!*\
+  !*** ./node_modules/@capacitor/camera/dist/esm/definitions.js ***!
+  \****************************************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   CameraDirection: () => (/* binding */ CameraDirection),
+/* harmony export */   CameraResultType: () => (/* binding */ CameraResultType),
+/* harmony export */   CameraSource: () => (/* binding */ CameraSource)
+/* harmony export */ });
+var CameraSource;
+(function (CameraSource) {
+    /**
+     * Prompts the user to select either the photo album or take a photo.
+     */
+    CameraSource["Prompt"] = "PROMPT";
+    /**
+     * Take a new photo using the camera.
+     */
+    CameraSource["Camera"] = "CAMERA";
+    /**
+     * Pick an existing photo from the gallery or photo album.
+     */
+    CameraSource["Photos"] = "PHOTOS";
+})(CameraSource || (CameraSource = {}));
+var CameraDirection;
+(function (CameraDirection) {
+    CameraDirection["Rear"] = "REAR";
+    CameraDirection["Front"] = "FRONT";
+})(CameraDirection || (CameraDirection = {}));
+var CameraResultType;
+(function (CameraResultType) {
+    CameraResultType["Uri"] = "uri";
+    CameraResultType["Base64"] = "base64";
+    CameraResultType["DataUrl"] = "dataUrl";
+})(CameraResultType || (CameraResultType = {}));
+//# sourceMappingURL=definitions.js.map
+
+/***/ },
+
+/***/ "./node_modules/@capacitor/camera/dist/esm/index.js"
+/*!**********************************************************!*\
+  !*** ./node_modules/@capacitor/camera/dist/esm/index.js ***!
+  \**********************************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Camera: () => (/* binding */ Camera),
+/* harmony export */   CameraDirection: () => (/* reexport safe */ _definitions__WEBPACK_IMPORTED_MODULE_2__.CameraDirection),
+/* harmony export */   CameraResultType: () => (/* reexport safe */ _definitions__WEBPACK_IMPORTED_MODULE_2__.CameraResultType),
+/* harmony export */   CameraSource: () => (/* reexport safe */ _definitions__WEBPACK_IMPORTED_MODULE_2__.CameraSource)
+/* harmony export */ });
+/* harmony import */ var _capacitor_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @capacitor/core */ "./node_modules/@capacitor/core/dist/index.js");
+/* harmony import */ var _web__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./web */ "./node_modules/@capacitor/camera/dist/esm/web.js");
+/* harmony import */ var _definitions__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./definitions */ "./node_modules/@capacitor/camera/dist/esm/definitions.js");
+
+
+const Camera = (0,_capacitor_core__WEBPACK_IMPORTED_MODULE_0__.registerPlugin)('Camera', {
+    web: () => new _web__WEBPACK_IMPORTED_MODULE_1__.CameraWeb(),
+});
+
+
+//# sourceMappingURL=index.js.map
+
+/***/ },
+
+/***/ "./node_modules/@capacitor/camera/dist/esm/web.js"
+/*!********************************************************!*\
+  !*** ./node_modules/@capacitor/camera/dist/esm/web.js ***!
+  \********************************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Camera: () => (/* binding */ Camera),
+/* harmony export */   CameraWeb: () => (/* binding */ CameraWeb)
+/* harmony export */ });
+/* harmony import */ var _capacitor_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @capacitor/core */ "./node_modules/@capacitor/core/dist/index.js");
+/* harmony import */ var _definitions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./definitions */ "./node_modules/@capacitor/camera/dist/esm/definitions.js");
+
+
+class CameraWeb extends _capacitor_core__WEBPACK_IMPORTED_MODULE_0__.WebPlugin {
+    async getPhoto(options) {
+        // eslint-disable-next-line no-async-promise-executor
+        return new Promise(async (resolve, reject) => {
+            if (options.webUseInput || options.source === _definitions__WEBPACK_IMPORTED_MODULE_1__.CameraSource.Photos) {
+                this.fileInputExperience(options, resolve, reject);
+            }
+            else if (options.source === _definitions__WEBPACK_IMPORTED_MODULE_1__.CameraSource.Prompt) {
+                let actionSheet = document.querySelector('pwa-action-sheet');
+                if (!actionSheet) {
+                    actionSheet = document.createElement('pwa-action-sheet');
+                    document.body.appendChild(actionSheet);
+                }
+                actionSheet.header = options.promptLabelHeader || 'Photo';
+                actionSheet.cancelable = false;
+                actionSheet.options = [
+                    { title: options.promptLabelPhoto || 'From Photos' },
+                    { title: options.promptLabelPicture || 'Take Picture' },
+                ];
+                actionSheet.addEventListener('onSelection', async (e) => {
+                    const selection = e.detail;
+                    if (selection === 0) {
+                        this.fileInputExperience(options, resolve, reject);
+                    }
+                    else {
+                        this.cameraExperience(options, resolve, reject);
+                    }
+                });
+            }
+            else {
+                this.cameraExperience(options, resolve, reject);
+            }
+        });
+    }
+    async pickImages(_options) {
+        // eslint-disable-next-line no-async-promise-executor
+        return new Promise(async (resolve, reject) => {
+            this.multipleFileInputExperience(resolve, reject);
+        });
+    }
+    async cameraExperience(options, resolve, reject) {
+        if (customElements.get('pwa-camera-modal')) {
+            const cameraModal = document.createElement('pwa-camera-modal');
+            cameraModal.facingMode = options.direction === _definitions__WEBPACK_IMPORTED_MODULE_1__.CameraDirection.Front ? 'user' : 'environment';
+            document.body.appendChild(cameraModal);
+            try {
+                await cameraModal.componentOnReady();
+                cameraModal.addEventListener('onPhoto', async (e) => {
+                    const photo = e.detail;
+                    if (photo === null) {
+                        reject(new _capacitor_core__WEBPACK_IMPORTED_MODULE_0__.CapacitorException('User cancelled photos app'));
+                    }
+                    else if (photo instanceof Error) {
+                        reject(photo);
+                    }
+                    else {
+                        resolve(await this._getCameraPhoto(photo, options));
+                    }
+                    cameraModal.dismiss();
+                    document.body.removeChild(cameraModal);
+                });
+                cameraModal.present();
+            }
+            catch (e) {
+                this.fileInputExperience(options, resolve, reject);
+            }
+        }
+        else {
+            console.error(`Unable to load PWA Element 'pwa-camera-modal'. See the docs: https://capacitorjs.com/docs/web/pwa-elements.`);
+            this.fileInputExperience(options, resolve, reject);
+        }
+    }
+    fileInputExperience(options, resolve, reject) {
+        let input = document.querySelector('#_capacitor-camera-input');
+        const cleanup = () => {
+            var _a;
+            (_a = input.parentNode) === null || _a === void 0 ? void 0 : _a.removeChild(input);
+        };
+        if (!input) {
+            input = document.createElement('input');
+            input.id = '_capacitor-camera-input';
+            input.type = 'file';
+            input.hidden = true;
+            document.body.appendChild(input);
+            input.addEventListener('change', (_e) => {
+                const file = input.files[0];
+                let format = 'jpeg';
+                if (file.type === 'image/png') {
+                    format = 'png';
+                }
+                else if (file.type === 'image/gif') {
+                    format = 'gif';
+                }
+                if (options.resultType === 'dataUrl' || options.resultType === 'base64') {
+                    const reader = new FileReader();
+                    reader.addEventListener('load', () => {
+                        if (options.resultType === 'dataUrl') {
+                            resolve({
+                                dataUrl: reader.result,
+                                format,
+                            });
+                        }
+                        else if (options.resultType === 'base64') {
+                            const b64 = reader.result.split(',')[1];
+                            resolve({
+                                base64String: b64,
+                                format,
+                            });
+                        }
+                        cleanup();
+                    });
+                    reader.readAsDataURL(file);
+                }
+                else {
+                    resolve({
+                        webPath: URL.createObjectURL(file),
+                        format: format,
+                    });
+                    cleanup();
+                }
+            });
+            input.addEventListener('cancel', (_e) => {
+                reject(new _capacitor_core__WEBPACK_IMPORTED_MODULE_0__.CapacitorException('User cancelled photos app'));
+                cleanup();
+            });
+        }
+        input.accept = 'image/*';
+        input.capture = true;
+        if (options.source === _definitions__WEBPACK_IMPORTED_MODULE_1__.CameraSource.Photos || options.source === _definitions__WEBPACK_IMPORTED_MODULE_1__.CameraSource.Prompt) {
+            input.removeAttribute('capture');
+        }
+        else if (options.direction === _definitions__WEBPACK_IMPORTED_MODULE_1__.CameraDirection.Front) {
+            input.capture = 'user';
+        }
+        else if (options.direction === _definitions__WEBPACK_IMPORTED_MODULE_1__.CameraDirection.Rear) {
+            input.capture = 'environment';
+        }
+        input.click();
+    }
+    multipleFileInputExperience(resolve, reject) {
+        let input = document.querySelector('#_capacitor-camera-input-multiple');
+        const cleanup = () => {
+            var _a;
+            (_a = input.parentNode) === null || _a === void 0 ? void 0 : _a.removeChild(input);
+        };
+        if (!input) {
+            input = document.createElement('input');
+            input.id = '_capacitor-camera-input-multiple';
+            input.type = 'file';
+            input.hidden = true;
+            input.multiple = true;
+            document.body.appendChild(input);
+            input.addEventListener('change', (_e) => {
+                const photos = [];
+                // eslint-disable-next-line @typescript-eslint/prefer-for-of
+                for (let i = 0; i < input.files.length; i++) {
+                    const file = input.files[i];
+                    let format = 'jpeg';
+                    if (file.type === 'image/png') {
+                        format = 'png';
+                    }
+                    else if (file.type === 'image/gif') {
+                        format = 'gif';
+                    }
+                    photos.push({
+                        webPath: URL.createObjectURL(file),
+                        format: format,
+                    });
+                }
+                resolve({ photos });
+                cleanup();
+            });
+            input.addEventListener('cancel', (_e) => {
+                reject(new _capacitor_core__WEBPACK_IMPORTED_MODULE_0__.CapacitorException('User cancelled photos app'));
+                cleanup();
+            });
+        }
+        input.accept = 'image/*';
+        input.click();
+    }
+    _getCameraPhoto(photo, options) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            const format = photo.type.split('/')[1];
+            if (options.resultType === 'uri') {
+                resolve({
+                    webPath: URL.createObjectURL(photo),
+                    format: format,
+                    saved: false,
+                });
+            }
+            else {
+                reader.readAsDataURL(photo);
+                reader.onloadend = () => {
+                    const r = reader.result;
+                    if (options.resultType === 'dataUrl') {
+                        resolve({
+                            dataUrl: r,
+                            format: format,
+                            saved: false,
+                        });
+                    }
+                    else {
+                        resolve({
+                            base64String: r.split(',')[1],
+                            format: format,
+                            saved: false,
+                        });
+                    }
+                };
+                reader.onerror = (e) => {
+                    reject(e);
+                };
+            }
+        });
+    }
+    async checkPermissions() {
+        if (typeof navigator === 'undefined' || !navigator.permissions) {
+            throw this.unavailable('Permissions API not available in this browser');
+        }
+        try {
+            // https://developer.mozilla.org/en-US/docs/Web/API/Permissions/query
+            // the specific permissions that are supported varies among browsers that implement the
+            // permissions API, so we need a try/catch in case 'camera' is invalid
+            const permission = await window.navigator.permissions.query({
+                name: 'camera',
+            });
+            return {
+                camera: permission.state,
+                photos: 'granted',
+            };
+        }
+        catch (_a) {
+            throw this.unavailable('Camera permissions are not available in this browser');
+        }
+    }
+    async requestPermissions() {
+        throw this.unimplemented('Not implemented on web.');
+    }
+    async pickLimitedLibraryPhotos() {
+        throw this.unavailable('Not implemented on web.');
+    }
+    async getLimitedLibraryPhotos() {
+        throw this.unavailable('Not implemented on web.');
+    }
+}
+const Camera = new CameraWeb();
+
+//# sourceMappingURL=web.js.map
+
+/***/ },
+
 /***/ "./node_modules/@capacitor/core/dist/index.js"
 /*!****************************************************!*\
   !*** ./node_modules/@capacitor/core/dist/index.js ***!
@@ -744,6 +1115,87 @@ const Geolocation = (0,_capacitor_core__WEBPACK_IMPORTED_MODULE_0__.registerPlug
 
 /***/ },
 
+/***/ "./node_modules/@capacitor/haptics/dist/esm/definitions.js"
+/*!*****************************************************************!*\
+  !*** ./node_modules/@capacitor/haptics/dist/esm/definitions.js ***!
+  \*****************************************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   ImpactStyle: () => (/* binding */ ImpactStyle),
+/* harmony export */   NotificationType: () => (/* binding */ NotificationType)
+/* harmony export */ });
+var ImpactStyle;
+(function (ImpactStyle) {
+    /**
+     * A collision between large, heavy user interface elements
+     *
+     * @since 1.0.0
+     */
+    ImpactStyle["Heavy"] = "HEAVY";
+    /**
+     * A collision between moderately sized user interface elements
+     *
+     * @since 1.0.0
+     */
+    ImpactStyle["Medium"] = "MEDIUM";
+    /**
+     * A collision between small, light user interface elements
+     *
+     * @since 1.0.0
+     */
+    ImpactStyle["Light"] = "LIGHT";
+})(ImpactStyle || (ImpactStyle = {}));
+var NotificationType;
+(function (NotificationType) {
+    /**
+     * A notification feedback type indicating that a task has completed successfully
+     *
+     * @since 1.0.0
+     */
+    NotificationType["Success"] = "SUCCESS";
+    /**
+     * A notification feedback type indicating that a task has produced a warning
+     *
+     * @since 1.0.0
+     */
+    NotificationType["Warning"] = "WARNING";
+    /**
+     * A notification feedback type indicating that a task has failed
+     *
+     * @since 1.0.0
+     */
+    NotificationType["Error"] = "ERROR";
+})(NotificationType || (NotificationType = {}));
+//# sourceMappingURL=definitions.js.map
+
+/***/ },
+
+/***/ "./node_modules/@capacitor/haptics/dist/esm/index.js"
+/*!***********************************************************!*\
+  !*** ./node_modules/@capacitor/haptics/dist/esm/index.js ***!
+  \***********************************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Haptics: () => (/* binding */ Haptics),
+/* harmony export */   ImpactStyle: () => (/* reexport safe */ _definitions__WEBPACK_IMPORTED_MODULE_1__.ImpactStyle),
+/* harmony export */   NotificationType: () => (/* reexport safe */ _definitions__WEBPACK_IMPORTED_MODULE_1__.NotificationType)
+/* harmony export */ });
+/* harmony import */ var _capacitor_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @capacitor/core */ "./node_modules/@capacitor/core/dist/index.js");
+/* harmony import */ var _definitions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./definitions */ "./node_modules/@capacitor/haptics/dist/esm/definitions.js");
+
+const Haptics = (0,_capacitor_core__WEBPACK_IMPORTED_MODULE_0__.registerPlugin)('Haptics', {
+    web: () => __webpack_require__.e(/*! import() */ "node_modules_capacitor_haptics_dist_esm_web_js").then(__webpack_require__.bind(__webpack_require__, /*! ./web */ "./node_modules/@capacitor/haptics/dist/esm/web.js")).then((m) => new m.HapticsWeb()),
+});
+
+
+//# sourceMappingURL=index.js.map
+
+/***/ },
+
 /***/ "./node_modules/@capacitor/push-notifications/dist/esm/definitions.js"
 /*!****************************************************************************!*\
   !*** ./node_modules/@capacitor/push-notifications/dist/esm/definitions.js ***!
@@ -771,6 +1223,40 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _definitions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./definitions */ "./node_modules/@capacitor/push-notifications/dist/esm/definitions.js");
 
 const PushNotifications = (0,_capacitor_core__WEBPACK_IMPORTED_MODULE_0__.registerPlugin)('PushNotifications', {});
+
+
+//# sourceMappingURL=index.js.map
+
+/***/ },
+
+/***/ "./node_modules/@capacitor/share/dist/esm/definitions.js"
+/*!***************************************************************!*\
+  !*** ./node_modules/@capacitor/share/dist/esm/definitions.js ***!
+  \***************************************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+
+//# sourceMappingURL=definitions.js.map
+
+/***/ },
+
+/***/ "./node_modules/@capacitor/share/dist/esm/index.js"
+/*!*********************************************************!*\
+  !*** ./node_modules/@capacitor/share/dist/esm/index.js ***!
+  \*********************************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Share: () => (/* binding */ Share)
+/* harmony export */ });
+/* harmony import */ var _capacitor_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @capacitor/core */ "./node_modules/@capacitor/core/dist/index.js");
+/* harmony import */ var _definitions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./definitions */ "./node_modules/@capacitor/share/dist/esm/definitions.js");
+
+const Share = (0,_capacitor_core__WEBPACK_IMPORTED_MODULE_0__.registerPlugin)('Share', {
+    web: () => __webpack_require__.e(/*! import() */ "node_modules_capacitor_share_dist_esm_web_js").then(__webpack_require__.bind(__webpack_require__, /*! ./web */ "./node_modules/@capacitor/share/dist/esm/web.js")).then((m) => new m.ShareWeb()),
+});
 
 
 //# sourceMappingURL=index.js.map
@@ -1068,7 +1554,7 @@ const LineLoginHelpers = {
 /******/ 		// This function allow to reference async chunks
 /******/ 		__webpack_require__.u = (chunkId) => {
 /******/ 			// return url for filenames not based on template
-/******/ 			if ({"node_modules_capacitor_device_dist_esm_web_js":1,"node_modules_capacitor_geolocation_dist_esm_web_js":1,"node_modules_aile-capacitor-line-login_dist_esm_web_js":1}[chunkId]) return "js/" + chunkId + ".js";
+/******/ 			if ({"node_modules_capacitor_device_dist_esm_web_js":1,"node_modules_capacitor_geolocation_dist_esm_web_js":1,"node_modules_aile-capacitor-line-login_dist_esm_web_js":1,"node_modules_capacitor_app_dist_esm_web_js":1,"node_modules_capacitor_share_dist_esm_web_js":1,"node_modules_capacitor_haptics_dist_esm_web_js":1}[chunkId]) return "js/" + chunkId + ".js";
 /******/ 			// return url for filenames based on template
 /******/ 			return undefined;
 /******/ 		};
@@ -1262,11 +1748,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   initMobile: () => (/* binding */ initMobile)
 /* harmony export */ });
-/* harmony import */ var _capacitor_push_notifications__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @capacitor/push-notifications */ "./node_modules/@capacitor/push-notifications/dist/esm/index.js");
-/* harmony import */ var _capacitor_device__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @capacitor/device */ "./node_modules/@capacitor/device/dist/esm/index.js");
-/* harmony import */ var _capacitor_status_bar__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @capacitor/status-bar */ "./node_modules/@capacitor/status-bar/dist/esm/index.js");
-/* harmony import */ var _capacitor_geolocation__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @capacitor/geolocation */ "./node_modules/@capacitor/geolocation/dist/esm/index.js");
-/* harmony import */ var aile_capacitor_line_login__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! aile-capacitor-line-login */ "./node_modules/aile-capacitor-line-login/dist/esm/index.js");
+/* harmony import */ var _capacitor_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @capacitor/core */ "./node_modules/@capacitor/core/dist/index.js");
+/* harmony import */ var _capacitor_push_notifications__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @capacitor/push-notifications */ "./node_modules/@capacitor/push-notifications/dist/esm/index.js");
+/* harmony import */ var _capacitor_device__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @capacitor/device */ "./node_modules/@capacitor/device/dist/esm/index.js");
+/* harmony import */ var _capacitor_status_bar__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @capacitor/status-bar */ "./node_modules/@capacitor/status-bar/dist/esm/index.js");
+/* harmony import */ var _capacitor_geolocation__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @capacitor/geolocation */ "./node_modules/@capacitor/geolocation/dist/esm/index.js");
+/* harmony import */ var aile_capacitor_line_login__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! aile-capacitor-line-login */ "./node_modules/aile-capacitor-line-login/dist/esm/index.js");
+/* harmony import */ var _capacitor_app__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @capacitor/app */ "./node_modules/@capacitor/app/dist/esm/index.js");
+/* harmony import */ var _capacitor_camera__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @capacitor/camera */ "./node_modules/@capacitor/camera/dist/esm/index.js");
+/* harmony import */ var _capacitor_share__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @capacitor/share */ "./node_modules/@capacitor/share/dist/esm/index.js");
+/* harmony import */ var _capacitor_haptics__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @capacitor/haptics */ "./node_modules/@capacitor/haptics/dist/esm/index.js");
 function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i["return"]) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
 function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
@@ -1281,103 +1772,266 @@ function _asyncToGenerator(n) { return function () { var t = this, e = arguments
 
 
 
+
+
+
+
+
 function initMobile() {
   return _initMobile.apply(this, arguments);
 }
 function _initMobile() {
-  _initMobile = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
-    var permStatus, _t;
-    return _regenerator().w(function (_context) {
-      while (1) switch (_context.p = _context.n) {
+  _initMobile = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4() {
+    var platform, info, permStatus, _t4;
+    return _regenerator().w(function (_context4) {
+      while (1) switch (_context4.p = _context4.n) {
         case 0:
           console.log('Initializing Mobile Features...');
 
           // Expose Geolocation to global window for Vue access
-          window.MobileGeolocation = _capacitor_geolocation__WEBPACK_IMPORTED_MODULE_3__.Geolocation;
-          window.MobilePush = _capacitor_push_notifications__WEBPACK_IMPORTED_MODULE_0__.PushNotifications;
-          window.MobileDevice = _capacitor_device__WEBPACK_IMPORTED_MODULE_1__.Device;
-          window.MobileLineLogin = aile_capacitor_line_login__WEBPACK_IMPORTED_MODULE_4__.LineLogin;
-          _context.p = 1;
-          _context.n = 2;
-          return _capacitor_status_bar__WEBPACK_IMPORTED_MODULE_2__.StatusBar.setStyle({
-            style: _capacitor_status_bar__WEBPACK_IMPORTED_MODULE_2__.Style.Dark
-          });
+          window.MobileGeolocation = _capacitor_geolocation__WEBPACK_IMPORTED_MODULE_4__.Geolocation;
+          window.MobilePush = _capacitor_push_notifications__WEBPACK_IMPORTED_MODULE_1__.PushNotifications;
+          window.MobileDevice = _capacitor_device__WEBPACK_IMPORTED_MODULE_2__.Device;
+          window.MobileLineLogin = aile_capacitor_line_login__WEBPACK_IMPORTED_MODULE_5__.LineLogin;
+          window.MobileCamera = _capacitor_camera__WEBPACK_IMPORTED_MODULE_7__.Camera;
+          window.MobileShare = _capacitor_share__WEBPACK_IMPORTED_MODULE_8__.Share;
+          window.MobileHaptics = _capacitor_haptics__WEBPACK_IMPORTED_MODULE_9__.Haptics;
+
+          // Helper for easier photography
+          window.takeAppPhoto = /*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
+            var image, _t;
+            return _regenerator().w(function (_context) {
+              while (1) switch (_context.p = _context.n) {
+                case 0:
+                  _context.p = 0;
+                  _context.n = 1;
+                  return _capacitor_camera__WEBPACK_IMPORTED_MODULE_7__.Camera.getPhoto({
+                    quality: 90,
+                    allowEditing: true,
+                    resultType: _capacitor_camera__WEBPACK_IMPORTED_MODULE_7__.CameraResultType.DataUrl,
+                    source: _capacitor_camera__WEBPACK_IMPORTED_MODULE_7__.CameraSource.Prompt // Prompt allows choice between Gallery or Camera
+                  });
+                case 1:
+                  image = _context.v;
+                  return _context.a(2, image.dataUrl);
+                case 2:
+                  _context.p = 2;
+                  _t = _context.v;
+                  console.error('Camera Error:', _t);
+                  return _context.a(2, null);
+              }
+            }, _callee, null, [[0, 2]]);
+          }));
+
+          // Helper for Native Sharing
+          window.appShare = /*#__PURE__*/function () {
+            var _ref2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2(options) {
+              var _t2;
+              return _regenerator().w(function (_context2) {
+                while (1) switch (_context2.p = _context2.n) {
+                  case 0:
+                    _context2.p = 0;
+                    _context2.n = 1;
+                    return _capacitor_share__WEBPACK_IMPORTED_MODULE_8__.Share.share({
+                      title: options.title || 'LoveTennis',
+                      text: options.text || '',
+                      url: options.url || window.location.href,
+                      dialogTitle: options.dialogTitle || '分享給球友'
+                    });
+                  case 1:
+                    _context2.n = 3;
+                    break;
+                  case 2:
+                    _context2.p = 2;
+                    _t2 = _context2.v;
+                    console.error('Share Error:', _t2);
+                  case 3:
+                    return _context2.a(2);
+                }
+              }, _callee2, null, [[0, 2]]);
+            }));
+            return function (_x2) {
+              return _ref2.apply(this, arguments);
+            };
+          }();
+
+          // Helper for Haptics (Vibration)
+          window.appHaptic = /*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3() {
+            var type,
+              style,
+              impactStyle,
+              notifType,
+              _args3 = arguments,
+              _t3;
+            return _regenerator().w(function (_context3) {
+              while (1) switch (_context3.p = _context3.n) {
+                case 0:
+                  type = _args3.length > 0 && _args3[0] !== undefined ? _args3[0] : 'impact';
+                  style = _args3.length > 1 && _args3[1] !== undefined ? _args3[1] : 'light';
+                  _context3.p = 1;
+                  if (!(type === 'impact')) {
+                    _context3.n = 3;
+                    break;
+                  }
+                  impactStyle = style === 'heavy' ? _capacitor_haptics__WEBPACK_IMPORTED_MODULE_9__.ImpactStyle.Heavy : style === 'medium' ? _capacitor_haptics__WEBPACK_IMPORTED_MODULE_9__.ImpactStyle.Medium : _capacitor_haptics__WEBPACK_IMPORTED_MODULE_9__.ImpactStyle.Light;
+                  _context3.n = 2;
+                  return _capacitor_haptics__WEBPACK_IMPORTED_MODULE_9__.Haptics.impact({
+                    style: impactStyle
+                  });
+                case 2:
+                  _context3.n = 4;
+                  break;
+                case 3:
+                  if (!(type === 'notification')) {
+                    _context3.n = 4;
+                    break;
+                  }
+                  notifType = style === 'error' ? _capacitor_haptics__WEBPACK_IMPORTED_MODULE_9__.NotificationType.Error : style === 'warning' ? _capacitor_haptics__WEBPACK_IMPORTED_MODULE_9__.NotificationType.Warning : _capacitor_haptics__WEBPACK_IMPORTED_MODULE_9__.NotificationType.Success;
+                  _context3.n = 4;
+                  return _capacitor_haptics__WEBPACK_IMPORTED_MODULE_9__.Haptics.notification({
+                    type: notifType
+                  });
+                case 4:
+                  _context3.n = 6;
+                  break;
+                case 5:
+                  _context3.p = 5;
+                  _t3 = _context3.v;
+                case 6:
+                  return _context3.a(2);
+              }
+            }, _callee3, null, [[1, 5]]);
+          }));
+          _context4.p = 1;
+          // Native-only Features - Explicitly exclude 'web' platform
+          platform = _capacitor_core__WEBPACK_IMPORTED_MODULE_0__.Capacitor.getPlatform();
+          console.log("Current Platform: ".concat(platform));
+          if (!(platform !== 'web')) {
+            _context4.n = 9;
+            break;
+          }
+          _context4.n = 2;
+          return _capacitor_app__WEBPACK_IMPORTED_MODULE_6__.App.getInfo();
         case 2:
-          _context.n = 3;
-          return _capacitor_status_bar__WEBPACK_IMPORTED_MODULE_2__.StatusBar.setBackgroundColor({
-            color: '#0f172a'
+          info = _context4.v;
+          console.log("App Version: ".concat(info.version, " (").concat(info.build, ")"));
+          window.AppInfo = info;
+          // Set Status Bar Style
+          _context4.n = 3;
+          return _capacitor_status_bar__WEBPACK_IMPORTED_MODULE_3__.StatusBar.setStyle({
+            style: _capacitor_status_bar__WEBPACK_IMPORTED_MODULE_3__.Style.Dark
           });
         case 3:
-          _context.n = 4;
-          return _capacitor_push_notifications__WEBPACK_IMPORTED_MODULE_0__.PushNotifications.checkPermissions();
+          _context4.n = 4;
+          return _capacitor_status_bar__WEBPACK_IMPORTED_MODULE_3__.StatusBar.setBackgroundColor({
+            color: '#0f172a'
+          });
         case 4:
-          permStatus = _context.v;
-          if (!(permStatus.receive === 'prompt')) {
-            _context.n = 6;
-            break;
-          }
-          _context.n = 5;
-          return _capacitor_push_notifications__WEBPACK_IMPORTED_MODULE_0__.PushNotifications.requestPermissions();
+          _context4.n = 5;
+          return _capacitor_push_notifications__WEBPACK_IMPORTED_MODULE_1__.PushNotifications.checkPermissions();
         case 5:
-          permStatus = _context.v;
-        case 6:
-          if (!(permStatus.receive === 'granted')) {
-            _context.n = 7;
+          permStatus = _context4.v;
+          if (!(permStatus.receive === 'prompt')) {
+            _context4.n = 7;
             break;
           }
-          _context.n = 7;
-          return _capacitor_push_notifications__WEBPACK_IMPORTED_MODULE_0__.PushNotifications.register();
+          _context4.n = 6;
+          return _capacitor_push_notifications__WEBPACK_IMPORTED_MODULE_1__.PushNotifications.requestPermissions();
+        case 6:
+          permStatus = _context4.v;
         case 7:
+          if (!(permStatus.receive === 'granted')) {
+            _context4.n = 8;
+            break;
+          }
+          _context4.n = 8;
+          return _capacitor_push_notifications__WEBPACK_IMPORTED_MODULE_1__.PushNotifications.register();
+        case 8:
           // Listen for token registration
-          _capacitor_push_notifications__WEBPACK_IMPORTED_MODULE_0__.PushNotifications.addListener('registration', function (token) {
+          _capacitor_push_notifications__WEBPACK_IMPORTED_MODULE_1__.PushNotifications.addListener('registration', function (token) {
             console.log('Push registration success, token: ' + token.value);
             saveTokenToServer(token.value);
           });
-          _capacitor_push_notifications__WEBPACK_IMPORTED_MODULE_0__.PushNotifications.addListener('registrationError', function (error) {
+          _capacitor_push_notifications__WEBPACK_IMPORTED_MODULE_1__.PushNotifications.addListener('registrationError', function (error) {
             console.error('Error on registration: ' + JSON.stringify(error));
           });
 
           // Listen for notifications
-          _capacitor_push_notifications__WEBPACK_IMPORTED_MODULE_0__.PushNotifications.addListener('pushNotificationReceived', function (notification) {
+          _capacitor_push_notifications__WEBPACK_IMPORTED_MODULE_1__.PushNotifications.addListener('pushNotificationReceived', function (notification) {
             console.log('Push received: ' + JSON.stringify(notification));
             // Show custom toast or update UI
             if (window.vm && window.vm.showToast) {
               window.vm.showToast(notification.body, 'info');
             }
           });
-          _capacitor_push_notifications__WEBPACK_IMPORTED_MODULE_0__.PushNotifications.addListener('pushNotificationActionPerformed', function (notification) {
+          _capacitor_push_notifications__WEBPACK_IMPORTED_MODULE_1__.PushNotifications.addListener('pushNotificationActionPerformed', function (notification) {
             console.log('Push action performed: ' + JSON.stringify(notification));
+            var data = notification.notification.data;
+            if (data) {
+              if (window.AppNavigate) {
+                if (data.event_id) {
+                  window.AppNavigate('events', true, data.event_id);
+                } else if (data.uid) {
+                  window.AppNavigate('profile', true, data.uid);
+                } else if (data.chat_uid) {
+                  window.AppNavigate('messages', true, data.chat_uid);
+                }
+              } else {
+                // Store for later consumption by Vue
+                window.PendingAppNavigate = data;
+              }
+            }
           });
-          _context.n = 9;
+
+          // App State Change (Refresh data when app returns from background)
+          _capacitor_app__WEBPACK_IMPORTED_MODULE_6__.App.addListener('appStateChange', function (_ref4) {
+            var isActive = _ref4.isActive;
+            if (isActive) {
+              console.log('App became active, triggering data refresh...');
+              if (window.vm && typeof window.vm.loadMessages === 'function') {
+                window.vm.loadMessages();
+              }
+              if (window.vm && typeof window.vm.loadEvents === 'function') {
+                window.vm.loadEvents();
+              }
+            }
+          });
+          _context4.n = 10;
           break;
-        case 8:
-          _context.p = 8;
-          _t = _context.v;
-          console.warn('Capacitor features not available or error occurred:', _t);
         case 9:
-          return _context.a(2);
+          console.log('Running on Web, skipping native status bar and notification setup.');
+        case 10:
+          _context4.n = 12;
+          break;
+        case 11:
+          _context4.p = 11;
+          _t4 = _context4.v;
+          console.warn('Capacitor features not available or error occurred:', _t4);
+        case 12:
+          return _context4.a(2);
       }
-    }, _callee, null, [[1, 8]]);
+    }, _callee4, null, [[1, 11]]);
   }));
   return _initMobile.apply(this, arguments);
 }
 function saveTokenToServer(_x) {
   return _saveTokenToServer.apply(this, arguments);
-} // Start initialization if running in Capacitor
+} // Start initialization if running in Capacitor environment
+// Robust check: window.Capacitor exists AND we are not on web platform
 function _saveTokenToServer() {
-  _saveTokenToServer = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2(token) {
+  _saveTokenToServer = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee5(token) {
     var device, battery;
-    return _regenerator().w(function (_context2) {
-      while (1) switch (_context2.n) {
+    return _regenerator().w(function (_context5) {
+      while (1) switch (_context5.n) {
         case 0:
-          _context2.n = 1;
-          return _capacitor_device__WEBPACK_IMPORTED_MODULE_1__.Device.getInfo();
+          _context5.n = 1;
+          return _capacitor_device__WEBPACK_IMPORTED_MODULE_2__.Device.getInfo();
         case 1:
-          device = _context2.v;
-          _context2.n = 2;
-          return _capacitor_device__WEBPACK_IMPORTED_MODULE_1__.Device.getBatteryInfo();
+          device = _context5.v;
+          _context5.n = 2;
+          return _capacitor_device__WEBPACK_IMPORTED_MODULE_2__.Device.getBatteryInfo();
         case 2:
-          battery = _context2.v;
+          battery = _context5.v;
           axios.post('/api/mobile/register-token', {
             token: token,
             platform: device.platform,
@@ -1390,13 +2044,13 @@ function _saveTokenToServer() {
             console.error('Failed to save token:', error);
           });
         case 3:
-          return _context2.a(2);
+          return _context5.a(2);
       }
-    }, _callee2);
+    }, _callee5);
   }));
   return _saveTokenToServer.apply(this, arguments);
 }
-if (window.Capacitor) {
+if (window.Capacitor && _capacitor_core__WEBPACK_IMPORTED_MODULE_0__.Capacitor.getPlatform() !== 'web') {
   initMobile();
 }
 

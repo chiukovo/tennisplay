@@ -8,6 +8,7 @@ use App\Models\Follow;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use App\Services\PushNotificationService;
 
 class EventNotificationService
 {
@@ -251,6 +252,25 @@ class EventNotificationService
                         ]);
                     }
                 });
+
+            $pushUserIds = User::whereIn('id', $recipientIds)
+                ->get(['id', 'settings'])
+                ->filter(function ($u) {
+                    $settings = $u->settings ?? [];
+                    return $settings['notify_event'] ?? true;
+                })
+                ->pluck('id')
+                ->all();
+
+            if (!empty($pushUserIds)) {
+                $pushTitle = $titlePrefix;
+                $pushBody = sprintf('%s · %s', $event->title ?: '活動通知', $dateText ?: '時間待確認');
+                (new PushNotificationService())->sendToUserIds($pushUserIds, $pushTitle, $pushBody, [
+                    'event_id' => (string) $event->id,
+                    'type' => $type,
+                    'url' => $url,
+                ]);
+            }
         } catch (\Throwable $e) {
             Log::error('Event notification error: ' . $e->getMessage(), [
                 'event_id' => $event->id,

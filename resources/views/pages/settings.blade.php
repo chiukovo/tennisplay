@@ -105,6 +105,36 @@
                 </div>
             </div>
 
+
+            {{-- App-only Entries --}}
+            <div v-if="showAppPushEntry || showAppMapsEntry" class="border-t border-slate-100 pt-8 space-y-4">
+                <div v-if="showAppPushEntry" class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center">
+                            <app-icon name="bell" class-name="w-5 h-5"></app-icon>
+                        </div>
+                        <div>
+                            <h4 class="font-black text-slate-900 leading-none">App 推播設定</h4>
+                            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">App Push Settings</p>
+                        </div>
+                    </div>
+                    <span class="text-xs text-slate-400 font-bold">即將推出</span>
+                </div>
+
+                <div v-if="showAppMapsEntry" class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center">
+                            <app-icon name="map" class-name="w-5 h-5"></app-icon>
+                        </div>
+                        <div>
+                            <h4 class="font-black text-slate-900 leading-none">原生地圖功能</h4>
+                            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Native Maps</p>
+                        </div>
+                    </div>
+                    <span class="text-xs text-slate-400 font-bold">即將推出</span>
+                </div>
+            </div>
+
             <div class="border-t border-slate-100 pt-8">
                 <div class="flex items-center justify-between gap-4">
                     <div class="flex-1">

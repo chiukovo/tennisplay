@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Message;
 use App\Models\Player;
 use App\Models\UserBlock;
+use App\Services\PushNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class MessageController extends Controller
 {
@@ -194,6 +196,15 @@ class MessageController extends Controller
                             $flexContents
                         );
                     }
+                }
+
+                if ($wantsNotify) {
+                    $pushTitle = '🎾 新私訊';
+                    $pushBody = sprintf('%s：%s', $senderName, Str::limit($request->content, 60));
+                    (new PushNotificationService())->sendToUserIds([$receiver->id], $pushTitle, $pushBody, [
+                        'type' => 'message',
+                        'from_user_id' => (string) $user->id,
+                    ]);
                 }
             }
         } catch (\Exception $e) {

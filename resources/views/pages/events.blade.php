@@ -162,6 +162,15 @@
                             <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">區域地點</div>
                         </div>
                     </div>
+                    <div v-if="isNativeApp" class="flex items-center gap-3">
+                        <div class="w-9 h-9 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shrink-0">
+                            <app-icon name="map" class-name="w-5 h-5"></app-icon>
+                        </div>
+                        <button @click.stop="openNativeMap(event.address || event.location, event.location)"
+                            class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all">
+                            開啟地圖
+                        </button>
+                    </div>
                 </div>
 
                 {{-- Interaction & Fee --}}

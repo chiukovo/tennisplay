@@ -10,6 +10,7 @@ createApp({
         const currentUser = ref(null);
         const searchQuery = ref('');
         const searchDraft = ref('');
+        const isNativeApp = ref(!!(window && window.Capacitor));
         const selectedRegion = ref('全部');
         const regionDraft = ref('全部');
         const currentPage = ref(1);
@@ -85,6 +86,10 @@ createApp({
             fee: 0, max_participants: 0, match_type: 'all', gender: 'all', level_min: '', level_max: '', notes: ''
         });
 
+        const showAppPushEntry = computed(() => isNativeApp.value);
+        const showAppMapsEntry = computed(() => isNativeApp.value);
+        const hasRegisteredPush = ref(false);
+
         // --- 2. Helper Functions (Must be defined before composables that use them) ---
         const { 
             toasts, showToast, removeToast, confirmDialog, showConfirm, hideConfirm, executeConfirm, 
@@ -146,6 +151,61 @@ createApp({
                 title: '', region: defRegion, event_date: start, end_date: end, location: '', address: '',
                 fee: 0, max_participants: 0, match_type: 'all', gender: 'all', level_min: '', level_max: '', notes: ''
             });
+        };
+
+        const registerPushNotifications = async () => {
+            if (!isNativeApp.value || !isLoggedIn.value || hasRegisteredPush.value) return;
+
+            const cap = window?.Capacitor;
+            const push = cap?.Plugins?.PushNotifications;
+            if (!push) return;
+
+            hasRegisteredPush.value = true;
+            try {
+                const perm = await push.requestPermissions();
+                if (!perm || perm.receive !== 'granted') return;
+
+                await push.register();
+
+                push.addListener('registration', async (token) => {
+                    const platform = cap?.getPlatform ? cap.getPlatform() : null;
+                    if (!platform || platform === 'web') return;
+
+                    try {
+                        await api.post('/device-tokens', {
+                            token: token.value,
+                            platform,
+                        });
+                    } catch (error) {
+                        console.error('Failed to register device token', error);
+                    }
+                });
+
+                push.addListener('registrationError', (error) => {
+                    console.error('Push registration error', error);
+                });
+            } catch (error) {
+                console.error('Push registration failed', error);
+            }
+        };
+
+        const openNativeMap = (address, location) => {
+            if (!isNativeApp.value) return;
+            const query = encodeURIComponent(address || location || '');
+            if (!query) return;
+
+            const cap = window?.Capacitor;
+            const platform = cap?.getPlatform ? cap.getPlatform() : null;
+            const url = platform === 'ios'
+                ? `maps://?q=${query}`
+                : `geo:0,0?q=${query}`;
+
+            const app = cap?.Plugins?.App;
+            if (app?.openUrl) {
+                app.openUrl({ url });
+            } else {
+                window.location.href = url;
+            }
         };
 
         // --- 3. Initialize Composables ---
@@ -931,6 +991,7 @@ createApp({
         // --- 7. Lifecycle & Watchers ---
         onMounted(async () => {
             await checkAuth(() => loadMessages(), () => loadMyCards());
+            await registerPushNotifications();
             parseRoute(
                 (id) => loadProfile(id, (append) => loadProfileEvents(append)), 
                 () => resetFormFull(), 
@@ -1238,10 +1299,16 @@ createApp({
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         });
+        watch(isLoggedIn, (loggedIn) => {
+            if (loggedIn) {
+                registerPushNotifications();
+            }
+        });
 
         return {
             // State
             view, isLoggedIn, currentUser, isLoginMode, showUserMenu, isSigning, messageTab,
+            isNativeApp, showAppPushEntry, showAppMapsEntry,
             players, myPlayers, isPlayersLoading, isSubmitting, playersPagination, messages, events, eventsLoading, eventSubmitting, eventsPagination,
             profileData, isProfileLoading, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm,
             form, eventForm, currentStep, stepAttempted, isAdjustingPhoto, isAdjustingSig, isCapturing, isPhotoAdjustLoading, isSigAdjustLoading,
@@ -1266,6 +1333,7 @@ createApp({
             loadEvents, createEvent, updateEvent, deleteEvent: handleDeleteEvent, resetEventForm, openEventDetail, submitEventComment, deleteEventComment, setDateRange, editEvent, submitEvent, 
             joinEvent, 
             leaveEvent,
+            openNativeMap,
             // Event modal compatibility aliases
             toggleEventLike: (eventId) => {}, 
             postEventComment: () => submitEventComment(),

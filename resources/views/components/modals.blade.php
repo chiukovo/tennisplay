@@ -510,6 +510,12 @@
                             </div>
                             <div class="text-slate-900 font-black text-lg mb-1 underline decoration-blue-500/30 decoration-4 underline-offset-4">@{{ event.address || event.location }}</div>
                             <div class="text-slate-400 font-bold text-sm">@{{ event.location }}</div>
+                            <div v-if="isNativeApp" class="mt-4">
+                                <button type="button" @click="openNativeMap(event.address || event.location, event.location)"
+                                    class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all">
+                                    開啟地圖
+                                </button>
+                            </div>
                         </div>
 
                         {{-- Content / Notes --}}

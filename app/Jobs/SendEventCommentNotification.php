@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\Event;
 use App\Models\User;
 use App\Services\LineNotifyService;
+use App\Services\PushNotificationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -43,9 +44,6 @@ class SendEventCommentNotification implements ShouldQueue
 
         $settings = $organizer->settings ?? [];
         $wantsLine = $settings['notify_line'] ?? true;
-        if (!$wantsLine) {
-            return;
-        }
 
         $senderName = $actor ? ($actor->name ?: '球友') : '球友';
         $senderAvatar = $actor ? $actor->line_picture_url : null;
@@ -157,7 +155,20 @@ class SendEventCommentNotification implements ShouldQueue
             ]
         ];
 
-        // 使用 Queue 非同步發送
-        (new LineNotifyService())->dispatchFlexMessage($organizer->id, $organizer->line_user_id, $text, $flexContents);
+        if ($wantsLine) {
+            // 使用 Queue 非同步發送
+            (new LineNotifyService())->dispatchFlexMessage($organizer->id, $organizer->line_user_id, $text, $flexContents);
+        }
+
+        $wantsEventPush = $settings['notify_event'] ?? true;
+        if ($wantsEventPush) {
+            $pushTitle = '💬 新留言通知';
+            $pushBody = sprintf('%s：%s', $senderName, Str::limit($this->content, 60));
+            (new PushNotificationService())->sendToUserIds([$organizer->id], $pushTitle, $pushBody, [
+                'event_id' => (string) $event->id,
+                'type' => 'comment',
+                'url' => url('/events/' . $event->id),
+            ]);
+        }
     }
 }

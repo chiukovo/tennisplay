@@ -1,0 +1,13 @@
+{
+	"appId": "com.chiuko.tennisplay",
+	"appName": "LoveTennis",
+	"webDir": "public_app",
+	"server": {
+		"url": "https://lovetennis.tw",
+		"cleartext": true,
+		"allowNavigation": [
+			"lovetennis.tw",
+			"*.lovetennis.tw"
+		]
+	}
+}

@@ -14,6 +14,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// Serve Vue app script as external bundle to reduce inline HTML size
+Route::get('/app.bundle.js', function () {
+    $content = view('partials.vue-scripts')->render();
+    $content = preg_replace('/^\s*<script>\s*/', '', $content);
+    $content = preg_replace('/\s*<\/script>\s*$/', '', $content);
+    return response($content, 200)->header('Content-Type', 'application/javascript');
+});
+
 // SEO Metadata based on routes
 $seoData = [
     'home' => [

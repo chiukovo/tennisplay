@@ -65,10 +65,46 @@
     <style>[v-cloak] { display: none !important; }</style>
     <script src="/vendor/vue/vue.global.js"></script>
     <script src="/vendor/tailwind/tailwind.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.17/dist/tailwind.min.css" id="tailwind-fallback" media="print" disabled>
+    <script>
+        (function () {
+            const fallback = document.getElementById('tailwind-fallback');
+            const hasTailwindStyles = () => {
+                const styles = Array.from(document.querySelectorAll('style'));
+                return styles.some(style => style.textContent && style.textContent.includes('tailwindcss v'));
+            };
+            const enableFallback = () => {
+                if (!fallback) return;
+                fallback.disabled = false;
+                fallback.media = 'all';
+            };
+            const check = () => {
+                if (!hasTailwindStyles()) {
+                    enableFallback();
+                }
+            };
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => setTimeout(check, 1200));
+            } else {
+                setTimeout(check, 1200);
+            }
+
+            window.addEventListener('load', () => setTimeout(check, 1500));
+        })();
+    </script>
     <link rel="stylesheet" href="/vendor/animate/animate.min.css"/>
     
     {{-- External Scripts --}}
     <script src="/vendor/axios/axios.min.js"></script>
+    <script>
+        if (typeof window.axios === 'undefined') {
+            const axiosScript = document.createElement('script');
+            axiosScript.src = 'https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js';
+            axiosScript.defer = true;
+            document.head.appendChild(axiosScript);
+        }
+    </script>
     <script src="/vendor/moveable/moveable.min.js" defer></script>
     <script src="/vendor/html2canvas/html2canvas.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
@@ -344,7 +380,40 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <script src="{{ asset('js/mobile.js') }}"></script>
     <script src="{{ asset('js/app.js') }}"></script>
-    @include('partials.vue-scripts')
+    <script>
+        (function () {
+            const loadAppBundle = () => {
+                if (document.getElementById('app-bundle')) return;
+                const script = document.createElement('script');
+                script.id = 'app-bundle';
+                script.src = '/app.bundle.js';
+                script.defer = true;
+                document.body.appendChild(script);
+            };
+
+            if (window.Vue) {
+                loadAppBundle();
+                return;
+            }
+
+            const vueFallback = document.createElement('script');
+            vueFallback.src = 'https://unpkg.com/vue@3/dist/vue.global.prod.js';
+            vueFallback.onload = () => loadAppBundle();
+            vueFallback.onerror = () => console.error('Vue load failed');
+            document.head.appendChild(vueFallback);
+
+            let attempts = 0;
+            const timer = setInterval(() => {
+                attempts += 1;
+                if (window.Vue) {
+                    clearInterval(timer);
+                    loadAppBundle();
+                } else if (attempts > 50) {
+                    clearInterval(timer);
+                }
+            }, 100);
+        })();
+    </script>
 
 </body>
 </html>

@@ -1,9 +1,14 @@
 {
   "appId": "com.chiuko.tennisplay",
   "appName": "LoveTennis",
-  "webDir": "public",
+  "webDir": "public_app",
   "server": {
-    "url": "https://tennisplay.com.tw",
-    "cleartext": true
+    "url": "http://192.168.1.110:8000",
+    "cleartext": true,
+    "allowNavigation": [
+      "192.168.1.110",
+      "localhost",
+      "127.0.0.1"
+    ]
   }
 }

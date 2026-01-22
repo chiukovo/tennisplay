@@ -1034,9 +1034,17 @@ const ShareModal = {
         };
 
         const shareToFacebook = () => { window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl.value)}`, '_blank'); };
-        const shareToX = () => { window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl.value)}&text=${encodeURIComponent('🎾 來看我的網球個人資料！')}`, '_blank'); };
+        const shareToX = () => {
+            const url = 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(shareUrl.value)
+                + '&text=' + encodeURIComponent('🎾 來看我的網球個人資料！');
+            window.open(url, '_blank');
+        };
         const shareToWhatsApp = () => { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent('🎾 來看我的網球個人資料！\n' + shareUrl.value)}`, '_blank'); };
-        const shareToTelegram = () => { window.open(`https://t.me/share/url?url=${encodeURIComponent(shareUrl.value)}&text=${encodeURIComponent('🎾 來看我的網球個人資料！')}`, '_blank'); };
+        const shareToTelegram = () => {
+            const url = 'https://t.me/share/url?url=' + encodeURIComponent(shareUrl.value)
+                + '&text=' + encodeURIComponent('🎾 來看我的網球個人資料！');
+            window.open(url, '_blank');
+        };
 
         return { shareUrl, copyLink, shareToLine, shareNative, shareToInstagram, shareToThreads, shareToFacebook, shareToX, shareToWhatsApp, shareToTelegram, isCapturing, downloadCard };
     }

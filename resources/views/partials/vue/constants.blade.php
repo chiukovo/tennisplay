@@ -2,6 +2,13 @@
 const API_BASE = '/api'; // Keep as /api, but we'll handle relative base if needed
 // Detect base path for API
 const getApiBase = () => {
+    if (window.APP_API_BASE) {
+        return window.APP_API_BASE;
+    }
+    const protocol = window.location.protocol;
+    if (protocol === 'capacitor:' || protocol === 'file:') {
+        return 'https://lovetennis.tw/api';
+    }
     const path = window.location.pathname;
     if (path.includes('/public/')) {
         return path.split('/public/')[0] + '/public/api';

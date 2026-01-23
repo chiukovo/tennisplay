@@ -113,7 +113,12 @@ window.vm = createApp({
             coach_methods: [],
             coach_locations: '',
             coach_tags: '',
-            coach_certs: ''
+            coach_certs: '',
+            coach_experience_years: '',
+            coach_certifications: '',
+            coach_languages: '',
+            coach_availability: '',
+            coach_teaching_url: ''
         });
         const eventForm = reactive({
             title: '', region: '', event_date: '', end_date: '', location: '', address: '',
@@ -812,7 +817,12 @@ window.vm = createApp({
                 coach_methods: [],
                 coach_locations: '',
                 coach_tags: '',
-                coach_certs: ''
+                coach_certs: '',
+                coach_experience_years: '',
+                coach_certifications: '',
+                coach_languages: '',
+                coach_availability: '',
+                coach_teaching_url: ''
             });
         };
 
@@ -840,7 +850,12 @@ window.vm = createApp({
                 coach_methods: (target.coach_methods || '').split(',').filter(x => x),
                 coach_locations: target.coach_locations ?? '',
                 coach_tags: target.coach_tags ?? '',
-                coach_certs: target.coach_certs ?? ''
+                coach_certs: target.coach_certs ?? '',
+                coach_experience_years: target.coach_experience_years ?? '',
+                coach_certifications: target.coach_certifications ?? '',
+                coach_languages: target.coach_languages ?? '',
+                coach_availability: target.coach_availability ?? '',
+                coach_teaching_url: target.coach_teaching_url ?? ''
             });
             showCoachForm.value = true;
         };
@@ -853,6 +868,9 @@ window.vm = createApp({
         const saveCoachProfile = async () => {
             if (!coachForm.player_id || isSavingCoach.value) return;
             const minPrice = coachForm.coach_price_min ? Number(coachForm.coach_price_min) : null;
+            const experienceYears = coachForm.coach_experience_years !== '' && coachForm.coach_experience_years !== null
+                ? Number(coachForm.coach_experience_years)
+                : null;
             isSavingCoach.value = true;
             try {
                 const payload = {
@@ -864,6 +882,11 @@ window.vm = createApp({
                     coach_locations: coachForm.coach_locations || null,
                     coach_tags: coachForm.coach_tags || null,
                     coach_certs: coachForm.coach_certs || null,
+                    coach_experience_years: experienceYears,
+                    coach_certifications: coachForm.coach_certifications || null,
+                    coach_languages: coachForm.coach_languages || null,
+                    coach_availability: coachForm.coach_availability || null,
+                    coach_teaching_url: coachForm.coach_teaching_url || null,
                 };
                 const response = await api.put(`/players/${coachForm.player_id}`, payload);
                 if (response.data.success) {
@@ -891,6 +914,60 @@ window.vm = createApp({
             } finally {
                 isSavingCoach.value = false;
             }
+        };
+
+        const cancelCoachProfile = async () => {
+            if (!coachForm.player_id || isSavingCoach.value) return;
+            showConfirm({
+                title: '取消教練身份',
+                message: '確定要取消教練身份嗎？取消後將不會出現在教練列表中。',
+                confirmText: '確認取消',
+                onConfirm: async () => {
+                    isSavingCoach.value = true;
+                    try {
+                        const payload = {
+                            is_coach: false,
+                            coach_price_min: null,
+                            coach_price_max: null,
+                            coach_price_note: null,
+                            coach_methods: null,
+                            coach_locations: null,
+                            coach_tags: null,
+                            coach_certs: null,
+                            coach_experience_years: null,
+                            coach_certifications: null,
+                            coach_languages: null,
+                            coach_availability: null,
+                            coach_teaching_url: null,
+                        };
+                        const response = await api.put(`/players/${coachForm.player_id}`, payload);
+                        if (response.data.success) {
+                            clearPlayersCache();
+                            await loadPlayers({
+                                is_coach: true,
+                                search: coachSearchQuery.value,
+                                region: coachSelectedRegion.value,
+                                coach_price_min: coachPriceMin.value,
+                                coach_price_max: coachPriceMax.value,
+                                coach_method: coachSelectedMethod.value,
+                                coach_tag: coachSelectedTag.value,
+                                coach_location: coachSelectedLocation.value,
+                                page: coachCurrentPage.value,
+                                sort: coachSortBy.value
+                            }, true);
+                            await loadMyCards();
+                            showToast('已取消教練身份', 'success');
+                            showCoachForm.value = false;
+                            resetCoachForm();
+                        }
+                    } catch (error) {
+                        const msg = error.response?.data?.message || '取消失敗';
+                        showToast(msg, 'error');
+                    } finally {
+                        isSavingCoach.value = false;
+                    }
+                }
+            });
         };
 
         const handleEventSearch = () => {
@@ -1721,7 +1798,7 @@ window.vm = createApp({
             startDrag, handleDrag, stopDrag, captureCardImage,
             tryNextStep, tryGoToStep, openMatchModal, sendMatchRequest,
             handleSearch, handleCoachSearch, handleEventSearch,
-            openCoachForm, closeCoachForm, saveCoachProfile, resetCoachForm,
+            openCoachForm, closeCoachForm, saveCoachProfile, cancelCoachProfile, resetCoachForm,
             showDetail, getDetailStats, getEventsByMatchType, getEventsByRegion,
             // Constants
             REGIONS, LEVELS, LEVEL_DESCS, LEVEL_TAGS, levelDescs, levels, regions,

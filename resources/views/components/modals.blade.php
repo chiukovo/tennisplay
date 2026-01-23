@@ -254,6 +254,35 @@
                                         <div v-else class="text-xs font-bold text-slate-400">未提供</div>
                                     </div>
 
+                                    <div class="mt-3 bg-white rounded-[20px] border border-slate-100 p-3.5">
+                                        <div class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400 mb-3">專業資訊</div>
+                                        <div class="flex flex-wrap gap-2">
+                                            <span v-if="player.coach_experience_years" class="px-3.5 py-1.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-black uppercase tracking-[0.18em] border border-slate-200">
+                                                年資 @{{ player.coach_experience_years }} 年
+                                            </span>
+                                            <span v-if="player.coach_certifications" class="px-3.5 py-1.5 rounded-full bg-white text-slate-700 text-[11px] font-black uppercase tracking-[0.18em] border border-slate-200">
+                                                認證 @{{ String(player.coach_certifications).split(',').map(x => x.trim()).filter(x => x).slice(0, 3).join('、') }}
+                                            </span>
+                                            <span v-if="player.coach_languages" class="px-3.5 py-1.5 rounded-full bg-white text-slate-700 text-[11px] font-black uppercase tracking-[0.18em] border border-slate-200">
+                                                語言 @{{ String(player.coach_languages).split(',').map(x => x.trim()).filter(x => x).slice(0, 3).join('、') }}
+                                            </span>
+                                            <span v-if="player.coach_availability" class="px-3.5 py-1.5 rounded-full bg-white text-slate-700 text-[11px] font-black uppercase tracking-[0.18em] border border-slate-200">
+                                                時段 @{{ player.coach_availability }}
+                                            </span>
+                                        </div>
+                                        <div v-if="!player.coach_experience_years && !player.coach_certifications && !player.coach_languages && !player.coach_availability" class="text-xs font-bold text-slate-400">未提供</div>
+                                    </div>
+
+                                    <div v-if="player.coach_teaching_url" class="mt-3 bg-white rounded-[20px] border border-slate-100 p-3.5">
+                                        <div class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400 mb-3">教學網址</div>
+                                        <div class="flex flex-col gap-2">
+                                            <a :href="player.coach_teaching_url" target="_blank" rel="noopener"
+                                                class="text-sm font-bold text-blue-600 hover:underline break-all">
+                                                @{{ player.coach_teaching_url }}
+                                            </a>
+                                        </div>
+                                    </div>
+
                                     <div v-if="player.coach_certs" class="mt-3 bg-white rounded-[20px] border border-slate-100 p-3.5">
                                         <div class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400 mb-3">資歷 / 教學風格</div>
                                         <div class="text-sm font-bold text-slate-700 whitespace-pre-line">

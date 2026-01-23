@@ -44,6 +44,11 @@ class Player extends Model
         'coach_locations',
         'coach_tags',
         'coach_certs',
+        'coach_experience_years',
+        'coach_certifications',
+        'coach_languages',
+        'coach_availability',
+        'coach_teaching_url',
     ];
 
     protected $casts = [
@@ -61,6 +66,7 @@ class Player extends Model
         'is_coach' => 'boolean',
         'coach_price_min' => 'integer',
         'coach_price_max' => 'integer',
+        'coach_experience_years' => 'integer',
     ];
 
     protected $appends = ['photo_url', 'signature_url', 'likes_count', 'comments_count', 'user_uid', 'average_rating', 'ratings_count'];

@@ -36,27 +36,29 @@
                 </div>
             </div>
 
-            <div class="flex items-center gap-2 flex-grow min-w-0">
-                <div class="relative flex-1 group">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:flex-nowrap gap-3 sm:gap-2 flex-grow min-w-0">
+                <div class="relative w-full sm:flex-1 sm:w-auto group min-w-0">
                     <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors">
                         <app-icon name="search" class-name="w-5 h-5"></app-icon>
                     </div>
                     <input type="text" v-model="coachSearchDraft" @keyup.enter="handleCoachSearch" placeholder="搜尋教練 / 專長..."
-                        class="w-full min-w-[160px] sm:min-w-0 pl-12 pr-4 py-3 sm:py-3.5 bg-slate-50 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none font-bold text-base transition-all text-slate-700 placeholder:text-slate-400">
+                        class="w-full min-w-[160px] sm:min-w-[260px] pl-12 pr-4 py-3 sm:py-3.5 bg-slate-50 border-2 border-transparent focus:border-blue-500 rounded-2xl outline-none font-bold text-base transition-all text-slate-700 placeholder:text-slate-400">
                 </div>
 
-                <button @click="showCoachFilters = !showCoachFilters"
-                    :class="['px-4 py-3.5 rounded-2xl border-2 transition-all flex items-center justify-center gap-2 shrink-0', showCoachFilters ? 'bg-blue-50 border-blue-200 text-blue-600' : 'bg-slate-50 border-transparent text-slate-400 hover:bg-slate-100']">
-                    <app-icon name="filter" class-name="w-5 h-5"></app-icon>
-                </button>
+                <div class="flex items-center gap-2 sm:shrink-0">
+                    <button @click="showCoachFilters = !showCoachFilters"
+                        :class="['px-4 py-3.5 rounded-2xl border-2 transition-all flex items-center justify-center gap-2 shrink-0', showCoachFilters ? 'bg-blue-50 border-blue-200 text-blue-600' : 'bg-slate-50 border-transparent text-slate-400 hover:bg-slate-100']">
+                        <app-icon name="filter" class-name="w-5 h-5"></app-icon>
+                    </button>
 
-                <button @click="handleCoachSearch" class="px-6 sm:px-8 py-3.5 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-sm sm:text-base hover:bg-blue-600 transition-all shadow-lg active:scale-95 shrink-0">
-                    搜尋
-                </button>
+                    <button @click="handleCoachSearch" class="px-6 sm:px-8 py-3.5 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-sm sm:text-base hover:bg-blue-600 transition-all shadow-lg active:scale-95 shrink-0">
+                        搜尋
+                    </button>
 
-                <button @click="openCoachForm" class="px-5 sm:px-6 py-3.5 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm sm:text-base hover:bg-blue-700 transition-all shadow-lg active:scale-95 shrink-0">
-                    我是教練
-                </button>
+                    <button @click="openCoachForm" class="px-5 sm:px-6 py-3.5 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm sm:text-base hover:bg-blue-700 transition-all shadow-lg active:scale-95 shrink-0">
+                        我是教練
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -146,6 +148,24 @@
                             </span>
                             <span v-if="String(player.coach_locations).split(',').map(x => x.trim()).filter(x => x).length > 2" class="text-slate-400">...</span>
                         </div>
+                        <div v-if="player.coach_experience_years" class="flex items-center gap-1 bg-white border border-slate-100 rounded-full px-2 py-1">
+                            <span class="uppercase tracking-wider text-slate-400">年資</span>
+                            <span class="text-slate-700">@{{ player.coach_experience_years }} 年</span>
+                        </div>
+                        <div v-if="player.coach_certifications" class="flex items-center gap-1 bg-white border border-slate-100 rounded-full px-2 py-1">
+                            <span class="uppercase tracking-wider text-slate-400">認證</span>
+                            <span class="text-slate-700">
+                                @{{ String(player.coach_certifications).split(',').map(x => x.trim()).filter(x => x).slice(0, 2).join('、') }}
+                            </span>
+                            <span v-if="String(player.coach_certifications).split(',').map(x => x.trim()).filter(x => x).length > 2" class="text-slate-400">...</span>
+                        </div>
+                        <div v-if="player.coach_languages" class="flex items-center gap-1 bg-white border border-slate-100 rounded-full px-2 py-1">
+                            <span class="uppercase tracking-wider text-slate-400">語言</span>
+                            <span class="text-slate-700">
+                                @{{ String(player.coach_languages).split(',').map(x => x.trim()).filter(x => x).slice(0, 2).join('、') }}
+                            </span>
+                            <span v-if="String(player.coach_languages).split(',').map(x => x.trim()).filter(x => x).length > 2" class="text-slate-400">...</span>
+                        </div>
                     </div>
                     <div v-if="player.coach_tags" class="flex flex-wrap gap-2 max-h-[64px] overflow-hidden">
                         <span v-for="(t, idx) in String(player.coach_tags).split(',').map(x => x.trim()).filter(x => x).slice(0, 5)" :key="`${t}-${idx}`" class="px-3 py-1.5 rounded-full bg-amber-50 text-amber-800 text-[10px] font-black uppercase tracking-[0.16em] border border-amber-200">
@@ -167,15 +187,8 @@
         </div>
         <h3 class="text-xl font-black uppercase italic tracking-tight mb-2">找不到符合的教練</h3>
         <p class="text-slate-400 font-bold">請嘗試其他搜尋條件或地區</p>
-        <div class="mt-6 bg-white border border-slate-100 rounded-2xl p-4 max-w-md mx-auto text-left">
-            <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">推薦篩選</div>
-            <div class="flex flex-wrap gap-2">
-                <button type="button" @click="coachMethodDraft = '個人'; coachSelectedMethod = '個人'; handleCoachSearch();" class="px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-black uppercase tracking-[0.18em] border border-amber-200">個人</button>
-                <button type="button" @click="coachMethodDraft = '團體'; coachSelectedMethod = '團體'; handleCoachSearch();" class="px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-black uppercase tracking-[0.18em] border border-amber-200">團體</button>
-                <button type="button" @click="coachRegionDraft = '台北市'; coachSelectedRegion = '台北市'; handleCoachSearch();" class="px-3 py-1.5 rounded-full bg-white text-slate-600 text-[10px] font-black uppercase tracking-[0.18em] border border-slate-200">台北市</button>
-                <button type="button" @click="coachRegionDraft = '台中市'; coachSelectedRegion = '台中市'; handleCoachSearch();" class="px-3 py-1.5 rounded-full bg-white text-slate-600 text-[10px] font-black uppercase tracking-[0.18em] border border-slate-200">台中市</button>
-            </div>
-            <button type="button" @click="coachSearchDraft = ''; coachSearchQuery = ''; coachRegionDraft = '全部'; coachSelectedRegion = '全部'; coachPriceMinDraft = ''; coachPriceMaxDraft = ''; coachPriceMin = ''; coachPriceMax = ''; coachMethodDraft = '全部'; coachSelectedMethod = '全部'; coachTagDraft = ''; coachSelectedTag = ''; coachLocationDraft = ''; coachSelectedLocation = ''; handleCoachSearch();" class="mt-3 text-blue-600 text-[10px] font-black uppercase tracking-widest hover:underline">清除所有篩選</button>
+        <div class="mt-6">
+            <button type="button" @click="coachSearchDraft = ''; coachSearchQuery = ''; coachRegionDraft = '全部'; coachSelectedRegion = '全部'; coachPriceMinDraft = ''; coachPriceMaxDraft = ''; coachPriceMin = ''; coachPriceMax = ''; coachMethodDraft = '全部'; coachSelectedMethod = '全部'; coachTagDraft = ''; coachSelectedTag = ''; coachLocationDraft = ''; coachSelectedLocation = ''; handleCoachSearch();" class="text-blue-600 text-[10px] font-black uppercase tracking-widest hover:underline">清除所有篩選</button>
         </div>
     </div>
 
@@ -220,7 +233,7 @@
                             <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">每小時費用</label>
                             <input v-model="coachForm.coach_price_min" type="number" min="0" placeholder="時薪"
                                 class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-blue-500 font-black text-sm">
-                            <input v-model="coachForm.coach_price_note" type="text" placeholder="例如：含場地費"
+                            <input v-model="coachForm.coach_price_note" type="text" placeholder="例如：含場地費..等等備註"
                                 class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-blue-500 font-black text-sm">
                         </div>
                         <div class="space-y-2">
@@ -243,7 +256,36 @@
 
                     <div class="space-y-2">
                         <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">專長標籤（逗號分隔）</label>
-                        <input v-model="coachForm.coach_tags" type="text" placeholder="例：發球, 正拍, 雙打"
+                        <input v-model="coachForm.coach_tags" type="text" placeholder="例：親子友善,就是帥,擅長雙打"
+                            class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-blue-500 font-black text-sm">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">教學年資</label>
+                            <input v-model="coachForm.coach_experience_years" type="number" min="0" placeholder="例如：5"
+                                class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-blue-500 font-black text-sm">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">證照 / 協會認證（逗號分隔）</label>
+                            <input v-model="coachForm.coach_certifications" type="text" placeholder="例：PTR, USPTA"
+                                class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-blue-500 font-black text-sm">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">教學語言（逗號分隔）</label>
+                            <input v-model="coachForm.coach_languages" type="text" placeholder="例：中文, 英文"
+                                class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-blue-500 font-black text-sm">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">可授課時段</label>
+                            <input v-model="coachForm.coach_availability" type="text" placeholder="例：平日晚上 / 週末"
+                                class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-blue-500 font-black text-sm">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">教學網址</label>
+                        <input v-model="coachForm.coach_teaching_url" type="url" placeholder="https://youtube.com/..."
                             class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-blue-500 font-black text-sm">
                     </div>
 
@@ -255,6 +297,9 @@
                 </div>
 
                 <div class="px-8 py-6 border-t border-slate-100 bg-white flex items-center justify-end gap-3">
+                    <button @click="cancelCoachProfile" :disabled="isSavingCoach" class="px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest text-red-600 bg-red-50 hover:bg-red-100 border border-red-100 transition-all disabled:opacity-60">
+                        取消教練
+                    </button>
                     <button @click="closeCoachForm" class="px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-400 hover:text-slate-600">取消</button>
                     <button @click="saveCoachProfile" :disabled="isSavingCoach" class="px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest text-white bg-blue-600 hover:bg-blue-500 transition-all disabled:opacity-60">
                         <span v-if="!isSavingCoach">儲存教練資料</span>

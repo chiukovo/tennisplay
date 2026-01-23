@@ -85,54 +85,60 @@ async function initMobile() {
             await StatusBar.setStyle({ style: Style.Dark });
             await StatusBar.setBackgroundColor({ color: '#0f172a' }); // matches bg-slate-950
 
-            // Handle Push Notifications
-            let permStatus = await PushNotifications.checkPermissions();
+            const pushEnabled = window.tennisConfig && window.tennisConfig.enable_push === true;
 
-            if (permStatus.receive === 'prompt') {
-                permStatus = await PushNotifications.requestPermissions();
-            }
+            if (pushEnabled) {
+                // Handle Push Notifications
+                let permStatus = await PushNotifications.checkPermissions();
 
-            if (permStatus.receive === 'granted') {
-                await PushNotifications.register();
-            }
-
-            // Listen for token registration
-            PushNotifications.addListener('registration', (token) => {
-                console.log('Push registration success, token: ' + token.value);
-                saveTokenToServer(token.value);
-            });
-
-            PushNotifications.addListener('registrationError', (error) => {
-                console.error('Error on registration: ' + JSON.stringify(error));
-            });
-
-            // Listen for notifications
-            PushNotifications.addListener('pushNotificationReceived', (notification) => {
-                console.log('Push received: ' + JSON.stringify(notification));
-                // Show custom toast or update UI
-                if (window.vm && window.vm.showToast) {
-                    window.vm.showToast(notification.body, 'info');
+                if (permStatus.receive === 'prompt') {
+                    permStatus = await PushNotifications.requestPermissions();
                 }
-            });
 
-            PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
-                console.log('Push action performed: ' + JSON.stringify(notification));
-                const data = notification.notification.data;
-                if (data) {
-                    if (window.AppNavigate) {
-                        if (data.event_id) {
-                            window.AppNavigate('events', true, data.event_id);
-                        } else if (data.uid) {
-                            window.AppNavigate('profile', true, data.uid);
-                        } else if (data.chat_uid) {
-                            window.AppNavigate('messages', true, data.chat_uid);
-                        }
-                    } else {
-                        // Store for later consumption by Vue
-                        window.PendingAppNavigate = data;
+                if (permStatus.receive === 'granted') {
+                    await PushNotifications.register();
+                }
+
+                // Listen for token registration
+                PushNotifications.addListener('registration', (token) => {
+                    console.log('Push registration success, token: ' + token.value);
+                    saveTokenToServer(token.value);
+                });
+
+                PushNotifications.addListener('registrationError', (error) => {
+                    console.error('Error on registration: ' + JSON.stringify(error));
+                });
+
+                // Listen for notifications
+                PushNotifications.addListener('pushNotificationReceived', (notification) => {
+                    console.log('Push received: ' + JSON.stringify(notification));
+                    // Show custom toast or update UI
+                    if (window.vm && window.vm.showToast) {
+                        window.vm.showToast(notification.body, 'info');
                     }
-                }
-            });
+                });
+
+                PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
+                    console.log('Push action performed: ' + JSON.stringify(notification));
+                    const data = notification.notification.data;
+                    if (data) {
+                        if (window.AppNavigate) {
+                            if (data.event_id) {
+                                window.AppNavigate('events', true, data.event_id);
+                            } else if (data.uid) {
+                                window.AppNavigate('profile', true, data.uid);
+                            } else if (data.chat_uid) {
+                                window.AppNavigate('messages', true, data.chat_uid);
+                            }
+                        } else {
+                            // Store for later consumption by Vue
+                            window.PendingAppNavigate = data;
+                        }
+                    }
+                });
+            } else {
+                console.log('PushNotifications disabled: tennisConfig.enable_push is not true');
+            }
 
             // App State Change (Refresh data when app returns from background)
             App.addListener('appStateChange', ({ isActive }) => {

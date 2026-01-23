@@ -138,6 +138,30 @@
         <img src="/img/logo.png" alt="LoveTennis" style="width: 4rem; height: 4rem; margin-bottom: 1rem; object-fit: contain;">
         <div style="width: 2rem; height: 2rem; border-radius: 50%; border: 3px solid #e2e8f0; border-top-color: #3b82f6; animation: spin 0.8s linear infinite;"></div>
     </div>
+    <script>
+        // 保險機制：如果 Vue 未能移除 init-loader，最晚 6 秒強制關閉
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const loader = document.getElementById('init-loader');
+                if (loader) {
+                    loader.style.opacity = '0';
+                    setTimeout(() => loader.remove(), 300);
+                }
+            }, 6000);
+        });
+    </script>
+    <script>
+        // 保險機制：若 v-cloak 未移除，強制顯示 app
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const app = document.getElementById('app');
+                if (app && app.hasAttribute('v-cloak')) {
+                    app.removeAttribute('v-cloak');
+                    app.style.display = 'block';
+                }
+            }, 6000);
+        });
+    </script>
     <style>
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>

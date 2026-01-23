@@ -27,4 +27,5 @@ return [
         '7.0' => '世界頂尖職業球友。'
     ],
     'sponsor_url' => env('SPONSOR_URL', 'https://www.buymeacoffee.com/chiuko'),
+    'enable_push' => env('ENABLE_PUSH_NOTIFICATIONS', false),
 ];

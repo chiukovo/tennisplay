@@ -31724,6 +31724,7 @@ __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var laravel_echo__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! laravel-echo */ "./node_modules/laravel-echo/dist/echo.js");
+/* provided dependency */ var process = __webpack_require__(/*! process/browser.js */ "./node_modules/process/browser.js");
 window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 
 /**
@@ -31748,7 +31749,7 @@ window.initEcho = function () {
   var token = localStorage.getItem('auth_token');
   var echoConfig = {
     broadcaster: 'socket.io',
-    host: "http://127.0.0.1:6001" || 0,
+    host: process.env.MIX_WEBSOCKET_URL || "http://".concat(window.location.hostname, ":6001"),
     authEndpoint: '/broadcasting/auth',
     reconnectionAttempts: 5 // 限制重試次數，避免無限失敗
   };

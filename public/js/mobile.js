@@ -1782,7 +1782,7 @@ function initMobile() {
 }
 function _initMobile() {
   _initMobile = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee4() {
-    var platform, info, permStatus, _t4;
+    var platform, info, pushEnabled, permStatus, _t4;
     return _regenerator().w(function (_context4) {
       while (1) switch (_context4.p = _context4.n) {
         case 0:
@@ -1907,7 +1907,7 @@ function _initMobile() {
           platform = _capacitor_core__WEBPACK_IMPORTED_MODULE_0__.Capacitor.getPlatform();
           console.log("Current Platform: ".concat(platform));
           if (!(platform !== 'web')) {
-            _context4.n = 9;
+            _context4.n = 11;
             break;
           }
           _context4.n = 2;
@@ -1927,6 +1927,12 @@ function _initMobile() {
             color: '#0f172a'
           });
         case 4:
+          // matches bg-slate-950
+          pushEnabled = window.tennisConfig && window.tennisConfig.enable_push === true;
+          if (!pushEnabled) {
+            _context4.n = 9;
+            break;
+          }
           _context4.n = 5;
           return _capacitor_push_notifications__WEBPACK_IMPORTED_MODULE_1__.PushNotifications.checkPermissions();
         case 5:
@@ -1982,7 +1988,11 @@ function _initMobile() {
               }
             }
           });
-
+          _context4.n = 10;
+          break;
+        case 9:
+          console.log('PushNotifications disabled: tennisConfig.enable_push is not true');
+        case 10:
           // App State Change (Refresh data when app returns from background)
           _capacitor_app__WEBPACK_IMPORTED_MODULE_6__.App.addListener('appStateChange', function (_ref4) {
             var isActive = _ref4.isActive;
@@ -1996,21 +2006,21 @@ function _initMobile() {
               }
             }
           });
-          _context4.n = 10;
-          break;
-        case 9:
-          console.log('Running on Web, skipping native status bar and notification setup.');
-        case 10:
           _context4.n = 12;
           break;
         case 11:
-          _context4.p = 11;
+          console.log('Running on Web, skipping native status bar and notification setup.');
+        case 12:
+          _context4.n = 14;
+          break;
+        case 13:
+          _context4.p = 13;
           _t4 = _context4.v;
           console.warn('Capacitor features not available or error occurred:', _t4);
-        case 12:
+        case 14:
           return _context4.a(2);
       }
-    }, _callee4, null, [[1, 11]]);
+    }, _callee4, null, [[1, 13]]);
   }));
   return _initMobile.apply(this, arguments);
 }

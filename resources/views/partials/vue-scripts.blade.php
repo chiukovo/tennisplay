@@ -1144,26 +1144,36 @@ window.vm = createApp({
                     }
                 }, 200);
             };
+
+            // 保險機制：無論 API/初始化是否卡住，最晚 6 秒移除 Loading
+            const forceHideTimer = setTimeout(() => {
+                hideLoader();
+            }, 6000);
             
             setTimeout(async () => {
-                // Step 1: 暖身 Modal
-                const warmupPlayer = { id: 0, name: '', level: '3.5', region: '' };
-                detailPlayer.value = warmupPlayer;
-                
-                await new Promise(resolve => setTimeout(resolve, 150));
-                detailPlayer.value = null;
-                
-                await new Promise(resolve => setTimeout(resolve, 100));
-                
-                // Step 2: 載入 API 資料
-                await loadRandomPlayers();
-                
-                // Step 3: 初始化 Swiper
-                await nextTick();
-                initHomeSwiper();
-                
-                // Step 4: 最後才移除 Loading
-                hideLoader();
+                try {
+                    // Step 1: 暖身 Modal
+                    const warmupPlayer = { id: 0, name: '', level: '3.5', region: '' };
+                    detailPlayer.value = warmupPlayer;
+
+                    await new Promise(resolve => setTimeout(resolve, 150));
+                    detailPlayer.value = null;
+
+                    await new Promise(resolve => setTimeout(resolve, 100));
+
+                    // Step 2: 載入 API 資料
+                    await loadRandomPlayers();
+
+                    // Step 3: 初始化 Swiper
+                    await nextTick();
+                    initHomeSwiper();
+                } catch (error) {
+                    console.error('Warmup sequence failed', error);
+                } finally {
+                    // Step 4: 最後才移除 Loading
+                    clearTimeout(forceHideTimer);
+                    hideLoader();
+                }
             }, 100);
         });
 

@@ -14,6 +14,10 @@
                 發現球友
                 <span v-if="navRefreshing && navRefreshView === 'list'" class="ml-2 inline-block w-2.5 h-2.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></span>
             </a>
+            <a href="/coaches" @click.prevent="navigateTo('coaches')" :class="view === 'coaches' ? 'text-blue-600 border-b-2 border-blue-600 pb-1' : 'hover:text-slate-900 transition-colors'">
+                找教練
+                <span v-if="navRefreshing && navRefreshView === 'coaches'" class="ml-2 inline-block w-2.5 h-2.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></span>
+            </a>
             <a href="/events" @click.prevent="navigateTo('events')" :class="view === 'events' || view === 'create-event' ? 'text-blue-600 border-b-2 border-blue-600 pb-1' : 'hover:text-slate-900 transition-colors'">
                 開團揪球
                 <span v-if="navRefreshing && navRefreshView === 'events'" class="ml-2 inline-block w-2.5 h-2.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></span>

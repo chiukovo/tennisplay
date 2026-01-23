@@ -365,6 +365,7 @@ const PlayerDetailModal = {
         const hasNext = computed(() => props.players && props.players.length > 1);
         const transitionName = ref('slide-next');
         const isTransitioning = ref(false);  // 轉場動畫狀態
+        const detailTab = ref('basic');
         const comments = ref([]);
         const commentDraft = ref('');
         const isLoadingComments = ref(false);
@@ -406,6 +407,10 @@ const PlayerDetailModal = {
             commentDraft.value = '';
             playerCommentRating.value = 0;
         };
+
+        watch(() => props.player, (p) => {
+            detailTab.value = p && p.is_coach ? 'coach' : 'basic';
+        }, { immediate: true });
 
         const loadComments = async () => {
             if (!props.player) return;
@@ -823,7 +828,7 @@ const PlayerDetailModal = {
 
         const player = computed(() => props.player);
 
-        return { isOwner, player, currentIndex, hasPrev, hasNext, transitionName, isTransitioning, navigate, handleTouchStart, handleTouchEnd, backStats, formatDate, comments, commentDraft, isLoadingComments, commentsReady, detailsReady, socialStatus, toggleFollowModal, toggleLikeModal, postComment, deleteComment, isSubmitting, playerCommentRating, myCommentId, existingRatedComment, startEditRating, cancelEdit, replyDrafts, submitReply, deleteReply, activeReplyId, toggleReply };
+        return { isOwner, player, currentIndex, hasPrev, hasNext, transitionName, isTransitioning, detailTab, navigate, handleTouchStart, handleTouchEnd, backStats, formatDate, comments, commentDraft, isLoadingComments, commentsReady, detailsReady, socialStatus, toggleFollowModal, toggleLikeModal, postComment, deleteComment, isSubmitting, playerCommentRating, myCommentId, existingRatedComment, startEditRating, cancelEdit, replyDrafts, submitReply, deleteReply, activeReplyId, toggleReply };
     }
 };
 

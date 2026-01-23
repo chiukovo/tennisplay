@@ -195,6 +195,7 @@
         @include('pages.home')
         @include('pages.create')
         @include('pages.list')
+        @include('pages.coaches')
         @include('pages.messages')
         @include('pages.profile')
         @include('pages.events')

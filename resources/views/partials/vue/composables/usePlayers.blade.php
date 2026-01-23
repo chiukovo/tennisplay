@@ -20,6 +20,12 @@ const usePlayers = (isLoggedIn, currentUser, showToast, navigateTo, showConfirm,
             level_max: params.level_max || '',
             handed: params.handed || '',
             backhand: params.backhand || '',
+            is_coach: params.is_coach || false,
+            coach_price_min: params.coach_price_min || '',
+            coach_price_max: params.coach_price_max || '',
+            coach_method: params.coach_method || '',
+            coach_tag: params.coach_tag || '',
+            coach_location: params.coach_location || '',
             page: params.page || 1,
             sort: params.sort || 'popular'
         });

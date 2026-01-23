@@ -22,6 +22,11 @@ class PlayerController extends Controller
             ->ofGender($request->gender)
             ->ofHanded($request->handed)
             ->ofBackhand($request->backhand)
+            ->isCoach($request->boolean('is_coach'))
+            ->coachPriceBetween($request->coach_price_min, $request->coach_price_max)
+            ->coachMethod($request->coach_method)
+            ->coachTag($request->coach_tag)
+            ->coachLocation($request->coach_location)
             ->search($request->search);
 
         if ($request->level && !$request->level_min && !$request->level_max) {
@@ -120,6 +125,14 @@ class PlayerController extends Controller
             'theme' => 'string|nullable',
             'photo' => 'string|nullable',
             'signature' => 'string|nullable',
+            'is_coach' => 'boolean',
+            'coach_price_min' => 'integer|nullable|min:0',
+            'coach_price_max' => 'integer|nullable|min:0',
+            'coach_price_note' => 'string|nullable|max:255',
+            'coach_methods' => 'string|nullable|max:255',
+            'coach_locations' => 'string|nullable|max:255',
+            'coach_tags' => 'string|nullable|max:255',
+            'coach_certs' => 'string|nullable',
         ]);
 
         $maxPhotoBytes = 5 * 1024 * 1024; // 5MB
@@ -134,7 +147,9 @@ class PlayerController extends Controller
         $data = $request->only([
             'name', 'region', 'level', 'gender', 'handed', 'backhand',
             'intro', 'fee', 'theme', 'photo_x', 'photo_y', 'photo_scale',
-            'sig_x', 'sig_y', 'sig_scale', 'sig_rotate', 'sig_width', 'sig_height'
+            'sig_x', 'sig_y', 'sig_scale', 'sig_rotate', 'sig_width', 'sig_height',
+            'is_coach', 'coach_price_min', 'coach_price_max', 'coach_price_note',
+            'coach_methods', 'coach_locations', 'coach_tags', 'coach_certs'
         ]);
 
         if ($request->photo && Str::startsWith($request->photo, 'data:image')) {
@@ -196,7 +211,9 @@ class PlayerController extends Controller
         $data = $request->only([
             'name', 'region', 'level', 'gender', 'handed', 'backhand',
             'intro', 'fee', 'theme', 'photo_x', 'photo_y', 'photo_scale',
-            'sig_x', 'sig_y', 'sig_scale', 'sig_rotate', 'sig_width', 'sig_height', 'is_active'
+            'sig_x', 'sig_y', 'sig_scale', 'sig_rotate', 'sig_width', 'sig_height', 'is_active',
+            'is_coach', 'coach_price_min', 'coach_price_max', 'coach_price_note',
+            'coach_methods', 'coach_locations', 'coach_tags', 'coach_certs'
         ]);
 
         $maxPhotoBytes = 5 * 1024 * 1024; // 5MB

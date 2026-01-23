@@ -36,6 +36,14 @@ class Player extends Model
         'sig_height',
         'is_active',
         'is_verified',
+        'is_coach',
+        'coach_price_min',
+        'coach_price_max',
+        'coach_price_note',
+        'coach_methods',
+        'coach_locations',
+        'coach_tags',
+        'coach_certs',
     ];
 
     protected $casts = [
@@ -50,6 +58,9 @@ class Player extends Model
         'sig_height' => 'float',
         'is_active' => 'boolean',
         'is_verified' => 'boolean',
+        'is_coach' => 'boolean',
+        'coach_price_min' => 'integer',
+        'coach_price_max' => 'integer',
     ];
 
     protected $appends = ['photo_url', 'signature_url', 'likes_count', 'comments_count', 'user_uid', 'average_rating', 'ratings_count'];
@@ -231,8 +242,70 @@ class Player extends Model
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('region', 'like', "%{$search}%")
                   ->orWhere('level', 'like', "%{$search}%")
-                  ->orWhere('intro', 'like', "%{$search}%");
+                  ->orWhere('intro', 'like', "%{$search}%")
+                  ->orWhere('coach_tags', 'like', "%{$search}%")
+                  ->orWhere('coach_methods', 'like', "%{$search}%")
+                  ->orWhere('coach_locations', 'like', "%{$search}%")
+                  ->orWhere('coach_certs', 'like', "%{$search}%");
             });
+        }
+        return $query;
+    }
+
+    /**
+     * Scope for coach filter.
+     */
+    public function scopeIsCoach($query, $isCoach)
+    {
+        if ($isCoach) {
+            return $query->where('is_coach', true);
+        }
+        return $query;
+    }
+
+    /**
+     * Scope for coach price range.
+     */
+    public function scopeCoachPriceBetween($query, $min, $max)
+    {
+        if ($min !== null && $min !== '') {
+            $query->whereRaw('COALESCE(coach_price_max, coach_price_min) >= ?', [$min]);
+        }
+        if ($max !== null && $max !== '') {
+            $query->whereRaw('COALESCE(coach_price_min, coach_price_max) <= ?', [$max]);
+        }
+        return $query;
+    }
+
+    /**
+     * Scope for coach methods.
+     */
+    public function scopeCoachMethod($query, $method)
+    {
+        if ($method && !in_array($method, ['全部', 'all'])) {
+            return $query->whereRaw('FIND_IN_SET(?, coach_methods) > 0', [$method]);
+        }
+        return $query;
+    }
+
+    /**
+     * Scope for coach tags.
+     */
+    public function scopeCoachTag($query, $tag)
+    {
+        if ($tag) {
+            return $query->whereRaw('FIND_IN_SET(?, coach_tags) > 0', [$tag]);
+        }
+        return $query;
+    }
+
+    /**
+     * Scope for coach locations.
+     */
+    public function scopeCoachLocation($query, $location)
+    {
+        if ($location) {
+            return $query->whereRaw('FIND_IN_SET(?, coach_locations) > 0', [$location]);
         }
         return $query;
     }

@@ -14,6 +14,13 @@
         <div v-if="view === 'list'" class="absolute -bottom-0.5 w-1 h-1 bg-blue-400 rounded-full"></div>
     </a>
 
+    {{-- Coaches --}}
+    <a href="/coaches" @click.prevent="navigateTo('coaches')" class="flex-1 flex flex-col items-center gap-0.5 py-1.5 rounded-xl transition-all relative" :class="view === 'coaches' ? 'text-blue-400' : 'text-slate-500'">
+        <app-icon name="users" class-name="w-4 h-4"></app-icon>
+        <span class="text-[7px] font-black uppercase tracking-widest">找教練</span>
+        <div v-if="view === 'coaches'" class="absolute -bottom-0.5 w-1 h-1 bg-blue-400 rounded-full"></div>
+    </a>
+
     {{-- Central Action Button --}}
     <div class="px-0.5 -mt-4">
         <button @click="navigateTo('instant-play')" 

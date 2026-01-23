@@ -33,6 +33,10 @@ $seoData = [
         'title' => '找球友 | 發現您的最佳網球夥伴 | LoveTennis',
         'description' => '瀏覽全台網球球友，依據地區與 NTRP 等級篩選最適合您的網球戰友。網球約打、網球約球一鍵發送邀請！',
     ],
+    'coaches' => [
+        'title' => '找教練 | 專業網球教練媒合 | LoveTennis',
+        'description' => '搜尋全台網球教練，依地區與費用快速媒合，找到最適合您的教學課程。',
+    ],
     'create' => [
         'title' => '建立球友卡 | 展現您的網球風格 | LoveTennis',
         'description' => '30秒快速建立您的專屬數位球友卡。上傳專業照、設定等級，讓網球約打、網球約球更順利。',
@@ -87,6 +91,14 @@ Route::get('/list', function () use ($seoData) {
 
 Route::get('/create', function () use ($seoData) {
     return view('index', ['seo' => $seoData['create']]);
+});
+
+Route::get('/coaches', function () use ($seoData) {
+    $initialPlayers = \App\Models\Player::active()->where('is_coach', true)->latest()->take(20)->get();
+    return view('index', [
+        'seo' => $seoData['coaches'],
+        'initialPlayers' => $initialPlayers
+    ]);
 });
 
 Route::get('/messages/{uid?}', function ($uid = null) use ($seoData) {
@@ -176,6 +188,7 @@ Route::get('/sitemap.xml', function () {
     $staticUrls = [
         url('/'),
         url('/list'),
+        url('/coaches'),
         url('/events'),
         url('/create'),
         url('/messages'),

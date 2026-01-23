@@ -85,6 +85,18 @@
                             </div>
 
                             <div class="space-y-6">
+                                <div v-if="player.is_coach" class="flex items-center gap-2">
+                                    <button type="button" @click="detailTab = 'basic'"
+                                        :class="['px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all', detailTab === 'basic' ? 'bg-blue-600 text-white border-blue-600 shadow-md' : 'bg-white text-slate-400 border-slate-200 hover:text-slate-600']">
+                                        基本資料
+                                    </button>
+                                    <button type="button" @click="detailTab = 'coach'"
+                                        :class="['px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all', detailTab === 'coach' ? 'bg-amber-500 text-white border-amber-500 shadow-md' : 'bg-white text-slate-400 border-slate-200 hover:text-slate-600']">
+                                        教練專區
+                                    </button>
+                                </div>
+
+                                <div v-if="detailTab === 'basic'">
                                 {{-- Basic Info Section --}}
                                 <div class="space-y-4">
                                     <div class="flex items-center gap-2">
@@ -149,7 +161,7 @@
                                         <button type="button" @click="$emit('open-match', player)" 
                                                 class="flex-1 py-5 flex flex-col items-center justify-center gap-2 bg-blue-600 text-white hover:bg-blue-500 transition-all group">
                                             <app-icon name="message-circle" class-name="w-5 h-5 group-hover:animate-bounce"></app-icon>
-                                            <span class="text-[11px] font-black uppercase tracking-widest">約打</span>
+                                            <span class="text-[11px] font-black uppercase tracking-widest">@{{ player.is_coach ? '聯絡教練' : '約打' }}</span>
                                         </button>
                                         <button type="button" @click="toggleFollowModal" 
                                                 :class="socialStatus.is_following ? 'bg-emerald-500 text-white' : 'hover:bg-slate-50 text-slate-400'"
@@ -181,6 +193,72 @@
                                                 @{{ socialStatus.likes_count || '讚' }}
                                             </span>
                                         </button>
+                                    </div>
+                                </div>
+                                </div>
+
+                                {{-- Coach Section --}}
+                                <div v-if="detailTab === 'coach' && player.is_coach" class="bg-gradient-to-br from-amber-50 via-amber-50/60 to-white p-5 rounded-[28px] border border-amber-100 relative overflow-hidden mb-6">
+                                    <div class="flex items-center justify-between mb-5">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_12px_rgba(251,191,36,0.8)]"></div>
+                                            <span class="text-[11px] font-black uppercase tracking-[0.22em] text-amber-600 italic">教練專區 / Coach</span>
+                                        </div>
+                                        <span class="px-3.5 py-2 rounded-full bg-amber-500 text-white text-[11px] font-black uppercase tracking-[0.2em] shadow-lg">專業課程</span>
+                                    </div>
+
+                                    <div class="bg-white/90 border border-amber-100 rounded-[22px] p-4 shadow-sm">
+                                        <div class="flex items-center justify-between flex-wrap gap-4">
+                                            <div>
+                                                <div class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">每小時費用</div>
+                                                <div class="text-2xl sm:text-3xl font-black text-slate-900 leading-none">
+                                                    @{{ player.coach_price_min ? `${player.coach_price_min}` : '洽談為主' }}
+                                                    <span v-if="player.coach_price_min" class="text-sm sm:text-base font-black text-amber-600">/小時</span>
+                                                </div>
+                                            </div>
+                                            <div v-if="player.coach_price_note" class="text-[11px] font-bold text-slate-500 bg-amber-50 border border-amber-100 px-4 py-2.5 rounded-2xl">
+                                                @{{ player.coach_price_note }}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+                                        <div class="bg-white rounded-[20px] border border-slate-100 p-3.5">
+                                            <div class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400 mb-3">教學方式</div>
+                                            <div v-if="player.coach_methods" class="flex flex-wrap gap-2">
+                                                <span v-for="m in String(player.coach_methods).split(',').filter(x => x)" :key="m" class="px-3.5 py-1.5 rounded-full bg-amber-100 text-amber-700 text-[11px] font-black uppercase tracking-[0.18em] border border-amber-200">
+                                                    @{{ m }}
+                                                </span>
+                                            </div>
+                                            <div v-else class="text-xs font-bold text-slate-400">未提供</div>
+                                        </div>
+
+                                        <div class="bg-white rounded-[20px] border border-slate-100 p-3.5">
+                                            <div class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400 mb-3">上課地點</div>
+                                            <div v-if="player.coach_locations" class="flex flex-nowrap gap-2 overflow-x-auto no-scrollbar">
+                                                <span v-for="l in String(player.coach_locations).split(',').filter(x => x)" :key="l" class="whitespace-nowrap px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-black uppercase tracking-[0.18em] border border-slate-200">
+                                                    @{{ l }}
+                                                </span>
+                                            </div>
+                                            <div v-else class="text-xs font-bold text-slate-400">未提供</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-3 bg-white rounded-[20px] border border-slate-100 p-3.5">
+                                        <div class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400 mb-3">專長</div>
+                                        <div v-if="player.coach_tags" class="flex flex-wrap gap-2">
+                                            <span v-for="t in String(player.coach_tags).split(',').filter(x => x)" :key="t" class="px-3.5 py-1.5 rounded-full bg-amber-50 text-amber-800 text-[11px] font-black uppercase tracking-[0.18em] border border-amber-200">
+                                                @{{ t }}
+                                            </span>
+                                        </div>
+                                        <div v-else class="text-xs font-bold text-slate-400">未提供</div>
+                                    </div>
+
+                                    <div v-if="player.coach_certs" class="mt-3 bg-white rounded-[20px] border border-slate-100 p-3.5">
+                                        <div class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400 mb-3">資歷 / 教學風格</div>
+                                        <div class="text-sm font-bold text-slate-700 whitespace-pre-line">
+                                            @{{ player.coach_certs }}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -350,7 +428,7 @@
                         <button type="button" @click="$emit('open-match', player)" 
                                 class="flex-1 py-3.5 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] flex flex-col items-center justify-center gap-1 active:scale-95 transition-all">
                             <app-icon name="message-circle" class-name="w-4 h-4"></app-icon>
-                            約打
+                            @{{ player.is_coach ? '聯絡教練' : '約打' }}
                         </button>
                         <button type="button" @click="toggleFollowModal" 
                                 :class="socialStatus.is_following ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-slate-50 text-slate-600'"
@@ -809,52 +887,6 @@
                     <div class="space-y-3">
                         <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">約打宣告 / 個人特色</label>
                         <textarea v-model="form.intro" rows="3" class="w-full px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:border-blue-500 outline-none font-bold text-sm leading-relaxed" placeholder="分享一下您的打法特色..."></textarea>
-                    </div>
-                </div>
-
-                <div class="p-6 border-t border-slate-100 bg-slate-50 shrink-0 flex gap-3">
-                    <button type="button" @click="$emit('save')" class="flex-[2] bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-500 transition-all shadow-xl text-sm">
-                        儲存並發佈
-                    </button>
-                    <button type="button" @click="$emit('update:open', false)" class="flex-1 bg-white border border-slate-200 text-slate-400 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-50 transition-all text-sm">
-                        取消
-                    </button>
-                </div>
-            </div>
-        </div>
-    </transition>
-</script>
-
-{{-- NTRP Level Guide Modal Template --}}
-<script type="text/x-template" id="ntrp-guide-modal-template">
-    <transition name="modal">
-        <div v-if="open" class="fixed inset-0 z-[500] flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-sm" @click.self="$emit('update:open', false)">
-            <div class="bg-white w-full max-w-lg rounded-[40px] shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate__animated animate__zoomIn animate__faster">
-                {{-- Header --}}
-                <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                    <div>
-                        <h3 class="text-2xl font-black italic uppercase tracking-tight text-slate-900">NTRP 等級說明</h3>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">NTRP Level Guide</p>
-                    </div>
-                    <button @click="$emit('update:open', false)" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:border-slate-300 transition-all shadow-sm">
-                        <app-icon name="x" class-name="w-5 h-5"></app-icon>
-                    </button>
-                </div>
-
-                {{-- Content --}}
-                <div class="flex-1 overflow-y-auto p-6 sm:p-8 space-y-4 custom-scrollbar">
-                    <div v-for="(desc, level) in descs" :key="level" 
-                        class="p-4 rounded-2xl border border-slate-100 hover:border-blue-200 hover:bg-blue-50/30 transition-all group">
-                        <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 rounded-xl bg-slate-900 flex flex-col items-center justify-center shrink-0 shadow-lg group-hover:scale-110 transition-transform">
-                                <span class="text-[10px] font-bold text-white/40 leading-none mb-1">NTRP</span>
-                                <span class="text-xl font-black text-white italic leading-none">@{{ level }}</span>
-                            </div>
-                            <div>
-                                <h4 class="font-black text-slate-900 text-sm mb-1">@{{ LEVEL_TAGS[level] }}</h4>
-                                <p class="text-slate-500 text-xs leading-relaxed font-medium">@{{ desc }}</p>
-                            </div>
-                        </div>
                     </div>
                 </div>
 

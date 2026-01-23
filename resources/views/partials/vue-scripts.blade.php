@@ -26,6 +26,25 @@ window.vm = createApp({
         const backhandDraft = ref('全部');
         const sortBy = ref('newest');
         const showAdvancedFilters = ref(false);
+        const coachSearchQuery = ref('');
+        const coachSearchDraft = ref('');
+        const coachSelectedRegion = ref('全部');
+        const coachRegionDraft = ref('全部');
+        const coachCurrentPage = ref(1);
+        const coachSortBy = ref('popular');
+        const coachPriceMin = ref('');
+        const coachPriceMax = ref('');
+        const coachPriceMinDraft = ref('');
+        const coachPriceMaxDraft = ref('');
+        const coachSelectedMethod = ref('全部');
+        const coachMethodDraft = ref('全部');
+        const coachSelectedTag = ref('');
+        const coachTagDraft = ref('');
+        const coachSelectedLocation = ref('');
+        const coachLocationDraft = ref('');
+        const showCoachFilters = ref(false);
+        const showCoachForm = ref(false);
+        const isSavingCoach = ref(false);
         const matchModal = reactive({ open: false, player: null, text: '' });
         const isSendingMatch = ref(false);
         const detailPlayer = ref(null);
@@ -85,6 +104,17 @@ window.vm = createApp({
             merged_photo: null, photoX: 0, photoY: 0, photoScale: 1, 
             sigX: 50, sigY: 50, sigScale: 1, sigRotate: 0, sigWidth: 100, sigHeight: 100
         });
+        const coachForm = reactive({
+            player_id: null,
+            is_coach: true,
+            coach_price_min: '',
+            coach_price_max: '',
+            coach_price_note: '',
+            coach_methods: [],
+            coach_locations: '',
+            coach_tags: '',
+            coach_certs: ''
+        });
         const eventForm = reactive({
             title: '', region: '', event_date: '', end_date: '', location: '', address: '',
             fee: 0, max_participants: 0, match_type: 'all', gender: 'all', level_min: '', level_max: '', notes: ''
@@ -111,6 +141,10 @@ window.vm = createApp({
             if ((viewName === 'list' || viewName === 'home') && selectedRegion.value === '全部') {
                 selectedRegion.value = defRegion;
                 regionDraft.value = defRegion;
+            }
+            if (viewName === 'coaches' && coachSelectedRegion.value === '全部') {
+                coachSelectedRegion.value = defRegion;
+                coachRegionDraft.value = defRegion;
             }
         };
 
@@ -162,10 +196,10 @@ window.vm = createApp({
 
         // --- 3. Initialize Composables ---
         const { view, lastNavigationTap, navigateTo, parseRoute, goBack } = useNavigation(
-            { '/': 'home', '/list': 'list', '/create': 'create', '/messages': 'messages', '/auth': 'auth', '/profile': 'profile', '/events': 'events', '/create-event': 'create-event', '/settings': 'settings', '/privacy': 'privacy', '/sitemap': 'sitemap', '/instant-play': 'instant-play' },
-            { 'home': '/', 'list': '/list', 'create': '/create', 'messages': '/messages', 'auth': '/auth', 'profile': '/profile', 'events': '/events', 'create-event': '/create-event', 'settings': '/settings', 'privacy': '/privacy', 'sitemap': '/sitemap', 'instant-play': '/instant-play' },
+            { '/': 'home', '/list': 'list', '/coaches': 'coaches', '/create': 'create', '/messages': 'messages', '/auth': 'auth', '/profile': 'profile', '/events': 'events', '/create-event': 'create-event', '/settings': 'settings', '/privacy': 'privacy', '/sitemap': 'sitemap', '/instant-play': 'instant-play' },
+            { 'home': '/', 'list': '/list', 'coaches': '/coaches', 'create': '/create', 'messages': '/messages', 'auth': '/auth', 'profile': '/profile', 'events': '/events', 'create-event': '/create-event', 'settings': '/settings', 'privacy': '/privacy', 'sitemap': '/sitemap', 'instant-play': '/instant-play' },
             { 
-                'home': 'LoveTennis | 全台最專業的網球約打媒合與球友卡社群', 'list': '找球友 | 發現您的最佳網球夥伴', 'create': '建立球友卡 | 展現您的網球風格', 'messages': '我的訊息 | 網球約打邀請管理', 'events': '揪球開團 | 搜尋全台網球場次', 'create-event': '發佈揪球 | 建立新的網球場次', 'auth': '登入/註冊 | 加入 LoveTennis 社群', 'profile': '個人主頁 | LoveTennis', 'settings': '帳號設置 | 個性化您的網球體驗', 'privacy': '隱私權政策 | LoveTennis', 'sitemap': '網站地圖 | LoveTennis', 'instant-play': '現在想打 | 即時揪球聊天室'
+                'home': 'LoveTennis | 全台最專業的網球約打媒合與球友卡社群', 'list': '找球友 | 發現您的最佳網球夥伴', 'coaches': '找教練 | 專業網球教練媒合', 'create': '建立球友卡 | 展現您的網球風格', 'messages': '我的訊息 | 網球約打邀請管理', 'events': '揪球開團 | 搜尋全台網球場次', 'create-event': '發佈揪球 | 建立新的網球場次', 'auth': '登入/註冊 | 加入 LoveTennis 社群', 'profile': '個人主頁 | LoveTennis', 'settings': '帳號設置 | 個性化您的網球體驗', 'privacy': '隱私權政策 | LoveTennis', 'sitemap': '網站地圖 | LoveTennis', 'instant-play': '現在想打 | 即時揪球聊天室'
             },
             showToast,
             (viewName) => applyDefaultFilters(viewName),
@@ -233,6 +267,19 @@ window.vm = createApp({
             if (viewName === view.value) {
                 if (viewName === 'home' || viewName === 'list') {
                     triggerNavRefresh(viewName, () => loadPlayers({ search: searchQuery.value, region: selectedRegion.value, page: currentPage.value, sort: sortBy.value }));
+                } else if (viewName === 'coaches') {
+                    triggerNavRefresh(viewName, () => loadPlayers({ 
+                        is_coach: true,
+                        search: coachSearchQuery.value,
+                        region: coachSelectedRegion.value,
+                        coach_price_min: coachPriceMin.value,
+                        coach_price_max: coachPriceMax.value,
+                        coach_method: coachSelectedMethod.value,
+                        coach_tag: coachSelectedTag.value,
+                        coach_location: coachSelectedLocation.value,
+                        page: coachCurrentPage.value,
+                        sort: coachSortBy.value
+                    }));
                 } else if (viewName === 'events' || viewName === 'create-event') {
                     triggerNavRefresh('events', () => loadEvents({
                         search: eventSearchQuery.value,
@@ -431,6 +478,7 @@ window.vm = createApp({
         const levelDescs = LEVEL_DESCS;
         const levels = LEVELS;
         const regions = REGIONS;
+        const coachMethods = ['個人', '團體'];
 
         // Features for home page
         const features = [
@@ -457,6 +505,18 @@ window.vm = createApp({
         const filteredPlayers = computed(() => players.value);
         const totalPages = computed(() => playersPagination.value.last_page);
         const paginatedPlayers = computed(() => players.value);
+
+        const coachTotalPages = computed(() => playersPagination.value.last_page);
+        const coachPaginatedPlayers = computed(() => players.value);
+
+        const coachDisplayPages = computed(() => {
+            const total = coachTotalPages.value;
+            if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1);
+            const current = playersPagination.value.current_page;
+            if (current <= 3) return [1, 2, 3, '...', total];
+            if (current >= total - 2) return [1, '...', total - 2, total - 1, total];
+            return [1, '...', current, '...', total];
+        });
 
         const displayPages = computed(() => {
             const total = totalPages.value;
@@ -714,6 +774,123 @@ window.vm = createApp({
             });
             showAdvancedFilters.value = false;
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        const handleCoachSearch = () => {
+            coachSearchQuery.value = coachSearchDraft.value;
+            coachSelectedRegion.value = coachRegionDraft.value;
+            coachPriceMin.value = coachPriceMinDraft.value;
+            coachPriceMax.value = '';
+            coachSelectedMethod.value = coachMethodDraft.value;
+            coachSelectedTag.value = coachTagDraft.value;
+            coachSelectedLocation.value = coachLocationDraft.value;
+
+            coachCurrentPage.value = 1;
+            loadPlayers({ 
+                is_coach: true,
+                search: coachSearchQuery.value,
+                region: coachSelectedRegion.value,
+                coach_price_min: coachPriceMin.value,
+                coach_price_max: '',
+                coach_method: coachSelectedMethod.value,
+                coach_tag: coachSelectedTag.value,
+                coach_location: coachSelectedLocation.value,
+                page: 1,
+                sort: coachSortBy.value
+            });
+            showCoachFilters.value = false;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        const resetCoachForm = () => {
+            Object.assign(coachForm, {
+                player_id: null,
+                is_coach: true,
+                coach_price_min: '',
+                coach_price_max: '',
+                coach_price_note: '',
+                coach_methods: [],
+                coach_locations: '',
+                coach_tags: '',
+                coach_certs: ''
+            });
+        };
+
+        const openCoachForm = async () => {
+            if (!isLoggedIn.value) {
+                showToast('請先登入', 'error');
+                navigateTo('auth');
+                return;
+            }
+            if (!myPlayers.value.length) {
+                await loadMyCards();
+            }
+            const target = myPlayers.value?.[0];
+            if (!target) {
+                showToast('請先建立球友卡', 'error');
+                navigateTo('create');
+                return;
+            }
+            Object.assign(coachForm, {
+                player_id: target.id,
+                is_coach: true,
+                coach_price_min: target.coach_price_min ?? '',
+                coach_price_max: target.coach_price_max ?? '',
+                coach_price_note: target.coach_price_note ?? '',
+                coach_methods: (target.coach_methods || '').split(',').filter(x => x),
+                coach_locations: target.coach_locations ?? '',
+                coach_tags: target.coach_tags ?? '',
+                coach_certs: target.coach_certs ?? ''
+            });
+            showCoachForm.value = true;
+        };
+
+        const closeCoachForm = () => {
+            showCoachForm.value = false;
+            resetCoachForm();
+        };
+
+        const saveCoachProfile = async () => {
+            if (!coachForm.player_id || isSavingCoach.value) return;
+            const minPrice = coachForm.coach_price_min ? Number(coachForm.coach_price_min) : null;
+            isSavingCoach.value = true;
+            try {
+                const payload = {
+                    is_coach: true,
+                    coach_price_min: minPrice,
+                    coach_price_max: null,
+                    coach_price_note: coachForm.coach_price_note || null,
+                    coach_methods: coachForm.coach_methods.join(','),
+                    coach_locations: coachForm.coach_locations || null,
+                    coach_tags: coachForm.coach_tags || null,
+                    coach_certs: coachForm.coach_certs || null,
+                };
+                const response = await api.put(`/players/${coachForm.player_id}`, payload);
+                if (response.data.success) {
+                    clearPlayersCache();
+                    await loadPlayers({
+                        is_coach: true,
+                        search: coachSearchQuery.value,
+                        region: coachSelectedRegion.value,
+                        coach_price_min: coachPriceMin.value,
+                        coach_price_max: coachPriceMax.value,
+                        coach_method: coachSelectedMethod.value,
+                        coach_tag: coachSelectedTag.value,
+                        coach_location: coachSelectedLocation.value,
+                        page: coachCurrentPage.value,
+                        sort: coachSortBy.value
+                    }, true);
+                    await loadMyCards();
+                    showToast('教練資料已更新', 'success');
+                    showCoachForm.value = false;
+                    resetCoachForm();
+                }
+            } catch (error) {
+                const msg = error.response?.data?.message || '更新失敗';
+                showToast(msg, 'error');
+            } finally {
+                isSavingCoach.value = false;
+            }
         };
 
         const handleEventSearch = () => {
@@ -1257,6 +1434,21 @@ window.vm = createApp({
                 // 觸發載入
                 loadPlayers({ search: searchQuery.value, region: selectedRegion.value, page: 1, sort: sortBy.value });
             }
+            if (newRegion && newRegion !== '全部' && view.value === 'coaches' && coachSelectedRegion.value === '全部') {
+                applyDefaultFilters(view.value);
+                loadPlayers({ 
+                    is_coach: true,
+                    search: coachSearchQuery.value,
+                    region: coachSelectedRegion.value,
+                    coach_price_min: coachPriceMin.value,
+                    coach_price_max: coachPriceMax.value,
+                    coach_method: coachSelectedMethod.value,
+                    coach_tag: coachSelectedTag.value,
+                    coach_location: coachSelectedLocation.value,
+                    page: 1,
+                    sort: coachSortBy.value
+                });
+            }
         });
 
         let messagePollInterval;
@@ -1266,6 +1458,19 @@ window.vm = createApp({
             const v = view.value;
             if (v === 'home' || v === 'list') {
                 loadPlayers({ search: searchQuery.value, region: selectedRegion.value, page: 1, sort: sortBy.value }, true);
+            } else if (v === 'coaches') {
+                loadPlayers({ 
+                    is_coach: true,
+                    search: coachSearchQuery.value,
+                    region: coachSelectedRegion.value,
+                    coach_price_min: coachPriceMin.value,
+                    coach_price_max: coachPriceMax.value,
+                    coach_method: coachSelectedMethod.value,
+                    coach_tag: coachSelectedTag.value,
+                    coach_location: coachSelectedLocation.value,
+                    page: 1,
+                    sort: coachSortBy.value
+                }, true);
             } else if (v === 'events') {
                 loadEvents({ 
                     search: eventSearchQuery.value, 
@@ -1291,6 +1496,21 @@ window.vm = createApp({
                  if (!isIntentionalNav) {
                      loadPlayers({ search: searchQuery.value, region: selectedRegion.value, page: 1, sort: sortBy.value });
                  }
+            } else if (newView === 'coaches') {
+                if (!isIntentionalNav) {
+                    loadPlayers({ 
+                        is_coach: true,
+                        search: coachSearchQuery.value,
+                        region: coachSelectedRegion.value,
+                        coach_price_min: coachPriceMin.value,
+                        coach_price_max: coachPriceMax.value,
+                        coach_method: coachSelectedMethod.value,
+                        coach_tag: coachSelectedTag.value,
+                        coach_location: coachSelectedLocation.value,
+                        page: 1,
+                        sort: coachSortBy.value
+                    });
+                }
             } else if (newView === 'events' || newView === 'create-event') {
                 if (!isIntentionalNav) {
                     loadEvents({ 
@@ -1358,6 +1578,7 @@ window.vm = createApp({
         
         // Players Watchers
         watch(currentPage, (newPage) => {
+            if (view.value !== 'list') return;
             loadPlayers({ 
                 search: searchQuery.value, 
                 region: selectedRegion.value, 
@@ -1373,6 +1594,7 @@ window.vm = createApp({
         });
 
         watch(sortBy, (newSort) => {
+            if (view.value !== 'list') return;
             currentPage.value = 1;
             loadPlayers({ 
                 search: searchQuery.value, 
@@ -1382,6 +1604,40 @@ window.vm = createApp({
                 level_max: selectedLevelMax.value,
                 handed: selectedHanded.value,
                 backhand: selectedBackhand.value,
+                page: 1,
+                sort: newSort
+            });
+        });
+
+        watch(coachCurrentPage, (newPage) => {
+            if (view.value !== 'coaches') return;
+            loadPlayers({
+                is_coach: true,
+                search: coachSearchQuery.value,
+                region: coachSelectedRegion.value,
+                coach_price_min: coachPriceMin.value,
+                coach_price_max: coachPriceMax.value,
+                coach_method: coachSelectedMethod.value,
+                coach_tag: coachSelectedTag.value,
+                coach_location: coachSelectedLocation.value,
+                page: newPage,
+                sort: coachSortBy.value
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        watch(coachSortBy, (newSort) => {
+            if (view.value !== 'coaches') return;
+            coachCurrentPage.value = 1;
+            loadPlayers({
+                is_coach: true,
+                search: coachSearchQuery.value,
+                region: coachSelectedRegion.value,
+                coach_price_min: coachPriceMin.value,
+                coach_price_max: coachPriceMax.value,
+                coach_method: coachSelectedMethod.value,
+                coach_tag: coachSelectedTag.value,
+                coach_location: coachSelectedLocation.value,
                 page: 1,
                 sort: newSort
             });
@@ -1421,6 +1677,9 @@ window.vm = createApp({
             profileData, isProfileLoading, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm,
             form, eventForm, currentStep, stepAttempted, isAdjustingPhoto, isAdjustingSig, isCapturing, isPhotoAdjustLoading, isSigAdjustLoading,
             searchQuery, searchDraft, selectedRegion, regionDraft, selectedGender, genderDraft, selectedLevelMin, levelMinDraft, selectedLevelMax, levelMaxDraft, selectedHanded, handedDraft, selectedBackhand, backhandDraft, showAdvancedFilters, currentPage, perPage, matchModal, detailPlayer, featuredPlayersContainer,
+            coachSearchQuery, coachSearchDraft, coachSelectedRegion, coachRegionDraft, coachCurrentPage, coachSortBy,
+            coachPriceMin, coachPriceMax, coachPriceMinDraft, coachPriceMaxDraft, coachSelectedMethod, coachMethodDraft,
+            coachSelectedTag, coachTagDraft, coachSelectedLocation, coachLocationDraft, showCoachFilters, showCoachForm, coachForm, isSavingCoach,
             eventFilter, eventRegionFilter, eventSearchQuery, eventSearchDraft, eventStartDate, eventEndDate, eventDateShortcut, eventCurrentPage, eventPerPage, showEventDetail, activeEvent, eventComments, eventCommentDraft,
             showNtrpGuide, showPrivacy, showLinePromo, showMessageDetail, selectedChatUser, isLoading, isAuthLoading,
             showPreview, showQuickEditModal, navRefreshing, navRefreshView, features, cardThemes,
@@ -1431,7 +1690,8 @@ window.vm = createApp({
             instantRooms, currentRoom, instantMessages, isInstantLoading, globalInstantStats, instantMessageDraft, isSending,
             globalData, isLfg, selectedLfgRemark, showLfgPicker, customLfgRemark, roomSearch, roomCategory, sortedAndFilteredRooms, activityNotifications, currentTickerIndex, displayOtherAvatars, hiddenOthersCount,
             // Computed
-            hasUnread, hasPlayerCard, myCards, activeRegions, activeEventRegions, filteredPlayers, totalPages, paginatedPlayers, displayPages, randomPlayers, 
+            hasUnread, hasPlayerCard, myCards, activeRegions, activeEventRegions, filteredPlayers, totalPages, paginatedPlayers, displayPages, randomPlayers,
+            coachTotalPages, coachPaginatedPlayers, coachDisplayPages, coachMethods,
             filteredEvents, eventTotalPages, paginatedEvents, eventDisplayPages,
             minEventDate: computed(() => formatLocalDateTime(new Date())),
             paginatedMessages, hasMoreMessages,
@@ -1460,7 +1720,8 @@ window.vm = createApp({
             activeQuickLevel,
             startDrag, handleDrag, stopDrag, captureCardImage,
             tryNextStep, tryGoToStep, openMatchModal, sendMatchRequest,
-            handleSearch, handleEventSearch,
+            handleSearch, handleCoachSearch, handleEventSearch,
+            openCoachForm, closeCoachForm, saveCoachProfile, resetCoachForm,
             showDetail, getDetailStats, getEventsByMatchType, getEventsByRegion,
             // Constants
             REGIONS, LEVELS, LEVEL_DESCS, LEVEL_TAGS, levelDescs, levels, regions,

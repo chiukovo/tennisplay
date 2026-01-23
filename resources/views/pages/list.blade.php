@@ -20,6 +20,16 @@
                 <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">位球友</div>
             </div>
         </div>
+
+        <div class="flex flex-row items-center justify-between gap-3 bg-white border border-slate-100 rounded-[24px] px-4 sm:px-6 py-4">
+            <div class="min-w-0">
+                <p class="text-sm font-black text-slate-900">需要專業教練指導？</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Try Coach Matching</p>
+            </div>
+            <button @click="navigateTo('coaches')" class="px-5 py-3 rounded-2xl bg-amber-500 text-white font-black uppercase tracking-widest text-xs hover:bg-amber-400 transition-all shadow-lg shrink-0 whitespace-nowrap">
+                前往找教練
+            </button>
+        </div>
         
         {{-- Unified Filter Bar --}}
         <div class="flex flex-col xl:flex-row items-stretch xl:items-center gap-4 bg-white p-4 sm:p-5 rounded-[32px] border border-slate-200 shadow-sm relative z-20">

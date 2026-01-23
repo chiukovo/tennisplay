@@ -14,6 +14,7 @@ use App\Models\Follow;
 use App\Models\Message;
 use Faker\Factory as Faker;
 use Illuminate\Support\Carbon;
+use Database\Seeders\CoachSeeder;
 
 class DevelopmentSeeder extends Seeder
 {
@@ -75,6 +76,9 @@ class DevelopmentSeeder extends Seeder
 
         $allUsers = array_merge([$mainUser], $otherUsers);
         $allPlayers = array_merge([$mainPlayer], $otherPlayers);
+
+        $this->command->info('Creating Coach Profiles...');
+        $this->call(CoachSeeder::class);
 
         $this->command->info('Creating Social Interactions (Likes/Follows)...');
 

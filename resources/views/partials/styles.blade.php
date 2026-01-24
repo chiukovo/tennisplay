@@ -5,11 +5,21 @@
     }
 
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Outfit:wght@400;700;900&family=Plus+Jakarta+Sans:wght@400;700;800&family=Noto+Sans+TC:wght@400;700;900&display=swap');
+    
+    @font-face {
+        font-family: 'LINE Seed TW';
+        src: url('/fonts/LINE Seed TW_ver02/WOFF2/LINESeedTW_OTF_Th.woff2') format('woff2');
+        font-weight: 100;
+        font-style: normal;
+        font-display: swap;
+    }
+
     *, ::before, ::after {
         box-sizing: border-box;
     }
     html, body { 
-        font-family: 'Outfit', 'Plus Jakarta Sans', 'Inter', 'Noto Sans TC', sans-serif; 
+        font-family: 'LINE Seed TW', 'Outfit', 'Plus Jakarta Sans', 'Inter', 'Noto Sans TC', sans-serif; 
+        font-weight: 100;
         font-size: 16px;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
@@ -65,6 +75,7 @@
     }
 
     .text-premium-label {
+        font-family: 'LINE Seed TW', sans-serif;
         font-size: 10px;
         font-weight: 700;
         text-transform: uppercase;

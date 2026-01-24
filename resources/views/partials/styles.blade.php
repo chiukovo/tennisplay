@@ -4,12 +4,12 @@
         display: none !important;
     }
 
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Noto+Sans+TC:wght@400;700;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Outfit:wght@400;700;900&family=Plus+Jakarta+Sans:wght@400;700;800&family=Noto+Sans+TC:wght@400;700;900&display=swap');
     *, ::before, ::after {
         box-sizing: border-box;
     }
     html, body { 
-        font-family: 'Noto Sans TC', 'Inter', sans-serif; 
+        font-family: 'Outfit', 'Plus Jakarta Sans', 'Inter', 'Noto Sans TC', sans-serif; 
         font-size: 16px;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
@@ -31,6 +31,100 @@
     
     .card-shadow {
         box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    /* --- Design Tokens: Typography --- */
+    .text-premium-title {
+        font-size: 1.875rem; /* text-3xl */
+        line-height: 2.25rem;
+        font-weight: 900;
+        font-style: italic;
+        text-transform: uppercase;
+        letter-spacing: -0.05em;
+        color: #0f172a; /* text-slate-900 */
+    }
+    @media (min-width: 640px) {
+        .text-premium-title {
+            font-size: 3rem; /* text-5xl */
+            line-height: 1;
+        }
+    }
+
+    .text-premium-subtitle {
+        font-size: 0.75rem; /* text-xs */
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: #94a3b8; /* text-slate-400 */
+        margin-top: 0.25rem;
+    }
+    @media (min-width: 640px) {
+        .text-premium-subtitle {
+            font-size: 1rem; /* text-base */
+        }
+    }
+
+    .text-premium-label {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: #94a3b8; /* text-slate-400 */
+    }
+
+    /* --- Design Tokens: Buttons --- */
+    .btn-premium {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.875rem 1.5rem;
+        border-radius: 1rem; /* rounded-2xl */
+        font-weight: 900;
+        font-size: 0.875rem; /* text-sm */
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    .btn-premium:active {
+        transform: scale(0.95);
+    }
+
+    .btn-premium-primary {
+        background-color: #2563eb; /* blue-600 */
+        color: #ffffff;
+    }
+    .btn-premium-primary:hover {
+        background-color: #1d4ed8; /* blue-700 */
+        box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.25);
+    }
+
+    .btn-premium-secondary {
+        background-color: #0f172a; /* slate-900 */
+        color: #ffffff;
+    }
+    .btn-premium-secondary:hover {
+        background-color: #1e293b; /* slate-800 */
+    }
+
+    .btn-premium-amber {
+        background-color: #f59e0b; /* amber-500 */
+        color: #ffffff;
+    }
+    .btn-premium-amber:hover {
+        background-color: #d97706; /* amber-600 */
+    }
+
+    .btn-premium-outline {
+        background-color: #f8fafc; /* slate-50 */
+        border: 2px solid transparent;
+        color: #94a3b8; /* slate-400 */
+        box-shadow: none;
+    }
+    .btn-premium-outline:hover {
+        background-color: #f1f5f9; /* slate-100 */
+        color: #64748b; /* slate-500 */
     }
 
     .premium-blur {

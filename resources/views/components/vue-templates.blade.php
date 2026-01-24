@@ -110,7 +110,15 @@
                         <div class="absolute inset-0 bg-gradient-to-b from-white/15 via-transparent to-transparent opacity-50 pointer-events-none z-[14]"></div>
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-60 pointer-events-none z-[15]"></div>
                         
-                        {{-- NTRP Badge --}}
+                        {{-- NTRP / Coach Badges --}}
+                        <div class="absolute inset-x-0 top-[22px] px-[22px] flex justify-end items-start z-30 pointer-events-none">
+                            <div v-if="p?.is_coach" class="bg-gradient-to-r from-amber-400 to-amber-600 px-[20px] py-[10px] rounded-[14px] shadow-2xl border border-white/40 flex items-center gap-[10px] animate__animated animate__fadeInRight">
+                                <app-icon name="shield-check" class-name="w-[20px] h-[20px] text-white"></app-icon>
+                                <span class="text-white font-bold uppercase tracking-[0.2em] text-[16px] italic" style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">專業教練</span>
+                            </div>
+                        </div>
+
+                        {{-- Bottom Left Area (NTRP) --}}
                         <div class="absolute bottom-[18px] left-[22px] flex flex-col items-start gap-[7px] z-20">
                             <div class="relative group/badge">
                                 <div class="absolute inset-0 bg-white/10 blur-xl rounded-full"></div>
@@ -137,13 +145,6 @@
                         <div class="absolute inset-0 bg-black/70 border-t border-white/20 rounded-b-[32px]"></div>
                         <div class="absolute top-0 left-0 right-0 h-px bg-white/20"></div>
                         <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 opacity-80 rounded-b-[32px]"></div>
-                        <div v-if="p?.is_coach" class="absolute bottom-0 right-0 z-[90] bg-amber-500/90 px-[14px] py-[8px] rounded-tl-[16px] border-l-2 border-t-2 border-amber-400/80 shadow-md overflow-visible">
-                            <div class="relative flex items-center gap-[8px]">
-                                <span class="absolute -left-[14px] bottom-0 h-full w-[14px] border-t-2 border-l-2 border-amber-400/80 rounded-tl-[16px]"></span>
-                                <app-icon name="shield-check" class-name="w-[18px] h-[18px] text-white"></app-icon>
-                                <span class="text-white font-black uppercase tracking-[0.22em] text-[12px]">教練</span>
-                            </div>
-                        </div>
                         
                         <div class="relative z-10">
                             <h3 :class="['font-black uppercase tracking-tighter italic leading-[0.9] pb-[5px] text-left drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] overflow-hidden line-clamp-2', isPlaceholder ? 'opacity-50 text-white' : themeStyle.name]" 

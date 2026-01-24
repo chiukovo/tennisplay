@@ -12,21 +12,21 @@
     <div class="flex flex-col gap-6 sm:gap-8">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-3xl sm:text-5xl font-black italic uppercase tracking-tighter leading-tight text-slate-900">球友列表</h2>
-                <p class="text-slate-400 font-bold text-xs sm:text-base uppercase tracking-[0.2em] mt-1">Found Your Partners</p>
+                <h2 class="text-premium-title">球友列表</h2>
+                <p class="text-premium-subtitle">Found Your Partners</p>
             </div>
             <div class="text-right hidden sm:block">
-                <div class="text-2xl font-black text-blue-600">@{{ playersPagination.total }}</div>
-                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">位球友</div>
+                <div class="text-3xl font-black text-blue-600">@{{ playersPagination.total }}</div>
+                <div class="text-premium-label">位球友</div>
             </div>
         </div>
 
-        <div class="flex flex-row items-center justify-between gap-3 bg-white border border-slate-100 rounded-[24px] px-4 sm:px-6 py-4">
+        <div class="flex flex-row items-center justify-between gap-4 bg-gradient-to-r from-amber-50 to-white border border-amber-100 rounded-[32px] px-6 py-5 shadow-sm">
             <div class="min-w-0">
-                <p class="text-sm font-black text-slate-900">需要專業教練指導？</p>
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Try Coach Matching</p>
+                <p class="text-base font-black text-slate-900">需要專業教練指導？</p>
+                <p class="text-premium-label mt-1">Try Coach Matching</p>
             </div>
-            <button @click="navigateTo('coaches')" class="px-5 py-3 rounded-2xl bg-amber-500 text-white font-black uppercase tracking-widest text-xs hover:bg-amber-400 transition-all shadow-lg shrink-0 whitespace-nowrap">
+            <button @click="navigateTo('coaches')" class="btn-premium btn-premium-amber shrink-0">
                 前往找教練
             </button>
         </div>
@@ -97,7 +97,7 @@
                     <app-icon name="filter" class-name="w-5 h-5"></app-icon>
                 </button>
                 
-                <button @click="handleSearch" class="px-6 sm:px-8 py-3.5 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-sm sm:text-base hover:bg-blue-600 transition-all shadow-lg active:scale-95 shrink-0">
+                <button @click="handleSearch" class="btn-premium btn-premium-secondary shrink-0">
                     搜尋
                 </button>
             </div>
@@ -112,7 +112,7 @@
                         <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">生理性別</label>
                         <div class="flex gap-2">
                             <button v-for="g in ['全部', '男', '女']" :key="g" @click="genderDraft = g" 
-                                :class="['flex-1 py-3 rounded-xl font-black text-xs transition-all border-2', genderDraft === g ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-slate-50 text-slate-400 border-transparent hover:border-slate-200']">
+                                :class="['flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all border-2', genderDraft === g ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-slate-50 text-slate-400 border-transparent hover:border-slate-200']">
                                 @{{ g }}
                             </button>
                         </div>
@@ -123,7 +123,7 @@
                         <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">持拍手</label>
                         <div class="flex gap-2">
                             <button v-for="h in ['全部', '右手', '左手']" :key="h" @click="handedDraft = h" 
-                                :class="['flex-1 py-3 rounded-xl font-black text-xs transition-all border-2', handedDraft === h ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-slate-50 text-slate-400 border-transparent hover:border-slate-200']">
+                                :class="['flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all border-2', handedDraft === h ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-slate-50 text-slate-400 border-transparent hover:border-slate-200']">
                                 @{{ h }}
                             </button>
                         </div>
@@ -134,7 +134,7 @@
                         <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">反手類型</label>
                         <div class="flex gap-2">
                             <button v-for="b in ['全部', '單反', '雙反']" :key="b" @click="backhandDraft = b" 
-                                :class="['flex-1 py-3 rounded-xl font-black text-xs transition-all border-2', backhandDraft === b ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-slate-50 text-slate-400 border-transparent hover:border-slate-200']">
+                                :class="['flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all border-2', backhandDraft === b ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-slate-50 text-slate-400 border-transparent hover:border-slate-200']">
                                 @{{ b }}
                             </button>
                         </div>
@@ -158,8 +158,8 @@
                 </div>
 
                 {{-- Action Buttons --}}
-                <div class="flex justify-end pt-4 border-t border-slate-50">
-                    <button @click="handleSearch" class="w-full sm:w-auto px-12 py-4 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95">
+                <div class="flex justify-end pt-6 border-t border-slate-100">
+                    <button @click="handleSearch" class="btn-premium btn-premium-primary w-full sm:w-auto px-16">
                         確認篩選
                     </button>
                 </div>

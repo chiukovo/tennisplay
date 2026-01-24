@@ -4,12 +4,12 @@
     <div class="flex flex-col gap-6 sm:gap-8">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-3xl sm:text-5xl font-black italic uppercase tracking-tighter leading-tight text-slate-900">找教練</h2>
-                <p class="text-slate-400 font-bold text-xs sm:text-base uppercase tracking-[0.2em] mt-1">Find Your Coach</p>
+                <h2 class="text-premium-title">找教練</h2>
+                <p class="text-premium-subtitle">Find Your Coach</p>
             </div>
             <div class="text-right hidden sm:block">
-                <div class="text-2xl font-black text-blue-600">@{{ playersPagination.total }}</div>
-                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">位教練</div>
+                <div class="text-3xl font-black text-blue-600">@{{ playersPagination.total }}</div>
+                <div class="text-premium-label">位教練</div>
             </div>
         </div>
 
@@ -51,11 +51,11 @@
                         <app-icon name="filter" class-name="w-5 h-5"></app-icon>
                     </button>
 
-                    <button @click="handleCoachSearch" class="px-6 sm:px-8 py-3.5 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-sm sm:text-base hover:bg-blue-600 transition-all shadow-lg active:scale-95 shrink-0">
+                    <button @click="handleCoachSearch" class="btn-premium btn-premium-secondary shrink-0">
                         搜尋
                     </button>
 
-                    <button @click="openCoachForm" class="px-5 sm:px-6 py-3.5 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm sm:text-base hover:bg-blue-700 transition-all shadow-lg active:scale-95 shrink-0">
+                    <button @click="openCoachForm" class="btn-premium btn-premium-primary shrink-0">
                         我是教練
                     </button>
                 </div>
@@ -95,8 +95,8 @@
                     </div>
                 </div>
 
-                <div class="flex justify-end pt-4 border-t border-slate-50">
-                    <button @click="handleCoachSearch" class="w-full sm:w-auto px-12 py-4 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95">
+                <div class="flex justify-end pt-6 border-t border-slate-100">
+                    <button @click="handleCoachSearch" class="btn-premium btn-premium-primary w-full sm:w-auto px-16">
                         確認篩選
                     </button>
                 </div>
@@ -115,7 +115,7 @@
             <span v-if="coachSelectedTag" class="px-3 py-1 bg-white border border-slate-200 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm">專長: @{{ coachSelectedTag }}</span>
             <span v-if="coachSelectedLocation" class="px-3 py-1 bg-white border border-slate-200 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm">地點: @{{ coachSelectedLocation }}</span>
         </div>
-        <span class="text-slate-300 text-xs font-black uppercase tracking-widest hidden sm:inline">第 @{{ playersPagination.current_page }} / @{{ coachTotalPages }} 頁</span>
+        <span class="text-slate-300 text-xs font-bold uppercase tracking-widest hidden sm:inline">第 @{{ playersPagination.current_page }} / @{{ coachTotalPages }} 頁</span>
         <button type="button" @click="coachSearchDraft = ''; coachSearchQuery = ''; coachRegionDraft = '全部'; coachSelectedRegion = '全部'; coachPriceMinDraft = ''; coachPriceMaxDraft = ''; coachPriceMin = ''; coachPriceMax = ''; coachMethodDraft = '全部'; coachSelectedMethod = '全部'; coachTagDraft = ''; coachSelectedTag = ''; coachLocationDraft = ''; coachSelectedLocation = ''; handleCoachSearch();" class="text-red-500 text-xs font-black uppercase tracking-widest hover:underline ml-auto">清除全部</button>
     </div>
 
@@ -152,26 +152,12 @@
                             <span class="uppercase tracking-wider text-slate-400">年資</span>
                             <span class="text-slate-700">@{{ player.coach_experience_years }} 年</span>
                         </div>
-                        <div v-if="player.coach_certifications" class="flex items-center gap-1 bg-white border border-slate-100 rounded-full px-2 py-1">
-                            <span class="uppercase tracking-wider text-slate-400">認證</span>
-                            <span class="text-slate-700">
-                                @{{ String(player.coach_certifications).split(',').map(x => x.trim()).filter(x => x).slice(0, 2).join('、') }}
-                            </span>
-                            <span v-if="String(player.coach_certifications).split(',').map(x => x.trim()).filter(x => x).length > 2" class="text-slate-400">...</span>
-                        </div>
-                        <div v-if="player.coach_languages" class="flex items-center gap-1 bg-white border border-slate-100 rounded-full px-2 py-1">
-                            <span class="uppercase tracking-wider text-slate-400">語言</span>
-                            <span class="text-slate-700">
-                                @{{ String(player.coach_languages).split(',').map(x => x.trim()).filter(x => x).slice(0, 2).join('、') }}
-                            </span>
-                            <span v-if="String(player.coach_languages).split(',').map(x => x.trim()).filter(x => x).length > 2" class="text-slate-400">...</span>
-                        </div>
                     </div>
                     <div v-if="player.coach_tags" class="flex flex-wrap gap-2 max-h-[64px] overflow-hidden">
-                        <span v-for="(t, idx) in String(player.coach_tags).split(',').map(x => x.trim()).filter(x => x).slice(0, 5)" :key="`${t}-${idx}`" class="px-3 py-1.5 rounded-full bg-amber-50 text-amber-800 text-[10px] font-black uppercase tracking-[0.16em] border border-amber-200">
+                        <span v-for="(t, idx) in String(player.coach_tags).split(',').map(x => x.trim()).filter(x => x).slice(0, 5)" :key="`${t}-${idx}`" class="px-3 py-1.5 rounded-full bg-amber-50 text-amber-800 text-[10px] font-bold uppercase tracking-[0.16em] border border-amber-200">
                             @{{ t }}
                         </span>
-                        <span v-if="String(player.coach_tags).split(',').map(x => x.trim()).filter(x => x).length > 5" class="px-3 py-1.5 rounded-full bg-white text-slate-500 text-[10px] font-black uppercase tracking-[0.16em] border border-slate-200">
+                        <span v-if="String(player.coach_tags).split(',').map(x => x.trim()).filter(x => x).length > 5" class="px-3 py-1.5 rounded-full bg-white text-slate-500 text-[10px] font-bold uppercase tracking-[0.16em] border border-slate-200">
                             +@{{ String(player.coach_tags).split(',').map(x => x.trim()).filter(x => x).length - 5 }}
                         </span>
                     </div>
@@ -297,11 +283,11 @@
                 </div>
 
                 <div class="px-8 py-6 border-t border-slate-100 bg-white flex items-center justify-end gap-3">
-                    <button @click="cancelCoachProfile" :disabled="isSavingCoach" class="px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest text-red-600 bg-red-50 hover:bg-red-100 border border-red-100 transition-all disabled:opacity-60">
+                    <button @click="cancelCoachProfile" :disabled="isSavingCoach" class="btn-premium bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 shadow-none disabled:opacity-60">
                         取消教練
                     </button>
                     <button @click="closeCoachForm" class="px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-400 hover:text-slate-600">取消</button>
-                    <button @click="saveCoachProfile" :disabled="isSavingCoach" class="px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest text-white bg-blue-600 hover:bg-blue-500 transition-all disabled:opacity-60">
+                    <button @click="saveCoachProfile" :disabled="isSavingCoach" class="btn-premium btn-premium-primary disabled:opacity-60">
                         <span v-if="!isSavingCoach">儲存教練資料</span>
                         <span v-else>儲存中...</span>
                     </button>

@@ -216,8 +216,8 @@ window.vm = createApp({
         );
 
         const { 
-            isLoginMode, showUserMenu, isSavingSettings, isAuthLoading,
-            checkAuth, logout, saveSettings 
+            isLoginMode, showUserMenu, isSavingSettings, isAuthLoading, authError,
+            checkAuth, logout, saveSettings, loginWithLine
         } = useAuth(showToast, (v, s, i) => navigateTo(v, s, i), () => initSettings(), isLoggedIn, currentUser, settingsForm, view);
 
         const { 
@@ -1762,7 +1762,7 @@ window.vm = createApp({
             coachPriceMin, coachPriceMax, coachPriceMinDraft, coachPriceMaxDraft, coachSelectedMethod, coachMethodDraft,
             coachSelectedTag, coachTagDraft, coachSelectedLocation, coachLocationDraft, showCoachFilters, showCoachForm, coachForm, isSavingCoach,
             eventFilter, eventRegionFilter, eventSearchQuery, eventSearchDraft, eventStartDate, eventEndDate, eventDateShortcut, eventCurrentPage, eventPerPage, showEventDetail, activeEvent, eventComments, eventCommentDraft,
-            showNtrpGuide, showPrivacy, showLinePromo, showMessageDetail, selectedChatUser, isLoading, isAuthLoading,
+            showNtrpGuide, showPrivacy, showLinePromo, showMessageDetail, selectedChatUser, isLoading, isAuthLoading, authError,
             showPreview, showQuickEditModal, navRefreshing, navRefreshView, features, cardThemes,
             shareModal, isSendingMatch, scrollFeaturedPlayers, openShare,
             settingsForm, isSavingSettings, toasts, confirmDialog, dragInfo,
@@ -1778,7 +1778,7 @@ window.vm = createApp({
             paginatedMessages, hasMoreMessages,
             canProceedStep1, canProceedStep2, canProceedStep3, canGoToStep,
             // Methods
-            navigateTo: navigateToWithProfile, goBack, logout, checkAuth, saveSettings, loadPlayers, loadMyCards, saveCard: handleSaveCard, deleteCard, editCard, resetForm, resetFormFull,
+            navigateTo: navigateToWithProfile, goBack, logout, checkAuth, saveSettings, loginWithLine, loadPlayers, loadMyCards, saveCard: handleSaveCard, deleteCard, editCard, resetForm, resetFormFull,
             loadEvents, createEvent, updateEvent, deleteEvent: handleDeleteEvent, resetEventForm, openEventDetail, submitEventComment, deleteEventComment, setDateRange, editEvent, submitEvent, 
             joinEvent, 
             leaveEvent,

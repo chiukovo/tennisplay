@@ -29,11 +29,17 @@ const useAuth = (showToast, navigateTo, initSettings, isLoggedIn, currentUser, s
     });
     // LINE 登入狀態管理
     const isAuthLoading = ref(false);
+    const authError = ref('');
 
     const checkAuth = async (loadMessages, loadMyCards) => {
         const urlParams = new URLSearchParams(window.location.search);
         const lineToken = urlParams.get('line_token');
         const lineUser = urlParams.get('line_user');
+        const errorMessage = urlParams.get('error');
+
+        if (errorMessage) {
+            authError.value = errorMessage;
+        }
         
         if (lineToken) {
             isAuthLoading.value = true;
@@ -148,5 +154,5 @@ const useAuth = (showToast, navigateTo, initSettings, isLoggedIn, currentUser, s
         window.location.href = '/auth/line';
     };
 
-    return { isLoginMode, showUserMenu, isSavingSettings, isAuthLoading, checkAuth, logout, saveSettings, loginWithLine };
+    return { isLoginMode, showUserMenu, isSavingSettings, isAuthLoading, authError, checkAuth, logout, saveSettings, loginWithLine };
 };

@@ -221,7 +221,6 @@
                                             </div>
                                         </div>
                                     </div>
-
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
                                         <div class="bg-white rounded-[20px] border border-slate-100 p-3.5">
                                             <div class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400 mb-3">教學方式</div>
@@ -241,6 +240,19 @@
                                                 </span>
                                             </div>
                                             <div v-else class="text-xs font-bold text-slate-400">未提供</div>
+                                        </div>
+                                    </div>
+
+                                    <div v-if="player.coach_venue" class="mt-4 space-y-2">
+                                        <div v-for="v in String(player.coach_venue).split(',').map(x => x.trim()).filter(x => x)" :key="v"
+                                            class="bg-white/95 border border-amber-100 rounded-[22px] p-4 shadow-sm flex items-center gap-3">
+                                            <div class="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600 shrink-0">
+                                                <app-icon name="map-pin" class-name="w-5 h-5"></app-icon>
+                                            </div>
+                                            <div>
+                                                <div class="text-[11px] font-black uppercase tracking-[0.22em] text-slate-400">上課地區 / 場館名稱</div>
+                                                <div class="text-sm sm:text-base font-black text-slate-800">@{{ v }}</div>
+                                            </div>
                                         </div>
                                     </div>
 

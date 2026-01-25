@@ -138,6 +138,7 @@ class PlayerController extends Controller
             'coach_languages' => 'string|nullable|max:255',
             'coach_availability' => 'string|nullable|max:255',
             'coach_teaching_url' => 'string|nullable|max:255',
+            'coach_venue' => 'string|nullable|max:255',
         ]);
 
         $maxPhotoBytes = 5 * 1024 * 1024; // 5MB
@@ -156,7 +157,7 @@ class PlayerController extends Controller
             'is_coach', 'coach_price_min', 'coach_price_max', 'coach_price_note',
             'coach_methods', 'coach_locations', 'coach_tags', 'coach_certs',
             'coach_experience_years', 'coach_certifications', 'coach_languages',
-            'coach_availability', 'coach_teaching_url'
+            'coach_availability', 'coach_teaching_url', 'coach_venue'
         ]);
 
         if ($request->photo && Str::startsWith($request->photo, 'data:image')) {
@@ -222,7 +223,7 @@ class PlayerController extends Controller
             'is_coach', 'coach_price_min', 'coach_price_max', 'coach_price_note',
             'coach_methods', 'coach_locations', 'coach_tags', 'coach_certs',
             'coach_experience_years', 'coach_certifications', 'coach_languages',
-            'coach_availability', 'coach_teaching_url'
+            'coach_availability', 'coach_teaching_url', 'coach_venue'
         ]);
 
         $maxPhotoBytes = 5 * 1024 * 1024; // 5MB

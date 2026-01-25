@@ -822,7 +822,8 @@ window.vm = createApp({
                 coach_certifications: '',
                 coach_languages: '',
                 coach_availability: '',
-                coach_teaching_url: ''
+                coach_teaching_url: '',
+                coach_venue: ''
             });
         };
 
@@ -855,7 +856,8 @@ window.vm = createApp({
                 coach_certifications: target.coach_certifications ?? '',
                 coach_languages: target.coach_languages ?? '',
                 coach_availability: target.coach_availability ?? '',
-                coach_teaching_url: target.coach_teaching_url ?? ''
+                coach_teaching_url: target.coach_teaching_url ?? '',
+                coach_venue: target.coach_venue ?? ''
             });
             showCoachForm.value = true;
         };
@@ -887,6 +889,7 @@ window.vm = createApp({
                     coach_languages: coachForm.coach_languages || null,
                     coach_availability: coachForm.coach_availability || null,
                     coach_teaching_url: coachForm.coach_teaching_url || null,
+                    coach_venue: coachForm.coach_venue || null,
                 };
                 const response = await api.put(`/players/${coachForm.player_id}`, payload);
                 if (response.data.success) {
@@ -939,6 +942,7 @@ window.vm = createApp({
                             coach_languages: null,
                             coach_availability: null,
                             coach_teaching_url: null,
+                            coach_venue: null,
                         };
                         const response = await api.put(`/players/${coachForm.player_id}`, payload);
                         if (response.data.success) {

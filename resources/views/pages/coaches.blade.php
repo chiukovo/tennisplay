@@ -140,17 +140,27 @@
                             <span v-if="player.coach_price_min" class="text-[11px] font-bold text-amber-600">/小時</span>
                         </div>
                     </div>
-                    <div class="flex flex-wrap items-center gap-2 text-[11px] font-bold text-slate-600">
-                        <div v-if="player.coach_locations" class="flex items-center gap-1 bg-slate-50 border border-slate-100 rounded-full px-2 py-1">
-                            <span class="uppercase tracking-wider text-slate-500">地點</span>
-                            <span class="text-slate-800">
-                                @{{ String(player.coach_locations).split(',').map(x => x.trim()).filter(x => x).slice(0, 2).join('、') }}
-                            </span>
-                            <span v-if="String(player.coach_locations).split(',').map(x => x.trim()).filter(x => x).length > 2" class="text-slate-400">...</span>
+                    <div class="space-y-2">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <div v-if="player.coach_locations" class="flex items-center gap-1 bg-slate-50 border border-slate-100 rounded-full px-2 py-1 text-[11px] font-bold">
+                                <span class="uppercase tracking-wider text-slate-500">地點</span>
+                                <span class="text-slate-800">
+                                    @{{ String(player.coach_locations).split(',').map(x => x.trim()).filter(x => x).slice(0, 2).join('、') }}
+                                </span>
+                            </div>
+                            <div v-if="player.coach_experience_years" class="flex items-center gap-1 bg-white border border-slate-100 rounded-full px-2 py-1 text-[11px] font-bold">
+                                <span class="uppercase tracking-wider text-slate-500">年資</span>
+                                <span class="text-slate-800">@{{ player.coach_experience_years }} 年</span>
+                            </div>
                         </div>
-                        <div v-if="player.coach_experience_years" class="flex items-center gap-1 bg-white border border-slate-100 rounded-full px-2 py-1">
-                            <span class="uppercase tracking-wider text-slate-500">年資</span>
-                            <span class="text-slate-800">@{{ player.coach_experience_years }} 年</span>
+                        <div v-if="player.coach_venue" class="w-full">
+                            <div class="flex items-center gap-1 bg-white border border-slate-100 rounded-full px-2.5 py-1.5 w-full shadow-sm">
+                                <div class="text-amber-500 shrink-0"><app-icon name="map-pin" class-name="w-3 h-3"></app-icon></div>
+                                <span class="text-slate-800 text-[11px] font-bold truncate">@{{ String(player.coach_venue).split(',').map(x => x.trim()).filter(x => x)[0] }}</span>
+                                <span v-if="String(player.coach_venue).split(',').map(x => x.trim()).filter(x => x).length > 1" class="ml-auto text-[10px] font-black text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded-md shrink-0">
+                                    +@{{ String(player.coach_venue).split(',').map(x => x.trim()).filter(x => x).length - 1 }}
+                                </span>
+                            </div>
                         </div>
                     </div>
                     <div v-if="player.coach_tags" class="flex flex-wrap gap-2 max-h-[64px] overflow-hidden">
@@ -235,8 +245,13 @@
                     </div>
 
                     <div class="space-y-2">
-                        <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">上課地點（逗號分隔）</label>
+                        <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">上課地點（區域，逗號分隔）</label>
                         <input v-model="coachForm.coach_locations" type="text" placeholder="例：台北市, 新北市"
+                            class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-blue-500 font-bold text-sm">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">上課地區 / 場館名稱（逗號分隔）</label>
+                        <input v-model="coachForm.coach_venue" type="text" placeholder="例：Feat Sport Academy 室內網球訓練場,潭子網球場"
                             class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-blue-500 font-bold text-sm">
                     </div>
 

@@ -49,6 +49,7 @@ class Player extends Model
         'coach_languages',
         'coach_availability',
         'coach_teaching_url',
+        'coach_venue',
     ];
 
     protected $casts = [
@@ -251,7 +252,8 @@ class Player extends Model
                   ->orWhere('intro', 'like', "%{$search}%")
                   ->orWhere('coach_tags', 'like', "%{$search}%")
                   ->orWhere('coach_methods', 'like', "%{$search}%")
-                  ->orWhere('coach_locations', 'like', "%{$search}%")
+                  -> orWhere('coach_locations', 'like', "%{$search}%")
+                  ->orWhere('coach_venue', 'like', "%{$search}%")
                   ->orWhere('coach_certs', 'like', "%{$search}%");
             });
         }

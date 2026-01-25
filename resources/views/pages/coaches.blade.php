@@ -297,14 +297,14 @@
                     </div>
                 </div>
 
-                <div class="px-8 py-6 border-t border-slate-100 bg-white flex items-center justify-end gap-3">
-                    <button @click="cancelCoachProfile" :disabled="isSavingCoach" class="btn-premium bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 shadow-none disabled:opacity-60">
-                        取消教練
+                <div class="px-4 sm:px-8 py-6 border-t border-slate-100 bg-white flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
+                    <button @click="cancelCoachProfile" :disabled="isSavingCoach" class="btn-premium bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 shadow-none disabled:opacity-60 whitespace-nowrap px-4 text-[11px]">
+                        取消身份
                     </button>
-                    <button @click="closeCoachForm" class="px-6 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest text-slate-400 hover:text-slate-600">取消</button>
-                    <button @click="saveCoachProfile" :disabled="isSavingCoach" class="btn-premium btn-premium-primary disabled:opacity-60">
-                        <span v-if="!isSavingCoach">儲存教練資料</span>
-                        <span v-else>儲存中...</span>
+                    <button @click="closeCoachForm" class="px-2 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest text-slate-400 hover:text-slate-600 whitespace-nowrap">關閉</button>
+                    <button @click="saveCoachProfile" :disabled="isSavingCoach" class="btn-premium btn-premium-primary disabled:opacity-60 whitespace-nowrap px-4 text-[11px]">
+                        <span v-if="!isSavingCoach">儲存資料</span>
+                        <span v-else>儲存中</span>
                     </button>
                 </div>
             </div>

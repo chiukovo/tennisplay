@@ -342,7 +342,7 @@
 
 {{-- Full Screen Preview Card (Refactored) --}}
 {{-- <transition name="modal"> --}}
-    <div v-if="showPreview" class="fixed inset-0 z-[600] bg-slate-950/95 backdrop-blur-2xl flex items-center justify-center p-6" @click.self="showPreview = false">
+    <div v-if="showPreview" class="fixed inset-0 z-[600] bg-slate-950/95 backdrop-blur-2xl flex items-center justify-center p-6" @click.stop="">
         <div class="w-full max-w-[340px] animate__animated animate__zoomIn animate__faster">
             <div class="flex justify-center mb-8">
                 <span class="bg-blue-600 text-white text-[10px] font-black px-6 py-2 rounded-full uppercase tracking-widest italic shadow-xl shadow-blue-600/40">Premium Card Preview</span>

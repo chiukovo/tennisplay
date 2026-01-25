@@ -1,7 +1,7 @@
 {{-- Message Detail Modal (Chat Interface) --}}
 <script type="text/x-template" id="message-detail-modal-template">
     <transition name="modal">
-        <div v-if="open" class="fixed inset-0 z-[200] flex items-center justify-center p-0 sm:p-6 premium-blur modal-content" @click.self="$emit('update:open', false)">
+        <div v-if="open" class="fixed inset-0 z-[200] flex items-center justify-center p-0 sm:p-6 premium-blur modal-content">
             <div class="bg-white w-full h-[100dvh] sm:h-[80vh] max-w-2xl sm:rounded-[32px] shadow-2xl overflow-hidden flex flex-col relative">
                 {{-- Header --}}
                 <div class="bg-slate-900 px-3 py-3 sm:p-6 text-white flex items-center justify-between shrink-0 shadow-lg z-10">

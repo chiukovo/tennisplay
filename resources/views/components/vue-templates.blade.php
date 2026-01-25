@@ -205,7 +205,7 @@
 {{-- Privacy Policy Modal Template --}}
 <script type="text/x-template" id="privacy-modal-template">
     <transition name="modal">
-        <div v-if="modelValue" class="fixed inset-0 z-[300] flex items-center justify-center p-4 sm:p-6" @click.self="$emit('update:modelValue', false)">
+        <div v-if="modelValue" class="fixed inset-0 z-[300] flex items-center justify-center p-4 sm:p-6">
             <div class="bg-white w-full max-w-2xl rounded-[40px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate__animated animate__zoomIn animate__faster">
                 {{-- Header --}}
                 <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
@@ -286,7 +286,7 @@
 {{-- Share Modal Template --}}
 <script type="text/x-template" id="share-modal-template">
     <transition name="modal">
-        <div v-if="modelValue" class="fixed inset-0 z-[400] flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-sm modal-content" @click.self="$emit('update:modelValue', false)">
+        <div v-if="modelValue" class="fixed inset-0 z-[400] flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-sm modal-content">
             <div class="bg-white w-full max-w-md rounded-[40px] shadow-2xl overflow-hidden flex flex-col animate__animated animate__zoomIn animate__faster">
                 {{-- Header --}}
                 <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">

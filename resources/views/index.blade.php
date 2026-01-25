@@ -226,7 +226,7 @@
 
     {{-- LINE Promo Modal --}}
     <transition name="modal">
-        <div v-if="showLinePromo" class="fixed inset-0 z-[500] flex items-center justify-center p-4 sm:p-6 bg-slate-900/80 backdrop-blur-md modal-content" @click.self="showLinePromo = false">
+        <div v-if="showLinePromo" class="fixed inset-0 z-[500] flex items-center justify-center p-4 sm:p-6 bg-slate-900/80 backdrop-blur-md modal-content">
             <div class="bg-gradient-to-br from-blue-600 to-blue-700 w-full max-w-md rounded-[40px] overflow-hidden shadow-2xl relative animate__animated animate__zoomIn animate__faster">
                 {{-- Decorative Background --}}
                 <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
@@ -311,7 +311,7 @@
 
     {{-- Custom Confirm Dialog --}}
     <transition name="modal">
-        <div v-if="confirmDialog.open" class="fixed inset-0 z-[250] flex items-center justify-center p-4 confirm-backdrop" @click.self="hideConfirm">
+        <div v-if="confirmDialog.open" class="fixed inset-0 z-[250] flex items-center justify-center p-4 confirm-backdrop">
             <div class="bg-white w-full max-w-md rounded-[32px] shadow-2xl overflow-hidden animate__animated animate__zoomIn animate__faster">
                 <div class="p-8 text-center">
                     <div :class="['w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6',

@@ -507,7 +507,7 @@
 </div>
 
 {{-- Profile Action Menu (Report / Block) --}}
-<div v-if="profileActionMenu.open" class="fixed inset-0 z-[290] flex items-center justify-center p-4 sm:p-6 premium-blur" @click.self="profileActionMenu.open = false">
+<div v-if="profileActionMenu.open" class="fixed inset-0 z-[290] flex items-center justify-center p-4 sm:p-6 premium-blur">
     <div class="bg-white w-full max-w-sm rounded-[28px] shadow-2xl overflow-hidden border border-slate-100">
         <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
             <div>
@@ -532,7 +532,7 @@
 </div>
 
 <transition name="modal">
-    <div v-if="reportModal.open" class="fixed inset-0 z-[300] flex items-center justify-center p-4 sm:p-6 premium-blur" @click.self="reportModal.open = false">
+    <div v-if="reportModal.open" class="fixed inset-0 z-[300] flex items-center justify-center p-4 sm:p-6 premium-blur">
         <div class="bg-white w-full max-w-lg rounded-[28px] shadow-2xl overflow-hidden modal-content">
             <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
                 <div>

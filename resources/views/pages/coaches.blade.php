@@ -201,7 +201,7 @@
 
     {{-- Coach Form Modal --}}
     <transition name="modal">
-        <div v-if="showCoachForm" class="fixed inset-0 z-[250] flex items-center justify-center p-4 sm:p-6" @click.self="closeCoachForm">
+        <div v-if="showCoachForm" class="fixed inset-0 z-[250] flex items-center justify-center p-4 sm:p-6">
             <div class="bg-white w-full max-w-2xl rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
                 <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                     <div>

@@ -3,7 +3,7 @@
 {{-- Player Detail Modal --}}
 <script type="text/x-template" id="player-detail-modal-template">
     <transition name="modal">
-        <div v-if="player" class="fixed inset-0 z-[200] flex items-center justify-center p-2 sm:p-10 premium-blur modal-content overflow-hidden" @click.self="$emit('close')">
+        <div v-if="player" class="fixed inset-0 z-[200] flex items-center justify-center p-2 sm:p-10 premium-blur modal-content overflow-hidden">
             <div class="bg-white w-full max-w-5xl h-full sm:h-auto max-h-[96vh] sm:max-h-[92vh] rounded-[32px] sm:rounded-[48px] overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.5)] flex flex-col md:flex-row relative">
                 {{-- Close Button --}}
                 <button type="button" @click="$emit('close')" class="absolute top-4 right-4 sm:top-8 sm:right-8 z-[120] p-2.5 bg-white/90 backdrop-blur-md hover:bg-red-50 hover:text-red-500 rounded-full shadow-xl transition-all border border-slate-100 group">
@@ -493,7 +493,7 @@
 {{-- Event Detail Modal --}}
 <script type="text/x-template" id="event-detail-modal-template">
     <transition name="modal">
-        <div v-if="open && event" class="fixed inset-0 z-[320] flex items-center justify-center p-0 sm:p-6 bg-slate-950/80 backdrop-blur-md modal-content" @click.self="$emit('update:open', false)">
+        <div v-if="open && event" class="fixed inset-0 z-[320] flex items-center justify-center p-0 sm:p-6 bg-slate-950/80 backdrop-blur-md modal-content">
             <div class="bg-slate-50 w-full h-full sm:h-auto max-w-2xl sm:rounded-[48px] overflow-hidden shadow-[0_32px_128px_-16px_rgba(0,0,0,0.5)] flex flex-col max-h-[100vh] sm:max-h-[95vh] animate__animated animate__zoomIn animate__faster">
                 
                 {{-- Dynamic Header Section --}}
@@ -731,7 +731,7 @@
 {{-- Match Modal --}}
 <script type="text/x-template" id="match-modal-template">
     <transition name="modal">
-        <div v-if="open && player" class="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md modal-content" @click.self="$emit('update:open', false)">
+        <div v-if="open && player" class="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md modal-content">
             <div class="bg-white w-full max-w-md rounded-[40px] overflow-hidden shadow-2xl">
                 <div class="bg-slate-900 p-8 text-white flex items-center justify-between">
                     <div class="flex items-center gap-4">
@@ -767,7 +767,7 @@
 {{-- NTRP Guide Modal --}}
 <script type="text/x-template" id="ntrp-guide-modal-template">
     <transition name="modal">
-        <div v-if="open" class="fixed inset-0 z-[600] flex items-center justify-center p-4 sm:p-6 bg-slate-900/80 backdrop-blur-md modal-content" @click.self="$emit('update:open', false)">
+        <div v-if="open" class="fixed inset-0 z-[600] flex items-center justify-center p-4 sm:p-6 bg-slate-900/80 backdrop-blur-md modal-content">
             <div class="bg-slate-950 w-full max-w-2xl max-h-[85vh] rounded-[32px] overflow-hidden shadow-2xl border border-white/10 flex flex-col animate__animated animate__zoomIn animate__faster">
                 <div class="px-6 py-5 flex items-center justify-between border-b border-white/10 shrink-0">
                     <div class="flex items-center gap-3">
@@ -802,7 +802,7 @@
 {{-- Quick Edit Modal --}}
 <script type="text/x-template" id="quick-edit-modal-template">
     <transition name="modal">
-        <div v-if="open" class="fixed inset-0 z-[700] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md modal-content" @click.self="$emit('update:open', false)">
+        <div v-if="open" class="fixed inset-0 z-[700] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md modal-content">
             <div class="bg-white w-full max-w-2xl rounded-[40px] overflow-hidden shadow-2xl flex flex-col max-h-[90vh] animate__animated animate__zoomIn animate__faster">
                 <div class="bg-slate-900 p-6 text-white flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-4">

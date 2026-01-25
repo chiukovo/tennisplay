@@ -405,40 +405,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <script src="{{ asset('js/mobile.js') }}"></script>
     <script src="{{ asset('js/app.js') }}"></script>
-    <script>
-        (function () {
-            const loadAppBundle = () => {
-                if (document.getElementById('app-bundle')) return;
-                const script = document.createElement('script');
-                script.id = 'app-bundle';
-                script.src = '/app.bundle.js';
-                script.defer = true;
-                document.body.appendChild(script);
-            };
 
-            if (window.Vue) {
-                loadAppBundle();
-                return;
-            }
-
-            const vueFallback = document.createElement('script');
-            vueFallback.src = 'https://unpkg.com/vue@3/dist/vue.global.prod.js';
-            vueFallback.onload = () => loadAppBundle();
-            vueFallback.onerror = () => console.error('Vue load failed');
-            document.head.appendChild(vueFallback);
-
-            let attempts = 0;
-            const timer = setInterval(() => {
-                attempts += 1;
-                if (window.Vue) {
-                    clearInterval(timer);
-                    loadAppBundle();
-                } else if (attempts > 50) {
-                    clearInterval(timer);
-                }
-            }, 100);
-        })();
-    </script>
 
 </body>
 </html>

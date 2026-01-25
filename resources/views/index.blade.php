@@ -117,21 +117,7 @@
 </head>
 <body class="bg-slate-50 text-slate-900 leading-normal min-h-screen">
     {{-- Vanilla JS Pre-loader for LINE Login --}}
-    <div id="auth-preloader" style="display: none; position: fixed; inset: 0; z-index: 99999; background: #fff; align-items: center; justify-content: center; flex-direction: column;">
-        <div style="width: 4rem; height: 4rem; border-radius: 1rem; background: #06C755; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; box-shadow: 0 10px 15px -3px rgba(6, 199, 85, 0.3);">
-            <svg style="width: 2rem; height: 2rem; color: #fff;" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
-            </svg>
-        </div>
-        <p style="font-size: 1.125rem; font-weight: 900; color: #0f172a; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">登入中</p>
-        <p style="font-size: 0.875rem; font-weight: 700; color: #64748b;">正在連接 LINE 帳號...</p>
-    </div>
-    <script>
-        // Check immediately before anything else loads
-        if (window.location.search.indexOf('line_token') > -1) {
-            document.getElementById('auth-preloader').style.display = 'flex';
-        }
-    </script>
+
 
     {{-- 全域初始化 Loading（預渲染暖身時顯示）--}}
     <div id="init-loader" style="position: fixed; inset: 0; z-index: 99998; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); display: flex; align-items: center; justify-content: center; flex-direction: column; transition: opacity 0.3s ease;">
@@ -139,28 +125,8 @@
         <div style="width: 2rem; height: 2rem; border-radius: 50%; border: 3px solid #e2e8f0; border-top-color: #3b82f6; animation: spin 0.8s linear infinite;"></div>
     </div>
     <script>
-        // 保險機制：如果 Vue 未能移除 init-loader，最晚 6 秒強制關閉
-        window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                const loader = document.getElementById('init-loader');
-                if (loader) {
-                    loader.style.opacity = '0';
-                    setTimeout(() => loader.remove(), 300);
-                }
-            }, 6000);
-        });
-    </script>
-    <script>
-        // 保險機制：若 v-cloak 未移除，強制顯示 app
-        window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                const app = document.getElementById('app');
-                if (app && app.hasAttribute('v-cloak')) {
-                    app.removeAttribute('v-cloak');
-                    app.style.display = 'block';
-                }
-            }, 6000);
-        });
+        // Set body to hidden until Vue settles (handled in vue-scripts onMounted)
+        document.body.classList.add('warmup-hidden');
     </script>
     <style>
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -172,19 +138,7 @@
 
 <div id="app" v-cloak>
     {{-- LINE Login Loading Overlay --}}
-    <transition name="fade">
-        <div v-if="isAuthLoading" class="fixed inset-0 z-[9999] bg-white/95 backdrop-blur-xl flex items-center justify-center">
-            <div class="text-center">
-                <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-[#06C755] flex items-center justify-center animate-pulse shadow-xl shadow-green-500/30">
-                    <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
-                    </svg>
-                </div>
-                <p class="text-lg font-black text-slate-900 uppercase tracking-widest mb-2">登入中</p>
-                <p class="text-sm font-bold text-slate-500">正在連接 LINE 帳號...</p>
-            </div>
-        </div>
-    </transition>
+
 
     {{-- Navigation --}}
     @include('partials.navigation')
@@ -406,6 +360,8 @@
     <script src="{{ asset('js/mobile.js') }}"></script>
     <script src="{{ asset('js/app.js') }}"></script>
 
+    {{-- Vue Application Logic --}}
+    @include('partials.vue-scripts')
 
 </body>
 </html>

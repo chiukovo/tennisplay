@@ -27,19 +27,8 @@ const useAuth = (showToast, navigateTo, initSettings, isLoggedIn, currentUser, s
     onUnmounted(() => {
         window.removeEventListener('click', handleOutsideClick);
     });
-    // LINE 登入時的 Loading 狀態 - 初始化時就檢測 URL 參數
-    const hasLineToken = new URLSearchParams(window.location.search).has('line_token');
-    const isAuthLoading = ref(hasLineToken); // 如果有 line_token 參數，立即顯示 Loading
-
-    // 安全機制：如果在 5 秒內沒有完成驗證（可能 JS 錯誤或參數遺失），強制關閉 Loading
-    if (hasLineToken) {
-        setTimeout(() => {
-            if (isAuthLoading.value) {
-                isAuthLoading.value = false;
-                console.warn('Auth loading timed out, forcing close.');
-            }
-        }, 5000);
-    }
+    // LINE 登入狀態管理
+    const isAuthLoading = ref(false);
 
     const checkAuth = async (loadMessages, loadMyCards) => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -84,7 +73,6 @@ const useAuth = (showToast, navigateTo, initSettings, isLoggedIn, currentUser, s
                 console.error('Login failed after retry');
                 isAuthLoading.value = false;
                 localStorage.removeItem('auth_token'); // 清除無效 Token
-                if (document.getElementById('auth-preloader')) document.getElementById('auth-preloader').style.display = 'none';
             }
         } else {
             // 一般頁面載入檢查 (無 URL 參數)
@@ -155,46 +143,9 @@ const useAuth = (showToast, navigateTo, initSettings, isLoggedIn, currentUser, s
         }
     };
 
-    const loginWithLine = async () => {
-        // Detect if running in Capacitor (Mobile)
-        const isMobile = typeof window.MobileLineLogin !== 'undefined';
-
-        if (isMobile) {
-            isAuthLoading.value = true;
-            try {
-                // Call Native Plugin
-                const result = await window.MobileLineLogin.login();
-                
-                if (result && result.idToken) {
-                    // Send Token to Backend
-                    const response = await api.post('/auth/line/native', {
-                        id_token: result.idToken,
-                        access_token: result.accessToken
-                    });
-
-                    if (response.data.success) {
-                        const { token, user } = response.data;
-                        localStorage.setItem('auth_token', token);
-                        localStorage.setItem('auth_user', JSON.stringify(user));
-                        currentUser.value = user;
-                        isLoggedIn.value = true;
-                        
-                        showToast('登入成功', 'success');
-                        navigateTo('home');
-                    } else {
-                        showToast(response.data.message || '登入失敗', 'error');
-                    }
-                }
-            } catch (error) {
-                console.error('Native LINE Login Error:', error);
-                showToast('LINE 登入失敗', 'error');
-            } finally {
-                isAuthLoading.value = false;
-            }
-        } else {
-            // Standard Web Flow
-            window.location.href = '/auth/line';
-        }
+    const loginWithLine = () => {
+        // Standard Web Flow
+        window.location.href = '/auth/line';
     };
 
     return { isLoginMode, showUserMenu, isSavingSettings, isAuthLoading, checkAuth, logout, saveSettings, loginWithLine };

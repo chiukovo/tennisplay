@@ -70,7 +70,7 @@
     .text-premium-title {
         font-size: clamp(1.875rem, 8vw, 3.5rem);
         line-height: 1.1;
-        font-weight: 900;
+        font-weight: 800;
         font-style: italic;
         text-transform: uppercase;
         letter-spacing: -0.04em;
@@ -107,7 +107,7 @@
         justify-content: center;
         padding: 0.875rem 1.5rem;
         border-radius: 1rem; /* rounded-2xl */
-        font-weight: 900;
+        font-weight: 700;
         font-size: 0.875rem; /* text-sm */
         text-transform: uppercase;
         letter-spacing: 0.1em;

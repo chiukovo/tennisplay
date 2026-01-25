@@ -2,7 +2,7 @@
 <div v-if="view === 'create'" class="max-w-4xl mx-auto">
     {{-- Page Title --}}
     <div class="mb-3 text-center">
-        <h1 class="text-3xl sm:text-4xl font-black italic uppercase tracking-tighter text-slate-900">
+        <h1 class="text-3xl sm:text-4xl font-extrabold italic uppercase tracking-tighter text-slate-900">
             <span v-if="form.id">編輯球友卡</span>
             <span v-else>建立球友卡</span>
         </h1>
@@ -16,7 +16,7 @@
     <div class="mb-4 px-4">
         <div class="flex justify-between mb-4">
             <button v-for="s in 4" :key="s" type="button" @click="tryGoToStep(s)"
-                :class="['text-[11px] font-black uppercase tracking-widest transition-all duration-300 px-3 py-1.5 rounded-full border-2', 
+                :class="['text-[11px] font-bold uppercase tracking-widest transition-all duration-300 px-3 py-1.5 rounded-full border-2', 
                 currentStep === s ? 'bg-blue-600 text-white border-blue-600 shadow-lg' : 
                 currentStep > s ? 'text-blue-600 border-blue-200 bg-blue-50 hover:bg-blue-100' : 
                 canGoToStep(s) ? 'text-slate-500 border-slate-200 hover:text-slate-600 hover:border-slate-300' :
@@ -32,7 +32,7 @@
     <div class="bg-white p-4 sm:p-8 rounded-[32px] shadow-2xl border border-slate-100 relative flex flex-col">
         <div class="flex items-center justify-between mb-4">
             <div>
-                <h2 class="text-3xl font-black italic uppercase tracking-tighter text-slate-900">
+                <h2 class="text-3xl font-extrabold italic uppercase tracking-tighter text-slate-900">
                     <span v-if="currentStep === 1">1. 形象照片</span>
                     <span v-if="currentStep === 2">2. 技巧與分級</span>
                     <span v-if="currentStep === 3">3. 約打宣告</span>
@@ -52,14 +52,14 @@
                             <div class="flex items-center gap-4">
                                 <img :src="currentUser?.line_picture_url" class="w-12 h-12 rounded-full border-2 border-white shadow-sm">
                                 <div>
-                                    <h4 class="font-black text-slate-900 leading-none">@{{ currentUser?.name }}</h4>
+                                    <h4 class="font-bold text-slate-900 leading-none">@{{ currentUser?.name }}</h4>
                                     <p class="text-[11px] text-slate-500 font-bold uppercase tracking-widest mt-1">
                                         @{{ currentUser?.gender }} · 
                                         @{{ currentUser?.region ? (currentUser.region.split(',').filter(x=>x).length > 2 ? currentUser.region.split(',').filter(x=>x).slice(0, 2).join(' ') + ' +' : currentUser.region.split(',').filter(x=>x).join(' ')) : '未設定' }}
                                     </p>
                                 </div>
                             </div>
-                            <button type="button" @click="openProfileWithEdit()" class="text-blue-600 text-[11px] font-black uppercase tracking-widest hover:underline">修改基本資料</button>
+                            <button type="button" @click="openProfileWithEdit()" class="text-blue-600 text-[11px] font-bold uppercase tracking-widest hover:underline">修改基本資料</button>
                         </div>
 
                         {{-- Photo Section --}}
@@ -137,9 +137,9 @@
                                             <img :src="getUrl(form.photo)" class="w-full h-full object-contain" :style="{ transform: `translate(${form.photoX}%, ${form.photoY}%) scale(${form.photoScale})` }">
                                         </div>
                                         <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
-                                            <button type="button" @click="isAdjustingPhoto" class="bg-slate-900 text-white px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-widest shadow-xl whitespace-nowrap">調整版面</button>
-                                            <button type="button" @click="triggerUpload" class="bg-white text-slate-900 px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-widest shadow-xl border border-slate-200 whitespace-nowrap">更換照片</button>
-                                            <button v-if="currentUser?.line_picture_url" type="button" @click="useLinePhoto()" class="bg-[#06C755] text-white px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-widest shadow-xl whitespace-nowrap">使用 LINE 照片</button>
+                                            <button type="button" @click="isAdjustingPhoto" class="bg-slate-900 text-white px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-widest shadow-xl whitespace-nowrap">調整版面</button>
+                                            <button type="button" @click="triggerUpload" class="bg-white text-slate-900 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-widest shadow-xl border border-slate-200 whitespace-nowrap">更換照片</button>
+                                            <button v-if="currentUser?.line_picture_url" type="button" @click="useLinePhoto()" class="bg-[#06C755] text-white px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-widest shadow-xl whitespace-nowrap">使用 LINE 照片</button>
                                         </div>
                                     </div>
                                 </div>
@@ -152,11 +152,11 @@
                                     <app-icon name="upload" class-name="w-8 h-8"></app-icon>
                                 </div>
                                 <div class="text-center space-y-1">
-                                    <p class="text-lg font-black italic uppercase tracking-tighter">點擊上傳形象照 <span class="text-red-500">*</span></p>
+                                    <p class="text-lg font-bold italic uppercase tracking-tighter">點擊上傳形象照 <span class="text-red-500">*</span></p>
                                     <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">建議直式照片 (會自動適應)</p>
                                     <p v-if="stepAttempted[1] && !form.photo" class="text-red-500 text-xs font-bold">請上傳您的形象照</p>
                                 </div>
-                                <button v-if="currentUser?.line_picture_url" type="button" @click.stop="useLinePhoto()" class="mt-2 bg-[#06C755] text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-all flex items-center gap-2">
+                                <button v-if="currentUser?.line_picture_url" type="button" @click.stop="useLinePhoto()" class="mt-2 bg-[#06C755] text-white px-6 py-3 rounded-2xl text-xs font-bold uppercase tracking-widest shadow-xl hover:scale-105 transition-all flex items-center gap-2">
                                     <app-icon name="line" fill="currentColor" stroke="none" class-name="w-4 h-4"></app-icon>
                                     使用 LINE 大頭貼
                                 </button>
@@ -177,7 +177,7 @@
                             </label>
                             <div class="grid grid-cols-4 gap-2">
                                 <button v-for="l in levels" :key="l" type="button" @click="form.level = l"
-                                    :class="['py-2.5 rounded-xl font-black text-sm transition-all', form.level === l ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-50 text-slate-400 hover:bg-slate-100']">
+                                    :class="['py-2.5 rounded-xl font-bold text-sm transition-all', form.level === l ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-50 text-slate-400 hover:bg-slate-100']">
                                     @{{l}}
                                 </button>
                             </div>
@@ -187,7 +187,7 @@
                                 <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">持拍手</label>
                                 <div class="flex gap-2">
                                     <button type="button" v-for="h in ['右手', '左手']" :key="h" @click="form.handed = h"
-                                        :class="['flex-1 py-3 rounded-xl font-black text-sm transition-all', form.handed === h ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-400']">
+                                        :class="['flex-1 py-3 rounded-xl font-bold text-sm transition-all', form.handed === h ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-400']">
                                         @{{h}}
                                     </button>
                                 </div>
@@ -196,7 +196,7 @@
                                 <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">反手類型</label>
                                 <div class="flex gap-2">
                                     <button type="button" v-for="b in ['單反', '雙反']" :key="b" @click="form.backhand = b"
-                                        :class="['flex-1 py-3 rounded-xl font-black text-sm transition-all', form.backhand === b ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-400']">
+                                        :class="['flex-1 py-3 rounded-xl font-bold text-sm transition-all', form.backhand === b ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-400']">
                                         @{{b}}
                                     </button>
                                 </div>
@@ -223,7 +223,7 @@
                             </div>
                             <div class="w-full flex overflow-x-auto no-scrollbar gap-2 pb-2 justify-start sm:justify-center">
                                 <button v-for="(t, key) in cardThemes" :key="key" type="button" @click="form.theme = key"
-                                    :class="['px-5 py-2.5 rounded-full whitespace-nowrap text-xs font-black transition-all border-2', form.theme === key ? 'bg-slate-900 text-white border-slate-900 shadow-lg' : 'bg-slate-50 text-slate-400 border-transparent hover:border-slate-200']">
+                                    :class="['px-5 py-2.5 rounded-full whitespace-nowrap text-xs font-bold transition-all border-2', form.theme === key ? 'bg-slate-900 text-white border-slate-900 shadow-lg' : 'bg-slate-50 text-slate-400 border-transparent hover:border-slate-200']">
                                     @{{ t.label }}
                                 </button>
                             </div>
@@ -320,13 +320,13 @@
                     上一步
                 </button>
                 <button v-if="currentStep < 4" type="button" @click="tryNextStep" 
-                    :class="['flex-[2] py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl',
+                    :class="['flex-[2] py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all shadow-xl',
                     (currentStep === 1 && canProceedStep1) || (currentStep === 2 && canProceedStep2) || (currentStep === 3 && canProceedStep3) 
                     ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-slate-950 text-white hover:bg-slate-800']">
                     下一步
                 </button>
                 <button v-if="currentStep === 4" type="submit" :disabled="isSubmitting"
-                    :class="['flex-[2] py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-2 text-white',
+                    :class="['flex-[2] py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-2 text-white',
                     isSubmitting ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/20']">
                     <svg v-if="isSubmitting" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

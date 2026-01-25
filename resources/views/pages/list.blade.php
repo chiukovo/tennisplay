@@ -37,7 +37,7 @@
                 {{-- Region Select --}}
                 <div class="flex-1 xl:flex-none shrink-0 flex items-center bg-slate-50 px-3 py-1 rounded-2xl border border-slate-100">
                     <div class="text-slate-400 pl-1"><app-icon name="map-pin" class-name="w-4 h-4"></app-icon></div>
-                    <select v-model="regionDraft" @change="handleSearch" class="w-full bg-transparent pl-2 pr-8 py-3 sm:py-3.5 focus:outline-none font-black text-sm uppercase tracking-widest cursor-pointer appearance-none min-w-[100px] sm:min-w-[120px]">
+                    <select v-model="regionDraft" @change="handleSearch" class="w-full bg-transparent pl-2 pr-8 py-3 sm:py-3.5 focus:outline-none font-bold text-sm uppercase tracking-widest cursor-pointer appearance-none min-w-[100px] sm:min-w-[120px]">
                         <option value="全部">全部地區</option>
                         <option v-for="r in activeRegions" :key="r" :value="r">@{{ r }}</option>
                     </select>
@@ -46,7 +46,7 @@
                 {{-- Sort Select --}}
                 <div class="flex-1 xl:flex-none shrink-0 flex items-center bg-slate-50 px-3 py-1 rounded-2xl border border-slate-100">
                     <div class="text-slate-400 pl-1"><app-icon name="bar-chart-3" class-name="w-4 h-4"></app-icon></div>
-                    <select v-model="sortBy" class="w-full bg-transparent pl-2 pr-8 py-3 sm:py-3.5 focus:outline-none font-black text-sm uppercase tracking-widest cursor-pointer appearance-none min-w-[100px]">
+                    <select v-model="sortBy" class="w-full bg-transparent pl-2 pr-8 py-3 sm:py-3.5 focus:outline-none font-bold text-sm uppercase tracking-widest cursor-pointer appearance-none min-w-[100px]">
                         <option value="popular">熱門</option>
                         <option value="rated">好評</option>
                         <option value="newest">最新</option>
@@ -57,27 +57,27 @@
             {{-- Quick NTRP Shortcuts (Scrollable) --}}
             <div class="flex items-center gap-1 p-1 bg-slate-50 rounded-2xl overflow-x-auto no-scrollbar scroll-smooth flex-grow xl:flex-grow-0 xl:w-auto">
                 <button type="button" @click="applyQuickLevel('', '', 'all')" 
-                    :class="['px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all whitespace-nowrap shrink-0', activeQuickLevel === 'all' ? 'bg-white text-blue-600 shadow-sm ring-1 ring-blue-50' : 'text-slate-500 hover:text-slate-700']">
+                    :class="['px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-widest transition-all whitespace-nowrap shrink-0', activeQuickLevel === 'all' ? 'bg-white text-blue-600 shadow-sm ring-1 ring-blue-50' : 'text-slate-500 hover:text-slate-700']">
                     全部
                 </button>
                 <button type="button" @click="applyQuickLevel('1.0', '1.5', 'starter')" 
-                    :class="['px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all whitespace-nowrap shrink-0', activeQuickLevel === 'starter' ? 'bg-white text-green-600 shadow-sm ring-1 ring-green-50' : 'text-slate-500 hover:text-slate-700']">
+                    :class="['px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-widest transition-all whitespace-nowrap shrink-0', activeQuickLevel === 'starter' ? 'bg-white text-green-600 shadow-sm ring-1 ring-green-50' : 'text-slate-500 hover:text-slate-700']">
                     新手
                 </button>
                 <button type="button" @click="applyQuickLevel('2.0', '2.5', 'beginner')" 
-                    :class="['px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all whitespace-nowrap shrink-0', activeQuickLevel === 'beginner' ? 'bg-white text-teal-600 shadow-sm ring-1 ring-teal-50' : 'text-slate-500 hover:text-slate-700']">
+                    :class="['px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-widest transition-all whitespace-nowrap shrink-0', activeQuickLevel === 'beginner' ? 'bg-white text-teal-600 shadow-sm ring-1 ring-teal-50' : 'text-slate-500 hover:text-slate-700']">
                     初階
                 </button>
                 <button type="button" @click="applyQuickLevel('3.0', '3.5', 'steady')" 
-                    :class="['px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all whitespace-nowrap shrink-0', activeQuickLevel === 'steady' ? 'bg-white text-blue-600 shadow-sm ring-1 ring-blue-50' : 'text-slate-500 hover:text-slate-700']">
+                    :class="['px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-widest transition-all whitespace-nowrap shrink-0', activeQuickLevel === 'steady' ? 'bg-white text-blue-600 shadow-sm ring-1 ring-blue-50' : 'text-slate-500 hover:text-slate-700']">
                     穩定
                 </button>
                 <button type="button" @click="applyQuickLevel('4.0', '5.0', 'battle')" 
-                    :class="['px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all whitespace-nowrap shrink-0', activeQuickLevel === 'battle' ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-indigo-50' : 'text-slate-500 hover:text-slate-700']">
+                    :class="['px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-widest transition-all whitespace-nowrap shrink-0', activeQuickLevel === 'battle' ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-indigo-50' : 'text-slate-500 hover:text-slate-700']">
                     競技
                 </button>
                 <button type="button" @click="applyQuickLevel('5.0', '7.0', 'pro')" 
-                    :class="['px-4 py-2.5 rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all whitespace-nowrap shrink-0', activeQuickLevel === 'pro' ? 'bg-white text-amber-500 shadow-sm ring-1 ring-amber-50' : 'text-slate-500 hover:text-slate-700']">
+                    :class="['px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-widest transition-all whitespace-nowrap shrink-0', activeQuickLevel === 'pro' ? 'bg-white text-amber-500 shadow-sm ring-1 ring-amber-50' : 'text-slate-500 hover:text-slate-700']">
                     職業
                 </button>
             </div>
@@ -112,7 +112,7 @@
                         <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">生理性別</label>
                         <div class="flex gap-2">
                             <button v-for="g in ['全部', '男', '女']" :key="g" @click="genderDraft = g" 
-                                :class="['flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all border-2', genderDraft === g ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-slate-50 text-slate-500 border-transparent hover:border-slate-200']">
+                                :class="['flex-1 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all border-2', genderDraft === g ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-slate-50 text-slate-500 border-transparent hover:border-slate-200']">
                                 @{{ g }}
                             </button>
                         </div>
@@ -123,7 +123,7 @@
                         <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">持拍手</label>
                         <div class="flex gap-2">
                             <button v-for="h in ['全部', '右手', '左手']" :key="h" @click="handedDraft = h" 
-                                :class="['flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all border-2', handedDraft === h ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-slate-50 text-slate-500 border-transparent hover:border-slate-200']">
+                                :class="['flex-1 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all border-2', handedDraft === h ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-slate-50 text-slate-500 border-transparent hover:border-slate-200']">
                                 @{{ h }}
                             </button>
                         </div>
@@ -134,7 +134,7 @@
                         <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">反手類型</label>
                         <div class="flex gap-2">
                             <button v-for="b in ['全部', '單反', '雙反']" :key="b" @click="backhandDraft = b" 
-                                :class="['flex-1 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all border-2', backhandDraft === b ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-slate-50 text-slate-500 border-transparent hover:border-slate-200']">
+                                :class="['flex-1 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all border-2', backhandDraft === b ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-slate-50 text-slate-500 border-transparent hover:border-slate-200']">
                                 @{{ b }}
                             </button>
                         </div>
@@ -144,12 +144,12 @@
                     <div class="space-y-3">
                         <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">NTRP 程度範圍</label>
                         <div class="flex items-center gap-2">
-                            <select v-model="levelMinDraft" class="flex-1 px-3 py-3 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:border-blue-500 font-black text-xs transition-all appearance-none cursor-pointer">
+                            <select v-model="levelMinDraft" class="flex-1 px-3 py-3 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:border-blue-500 font-bold text-xs transition-all appearance-none cursor-pointer">
                                 <option value="">Min</option>
                                 <option v-for="l in levels" :key="'min-'+l" :value="l">@{{ l }}</option>
                             </select>
                             <span class="text-slate-300 font-black text-xs">~</span>
-                            <select v-model="levelMaxDraft" class="flex-1 px-3 py-3 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:border-blue-500 font-black text-xs transition-all appearance-none cursor-pointer">
+                            <select v-model="levelMaxDraft" class="flex-1 px-3 py-3 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:border-blue-500 font-bold text-xs transition-all appearance-none cursor-pointer">
                                 <option value="">Max</option>
                                 <option v-for="l in levels" :key="'max-'+l" :value="l">@{{ l }}</option>
                             </select>
@@ -171,15 +171,15 @@
     <div v-if="searchQuery || selectedRegion !== '全部' || selectedGender !== '全部' || selectedLevelMin || selectedLevelMax || selectedHanded !== '全部' || selectedBackhand !== '全部'" class="flex items-center gap-3 text-sm px-1">
         <span class="text-slate-400 font-medium">篩選條件:</span>
         <div class="flex flex-wrap gap-2">
-            <span v-if="searchQuery" class="px-3 py-1 bg-white border border-blue-100 text-blue-600 rounded-full text-[11px] font-black uppercase tracking-wider shadow-sm">關鍵字: @{{ searchQuery }}</span>
-            <span v-if="selectedRegion !== '全部'" class="px-3 py-1 bg-white border border-slate-200 text-slate-600 rounded-full text-[11px] font-black uppercase tracking-wider shadow-sm">@{{ selectedRegion }}</span>
-            <span v-if="selectedGender !== '全部'" class="px-3 py-1 bg-white border border-slate-200 text-slate-600 rounded-full text-[11px] font-black uppercase tracking-wider shadow-sm">@{{ selectedGender }}</span>
-            <span v-if="selectedLevelMin || selectedLevelMax" class="px-3 py-1 bg-white border border-slate-200 text-slate-600 rounded-full text-[11px] font-black uppercase tracking-wider shadow-sm">
+            <span v-if="searchQuery" class="px-3 py-1 bg-white border border-blue-100 text-blue-600 rounded-full text-[11px] font-bold uppercase tracking-wider shadow-sm">關鍵字: @{{ searchQuery }}</span>
+            <span v-if="selectedRegion !== '全部'" class="px-3 py-1 bg-white border border-slate-200 text-slate-600 rounded-full text-[11px] font-bold uppercase tracking-wider shadow-sm">@{{ selectedRegion }}</span>
+            <span v-if="selectedGender !== '全部'" class="px-3 py-1 bg-white border border-slate-200 text-slate-600 rounded-full text-[11px] font-bold uppercase tracking-wider shadow-sm">@{{ selectedGender }}</span>
+            <span v-if="selectedLevelMin || selectedLevelMax" class="px-3 py-1 bg-white border border-slate-200 text-slate-600 rounded-full text-[11px] font-bold uppercase tracking-wider shadow-sm">
                 NTRP @{{ selectedLevelMin || '1.0' }} - @{{ selectedLevelMax || '7.0' }}
             </span>
         </div>
-        <span class="text-slate-300 text-xs font-black uppercase tracking-widest hidden sm:inline">第 @{{ playersPagination.current_page }} / @{{ totalPages }} 頁</span>
-        <button type="button" @click="searchDraft = ''; searchQuery = ''; regionDraft = '全部'; selectedRegion = '全部'; genderDraft = '全部'; selectedGender = '全部'; levelMinDraft = ''; selectedLevelMin = ''; levelMaxDraft = ''; selectedLevelMax = ''; handedDraft = '全部'; selectedHanded = '全部'; backhandDraft = '全部'; selectedBackhand = '全部'; activeQuickLevel = 'all'; handleSearch();" class="text-red-500 text-xs font-black uppercase tracking-widest hover:underline ml-auto">清除全部</button>
+        <span class="text-slate-300 text-xs font-bold uppercase tracking-widest hidden sm:inline">第 @{{ playersPagination.current_page }} / @{{ totalPages }} 頁</span>
+        <button type="button" @click="searchDraft = ''; searchQuery = ''; regionDraft = '全部'; selectedRegion = '全部'; genderDraft = '全部'; selectedGender = '全部'; levelMinDraft = ''; selectedLevelMin = ''; levelMaxDraft = ''; selectedLevelMax = ''; handedDraft = '全部'; selectedHanded = '全部'; backhandDraft = '全部'; selectedBackhand = '全部'; activeQuickLevel = 'all'; handleSearch();" class="text-red-500 text-xs font-bold uppercase tracking-widest hover:underline ml-auto">清除全部</button>
     </div>
 
     {{-- Skeleton Loading --}}
@@ -202,10 +202,10 @@
                 </div>
             {{-- Action Buttons Overlay (Hidden on Mobile) --}}
             <div class="absolute bottom-4 left-4 right-4 hidden sm:flex gap-2 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-200 z-30">
-                <button type="button" @click.stop="showDetail(player)" class="flex-1 py-3 bg-white/95 text-slate-700 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white transition-colors flex items-center justify-center gap-2 shadow-lg">
+                <button type="button" @click.stop="showDetail(player)" class="flex-1 py-3 bg-white/95 text-slate-700 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-white transition-colors flex items-center justify-center gap-2 shadow-lg">
                     <app-icon name="user" class-name="w-4 h-4"></app-icon> 詳細
                 </button>
-                <button type="button" @click.stop="openMatchModal(player)" class="flex-1 py-3 bg-blue-600/95 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 shadow-lg">
+                <button type="button" @click.stop="openMatchModal(player)" class="flex-1 py-3 bg-blue-600/95 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 shadow-lg">
                     <app-icon name="message-circle" class-name="w-4 h-4"></app-icon> 約打
                 </button>
             </div>

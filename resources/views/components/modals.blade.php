@@ -18,7 +18,7 @@
                     </button>
                     {{-- Counter --}}
                     <div class="px-3 py-1.5 md:px-4 md:py-2 bg-slate-900/10 backdrop-blur-md rounded-full border border-slate-200/50 flex items-center gap-2 md:gap-3">
-                        <span class="text-[8px] md:text-[10px] font-black text-slate-400 uppercase tracking-widest">球友</span>
+                        <span class="text-[11px] md:text-[12px] font-black text-slate-500 uppercase tracking-widest">球友</span>
                         <span class="text-xs md:text-sm font-black italic text-slate-900">@{{ currentIndex + 1 }} / @{{ players.length }}</span>
                     </div>
                     {{-- Mobile Next Button --}}
@@ -53,22 +53,22 @@
                             <div class="space-y-4 mb-8">
                                 {{-- Row 1: Status, Level, Gender, Handedness --}}
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <span class="px-2 py-1 bg-blue-600 text-white text-[8px] font-black rounded-lg uppercase tracking-widest italic shrink-0">已認證</span>
-                                    <div class="flex items-center gap-1 px-2 py-1 bg-blue-50 rounded-lg text-[10px] font-black text-blue-600 italic shrink-0">
-                                        <app-icon name="zap" class-name="w-3 h-3"></app-icon>
+                                    <span class="px-2 py-1 bg-blue-600 text-white text-[11px] font-black rounded-lg uppercase tracking-widest italic shrink-0">已認證</span>
+                                    <div class="flex items-center gap-1 px-2 py-1 bg-blue-50 rounded-lg text-[11px] font-black text-blue-600 italic shrink-0">
+                                        <app-icon name="zap" class-name="w-3.5 h-3.5"></app-icon>
                                         NTRP @{{player.level}}
                                         <button @click.stop="$emit('open-ntrp-guide')" class="ml-1 text-blue-400 hover:text-blue-600 transition-colors">
-                                            <app-icon name="help-circle" class-name="w-3 h-3 opacity-60"></app-icon>
+                                            <app-icon name="help-circle" class-name="w-3.5 h-3.5 opacity-60"></app-icon>
                                         </button>
                                     </div>
-                                    <div class="flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-lg text-[10px] font-bold text-slate-600 shrink-0">
-                                        <app-icon :name="player.gender === '女' ? 'female' : 'male'" class-name="w-3 h-3 text-slate-400"></app-icon>
+                                    <div class="flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-lg text-[11px] font-bold text-slate-600 shrink-0">
+                                        <app-icon :name="player.gender === '女' ? 'female' : 'male'" class-name="w-3.5 h-3.5 text-slate-400"></app-icon>
                                         @{{player.gender}}
                                     </div>
-                                    <div class="flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-lg text-[10px] font-bold text-slate-600 shrink-0">
+                                    <div class="flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-lg text-[11px] font-bold text-slate-600 shrink-0">
                                         @{{player.handed || '右手'}}
                                     </div>
-                                    <div class="flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-lg text-[10px] font-bold text-slate-600 shrink-0">
+                                    <div class="flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-lg text-[11px] font-bold text-slate-600 shrink-0">
                                         @{{player.backhand || '雙反'}}
                                     </div>
                                 </div>
@@ -76,8 +76,8 @@
                                 {{-- Row 2: Regions (Independent Line) --}}
                                 <div v-if="player.region" class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-50">
                                     <template v-for="r in (player.region || '').split(',').filter(x => x)" :key="r">
-                                        <div class="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 rounded-xl text-[10px] font-bold text-slate-600 shrink-0 border border-slate-200/50">
-                                            <app-icon name="map-pin" class-name="w-3 h-3 text-blue-500/70"></app-icon>
+                                        <div class="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 rounded-xl text-[11px] font-bold text-slate-600 shrink-0 border border-slate-200/50">
+                                            <app-icon name="map-pin" class-name="w-3.5 h-3.5 text-blue-500/70"></app-icon>
                                             @{{r}}
                                         </div>
                                     </template>
@@ -109,7 +109,7 @@
                                                 <app-icon :name="item.icon" class-name="w-3.5 h-3.5 text-slate-400"></app-icon>
                                             </div>
                                             <div class="space-y-0.5">
-                                                <div class="text-[9px] font-black uppercase tracking-widest text-slate-300">@{{ item.label }}</div>
+                                                <div class="text-[11px] font-black uppercase tracking-widest text-slate-400">@{{ item.label }}</div>
                                                 <div class="text-sm font-black text-slate-700">@{{ item.value }}</div>
                                             </div>
                                         </div>
@@ -139,7 +139,7 @@
                                                 <app-icon name="calendar" class-name="w-3.5 h-3.5 text-blue-600"></app-icon>
                                             </div>
                                             <div>
-                                                <div class="text-[9px] font-black uppercase tracking-widest text-slate-300">場次</div>
+                                                <div class="text-[11px] font-black uppercase tracking-widest text-slate-400">場次</div>
                                                 <div class="text-sm font-black text-slate-700">@{{ stats?.matches || 0 }}</div>
                                             </div>
                                         </div>
@@ -148,7 +148,7 @@
                                                 <app-icon name="heart" class-name="w-3.5 h-3.5 text-rose-500"></app-icon>
                                             </div>
                                             <div>
-                                                <div class="text-[9px] font-black uppercase tracking-widest text-slate-300">按讚</div>
+                                                <div class="text-[11px] font-black uppercase tracking-widest text-slate-400">按讚</div>
                                                 <div class="text-sm font-black text-slate-700">@{{ stats?.likes || 0 }}</div>
                                             </div>
                                         </div>
@@ -297,9 +297,9 @@
                                 <div class="flex items-center justify-between mb-6">
                                     <div class="flex items-center gap-2">
                                         <div class="w-1 h-3 bg-blue-600 rounded-full"></div>
-                                        <span class="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 italic">留言 / Comments</span>
+                                        <span class="text-[11px] font-black uppercase tracking-[0.1em] text-slate-500 italic">留言 / Comments</span>
                                     </div>
-                                    <span class="text-[9px] font-black text-slate-300">@{{ comments.length }} COMMENTS</span>
+                                    <span class="text-[10px] font-black text-slate-400">@{{ comments.length }} COMMENTS</span>
                                 </div>
 
                                  <!-- Combined Comment Unit -->
@@ -507,12 +507,12 @@
                         {{-- Info Overlay --}}
                         <div class="absolute inset-0 flex flex-col justify-end p-8 sm:p-12 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent">
                             <div class="flex items-center gap-2 mb-4">
-                                <span :class="['px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg', 
+                                <span :class="['px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-widest shadow-lg', 
                                     event.status === 'open' ? 'bg-green-500 text-white' : 
                                     event.status === 'full' ? 'bg-amber-500 text-white' : 'bg-slate-600 text-white']">
                                     @{{ event.status === 'open' ? '招募中' : event.status === 'full' ? '已滿' : '已結束' }}
                                 </span>
-                                <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-white/20 backdrop-blur text-white border border-white/10">
+                                <span class="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-widest bg-white/20 backdrop-blur text-white border border-white/10">
                                     @{{ event.match_type === 'all' ? '不限賽制' : event.match_type === 'singles' ? '單打' : event.match_type === 'doubles' ? '雙打' : '混雙' }}
                                 </span>
                             </div>
@@ -547,12 +547,12 @@
                                     <app-icon v-else name="user" class-name="w-full h-full text-slate-300 p-2"></app-icon>
                                 </div>
                                 <div>
-                                    <div class="text-slate-400 text-[10px] font-black uppercase tracking-widest leading-none mb-1">主辦人</div>
+                                    <div class="text-slate-500 text-[11px] font-black uppercase tracking-widest leading-none mb-1">主辦人</div>
                                     <div class="text-slate-900 font-black text-lg">@{{ event.player?.name || '主辦人' }}</div>
                                 </div>
                             </div>
                             <div class="text-right">
-                                <div class="text-slate-400 text-[10px] font-black uppercase tracking-widest leading-none mb-1">費用 / 人</div>
+                                <div class="text-slate-500 text-[11px] font-black uppercase tracking-widest leading-none mb-1">費用 / 人</div>
                                 <div class="text-2xl font-black italic tracking-tighter text-blue-600 leading-none">@{{ event.fee === 0 ? '全台免費' : '$' + event.fee }}</div>
                             </div>
                         </div>
@@ -568,11 +568,11 @@
                                 </div>
                                 <div class="space-y-3">
                                     <div>
-                                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">開始</div>
+                                        <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">開始</div>
                                         <div class="font-black text-slate-800">@{{ formatEventDate(event.event_date) }}</div>
                                     </div>
                                     <div v-if="event.end_date">
-                                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">結束</div>
+                                        <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">結束</div>
                                         <div class="font-black text-slate-800 opacity-60">@{{ formatEventDate(event.end_date) }}</div>
                                     </div>
                                 </div>
@@ -589,7 +589,7 @@
                                         <div class="text-3xl font-black italic text-slate-900 leading-none">
                                             @{{ event.confirmed_participants?.length || 1 }} <span class="text-sm font-bold opacity-30">/ @{{ event.max_participants === 0 ? '∞' : event.max_participants }}</span>
                                         </div>
-                                        <div class="text-[10px] font-black text-slate-400 tracking-widest uppercase">
+                                        <div class="text-[11px] font-black text-slate-500 tracking-widest uppercase">
                                             剩餘 @{{ event.max_participants === 0 ? '∞' : event.spots_left }}
                                         </div>
                                     </div>
@@ -599,7 +599,7 @@
                                             <img v-if="p.player?.photo" :src="p.player.photo_url || p.player.photo" class="w-full h-full object-cover">
                                             <app-icon v-else name="user" class-name="w-full h-full text-slate-300 p-1.5"></app-icon>
                                         </div>
-                                        <div v-if="event.participants_count > 5" class="w-8 h-8 rounded-full bg-slate-900 border-2 border-white flex items-center justify-center text-[10px] font-black text-white shrink-0">
+                                        <div v-if="event.participants_count > 5" class="w-8 h-8 rounded-full bg-slate-900 border-2 border-white flex items-center justify-center text-[11px] font-black text-white shrink-0">
                                             +@{{ event.participants_count - 5 }}
                                         </div>
                                     </div>
@@ -628,7 +628,7 @@
                         {{-- Content / Notes --}}
                         <div class="bg-blue-600 text-white p-8 rounded-[40px] shadow-[0_20px_40px_-10px_rgba(37,99,235,0.4)] relative overflow-hidden" v-if="event.notes">
                             <div class="absolute right-[-10%] bottom-[-20%] w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-                            <div class="text-[10px] font-black uppercase tracking-[.3em] text-white/50 mb-3 block">
+                            <div class="text-[11px] font-black uppercase tracking-[.3em] text-white/50 mb-3 block">
                                 活動叮嚀 FROM HOST
                             </div>
                             <p class="text-xl sm:text-2xl font-black italic leading-tight whitespace-pre-line">
@@ -640,7 +640,7 @@
                         <div class="border-t border-slate-200 pt-10 space-y-8">
                             {{-- Comment Input --}}
                             <div class="px-2">
-                                <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 ml-2">提問、留言、或打個招呼...</div>
+                                <div class="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-3 ml-2">提問、留言、或打個招呼...</div>
                                 <div class="flex gap-3 mb-10">
                                     <div class="w-10 h-10 rounded-full overflow-hidden bg-slate-100 shrink-0 border border-slate-100">
                                         <img v-if="currentUser?.line_picture_url" :src="currentUser.line_picture_url" class="w-full h-full object-cover">

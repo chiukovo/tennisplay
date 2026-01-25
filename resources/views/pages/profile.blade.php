@@ -73,9 +73,9 @@
                                 <div class="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg shadow-blue-500/30">
                                     <app-icon name="plus" class-name="w-6 h-6"></app-icon>
                                 </div>
-                                <p class="text-xs font-black text-slate-900 uppercase tracking-widest mb-1">尚未建立球友卡</p>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">建立後即可開啟約打功能</p>
-                                <button @click="navigateTo('create')" class="w-full py-3 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-all">
+                                <p class="text-[11px] font-black text-slate-900 uppercase tracking-widest mb-1">尚未建立球友卡</p>
+                                <p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-4">建立後即可開啟約打功能</p>
+                                <button @click="navigateTo('create')" class="w-full py-3 bg-blue-600 text-white rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-all">
                                     立即建立
                                 </button>
                             </div>
@@ -137,7 +137,7 @@
                                 </div>
                                 <div class="flex flex-col">
                                     <div class="text-lg sm:text-xl font-black text-slate-950 tracking-tight leading-none whitespace-nowrap">@{{ profileData.stats.following_count }}</div>
-                                    <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5 whitespace-nowrap">追蹤</div>
+                                    <div class="text-[11px] font-black text-slate-500 uppercase tracking-widest mt-0.5 whitespace-nowrap">追蹤</div>
                                 </div>
                             </div>
                             <div class="flex items-center gap-2.5 shrink-0 group">
@@ -146,7 +146,7 @@
                                 </div>
                                 <div class="flex flex-col">
                                     <div class="text-lg sm:text-xl font-black text-slate-950 tracking-tight leading-none whitespace-nowrap">@{{ profileData.stats.followers_count }}</div>
-                                    <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5 whitespace-nowrap">追蹤者</div>
+                                    <div class="text-[11px] font-black text-slate-500 uppercase tracking-widest mt-0.5 whitespace-nowrap">追蹤者</div>
                                 </div>
                             </div>
                             <div class="flex items-center gap-2.5 shrink-0 group">
@@ -155,7 +155,7 @@
                                 </div>
                                 <div class="flex flex-col">
                                     <div class="text-lg sm:text-xl font-black text-slate-950 tracking-tight leading-none whitespace-nowrap">@{{ profileData.stats.likes_count }}</div>
-                                    <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5 whitespace-nowrap">按讚</div>
+                                    <div class="text-[11px] font-black text-slate-500 uppercase tracking-widest mt-0.5 whitespace-nowrap">按讚</div>
                                 </div>
                             </div>
                         </div>
@@ -165,10 +165,10 @@
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-2">
                                     <div class="w-1.5 h-4 bg-blue-600 rounded-full"></div>
-                                    <span class="text-xs font-black uppercase tracking-widest text-slate-400 italic">個人檔案 / Profile Bio</span>
+                                    <span class="text-[11px] font-black uppercase tracking-widest text-slate-500 italic">個人檔案 / Profile Bio</span>
                                 </div>
                                 <div class="flex items-center gap-3">
-                                    <button v-if="profileData.status?.is_me && !isEditingProfile" @click="isEditingProfile = true" class="md:hidden text-slate-600 font-black text-[11px] uppercase tracking-widest flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 rounded-lg">
+                                    <button v-if="profileData.status?.is_me && !isEditingProfile" @click="isEditingProfile = true" class="md:hidden text-slate-700 font-black text-[11px] uppercase tracking-widest flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 rounded-lg">
                                         <app-icon name="edit-3" class-name="w-3.5 h-3.5"></app-icon>編輯
                                     </button>
                                     <button v-if="profileData.status?.is_me && !profileData.user?.player" @click="navigateTo('create')" class="md:hidden text-blue-600 font-black text-[11px] uppercase tracking-widest flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 rounded-lg">
@@ -297,11 +297,11 @@
                         <div :class="['absolute bottom-0 left-0 right-0 h-1 bg-blue-600 rounded-full transition-all duration-300', profileTab === 'past' ? 'opacity-100 w-full' : 'opacity-0 w-0']"></div>
                     </button>
                     <button @click="profileTab = 'comments'; loadProfileComments()" 
-                            :class="profileTab === 'comments' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'"
+                            :class="profileTab === 'comments' ? 'text-blue-600' : 'text-slate-500 hover:text-slate-700'"
                             class="relative py-4 text-[11px] sm:text-sm font-black uppercase tracking-[0.2em] transition-all group whitespace-nowrap flex items-center gap-1.5">
                         留言板
                         <div v-if="profileData.user?.player?.comments_count > 0" 
-                             :class="profileTab === 'comments' ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400'"
+                             :class="profileTab === 'comments' ? 'bg-blue-100 text-blue-600' : 'bg-slate-200 text-slate-600'"
                              class="px-1.5 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-black tracking-normal transition-colors">
                             @{{ profileData.user.player.comments_count }}
                         </div>
@@ -363,9 +363,9 @@
                     <div class="flex items-center justify-between mb-6">
                         <div class="flex items-center gap-2">
                             <div class="w-1 h-3 bg-blue-600 rounded-full"></div>
-                            <span class="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400 italic">球友留言板 / Comments</span>
+                            <span class="text-[11px] font-black uppercase tracking-[0.1em] text-slate-500 italic">球友留言板 / Comments</span>
                         </div>
-                        <span class="text-[9px] font-black text-slate-300">@{{ profileComments.length }} COMMENTS</span>
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">@{{ profileComments.length }} COMMENTS</span>
                     </div>
 
                     <!-- Comment Input -->
@@ -375,7 +375,7 @@
                             <div class="flex items-center gap-4">
                                 <div class="w-1 h-8 bg-amber-400 rounded-full"></div>
                                 <div>
-                                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">綜合評價</span>
+                                    <span class="text-[11px] font-black uppercase tracking-widest text-slate-500">綜合評價</span>
                                     <div class="flex items-center gap-3 mt-1">
                                         <div class="flex text-amber-400 gap-0.5">
                                             <app-icon v-for="i in 5" :key="i" name="star" :class-name="i <= Math.round(profileData.user.player.average_rating) ? 'w-5 h-5 text-amber-400' : 'w-5 h-5 text-slate-200'" :fill="i <= Math.round(profileData.user.player.average_rating) ? 'currentColor' : 'none'"></app-icon>
@@ -386,7 +386,7 @@
                             </div>
                             <div class="text-right">
                                 <div class="text-3xl font-black text-blue-600">@{{ profileData.user.player.ratings_count }}</div>
-                                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">則評價</div>
+                                <div class="text-[11px] font-bold text-slate-500 uppercase tracking-widest">則評價</div>
                             </div>
                         </div>
                         <!-- Distribution Bars -->

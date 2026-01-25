@@ -3,8 +3,8 @@
     {{-- Header --}}
     <div class="flex items-center justify-between">
         <div>
-            <h2 class="text-2xl sm:text-5xl font-black italic uppercase tracking-tighter">約打訊息</h2>
-            <p class="text-slate-400 font-bold text-xs sm:text-sm uppercase tracking-[0.2em] mt-1 sm:mt-2">My Messages</p>
+            <h2 class="text-premium-title">約打訊息</h2>
+            <p class="text-premium-subtitle">My Messages</p>
         </div>
     </div>
     
@@ -15,8 +15,8 @@
                 <app-icon name="bell" class-name="w-4 h-4 sm:w-5 sm:h-5"></app-icon>
             </div>
             <div class="text-left">
-                <div class="font-black text-xs sm:text-sm uppercase tracking-tight">加入好友 立即收到通知</div>
-                <div class="text-[9px] sm:text-[10px] text-blue-100 font-bold hidden sm:block">加入 LINE 官方帳號，約打邀請即時推播</div>
+                <div class="font-black text-sm uppercase tracking-tight">加入好友 立即收到通知</div>
+                <div class="text-[10px] sm:text-[11px] text-blue-100 font-bold hidden sm:block">加入 LINE 官方帳號，約打邀請即時推播</div>
             </div>
         </div>
         <app-icon name="chevron-right" class-name="w-4 h-4 sm:w-5 sm:h-5 opacity-60 group-hover:translate-x-1 transition-transform"></app-icon>
@@ -52,22 +52,22 @@
                 {{-- Content --}}
                 <div class="flex-1 min-w-0">
                     <div class="flex justify-between items-center mb-0.5 sm:mb-1">
-                        <h4 class="font-black italic uppercase tracking-tight text-sm sm:text-lg text-slate-800 truncate pr-2">
+                        <h4 class="font-black italic uppercase tracking-tight text-base sm:text-lg text-slate-800 truncate pr-2">
                             @{{ m.sender?.uid === currentUser.uid ? m.receiver?.name : m.sender?.name }}
                         </h4>
-                        <span class="text-[10px] sm:text-[11px] font-bold text-slate-400 whitespace-nowrap">@{{ formatDate(m.created_at) }}</span>
+                        <span class="text-[11px] font-bold text-slate-400 whitespace-nowrap">@{{ formatDate(m.created_at) }}</span>
                     </div>
                     <div class="flex items-center justify-between gap-2 sm:gap-4">
-                        <p class="text-xs sm:text-sm font-medium text-slate-500 truncate group-hover:text-slate-900 transition-colors leading-snug">
-                            <span v-if="m.sender?.uid === currentUser.uid" class="text-blue-500 font-bold mr-1">您:</span>
+                        <p class="text-[13px] sm:text-sm font-medium text-slate-600 truncate group-hover:text-slate-900 transition-colors leading-snug">
+                            <span v-if="m.sender?.uid === currentUser.uid" class="text-blue-600 font-black mr-1">您:</span>
                             @{{ m.content }}
                         </p>
-                        <div v-if="m.unread_count > 0" class="bg-blue-600 text-white text-[9px] sm:text-[10px] font-black px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full shadow-md shrink-0">
+                        <div v-if="m.unread_count > 0" class="bg-blue-600 text-white text-[10px] sm:text-[11px] font-black px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full shadow-md shrink-0">
                             @{{ m.unread_count }}
                         </div>
                     </div>
-                    <div v-if="m.player" class="mt-1 flex items-center gap-1">
-                        <span class="text-[9px] sm:text-[10px] bg-slate-100 text-slate-400 font-black px-1.5 sm:px-2 py-0.5 rounded-md uppercase tracking-tighter italic">關於卡片: @{{ m.player.name }}</span>
+                    <div v-if="m.player" class="mt-1.5 flex items-center gap-1">
+                        <span class="text-[10px] sm:text-[11px] bg-slate-100 text-slate-500 font-black px-1.5 sm:px-2 py-0.5 rounded-md uppercase tracking-tighter italic">關於卡片: @{{ m.player.name }}</span>
                     </div>
                 </div>
 

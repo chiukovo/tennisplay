@@ -67,29 +67,29 @@
             <div v-if="showCoachFilters" class="bg-white border border-slate-100 rounded-[32px] p-6 sm:p-8 shadow-xl shadow-slate-200/50 space-y-8 relative z-10 -mt-4 pt-12">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div class="space-y-3">
-                        <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">教學方式</label>
+                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">教學方式</label>
                         <div class="flex gap-2">
                             <button v-for="m in ['全部', ...coachMethods]" :key="m" @click="coachMethodDraft = m"
-                                :class="['flex-1 py-3 rounded-xl font-black text-xs transition-all border-2', coachMethodDraft === m ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-slate-50 text-slate-400 border-transparent hover:border-slate-200']">
+                                :class="['flex-1 py-3 rounded-xl font-black text-xs transition-all border-2', coachMethodDraft === m ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-slate-50 text-slate-500 border-transparent hover:border-slate-200']">
                                 @{{ m }}
                             </button>
                         </div>
                     </div>
 
                     <div class="space-y-3">
-                        <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">每小時費用</label>
+                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">每小時費用</label>
                         <input v-model="coachPriceMinDraft" type="number" min="0" placeholder="時薪"
                             class="w-full px-3 py-3 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:border-blue-500 font-black text-xs transition-all">
                     </div>
 
                     <div class="space-y-3">
-                        <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">上課地點</label>
+                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">上課地點</label>
                         <input v-model="coachLocationDraft" type="text" placeholder="例如：台北 / 大安"
                             class="w-full px-3 py-3 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:border-blue-500 font-black text-xs transition-all">
                     </div>
 
                     <div class="space-y-3">
-                        <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">專長</label>
+                        <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">專長</label>
                         <input v-model="coachTagDraft" type="text" placeholder="例如：發球 / 雙打"
                             class="w-full px-3 py-3 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:border-blue-500 font-black text-xs transition-all">
                     </div>
@@ -108,12 +108,12 @@
     <div v-if="coachSearchQuery || coachSelectedRegion !== '全部' || coachPriceMin || coachPriceMax || coachSelectedMethod !== '全部' || coachSelectedTag || coachSelectedLocation" class="flex items-center gap-3 text-sm px-1">
         <span class="text-slate-400 font-medium">篩選條件:</span>
         <div class="flex flex-wrap gap-2 bg-white/80 border border-slate-100 rounded-2xl px-3 py-2">
-            <span v-if="coachSearchQuery" class="px-3 py-1 bg-white border border-blue-100 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm">關鍵字: @{{ coachSearchQuery }}</span>
-            <span v-if="coachSelectedRegion !== '全部'" class="px-3 py-1 bg-white border border-slate-200 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm">@{{ coachSelectedRegion }}</span>
-            <span v-if="coachSelectedMethod !== '全部'" class="px-3 py-1 bg-white border border-slate-200 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm">@{{ coachSelectedMethod }}</span>
-            <span v-if="coachPriceMin" class="px-3 py-1 bg-white border border-slate-200 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm">時薪 @{{ coachPriceMin }}</span>
-            <span v-if="coachSelectedTag" class="px-3 py-1 bg-white border border-slate-200 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm">專長: @{{ coachSelectedTag }}</span>
-            <span v-if="coachSelectedLocation" class="px-3 py-1 bg-white border border-slate-200 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm">地點: @{{ coachSelectedLocation }}</span>
+            <span v-if="coachSearchQuery" class="px-3 py-1 bg-white border border-blue-100 text-blue-600 rounded-full text-[11px] font-black uppercase tracking-wider shadow-sm">關鍵字: @{{ coachSearchQuery }}</span>
+            <span v-if="coachSelectedRegion !== '全部'" class="px-3 py-1 bg-white border border-slate-200 text-slate-600 rounded-full text-[11px] font-black uppercase tracking-wider shadow-sm">@{{ coachSelectedRegion }}</span>
+            <span v-if="coachSelectedMethod !== '全部'" class="px-3 py-1 bg-white border border-slate-200 text-slate-600 rounded-full text-[11px] font-black uppercase tracking-wider shadow-sm">@{{ coachSelectedMethod }}</span>
+            <span v-if="coachPriceMin" class="px-3 py-1 bg-white border border-slate-200 text-slate-600 rounded-full text-[11px] font-black uppercase tracking-wider shadow-sm">時薪 @{{ coachPriceMin }}</span>
+            <span v-if="coachSelectedTag" class="px-3 py-1 bg-white border border-slate-200 text-slate-600 rounded-full text-[11px] font-black uppercase tracking-wider shadow-sm">專長: @{{ coachSelectedTag }}</span>
+            <span v-if="coachSelectedLocation" class="px-3 py-1 bg-white border border-slate-200 text-slate-600 rounded-full text-[11px] font-black uppercase tracking-wider shadow-sm">地點: @{{ coachSelectedLocation }}</span>
         </div>
         <span class="text-slate-300 text-xs font-bold uppercase tracking-widest hidden sm:inline">第 @{{ playersPagination.current_page }} / @{{ coachTotalPages }} 頁</span>
         <button type="button" @click="coachSearchDraft = ''; coachSearchQuery = ''; coachRegionDraft = '全部'; coachSelectedRegion = '全部'; coachPriceMinDraft = ''; coachPriceMaxDraft = ''; coachPriceMin = ''; coachPriceMax = ''; coachMethodDraft = '全部'; coachSelectedMethod = '全部'; coachTagDraft = ''; coachSelectedTag = ''; coachLocationDraft = ''; coachSelectedLocation = ''; handleCoachSearch();" class="text-red-500 text-xs font-black uppercase tracking-widest hover:underline ml-auto">清除全部</button>
@@ -140,24 +140,24 @@
                             <span v-if="player.coach_price_min" class="text-[11px] font-black text-amber-600">/小時</span>
                         </div>
                     </div>
-                    <div class="flex flex-wrap items-center gap-2 text-[10px] font-bold text-slate-500">
+                    <div class="flex flex-wrap items-center gap-2 text-[11px] font-bold text-slate-600">
                         <div v-if="player.coach_locations" class="flex items-center gap-1 bg-slate-50 border border-slate-100 rounded-full px-2 py-1">
-                            <span class="uppercase tracking-wider text-slate-400">地點</span>
-                            <span class="text-slate-700">
+                            <span class="uppercase tracking-wider text-slate-500">地點</span>
+                            <span class="text-slate-800">
                                 @{{ String(player.coach_locations).split(',').map(x => x.trim()).filter(x => x).slice(0, 2).join('、') }}
                             </span>
                             <span v-if="String(player.coach_locations).split(',').map(x => x.trim()).filter(x => x).length > 2" class="text-slate-400">...</span>
                         </div>
                         <div v-if="player.coach_experience_years" class="flex items-center gap-1 bg-white border border-slate-100 rounded-full px-2 py-1">
-                            <span class="uppercase tracking-wider text-slate-400">年資</span>
-                            <span class="text-slate-700">@{{ player.coach_experience_years }} 年</span>
+                            <span class="uppercase tracking-wider text-slate-500">年資</span>
+                            <span class="text-slate-800">@{{ player.coach_experience_years }} 年</span>
                         </div>
                     </div>
                     <div v-if="player.coach_tags" class="flex flex-wrap gap-2 max-h-[64px] overflow-hidden">
-                        <span v-for="(t, idx) in String(player.coach_tags).split(',').map(x => x.trim()).filter(x => x).slice(0, 5)" :key="`${t}-${idx}`" class="px-3 py-1.5 rounded-full bg-amber-50 text-amber-800 text-[10px] font-bold uppercase tracking-[0.16em] border border-amber-200">
+                        <span v-for="(t, idx) in String(player.coach_tags).split(',').map(x => x.trim()).filter(x => x).slice(0, 5)" :key="`${t}-${idx}`" class="px-3 py-1.5 rounded-full bg-amber-50 text-amber-900 text-[11px] font-bold uppercase tracking-[0.16em] border border-amber-200">
                             @{{ t }}
                         </span>
-                        <span v-if="String(player.coach_tags).split(',').map(x => x.trim()).filter(x => x).length > 5" class="px-3 py-1.5 rounded-full bg-white text-slate-500 text-[10px] font-bold uppercase tracking-[0.16em] border border-slate-200">
+                        <span v-if="String(player.coach_tags).split(',').map(x => x.trim()).filter(x => x).length > 5" class="px-3 py-1.5 rounded-full bg-white text-slate-600 text-[11px] font-bold uppercase tracking-[0.16em] border border-slate-200">
                             +@{{ String(player.coach_tags).split(',').map(x => x.trim()).filter(x => x).length - 5 }}
                         </span>
                     </div>

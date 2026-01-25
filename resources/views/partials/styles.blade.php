@@ -13,14 +13,37 @@
         font-style: normal;
         font-display: swap;
     }
+    @font-face {
+        font-family: 'LINE Seed TW';
+        src: url('/fonts/LINE Seed TW_ver02/WOFF2/LINESeedTW_OTF_Rg.woff2') format('woff2');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+    }
+    @font-face {
+        font-family: 'LINE Seed TW';
+        src: url('/fonts/LINE Seed TW_ver02/WOFF2/LINESeedTW_OTF_Bd.woff2') format('woff2');
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+    }
+    @font-face {
+        font-family: 'LINE Seed TW';
+        src: url('/fonts/LINE Seed TW_ver02/WOFF2/LINESeedTW_OTF_Eb.woff2') format('woff2');
+        font-weight: 900;
+        font-style: normal;
+        font-display: swap;
+    }
 
     *, ::before, ::after {
         box-sizing: border-box;
     }
     html, body { 
         font-family: 'LINE Seed TW', 'Outfit', 'Plus Jakarta Sans', 'Inter', 'Noto Sans TC', sans-serif; 
-        font-weight: 100;
+        font-weight: 400;
         font-size: 16px;
+        line-height: 1.5;
+        letter-spacing: -0.011em;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         text-rendering: optimizeLegibility;
@@ -45,19 +68,13 @@
 
     /* --- Design Tokens: Typography --- */
     .text-premium-title {
-        font-size: 1.875rem; /* text-3xl */
-        line-height: 2.25rem;
+        font-size: clamp(1.875rem, 8vw, 3.5rem);
+        line-height: 1.1;
         font-weight: 900;
         font-style: italic;
         text-transform: uppercase;
-        letter-spacing: -0.05em;
+        letter-spacing: -0.04em;
         color: #0f172a; /* text-slate-900 */
-    }
-    @media (min-width: 640px) {
-        .text-premium-title {
-            font-size: 3rem; /* text-5xl */
-            line-height: 1;
-        }
     }
 
     .text-premium-subtitle {
@@ -76,11 +93,11 @@
 
     .text-premium-label {
         font-family: 'LINE Seed TW', sans-serif;
-        font-size: 10px;
+        font-size: 11px;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.2em;
-        color: #94a3b8; /* text-slate-400 */
+        letter-spacing: 0.15em;
+        color: #64748b; /* text-slate-500 - slightly darker for better a11y */
     }
 
     /* --- Design Tokens: Buttons --- */

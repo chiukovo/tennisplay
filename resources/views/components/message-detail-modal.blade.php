@@ -18,7 +18,7 @@
                             </div>
                             <div>
                                 <h3 class="text-base sm:text-xl font-black italic uppercase tracking-tight">@{{ targetUser?.name || 'Loading...' }}</h3>
-                                <p v-if="targetUser?.player" class="text-[10px] sm:text-xs text-blue-200 font-bold">關於: @{{ targetUser.player.name }}</p>
+                                <p v-if="targetUser?.player" class="text-[11px] sm:text-xs text-blue-200 font-bold">關於: @{{ targetUser.player.name }}</p>
                             </div>
                         </div>
                     </div>
@@ -49,7 +49,7 @@
                         <div :class="['max-w-[75%] rounded-2xl px-3.5 py-2.5 sm:p-4 shadow-sm relative', 
                             msg.is_me ? 'bg-blue-600 text-white rounded-br-md' : 'bg-white text-slate-700 rounded-bl-md border border-slate-100']">
                             <p class="text-[13px] sm:text-base font-medium whitespace-pre-line leading-relaxed">@{{ msg.content }}</p>
-                            <div :class="['text-[9px] sm:text-[10px] font-bold mt-1 text-right', msg.is_me ? 'text-blue-200' : 'text-slate-400']">
+                            <div :class="['text-[10px] sm:text-[11px] font-bold mt-1 text-right', msg.is_me ? 'text-blue-200' : 'text-slate-500']">
                                 @{{ formatDate(msg.created_at) }}
                             </div>
                         </div>
@@ -77,7 +77,7 @@
                             <app-icon v-if="sending" name="loader" class-name="w-5 h-5 animate-spin"></app-icon>
                         </button>
                     </form>
-                    <p class="text-[9px] text-slate-400 text-center mt-1.5 hidden sm:block">按 Enter 發送 · Shift+Enter 換行</p>
+                    <p class="text-[10px] text-slate-500 text-center mt-1.5 hidden sm:block">按 Enter 發送 · Shift+Enter 換行</p>
                 </div>
             </div>
         </div>

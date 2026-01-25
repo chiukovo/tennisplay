@@ -124,7 +124,7 @@
             </svg>
         </div>
         <p style="font-size: 1.125rem; font-weight: 900; color: #0f172a; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">登入中</p>
-        <p style="font-size: 0.875rem; font-weight: 700; color: #94a3b8;">正在連接 LINE 帳號...</p>
+        <p style="font-size: 0.875rem; font-weight: 700; color: #64748b;">正在連接 LINE 帳號...</p>
     </div>
     <script>
         // Check immediately before anything else loads
@@ -181,7 +181,7 @@
                     </svg>
                 </div>
                 <p class="text-lg font-black text-slate-900 uppercase tracking-widest mb-2">登入中</p>
-                <p class="text-sm font-bold text-slate-400">正在連接 LINE 帳號...</p>
+                <p class="text-sm font-bold text-slate-500">正在連接 LINE 帳號...</p>
             </div>
         </div>
     </transition>
@@ -212,16 +212,16 @@
             {{-- Left: Logo & Copyright --}}
             <div class="flex items-center gap-3">
                 <img src="/img/logo.png" alt="LoveTennis" class="w-8 h-8 opacity-50 grayscale">
-                <div class="text-slate-400 text-[10px] sm:text-xs font-bold uppercase tracking-widest">
+                <div class="text-slate-500 text-[11px] sm:text-sm font-black uppercase tracking-widest">
                     Copyright © 2026 chiuko. All rights reserved.
                 </div>
             </div>
             
             {{-- Right: Contact & Links --}}
-            <div class="flex flex-wrap justify-center md:justify-end items-center gap-x-6 gap-y-2 text-slate-400 text-[10px] sm:text-xs font-bold tracking-widest">
+            <div class="flex flex-wrap justify-center md:justify-end items-center gap-x-6 gap-y-2 text-slate-500 text-[11px] sm:text-sm font-black tracking-widest">
                 <div class="flex items-center gap-1">
-                    <span class="opacity-60">建議來信：</span>
-                    <a href="mailto:q8156697@gmail.com" class="text-blue-600/80 hover:text-blue-600 transition-colors lowercase">q8156697@gmail.com</a>
+                    <span class="opacity-70">建議來信：</span>
+                    <a href="mailto:q8156697@gmail.com" class="text-blue-600 hover:text-blue-700 transition-colors lowercase">q8156697@gmail.com</a>
                 </div>
                 <div class="flex items-center gap-4">
                     <a href="https://www.threads.com/@chiuko_o" target="_blank" rel="noopener noreferrer" class="hover:text-slate-600 transition-colors" title="Threads">

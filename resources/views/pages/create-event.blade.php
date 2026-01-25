@@ -21,7 +21,7 @@
         {{-- Card 1: What & Where --}}
         <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 space-y-6">
             <div>
-                <label class="block text-sm font-black uppercase tracking-widest text-slate-400 mb-3 ml-1">活動主題 <span class="text-red-500">*</span></label>
+                <label class="block text-[11px] font-black uppercase tracking-widest text-slate-500 mb-3 ml-1">活動主題 <span class="text-red-500">*</span></label>
                 <input v-model="eventForm.title" type="text" required maxlength="100"
                     class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl text-lg font-black focus:bg-white focus:border-blue-500 transition-all text-slate-900 placeholder:font-bold"
                     placeholder="例如：週六下午休閒網球">
@@ -29,7 +29,7 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-sm font-black uppercase tracking-widest text-slate-400 mb-3 ml-1">活動地區 <span class="text-red-500">*</span></label>
+                    <label class="block text-[11px] font-black uppercase tracking-widest text-slate-500 mb-3 ml-1">活動地區 <span class="text-red-500">*</span></label>
                     <div class="relative">
                         <select v-model="eventForm.region" required
                             class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl text-lg font-black focus:bg-white focus:border-blue-500 transition-all text-slate-900 appearance-none">
@@ -42,7 +42,7 @@
                     </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-black uppercase tracking-widest text-slate-400 mb-3 ml-1">球場名稱 <span class="text-red-500">*</span></label>
+                    <label class="block text-[11px] font-black uppercase tracking-widest text-slate-500 mb-3 ml-1">球場名稱 <span class="text-red-500">*</span></label>
                     <input v-model="eventForm.location" type="text" required
                         class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl text-lg font-black focus:bg-white focus:border-blue-500 transition-all text-slate-900 placeholder:font-bold"
                         placeholder="例如：內湖運動中心">
@@ -51,7 +51,7 @@
 
             <div class="space-y-6">
                 <div>
-                    <label class="block text-sm font-black uppercase tracking-widest text-slate-400 mb-3 ml-1 flex items-center justify-between">
+                    <label class="block text-[11px] font-black uppercase tracking-widest text-slate-500 mb-3 ml-1 flex items-center justify-between">
                         <span>球場詳細地址</span>
                         <button type="button" @click="useCurrentLocation" class="flex items-center gap-1.5 text-blue-600 hover:text-blue-700 transition-all text-[10px] font-black uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full">
                             <app-icon name="map-pin" class-name="w-3 h-3"></app-icon>
@@ -72,7 +72,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-black uppercase tracking-widest text-slate-400 mb-3 ml-1">每人費用 <span class="text-red-500">*</span></label>
+                    <label class="block text-[11px] font-black uppercase tracking-widest text-slate-500 mb-3 ml-1">每人費用 <span class="text-red-500">*</span></label>
                     <div class="relative">
                         <span class="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg">$</span>
                         <input v-model.number="eventForm.fee" type="number" required min="0"
@@ -87,7 +87,7 @@
         <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 space-y-6">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-sm font-black uppercase tracking-widest text-slate-400 mb-3 ml-1">開始時間 <span class="text-red-500">*</span></label>
+                    <label class="block text-[11px] font-black uppercase tracking-widest text-slate-500 mb-3 ml-1">開始時間 <span class="text-red-500">*</span></label>
                     <input v-model="eventForm.event_date" type="datetime-local" required :min="minEventDate" step="60"
                         class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl text-lg font-black focus:bg-white focus:border-blue-500 transition-all text-slate-900">
                     <p v-if="eventForm.event_date" class="mt-2 text-xs font-bold text-blue-600 px-1">
@@ -95,7 +95,7 @@
                     </p>
                 </div>
                 <div>
-                    <label class="block text-sm font-black uppercase tracking-widest text-slate-400 mb-3 ml-1">預計結束</label>
+                    <label class="block text-[11px] font-black uppercase tracking-widest text-slate-500 mb-3 ml-1">預計結束</label>
                     <input v-model="eventForm.end_date" type="datetime-local" :min="eventForm.event_date" step="60"
                         class="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl text-lg font-black focus:bg-white focus:border-blue-500 transition-all text-slate-900">
                     <p v-if="eventForm.end_date" class="mt-2 text-xs font-bold text-slate-400 px-1">
@@ -140,7 +140,7 @@
 
         {{-- Section 4: Notes --}}
         <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 space-y-4">
-            <label class="block text-sm font-black uppercase tracking-widest text-slate-400 ml-1">活動叮嚀 / 備註</label>
+            <label class="block text-[11px] font-black uppercase tracking-widest text-slate-500 ml-1">活動叮嚀 / 備註</label>
             <textarea v-model="eventForm.notes" rows="4"
                 class="w-full px-6 py-5 bg-slate-50 border-2 border-transparent rounded-2xl text-lg font-black focus:bg-white focus:border-blue-500 transition-all placeholder:text-slate-300 text-slate-900 leading-relaxed"
                 placeholder="例如：第 3、4 號場，供球，落敗者下場..."></textarea>

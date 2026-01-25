@@ -16,10 +16,10 @@
     <div class="mb-4 px-4">
         <div class="flex justify-between mb-4">
             <button v-for="s in 4" :key="s" type="button" @click="tryGoToStep(s)"
-                :class="['text-[10px] font-black uppercase tracking-widest transition-all duration-300 px-3 py-1.5 rounded-full border-2', 
+                :class="['text-[11px] font-black uppercase tracking-widest transition-all duration-300 px-3 py-1.5 rounded-full border-2', 
                 currentStep === s ? 'bg-blue-600 text-white border-blue-600 shadow-lg' : 
                 currentStep > s ? 'text-blue-600 border-blue-200 bg-blue-50 hover:bg-blue-100' : 
-                canGoToStep(s) ? 'text-slate-400 border-slate-200 hover:text-slate-500 hover:border-slate-300' :
+                canGoToStep(s) ? 'text-slate-500 border-slate-200 hover:text-slate-600 hover:border-slate-300' :
                 'text-slate-300 border-transparent cursor-not-allowed opacity-60']">
                 Step @{{s}}
             </button>
@@ -53,13 +53,13 @@
                                 <img :src="currentUser?.line_picture_url" class="w-12 h-12 rounded-full border-2 border-white shadow-sm">
                                 <div>
                                     <h4 class="font-black text-slate-900 leading-none">@{{ currentUser?.name }}</h4>
-                                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
+                                    <p class="text-[11px] text-slate-500 font-bold uppercase tracking-widest mt-1">
                                         @{{ currentUser?.gender }} · 
                                         @{{ currentUser?.region ? (currentUser.region.split(',').filter(x=>x).length > 2 ? currentUser.region.split(',').filter(x=>x).slice(0, 2).join(' ') + ' +' : currentUser.region.split(',').filter(x=>x).join(' ')) : '未設定' }}
                                     </p>
                                 </div>
                             </div>
-                            <button type="button" @click="openProfileWithEdit()" class="text-blue-600 text-[10px] font-black uppercase tracking-widest hover:underline">修改基本資料</button>
+                            <button type="button" @click="openProfileWithEdit()" class="text-blue-600 text-[11px] font-black uppercase tracking-widest hover:underline">修改基本資料</button>
                         </div>
 
                         {{-- Photo Section --}}
@@ -137,9 +137,9 @@
                                             <img :src="getUrl(form.photo)" class="w-full h-full object-contain" :style="{ transform: `translate(${form.photoX}%, ${form.photoY}%) scale(${form.photoScale})` }">
                                         </div>
                                         <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
-                                            <button type="button" @click="isAdjustingPhoto = true" class="bg-slate-900 text-white px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl whitespace-nowrap">調整版面</button>
-                                            <button type="button" @click="triggerUpload" class="bg-white text-slate-900 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl border border-slate-100 whitespace-nowrap">更換照片</button>
-                                            <button v-if="currentUser?.line_picture_url" type="button" @click="useLinePhoto()" class="bg-[#06C755] text-white px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl whitespace-nowrap">使用 LINE 照片</button>
+                                            <button type="button" @click="isAdjustingPhoto" class="bg-slate-900 text-white px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-widest shadow-xl whitespace-nowrap">調整版面</button>
+                                            <button type="button" @click="triggerUpload" class="bg-white text-slate-900 px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-widest shadow-xl border border-slate-200 whitespace-nowrap">更換照片</button>
+                                            <button v-if="currentUser?.line_picture_url" type="button" @click="useLinePhoto()" class="bg-[#06C755] text-white px-4 py-2 rounded-full text-[11px] font-black uppercase tracking-widest shadow-xl whitespace-nowrap">使用 LINE 照片</button>
                                         </div>
                                     </div>
                                 </div>
@@ -168,7 +168,7 @@
                     {{-- Step 2: Stats --}}
                     <div v-if="currentStep === 2" class="space-y-4">
                         <div class="space-y-2">
-                            <label class="flex items-center justify-between text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                            <label class="flex items-center justify-between text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">
                                 NTRP 程度
                                 <button type="button" @click="showNtrpGuide = true" class="text-blue-600 hover:scale-110 transition-transform flex items-center gap-1">
                                     <app-icon name="help" class-name="w-3.5 h-3.5"></app-icon>
@@ -207,7 +207,7 @@
                     {{-- Step 3: Intro --}}
                     <div v-if="currentStep === 3" class="space-y-8">
                         <div class="space-y-4">
-                            <label class="block text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">約打宣告 / 個人特色</label>
+                            <label class="block text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">約打宣告 / 個人特色</label>
                             <textarea v-model="form.intro" class="w-full px-6 py-5 bg-slate-50 border-2 border-transparent rounded-[24px] focus:border-blue-500 outline-none font-bold text-base shadow-inner h-40 resize-none" placeholder="分享一下您的打法特色，或想找什麼樣的球友..."></textarea>
                         </div>
                     </div>

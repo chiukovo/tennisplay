@@ -21,7 +21,7 @@
                 <div class="flex flex-wrap items-center justify-center lg:justify-start gap-3">
                     <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-sm">
                         <app-icon name="shield-check" class-name="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400"></app-icon> 
-                        <span class="text-[10px] sm:text-xs font-black uppercase tracking-[0.15em] text-slate-200">全台網球媒合新標竿</span>
+                        <span class="text-[11px] sm:text-xs font-black uppercase tracking-[0.15em] text-slate-200">全台網球媒合新標竿</span>
                     </div>
                 </div>
                 
@@ -51,14 +51,14 @@
                                             <div class="w-10 h-10 bg-slate-600 rounded-lg flex items-center justify-center mx-auto mb-2">
                                                 <app-icon name="user" class-name="w-5 h-5 text-slate-400"></app-icon>
                                             </div>
-                                            <p class="text-slate-400 text-[10px] font-bold">成為第一位球友</p>
+                                            <p class="text-slate-400 text-[11px] font-bold">成為第一位球友</p>
                                         </div>
                                     </div>
                                 </div>
                             </template>
                         </div>
                     </div>
-                    <span class="text-white/40 text-[10px] font-medium mt-2">← 滑動探索 →</span>
+                    <span class="text-white/40 text-[11px] font-medium mt-2">← 滑動探索 →</span>
                 </div>
                 
                 <div class="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
@@ -243,19 +243,19 @@
             <div class="grid grid-cols-2 gap-3 sm:gap-6">
                 <div class="bg-slate-50 p-4 sm:p-8 rounded-[20px] sm:rounded-[32px] text-center space-y-1 sm:space-y-2 hover:bg-blue-50 transition-colors">
                     <div class="text-2xl sm:text-4xl font-black italic text-blue-600">100%</div>
-                    <div class="text-[10px] sm:text-xs font-black uppercase tracking-widest text-slate-400">免費刊登</div>
+                    <div class="text-[11px] sm:text-sm font-black uppercase tracking-widest text-slate-500">免費刊登</div>
                 </div>
                 <div class="bg-slate-50 p-4 sm:p-8 rounded-[20px] sm:rounded-[32px] text-center space-y-1 sm:space-y-2 hover:bg-slate-100 transition-colors">
                     <div class="text-2xl sm:text-4xl font-black italic text-slate-900">24/7</div>
-                    <div class="text-[10px] sm:text-xs font-black uppercase tracking-widest text-slate-400">即時媒合</div>
+                    <div class="text-[11px] sm:text-sm font-black uppercase tracking-widest text-slate-500">即時媒合</div>
                 </div>
                 <div class="bg-slate-50 p-4 sm:p-8 rounded-[20px] sm:rounded-[32px] text-center space-y-1 sm:space-y-2 hover:bg-slate-100 transition-colors">
                     <div class="text-2xl sm:text-4xl font-black italic text-slate-900">NTRP</div>
-                    <div class="text-[10px] sm:text-xs font-black uppercase tracking-widest text-slate-400">精準分級</div>
+                    <div class="text-[11px] sm:text-sm font-black uppercase tracking-widest text-slate-500">精準分級</div>
                 </div>
                 <div class="bg-slate-50 p-4 sm:p-8 rounded-[20px] sm:rounded-[32px] text-center space-y-1 sm:space-y-2 hover:bg-green-50 transition-colors">
                     <div class="text-2xl sm:text-4xl font-black italic text-green-600">SAFE</div>
-                    <div class="text-[10px] sm:text-xs font-black uppercase tracking-widest text-slate-400">安全社群</div>
+                    <div class="text-[11px] sm:text-sm font-black uppercase tracking-widest text-slate-500">安全社群</div>
                 </div>
             </div>
         </div>

@@ -95,16 +95,17 @@
                         </div>
 
                         {{-- Player Photo --}}
-                                <div :class="['absolute inset-0 transition-transform duration-500 bg-no-repeat bg-center bg-cover z-10', isAdjustingSig ? 'pointer-events-none select-none' : '']"
-                                      :style="{ 
-                                          backgroundImage: (isVisible && isPhotoLoaded) ? `url(${photoUrl})` : 'none',
-                                          backgroundColor: isVisible ? 'transparent' : '#e2e8f0',
-                                          transform: `translate(${p?.photoX || 0}%, ${p?.photoY || 0}%) scale(${p?.photoScale || 1})` 
-                                      }">
-                                </div>
-                                <div v-if="isVisible && !isPhotoLoaded" class="absolute inset-0 z-[18] flex items-center justify-center card-photo-loader">
-                                     <span class="card-photo-spinner"></span>
-                                </div>
+                        <div :class="['absolute inset-0 z-10 overflow-hidden', isAdjustingSig ? 'pointer-events-none select-none' : '']">
+                            <img v-if="isVisible" :src="photoUrl"
+                                loading="lazy"
+                                decoding="async"
+                                crossorigin="anonymous"
+                                :class="['absolute inset-0 w-full h-full object-cover transition-transform duration-500', isPhotoLoaded ? 'opacity-100' : 'opacity-0']"
+                                :style="{ transform: `translate(${p?.photoX || 0}%, ${p?.photoY || 0}%) scale(${p?.photoScale || 1})` }"
+                                v-on:load="isPhotoLoaded = true"
+                                v-on:error="isPhotoLoaded = true">
+                            <div v-if="!isPhotoLoaded" class="absolute inset-0 bg-slate-200"></div>
+                        </div>
                         
                         {{-- Gradient Overlay --}}
                         <div class="absolute inset-0 bg-gradient-to-b from-white/15 via-transparent to-transparent opacity-50 pointer-events-none z-[14]"></div>

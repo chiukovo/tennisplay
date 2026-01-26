@@ -320,7 +320,23 @@ class PlayerController extends Controller
             Storage::disk('public')->delete($player->photo);
         }
 
-        $path = $request->file('photo')->store('players/photos', 'public');
+        $path = null;
+        try {
+            $raw = file_get_contents($request->file('photo')->getPathname());
+            $optimized = $this->optimizeImageBinary($raw, 1280, 82);
+            if ($optimized) {
+                $filename = Str::uuid() . '.' . $optimized['extension'];
+                $path = 'players/photos/' . $filename;
+                Storage::disk('public')->put($path, $optimized['data']);
+            }
+        } catch (\Throwable $e) {
+            $path = null;
+        }
+
+        if (!$path) {
+            $path = $request->file('photo')->store('players/photos', 'public');
+        }
+
         $player->update(['photo' => $path]);
 
         return response()->json([
@@ -355,10 +371,14 @@ class PlayerController extends Controller
             throw new \Exception('非法的文件內容');
         }
 
-        $filename = Str::uuid() . '.' . $extension;
+        $optimized = $this->optimizeImageBinary($imageData, 1280, 82, $extension);
+        $finalData = $optimized ? $optimized['data'] : $imageData;
+        $finalExtension = $optimized ? $optimized['extension'] : $extension;
+
+        $filename = Str::uuid() . '.' . $finalExtension;
         $path = $folder . '/' . $filename;
 
-        Storage::disk('public')->put($path, $imageData);
+        Storage::disk('public')->put($path, $finalData);
 
         return $path;
     }
@@ -382,25 +402,94 @@ class PlayerController extends Controller
             $response = \Illuminate\Support\Facades\Http::timeout(5)->get($url);
             if ($response->successful()) {
                 $contentType = $response->header('Content-Type');
-                
+
                 // Only allow specific non-gif image types
                 $extension = null;
                 if (str_contains($contentType, 'image/jpeg')) $extension = 'jpg';
                 elseif (str_contains($contentType, 'image/png')) $extension = 'png';
                 elseif (str_contains($contentType, 'image/webp')) $extension = 'webp';
-                
+
                 if (!$extension) return $url;
 
-                $filename = Str::uuid() . '.' . $extension;
+                $body = $response->body();
+                $optimized = $this->optimizeImageBinary($body, 1280, 82, $extension);
+                $finalData = $optimized ? $optimized['data'] : $body;
+                $finalExtension = $optimized ? $optimized['extension'] : $extension;
+
+                $filename = Str::uuid() . '.' . $finalExtension;
                 $path = $folder . '/' . $filename;
 
-                Storage::disk('public')->put($path, $response->body());
+                Storage::disk('public')->put($path, $finalData);
                 return $path;
             }
         } catch (\Exception $e) {
             Log::error('Failed to download remote image: ' . $e->getMessage());
         }
         return $url;
+    }
+
+    private function optimizeImageBinary($imageData, $maxWidth = 1280, $quality = 82, $originalExtension = null)
+    {
+        if (!function_exists('imagecreatefromstring')) {
+            return null;
+        }
+
+        $image = @imagecreatefromstring($imageData);
+        if (!$image) {
+            return null;
+        }
+
+        $width = imagesx($image);
+        $height = imagesy($image);
+        $targetWidth = $width;
+        $targetHeight = $height;
+
+        if ($width > $maxWidth) {
+            $ratio = $maxWidth / $width;
+            $targetWidth = $maxWidth;
+            $targetHeight = (int) round($height * $ratio);
+        }
+
+        $canvas = imagecreatetruecolor($targetWidth, $targetHeight);
+        $isPng = $originalExtension === 'png';
+
+        if ($isPng) {
+            imagealphablending($canvas, false);
+            imagesavealpha($canvas, true);
+            $transparent = imagecolorallocatealpha($canvas, 0, 0, 0, 127);
+            imagefilledrectangle($canvas, 0, 0, $targetWidth, $targetHeight, $transparent);
+        }
+
+        imagecopyresampled($canvas, $image, 0, 0, 0, 0, $targetWidth, $targetHeight, $width, $height);
+
+        $output = null;
+        $extension = $originalExtension ?: 'jpg';
+
+        if (function_exists('imagewebp')) {
+            ob_start();
+            imagewebp($canvas, null, $quality);
+            $output = ob_get_clean();
+            $extension = 'webp';
+        } elseif ($isPng) {
+            ob_start();
+            imagepng($canvas, null, 6);
+            $output = ob_get_clean();
+            $extension = 'png';
+        } else {
+            ob_start();
+            imagejpeg($canvas, null, $quality);
+            $output = ob_get_clean();
+            $extension = 'jpg';
+        }
+
+        imagedestroy($image);
+        imagedestroy($canvas);
+
+        if (!$output) {
+            return null;
+        }
+
+        return ['data' => $output, 'extension' => $extension];
     }
 
     private function resolveUser(Request $request)

@@ -131,6 +131,34 @@ window.vm = createApp({
             formatDate, getUrl, formatLocalDateTime, formatEventDate, compressImage
         } = useUtils();
 
+        const leafletLoader = { promise: null };
+        const loadLeaflet = () => {
+            if (window.L) return Promise.resolve();
+            if (leafletLoader.promise) return leafletLoader.promise;
+            leafletLoader.promise = new Promise((resolve, reject) => {
+                if (!document.getElementById('leaflet-css')) {
+                    const link = document.createElement('link');
+                    link.id = 'leaflet-css';
+                    link.rel = 'stylesheet';
+                    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+                    link.crossOrigin = '';
+                    document.head.appendChild(link);
+                }
+                if (!document.getElementById('leaflet-js')) {
+                    const script = document.createElement('script');
+                    script.id = 'leaflet-js';
+                    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+                    script.crossOrigin = '';
+                    script.onload = () => resolve();
+                    script.onerror = () => reject(new Error('Leaflet load failed'));
+                    document.body.appendChild(script);
+                } else {
+                    resolve();
+                }
+            });
+            return leafletLoader.promise;
+        };
+
         const initSettings = () => {
             if (currentUser.value && currentUser.value.settings) {
                 const s = currentUser.value.settings;
@@ -1085,7 +1113,13 @@ window.vm = createApp({
             }
         };
 
-        const initCreateMap = (lat = null, lng = null) => {
+        const initCreateMap = async (lat = null, lng = null) => {
+            try {
+                await loadLeaflet();
+            } catch (e) {
+                showToast('地圖載入失敗，請稍後再試', 'error');
+                return;
+            }
             nextTick(() => {
                 setTimeout(() => {
                     if (!createEventMap.value) return;
@@ -1204,6 +1238,12 @@ window.vm = createApp({
 
                 // Initialize Map if coordinates exist
                 if (eventData.latitude && eventData.longitude) {
+                    try {
+                        await loadLeaflet();
+                    } catch (e) {
+                        showToast('地圖載入失敗，請稍後再試', 'error');
+                        return;
+                    }
                     nextTick(() => {
                         setTimeout(() => {
                             if (!eventMap.value) return;

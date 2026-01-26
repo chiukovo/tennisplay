@@ -492,6 +492,28 @@ window.vm = createApp({
             }
         };
 
+        const togglePlayerLike = async (player) => {
+            if (!player || !player.id) return;
+            if (!isLoggedIn.value) { showToast('請先登入', 'error'); navigateTo('auth'); return; }
+            if (!togglePlayerLike._busy) togglePlayerLike._busy = new Set();
+            if (togglePlayerLike._busy.has(player.id)) return;
+            togglePlayerLike._busy.add(player.id);
+            try {
+                const endpoint = player.is_liked ? `/unlike/${player.id}` : `/like/${player.id}`;
+                const response = await api.post(endpoint);
+                player.is_liked = !player.is_liked;
+                if (response?.data?.likes_count !== undefined) {
+                    player.likes_count = response.data.likes_count;
+                }
+                handlePlayerUpdate(player);
+            } catch (error) {
+                const msg = error.response?.data?.error || error.response?.data?.message || '操作失敗';
+                showToast(msg, 'error');
+            } finally {
+                togglePlayerLike._busy.delete(player.id);
+            }
+        };
+
         // Get stats for player detail modal
         const getDetailStats = (player) => {
             if (!player) return { likes: 0, matches: 0 };
@@ -1850,7 +1872,7 @@ window.vm = createApp({
             tryNextStep, tryGoToStep, openMatchModal, sendMatchRequest,
             handleSearch, handleCoachSearch, handleEventSearch,
             openCoachForm, closeCoachForm, saveCoachProfile, cancelCoachProfile, resetCoachForm,
-            showDetail, getDetailStats, getEventsByMatchType, getEventsByRegion,
+            showDetail, getDetailStats, getEventsByMatchType, getEventsByRegion, togglePlayerLike,
             // Constants
             REGIONS, LEVELS, LEVEL_DESCS, LEVEL_TAGS, levelDescs, levels, regions,
             sortBy,

@@ -78,21 +78,7 @@
                 <div :class="['relative h-full rounded-[32px] overflow-hidden flex flex-col border transition-colors shadow-inner', (isPlaceholder && !p?.theme) ? 'bg-slate-50 border-white/20' : `${themeStyle.bg} border-white/10`]">
                     
                     {{-- Main Image Area --}}
-                    <div class="h-[513px] relative overflow-hidden bg-slate-200 z-10 flex items-center justify-center">
-                        {{-- Social Indicators (Top Right) --}}
-                        <div v-if="!isPlaceholder" class="absolute bottom-[18px] right-[18px] z-20 flex flex-col items-end gap-2">
-                            <div class="bg-black/60 px-[16px] py-[9px] rounded-[14px] border border-white/20 flex items-center gap-[18px] shadow-lg">
-                                <div class="flex items-center gap-[7px] group/social">
-                                    <app-icon name="heart" class-name="w-[22px] h-[22px] text-white group-hover/social:text-red-400 group-hover/social:scale-110 transition-all drop-shadow-sm"></app-icon>
-                                    <span class="text-white font-black leading-none drop-shadow-sm text-[19px]">@{{ p?.likes_count || 0 }}</span>
-                                </div>
-                                <div class="w-[2px] h-[14px] bg-white/20 rounded-full"></div>
-                                <div class="flex items-center gap-[7px] group/social">
-                                    <app-icon name="edit-3" class-name="w-[22px] h-[22px] text-white group-hover/social:text-blue-400 group-hover/social:scale-110 transition-all drop-shadow-sm"></app-icon>
-                                    <span class="text-white font-black leading-none drop-shadow-sm text-[19px]">@{{ p?.comments_count || 0 }}</span>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="h-[484px] relative overflow-hidden bg-slate-200 z-10 flex items-center justify-center">
 
                         {{-- Player Photo --}}
                         <div :class="['absolute inset-0 z-10 overflow-hidden', isAdjustingSig ? 'pointer-events-none select-none' : '']">
@@ -142,13 +128,13 @@
                     <signature-pad :active="isSigning" @save="sig => $emit('update-signature', sig)" @close="$emit('close-signing')"></signature-pad>
                     
                     {{-- Bottom Info Section --}}
-                    <div class="h-[171px] px-[27px] py-[14px] flex flex-col justify-center relative overflow-hidden z-[80] rounded-b-[32px]">
+                    <div class="h-[200px] px-[27px] pt-[14px] pb-[30px] flex flex-col justify-end gap-2 relative overflow-hidden z-[80] rounded-b-[32px]">
                         <div class="absolute inset-0 bg-black/70 border-t border-white/20 rounded-b-[32px]"></div>
                         <div class="absolute top-0 left-0 right-0 h-px bg-white/20"></div>
                         <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 opacity-80 rounded-b-[32px]"></div>
                         
-                        <div class="relative z-10">
-                            <h3 :class="['font-black uppercase tracking-tighter italic leading-[0.9] pb-[5px] text-left drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] overflow-hidden line-clamp-2', isPlaceholder ? 'opacity-50 text-white' : themeStyle.name]" 
+                        <div class="relative z-10 pt-1">
+                            <h3 :class="['font-black uppercase tracking-tighter italic leading-[1.05] pb-[5px] text-left drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] overflow-hidden line-clamp-2', isPlaceholder ? 'opacity-50 text-white' : themeStyle.name]" 
                                 :style="{ fontSize: nameFontSize, textShadow: '0 4px 12px rgba(0,0,0,0.5)' }">
                                 @{{ p?.name || '請更新卡片' }}
                             </h3>
@@ -172,9 +158,20 @@
                                         </div>
                                         <span class="text-[18px] font-bold text-slate-400 leading-none">(@{{ p.ratings_count }})</span>
                                     </div>
+                                    <div v-if="!isPlaceholder" class="flex items-center gap-4 text-white/80 mt-1">
+                                        <div class="flex items-center gap-1.5">
+                                            <app-icon name="heart" class-name="w-[18px] h-[18px] text-white"></app-icon>
+                                            <span class="text-[17px] font-black leading-none">@{{ p?.likes_count || 0 }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-1.5">
+                                            <app-icon name="message-circle" class-name="w-[18px] h-[18px] text-white"></app-icon>
+                                            <span class="text-[17px] font-black leading-none">@{{ p?.comments_count || 0 }}</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
                     </div>
                     
                     {{-- Signature Display (Must be on top of everything) --}}

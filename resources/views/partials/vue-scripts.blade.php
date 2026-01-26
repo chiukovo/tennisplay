@@ -257,6 +257,9 @@ window.vm = createApp({
             fetchRooms, selectRoom, sendInstantMessage, fetchMessages, joinBySlug, fetchGlobalData, toggleLfg
         } = useInstantPlay(isLoggedIn, currentUser, showToast, view);
 
+        const initialRouteIsCoaches = window.location.pathname.startsWith('/coaches');
+        const initialRouteResolved = ref(false);
+
         // Full reset including steps (now that currentStep is available)
         const resetFormFull = () => {
             resetForm();
@@ -512,7 +515,7 @@ window.vm = createApp({
         const paginatedPlayers = computed(() => players.value);
 
         const coachTotalPages = computed(() => playersPagination.value.last_page);
-        const coachPaginatedPlayers = computed(() => players.value);
+        const coachPaginatedPlayers = computed(() => players.value.filter(p => p && p.is_coach));
 
         const coachDisplayPages = computed(() => {
             const total = coachTotalPages.value;
@@ -1360,6 +1363,7 @@ window.vm = createApp({
                 () => resetEventForm(),
                 (uid) => openChatByUid(uid)
             );
+            initialRouteResolved.value = true;
 
             const eventMatch = window.location.pathname.match(/^\/events\/(\d+)$/);
             if (eventMatch) {
@@ -1573,11 +1577,14 @@ window.vm = createApp({
             // 但如果是透過導航點擊觸發的，則交給 lastNavigationTap 處理（避免雙重載入）
             const isIntentionalNav = (Date.now() - lastNavigationTap.value < 100);
 
-            if (newView === 'home' || newView === 'list') {
+              if (newView === 'home' || newView === 'list') {
+                  if (!initialRouteResolved.value && initialRouteIsCoaches) return;
                  if (!isIntentionalNav) {
                      loadPlayers({ search: searchQuery.value, region: selectedRegion.value, page: 1, sort: sortBy.value });
                  }
             } else if (newView === 'coaches') {
+                players.value = [];
+                playersPagination.value = { total: 0, current_page: 1, last_page: 1, per_page: 12 };
                 if (!isIntentionalNav) {
                     loadPlayers({ 
                         is_coach: true,

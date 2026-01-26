@@ -234,7 +234,7 @@ class EventNotificationService
 
             User::whereIn('id', $recipientIds)
                 ->whereNotNull('line_user_id')
-                ->chunk(200, function ($users) use ($lineService, $text, $flexContents, $event, $type) {
+                ->chunk(200, function ($users) use ($lineService, $text, $flexContents, $event, $type, $titlePrefix) {
                     foreach ($users as $u) {
                         $settings = $u->settings ?? [];
                         $wantsLine = $settings['notify_line'] ?? true;

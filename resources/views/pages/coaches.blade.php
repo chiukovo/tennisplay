@@ -148,10 +148,6 @@
                                     @{{ String(player.coach_locations).split(',').map(x => x.trim()).filter(x => x).slice(0, 2).join('、') }}
                                 </span>
                             </div>
-                            <div v-if="player.coach_experience_years" class="flex items-center gap-1 bg-white border border-slate-100 rounded-full px-2 py-1 text-[11px] font-bold">
-                                <span class="uppercase tracking-wider text-slate-500">年資</span>
-                                <span class="text-slate-800">@{{ player.coach_experience_years }} 年</span>
-                            </div>
                         </div>
                         <div v-if="player.coach_venue" class="w-full">
                             <div class="flex items-center gap-1 bg-white border border-slate-100 rounded-full px-2.5 py-1.5 w-full shadow-sm">

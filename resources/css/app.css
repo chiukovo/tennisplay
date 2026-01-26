@@ -269,3 +269,32 @@ body {
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(4px);
 }
+
+/* Coach card overflow fixes */
+.coach-meta {
+    min-height: 156px;
+}
+
+.coach-meta-body {
+    max-height: 90px;
+    overflow: hidden;
+}
+
+.coach-tags {
+    max-height: 64px;
+    overflow: hidden;
+}
+
+.coach-chip-text {
+    display: block;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (min-width: 640px) {
+    .coach-chip-text {
+        max-width: 160px;
+    }
+}

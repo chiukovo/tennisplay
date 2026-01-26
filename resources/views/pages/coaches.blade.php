@@ -133,18 +133,18 @@
                 <div @click="showDetail(player)" class="cursor-pointer">
                     <player-card :player="player" size="sm"></player-card>
                 </div>
-                <div v-if="player.is_coach" class="mt-2.5 space-y-2">
+                <div v-if="player.is_coach" class="mt-2.5 space-y-2 coach-meta">
                     <div class="flex items-center justify-center bg-white border border-amber-100 rounded-xl px-3.5 py-2 shadow-sm">
-                        <div class="text-base font-bold text-slate-900">
+                        <div class="text-base font-bold text-slate-900 whitespace-nowrap">
                             @{{ player.coach_price_min ? `$${Number(player.coach_price_min).toLocaleString('en-US')}` : '洽談為主' }}
                             <span v-if="player.coach_price_min" class="text-[11px] font-bold text-amber-600">/小時</span>
                         </div>
                     </div>
-                    <div class="space-y-2">
+                    <div class="space-y-2 coach-meta-body">
                         <div class="flex flex-wrap items-center gap-2">
-                            <div v-if="player.coach_locations" class="flex items-center gap-1 bg-slate-50 border border-slate-100 rounded-full px-2 py-1 text-[11px] font-bold">
+                            <div v-if="player.coach_locations" class="flex items-center gap-1 bg-slate-50 border border-slate-100 rounded-full px-2 py-1 text-[11px] font-bold max-w-full min-w-0">
                                 <span class="uppercase tracking-wider text-slate-500">地點</span>
-                                <span class="text-slate-800">
+                                <span class="text-slate-800 coach-chip-text">
                                     @{{ String(player.coach_locations).split(',').map(x => x.trim()).filter(x => x).slice(0, 2).join('、') }}
                                 </span>
                             </div>
@@ -163,7 +163,7 @@
                             </div>
                         </div>
                     </div>
-                    <div v-if="player.coach_tags" class="flex flex-wrap gap-2 max-h-[64px] overflow-hidden">
+                    <div v-if="player.coach_tags" class="flex flex-wrap gap-2 coach-tags">
                         <span v-for="(t, idx) in String(player.coach_tags).split(',').map(x => x.trim()).filter(x => x).slice(0, 5)" :key="`${t}-${idx}`" class="px-3 py-1.5 rounded-full bg-amber-50 text-amber-900 text-[11px] font-bold uppercase tracking-[0.16em] border border-amber-200">
                             @{{ t }}
                         </span>

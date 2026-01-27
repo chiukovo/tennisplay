@@ -23,9 +23,11 @@ window.initEcho = function() {
     if (window.Echo) return;
 
     const token = localStorage.getItem('auth_token');
+    const runtimeWebsocketUrl = window.tennisConfig?.websocket_url || null;
+    const defaultHost = `${window.location.protocol}//${window.location.hostname}:6001`;
     const echoConfig = {
         broadcaster: 'socket.io',
-        host: process.env.MIX_WEBSOCKET_URL || `http://${window.location.hostname}:6001`,
+        host: runtimeWebsocketUrl || process.env.MIX_WEBSOCKET_URL || defaultHost,
         authEndpoint: '/broadcasting/auth',
         reconnectionAttempts: 5 // 限制重試次數，避免無限失敗
     };

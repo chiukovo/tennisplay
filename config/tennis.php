@@ -28,4 +28,5 @@ return [
     ],
     'sponsor_url' => env('SPONSOR_URL', 'https://www.buymeacoffee.com/chiuko'),
     'enable_push' => env('ENABLE_PUSH_NOTIFICATIONS', false),
+    'websocket_url' => env('MIX_WEBSOCKET_URL'),
 ];

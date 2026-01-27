@@ -20,6 +20,31 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
     const roomSearch = ref('');
     const roomCategory = ref('全部');
     const currentTickerIndex = ref(0);
+    const singleRoomMode = ref(true);
+    const userRegion = computed(() => {
+        const region = currentUser.value?.region;
+        if (!region || region === '全部') return '附近';
+        return region;
+    });
+
+    const timeLabel = computed(() => {
+        const hour = new Date().getHours();
+        if (hour < 12) return '早上';
+        if (hour < 18) return '下午';
+        return '晚上';
+    });
+
+    const quickTemplates = computed(() => {
+        const region = userRegion.value;
+        const time = timeLabel.value;
+        return [
+            `${region} 有人現在能打嗎？`,
+            `${time} ${region} 想找球友練習`,
+            `${region} 缺 1 人，一起打？`,
+            `${region} 新手求帶，現在有人嗎？`,
+            `${region} 約 1-2 小時友誼場`
+        ];
+    });
     
     // Geographic Mapping
     const REGION_GROUPS = {
@@ -118,6 +143,14 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
             instantRooms.value = response.data;
         } catch (error) {
             console.error('Failed to fetch rooms', error);
+        }
+    };
+
+    const enterSingleRoom = async () => {
+        await fetchRooms();
+        const room = instantRooms.value[0];
+        if (room) {
+            await selectRoom(room);
         }
     };
 
@@ -365,7 +398,7 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
         if (statsChannel) return;
 
         // Preload initial data
-        fetchRooms();
+        await fetchRooms();
         fetchStats();
 
         // Ensure Echo is initialized
@@ -495,6 +528,10 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
         if (isLfg.value) {
             startHeartbeat();
         }
+
+        if (singleRoomMode.value && !currentRoom.value) {
+            await enterSingleRoom();
+        }
     };
 
     const deactivatePresence = () => {
@@ -553,6 +590,7 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
         instantRooms, currentRoom, instantMessages, isInstantLoading, globalInstantStats, instantMessageDraft, isSending,
         globalData, isLfg, selectedLfgRemark, roomSearch, roomCategory, sortedAndFilteredRooms, activityNotifications,
         currentTickerIndex, displayOtherAvatars, hiddenOthersCount,
-        fetchRooms, selectRoom, sendInstantMessage, fetchMessages, joinBySlug, fetchGlobalData, toggleLfg
+        fetchRooms, selectRoom, sendInstantMessage, fetchMessages, joinBySlug, fetchGlobalData, toggleLfg,
+        enterSingleRoom, singleRoomMode, userRegion, timeLabel, quickTemplates
     };
 };

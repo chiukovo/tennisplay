@@ -43,7 +43,11 @@ class PlayerController extends Controller
                   ->orderBy('comments_avg_rating', 'desc')
                   ->orderBy('ratings_count', 'desc'); // Secondary sort by count
         } elseif ($sort === 'newest') {
-            $query->orderBy('created_at', 'desc');
+            if ($request->boolean('is_coach')) {
+                $query->orderBy('updated_at', 'desc');
+            } else {
+                $query->orderBy('created_at', 'desc');
+            }
         } else {
             // Default: popular (Weighted Score)
             // Score = Likes (1x) + Comments (2x) + AvgRating (2x)

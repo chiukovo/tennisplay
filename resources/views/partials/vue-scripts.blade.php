@@ -282,7 +282,8 @@ window.vm = createApp({
         const { 
             instantRooms, currentRoom, instantMessages, isInstantLoading, globalInstantStats, instantMessageDraft, isSending,
             globalData, isLfg, selectedLfgRemark, roomSearch, roomCategory, sortedAndFilteredRooms, activityNotifications, currentTickerIndex, displayOtherAvatars, hiddenOthersCount,
-            fetchRooms, selectRoom, sendInstantMessage, fetchMessages, joinBySlug, fetchGlobalData, toggleLfg
+            fetchRooms, selectRoom, sendInstantMessage, fetchMessages, joinBySlug, fetchGlobalData, toggleLfg,
+            enterSingleRoom, singleRoomMode, userRegion, timeLabel, quickTemplates
         } = useInstantPlay(isLoggedIn, currentUser, showToast, view);
 
         const initialRouteIsCoaches = window.location.pathname.startsWith('/coaches');
@@ -1839,6 +1840,7 @@ window.vm = createApp({
             selectedProfileRegions, toggleProfileRegion, reportModal, isReporting, isBlocking, profileActionMenu,
             instantRooms, currentRoom, instantMessages, isInstantLoading, globalInstantStats, instantMessageDraft, isSending,
             globalData, isLfg, selectedLfgRemark, showLfgPicker, customLfgRemark, roomSearch, roomCategory, sortedAndFilteredRooms, activityNotifications, currentTickerIndex, displayOtherAvatars, hiddenOthersCount,
+            singleRoomMode, enterSingleRoom, userRegion, timeLabel, quickTemplates,
             // Computed
             hasUnread, hasPlayerCard, myCards, activeRegions, activeEventRegions, filteredPlayers, totalPages, paginatedPlayers, displayPages, randomPlayers,
             coachTotalPages, coachPaginatedPlayers, coachDisplayPages, coachMethods,

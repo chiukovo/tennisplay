@@ -1,8 +1,20 @@
 {{-- Instant Play View --}}
 <div v-if="view === 'instant-play'" class="h-[calc(100vh-140px)] sm:h-[calc(100vh-160px)] flex flex-col sm:mx-0 overflow-x-hidden">
     
-    {{-- Lobby View: Room Selection --}}
-    <div v-if="!currentRoom" class="flex-grow overflow-y-auto no-scrollbar pb-10 px-1 sm:px-0 overscroll-contain touch-pan-y">
+    <div v-if="!currentRoom && singleRoomMode" class="flex-grow flex flex-col items-center justify-center text-center px-6">
+        <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-4 shadow-sm">
+            <app-icon name="message-square" class-name="w-8 h-8 text-blue-400"></app-icon>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mb-2">即時揪球聊天室</h2>
+        <p class="text-sm font-semibold text-slate-500 mb-6">正在為你進入單一聊天室…</p>
+        <button @click="enterSingleRoom()"
+            class="px-5 py-3 rounded-2xl bg-blue-600 text-white text-sm font-black shadow-lg shadow-blue-500/20 hover:bg-blue-700 active:scale-95 transition-all">
+            立即進入聊天室
+        </button>
+    </div>
+
+    {{-- Legacy Lobby (removed): single room only --}}
+    <div v-if="false" class="flex-grow overflow-y-auto no-scrollbar pb-10 px-1 sm:px-0 overscroll-contain touch-pan-y">
         <div class="space-y-4 pt-2">
             {{-- Header & Stats --}}
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-2">
@@ -247,19 +259,16 @@
                     </div>
             </div>
         </div>
-    </div><div v-else class="fixed sm:relative inset-0 sm:inset-auto z-[300] sm:z-auto flex-grow flex flex-col bg-white sm:rounded-[32px] sm:border border-slate-200 sm:shadow-2xl overflow-hidden overscroll-none" @touchmove.stop>
+    </div>
+
+    <div v-if="currentRoom" class="fixed sm:relative inset-0 sm:inset-auto z-[120] sm:z-auto flex-grow flex flex-col bg-white sm:rounded-[32px] sm:border border-slate-200 sm:shadow-2xl overflow-hidden overscroll-none" @touchmove.stop>
         {{-- Chat Header (Blue like message modal) --}}
         <div class="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between bg-gradient-to-r from-slate-800 to-slate-900 shrink-0">
-            <div class="flex items-center gap-3">
-                <button @click="currentRoom = null" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-all">
-                    <app-icon name="chevron-left" class-name="w-5 h-5"></app-icon>
-                </button>
-                <div>
-                    <h3 class="text-base sm:text-lg font-black text-white leading-tight">@{{ currentRoom.name }} 揪球室</h3>
-                    <p class="text-[10px] font-bold text-white/60 uppercase tracking-widest">
-                        本房間有 @{{ currentRoom.active_count || 0 }} 位球友在線
-                    </p>
-                </div>
+            <div>
+                <h3 class="text-base sm:text-lg font-black text-white leading-tight">@{{ currentRoom.name }} 揪球室</h3>
+                <p class="text-[10px] font-bold text-white/60 uppercase tracking-widest">
+                    本房間有 @{{ currentRoom.active_count || 0 }} 位球友在線
+                </p>
             </div>
             {{-- Avatars Stack (Inside Room) --}}
             <div class="flex items-center -space-x-2" v-if="globalInstantStats.avatars && globalInstantStats.avatars.length">
@@ -276,7 +285,7 @@
         </div>
 
         {{-- Messages Container --}}
-        <div id="instant-messages-container" class="flex-grow overflow-y-auto p-4 sm:p-6 space-y-4 no-scrollbar bg-slate-50/30 overscroll-contain touch-pan-y">
+        <div id="instant-messages-container" class="flex-grow overflow-y-auto p-4 sm:p-6 pb-28 sm:pb-6 space-y-4 no-scrollbar bg-slate-50/30 overscroll-contain touch-pan-y">
             <div v-if="instantMessages.length === 0" class="h-full flex flex-col items-center justify-center text-center opacity-50">
                 <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm">
                     <app-icon name="message-square" class-name="w-8 h-8 text-slate-300"></app-icon>
@@ -295,36 +304,43 @@
                 </div>
                 {{-- Content --}}
                 <div :class="['max-w-[75%]', String(msg.user_id) === String(currentUser?.id) ? 'flex flex-col items-end' : '']">
-                    <div v-if="String(msg.user_id) !== String(currentUser?.id)" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 ml-1">
-                        @{{ msg.user.name }}
+                    <div v-if="String(msg.user_id) !== String(currentUser?.id)" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 ml-1 flex items-center gap-1">
+                        <span>@{{ msg.user.name }}</span>
+                        <span v-if="msg.user.region" class="px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[9px] font-black uppercase tracking-widest">
+                            @{{ msg.user.region }}
+                        </span>
                     </div>
                     <div :class="['px-4 py-2.5 rounded-[22px] text-[13px] font-bold shadow-sm inline-block break-words text-left whitespace-pre-line leading-relaxed', 
                         String(msg.user_id) === String(currentUser?.id) ? 'bg-blue-600 text-white rounded-tr-none shadow-blue-100' : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none']">
                         @{{ msg.content }}
                     </div>
-                    <div :class="['text-[9px] font-bold text-slate-300 uppercase mt-1', String(msg.user_id) === String(currentUser?.id) ? 'mr-1' : 'ml-1']">
-                        @{{ formatDate(msg.created_at) }}
+                    <div :class="['text-[9px] font-bold text-slate-300 uppercase mt-1 flex items-center gap-1', String(msg.user_id) === String(currentUser?.id) ? 'mr-1' : 'ml-1']">
+                        <span>@{{ formatDate(msg.created_at) }}</span>
+                        <span v-if="String(msg.user_id) === String(currentUser?.id) && msg.user?.region" class="px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[9px] font-black uppercase tracking-widest">
+                            @{{ msg.user.region }}
+                        </span>
                     </div>
                 </div>
             </div>
         </div>
 
         {{-- Chat Footer / Input --}}
-        <div class="p-4 sm:p-6 border-t border-slate-100 bg-white shadow-lg shrink-0" style="padding-bottom: max(1rem, env(safe-area-inset-bottom));">
+        <div class="p-4 sm:p-6 border-t border-slate-100 bg-white shadow-lg shrink-0" style="padding-bottom: calc(1rem + env(safe-area-inset-bottom) + 3.5rem);">
             {{-- Quick Templates --}}
+            <div class="flex items-center gap-2 mb-2">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">快速揪球</span>
+                <span class="px-2 py-1 rounded-full bg-slate-100 text-slate-500 text-[9px] font-black uppercase tracking-widest">
+                    你的地區：@{{ userRegion }}・@{{ timeLabel }}
+                </span>
+            </div>
             <div class="flex gap-2 overflow-x-auto no-scrollbar pb-3 mb-1">
-                <button v-for="t in [
-                    '有人現在想打球嗎？',
-                    '我在球場缺一人！',
-                    '等等有人有空嗎？',
-                    '新手可以一起打嗎？',
-                    '+1 跟我約打'
-                ]" 
-                    @click="instantMessageDraft = t"
+                <button v-for="t in quickTemplates" :key="t"
+                    @click="sendInstantMessage(t)"
                     class="px-3 py-1.5 rounded-full bg-slate-50 border border-slate-100 text-[10px] font-black text-slate-500 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition-all whitespace-nowrap">
                     @{{ t }}
                 </button>
             </div>
+            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">點一下直接發送</p>
 
             <div class="flex items-center gap-2">
                 <div class="flex-grow relative flex items-center">

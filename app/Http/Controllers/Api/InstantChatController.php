@@ -20,6 +20,8 @@ class InstantChatController extends Controller
     public function getRooms()
     {
         $rooms = InstantRoom::orderBy('sort_order')->get();
+        $primaryRoom = $rooms->firstWhere('slug', 'all') ?? $rooms->first();
+        $rooms = $primaryRoom ? collect([$primaryRoom]) : collect();
 
         $rooms->map(function($room) {
             $stats = $this->fetchRoomStatsData($room);
@@ -66,7 +68,7 @@ class InstantChatController extends Controller
         // Only show messages from the past 48 hours for relevance
         $messages = $room->messages()
             ->with(['user' => function($q) {
-                $q->select('id', 'name', 'line_picture_url', 'uid')->with('player:user_id,level');
+                $q->select('id', 'name', 'line_picture_url', 'uid', 'region')->with('player:user_id,level');
             }])
             ->where('created_at', '>=', Carbon::now()->subHours(48))
             ->latest()
@@ -97,7 +99,7 @@ class InstantChatController extends Controller
         ]);
 
         $message->load(['user' => function($q) {
-            $q->with('player:user_id,level');
+            $q->select('id', 'name', 'line_picture_url', 'uid', 'region')->with('player:user_id,level');
         }]);
 
         if ($message->user && $message->user->player) {
@@ -129,7 +131,7 @@ class InstantChatController extends Controller
         // 1. Fetch 10 most recent messages from ALL rooms (within 48 hours)
         $recentMessages = InstantMessage::with([
             'user' => function($q) {
-                $q->select('id', 'name', 'line_picture_url', 'uid')->with('player:user_id,level');
+                $q->select('id', 'name', 'line_picture_url', 'uid', 'region')->with('player:user_id,level');
             }, 
             'room:id,name,slug'
         ])
@@ -180,6 +182,7 @@ class InstantChatController extends Controller
                 'avatar' => $user->line_picture_url,
                 'uid' => $user->uid,
                 'level' => $player->level ?? '?',
+                'region' => $user->region,
                 'remark' => $remark,
                 'timestamp' => now()->timestamp
             ];

@@ -63,6 +63,7 @@ class InstantMessageSent implements ShouldBroadcast
                 'name' => $this->message->user->name,
                 'avatar' => $this->message->user->line_picture_url,
                 'uid' => $this->message->user->uid,
+                'region' => $this->message->user->region,
             ]
         ];
     }

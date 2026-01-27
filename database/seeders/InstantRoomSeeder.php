@@ -13,6 +13,12 @@ class InstantRoomSeeder extends Seeder
      */
     public function run()
     {
+        // Global room for single-chat mode
+        \App\Models\InstantRoom::updateOrCreate(
+            ['slug' => 'all'],
+            ['name' => '全台', 'sort_order' => 0]
+        );
+
         $regions = [
             '基隆市' => 'keelung',
             '台北市' => 'taipei',

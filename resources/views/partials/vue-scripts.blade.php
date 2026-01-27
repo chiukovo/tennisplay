@@ -283,7 +283,7 @@ window.vm = createApp({
             instantRooms, currentRoom, instantMessages, isInstantLoading, globalInstantStats, instantMessageDraft, isSending,
             globalData, isLfg, selectedLfgRemark, roomSearch, roomCategory, sortedAndFilteredRooms, activityNotifications, currentTickerIndex, displayOtherAvatars, hiddenOthersCount,
             fetchRooms, selectRoom, sendInstantMessage, fetchMessages, joinBySlug, fetchGlobalData, toggleLfg,
-            enterSingleRoom, singleRoomMode, userRegion, timeLabel, quickTemplates
+            enterSingleRoom, singleRoomMode, userRegion, timeLabel, quickTemplates, quickRegions, selectedQuickRegion
         } = useInstantPlay(isLoggedIn, currentUser, showToast, view);
 
         const initialRouteIsCoaches = window.location.pathname.startsWith('/coaches');

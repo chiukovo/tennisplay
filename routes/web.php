@@ -25,8 +25,8 @@ Route::get('/app.bundle.js', function () {
 // SEO Metadata based on routes
 $seoData = [
     'home' => [
-        'title' => 'LoveTennis | 全台最專業的網球約打媒合與球友卡社群',
-        'description' => 'LoveTennis 是全台領先的網球約打、網球約球平台，提供職業級球友卡製作、透明約打費用與安全站內信媒合系統，一起打網球更安心。',
+        'title' => 'LoveTennis | 全台最專業的網球約打媒合平台',
+        'description' => 'LoveTennis 提供全台網球約打媒合、球友卡與安全私訊功能，快速找到適合球友，一起打球更有效率。',
         'og_image' => '/img/og-default.jpg'
     ],
     'list' => [

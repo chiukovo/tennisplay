@@ -1840,7 +1840,7 @@ window.vm = createApp({
             selectedProfileRegions, toggleProfileRegion, reportModal, isReporting, isBlocking, profileActionMenu,
             instantRooms, currentRoom, instantMessages, isInstantLoading, globalInstantStats, instantMessageDraft, isSending,
             globalData, isLfg, selectedLfgRemark, showLfgPicker, customLfgRemark, roomSearch, roomCategory, sortedAndFilteredRooms, activityNotifications, currentTickerIndex, displayOtherAvatars, hiddenOthersCount,
-            singleRoomMode, enterSingleRoom, userRegion, timeLabel, quickTemplates,
+            singleRoomMode, enterSingleRoom, userRegion, timeLabel, quickTemplates, quickRegions, selectedQuickRegion,
             // Computed
             hasUnread, hasPlayerCard, myCards, activeRegions, activeEventRegions, filteredPlayers, totalPages, paginatedPlayers, displayPages, randomPlayers,
             coachTotalPages, coachPaginatedPlayers, coachDisplayPages, coachMethods,

@@ -21,10 +21,17 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
     const roomCategory = ref('全部');
     const currentTickerIndex = ref(0);
     const singleRoomMode = ref(true);
+    const quickRegions = computed(() => {
+        const region = currentUser.value?.region || '';
+        if (!region || region === '全部') return ['附近'];
+        return region.split(',').map(r => r.trim()).filter(Boolean);
+    });
+
+    const selectedQuickRegion = ref('');
+
     const userRegion = computed(() => {
-        const region = currentUser.value?.region;
-        if (!region || region === '全部') return '附近';
-        return region;
+        if (selectedQuickRegion.value) return selectedQuickRegion.value;
+        return quickRegions.value[0] || '附近';
     });
 
     const timeLabel = computed(() => {
@@ -45,6 +52,13 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
             `${region} 約 1-2 小時友誼場`
         ];
     });
+
+    watch(quickRegions, (regions) => {
+        if (!regions.length) return;
+        if (!selectedQuickRegion.value || !regions.includes(selectedQuickRegion.value)) {
+            selectedQuickRegion.value = regions[0];
+        }
+    }, { immediate: true });
     
     // Geographic Mapping
     const REGION_GROUPS = {
@@ -591,6 +605,6 @@ const useInstantPlay = (isLoggedIn, currentUser, showToast, view) => {
         globalData, isLfg, selectedLfgRemark, roomSearch, roomCategory, sortedAndFilteredRooms, activityNotifications,
         currentTickerIndex, displayOtherAvatars, hiddenOthersCount,
         fetchRooms, selectRoom, sendInstantMessage, fetchMessages, joinBySlug, fetchGlobalData, toggleLfg,
-        enterSingleRoom, singleRoomMode, userRegion, timeLabel, quickTemplates
+        enterSingleRoom, singleRoomMode, userRegion, timeLabel, quickTemplates, quickRegions, selectedQuickRegion
     };
 };

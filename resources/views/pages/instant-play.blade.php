@@ -265,7 +265,7 @@
         {{-- Chat Header (Blue like message modal) --}}
         <div class="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between bg-gradient-to-r from-slate-800 to-slate-900 shrink-0">
             <div>
-                <h3 class="text-base sm:text-lg font-black text-white leading-tight">@{{ currentRoom.name }} 揪球室</h3>
+                <h3 class="text-base sm:text-lg font-black text-white leading-tight">揪球聊天室</h3>
                 <p class="text-[10px] font-bold text-white/60 uppercase tracking-widest">
                     本房間有 @{{ currentRoom.active_count || 0 }} 位球友在線
                 </p>
@@ -327,11 +327,21 @@
         {{-- Chat Footer / Input --}}
         <div class="p-4 sm:p-6 border-t border-slate-100 bg-white shadow-lg shrink-0" style="padding-bottom: calc(1rem + env(safe-area-inset-bottom) + 3.5rem);">
             {{-- Quick Templates --}}
-            <div class="flex items-center gap-2 mb-2">
+            <div class="flex items-center gap-2 mb-2 flex-wrap">
                 <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">快速揪球</span>
                 <span class="px-2 py-1 rounded-full bg-slate-100 text-slate-500 text-[9px] font-black uppercase tracking-widest">
                     你的地區：@{{ userRegion }}・@{{ timeLabel }}
                 </span>
+                <div v-if="quickRegions.length > 1" class="flex items-center gap-1">
+                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">切換地區</span>
+                    <div class="flex items-center gap-1 overflow-x-auto no-scrollbar">
+                        <button v-for="r in quickRegions" :key="r"
+                            @click="selectedQuickRegion = r"
+                            :class="['px-2 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border transition-all', selectedQuickRegion === r ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-500 border-slate-200 hover:border-blue-200 hover:text-blue-600']">
+                            @{{ r }}
+                        </button>
+                    </div>
+                </div>
             </div>
             <div class="flex gap-2 overflow-x-auto no-scrollbar pb-3 mb-1">
                 <button v-for="t in quickTemplates" :key="t"

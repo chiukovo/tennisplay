@@ -357,7 +357,7 @@
     </script>
     {{-- Leaflet will be loaded on-demand in vue-scripts to reduce initial payload --}}
     <script src="{{ asset('js/mobile.js') }}"></script>
-    <script src="{{ asset('js/app.js') }}"></script>
+    <script src="{{ mix('js/app.js') }}"></script>
 
     {{-- Vue Application Logic --}}
     @include('partials.vue-scripts')

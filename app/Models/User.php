@@ -26,6 +26,7 @@ class User extends Authenticatable
         'bio',
         'line_user_id',
         'line_picture_url',
+        'is_line_friend',
         'settings',
     ];
 

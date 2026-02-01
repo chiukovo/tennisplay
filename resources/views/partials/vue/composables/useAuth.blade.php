@@ -1,7 +1,7 @@
 // --- useAuth Composable ---
 // 登入/登出、使用者狀態管理
 
-const useAuth = (showToast, navigateTo, initSettings, isLoggedIn, currentUser, settingsForm, view) => {
+const useAuth = (showToast, navigateTo, initSettings, isLoggedIn, currentUser, settingsForm, view, showLinePromo) => {
     const isLoginMode = ref(true);
     const showUserMenu = ref(false);
     const isSavingSettings = ref(false);
@@ -72,6 +72,12 @@ const useAuth = (showToast, navigateTo, initSettings, isLoggedIn, currentUser, s
             // 3. 結果處理
             if (success) {
                 if (initSettings) initSettings();
+                // 檢查是否為 LINE 好友，若否則顯示提示彈窗（僅在登入時顯示一次）
+                if (currentUser.value && !currentUser.value.is_line_friend && showLinePromo) {
+                    // 記錄這次登入已顯示過彈窗
+                    localStorage.setItem('line_friend_prompt_time', Date.now().toString());
+                    showLinePromo.value = true;
+                }
                 // 登入成功，強制重整跳回首頁
                 window.location.href = '/';
             } else {

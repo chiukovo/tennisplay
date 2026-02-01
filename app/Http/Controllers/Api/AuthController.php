@@ -12,6 +12,36 @@ use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
+    /**
+     * Check if LINE user is following the official account.
+     */
+    private function checkLineFriendship($lineUserId)
+    {
+        try {
+            $messageToken = config('services.line.message_token');
+            if (!$messageToken) {
+                Log::warning('LINE_MESSAGE_TOKEN not configured');
+                return false;
+            }
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $messageToken,
+            ])->get("https://api.line.me/friendship/v1/status", [
+                'userId' => $lineUserId
+            ]);
+            
+            if ($response->successful()) {
+                $data = $response->json();
+                return $data['friendFlag'] ?? false;
+            }
+            
+            Log::warning('LINE friendship check failed: ' . $response->body());
+            return false;
+        } catch (\Exception $e) {
+            Log::error('LINE friendship check error: ' . $e->getMessage());
+            return false;
+        }
+    }
 
     /**
      * Logout user and revoke token.
@@ -145,6 +175,9 @@ class AuthController extends Controller
             }
 
 
+            // Check LINE friendship status
+            $isFriend = $this->checkLineFriendship($lineUserId);
+
             // Find or create user
             $user = User::where('line_user_id', $lineUserId)->first();
 
@@ -154,6 +187,7 @@ class AuthController extends Controller
                     'line_user_id' => $lineUserId,
                     'name' => $lineName,
                     'line_picture_url' => $localAvatarPath,
+                    'is_line_friend' => $isFriend,
                 ]);
             } else {
                 // Update existing user's LINE info
@@ -161,6 +195,7 @@ class AuthController extends Controller
 
                 $updateData = [
                     'line_picture_url' => $localAvatarPath ?: $user->line_picture_url,
+                    'is_line_friend' => $isFriend,
                 ];
                 if (empty($user->name)) {
                     $updateData['name'] = $lineName;
@@ -183,7 +218,8 @@ class AuthController extends Controller
                     'region' => $user->region,
                     'level' => $user->level,
                     'role' => $user->role,
-                    'id' => $user->id
+                    'id' => $user->id,
+                    'is_line_friend' => $user->is_line_friend
                 ]))
             ]);
 
@@ -253,6 +289,9 @@ class AuthController extends Controller
                 $linePicture = $lineUser['pictureUrl'] ?? null;
             }
 
+            // Check LINE friendship status
+            $isFriend = $this->checkLineFriendship($lineUserId);
+
             // Find or create user
             $user = User::where('line_user_id', $lineUserId)->first();
 
@@ -261,10 +300,12 @@ class AuthController extends Controller
                     'line_user_id' => $lineUserId,
                     'name' => $lineName,
                     'line_picture_url' => $linePicture,
+                    'is_line_friend' => $isFriend,
                 ]);
             } else {
                 $user->update([
                     'line_picture_url' => $linePicture ?: $user->line_picture_url,
+                    'is_line_friend' => $isFriend,
                 ]);
             }
 
@@ -281,7 +322,8 @@ class AuthController extends Controller
                     'region' => $user->region,
                     'level' => $user->level,
                     'role' => $user->role,
-                    'id' => $user->id
+                    'id' => $user->id,
+                    'is_line_friend' => $user->is_line_friend
                 ]
             ]);
 

@@ -246,7 +246,7 @@ window.vm = createApp({
         const { 
             isLoginMode, showUserMenu, isSavingSettings, isAuthLoading, authError,
             checkAuth, logout, saveSettings, loginWithLine
-        } = useAuth(showToast, (v, s, i) => navigateTo(v, s, i), () => initSettings(), isLoggedIn, currentUser, settingsForm, view);
+        } = useAuth(showToast, (v, s, i) => navigateTo(v, s, i), () => initSettings(), isLoggedIn, currentUser, settingsForm, view, showLinePromo);
 
         const { 
             profileData, isProfileLoading, profileTab, profileEvents, profileEventsHasMore, isEditingProfile, profileForm, 

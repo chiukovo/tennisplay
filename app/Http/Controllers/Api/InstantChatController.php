@@ -65,14 +65,13 @@ class InstantChatController extends Controller
 
     public function getMessages(InstantRoom $room)
     {
-        // Only show messages from the past 48 hours for relevance
+        // 顯示最近 50 條訊息，不再限制時間
         $messages = $room->messages()
             ->with(['user' => function($q) {
                 $q->select('id', 'name', 'line_picture_url', 'uid', 'region')->with('player:user_id,level');
             }])
-            ->where('created_at', '>=', Carbon::now()->subHours(48))
             ->latest()
-            ->limit(50)
+            ->limit(100)
             ->get()
             ->reverse()
             ->values();

@@ -19,6 +19,12 @@ class InstantChatController extends Controller
 {
     public function getRooms()
     {
+        // 記錄用戶已訪問過「想打」功能（用於推播判斷）
+        if (Auth::check()) {
+            $hasVisitedKey = "instant_visited:" . Auth::id();
+            Redis::connection('echo')->setex($hasVisitedKey, 86400 * 365, '1'); // 保留1年
+        }
+
         $rooms = InstantRoom::orderBy('sort_order')->get();
         $primaryRoom = $rooms->firstWhere('slug', 'all') ?? $rooms->first();
         $rooms = $primaryRoom ? collect([$primaryRoom]) : collect();
@@ -349,52 +355,75 @@ class InstantChatController extends Controller
     }
 
     /**
-     * 發送 LINE 通知給離線的聊天室參與者
-     * - 只通知不在網站上的用戶
-     * - 每個用戶每個聊天室 5 分鐘節流
+     * 熱度觸發推播：當聊天室熱鬧時推播給潛在用戶
+     * - 只在高熱度時才推播（5人以上在線，或15分鐘內8則訊息）
+     * - 推播給最近3天有登入但未用過「想打」的用戶
+     * - 每個用戶每天最多收到1次，時間限制10:00-22:00
      */
     private function notifyOfflineParticipants(InstantRoom $room, $sender)
     {
         if (!$sender) return;
 
+        // 檢查是否達到熱度觸發條件
+        $stats = $this->fetchRoomStatsData($room);
+        $activeCount = $stats['active_count'] ?? 0;
+        
+        // 計算最近15分鐘的訊息數
+        $recentMessageCount = $room->messages()
+            ->where('created_at', '>=', now()->subMinutes(15))
+            ->count();
+        
+        // 熱度觸發條件：同時在線≥5人 或 15分鐘內≥8則訊息
+        $isHot = $activeCount >= 5 || $recentMessageCount >= 8;
+        
+        if (!$isHot) return; // 不夠熱鬧就不推播
+        
+        // 限制推播時間：10:00-22:00
+        $hour = now()->hour;
+        if ($hour < 10 || $hour >= 22) return;
+
         // 取得目前在線的用戶 ID
         $onlineUserIds = $this->getOnlineUserIds();
 
-        // 取得聊天室最近 2 小時有發言的用戶（排除發送者）
-        $recentUserIds = $room->messages()
-            ->where('user_id', '!=', $sender->id)
-            ->where('created_at', '>=', now()->subHours(2))
-            ->distinct()
-            ->pluck('user_id')
-            ->toArray();
+        // 找出潛在用戶：最近3天有活動（updated_at），但從未進入過「想打」
+        $potentialUsers = User::whereNotNull('line_user_id')
+            ->where('updated_at', '>=', now()->subDays(3))
+            ->whereNotIn('id', $onlineUserIds)
+            ->limit(50) // 限制最多50人避免過載
+            ->get();
 
-        foreach ($recentUserIds as $userId) {
-            // 在線 → 跳過
-            if (in_array($userId, $onlineUserIds)) continue;
+        $notificationsSent = 0;
 
-            $user = User::find($userId);
-            if (!$user || !$user->line_user_id) continue;
+        foreach ($potentialUsers as $user) {
+            // 限制每次推播最多10人
+            if ($notificationsSent >= 10) break;
 
-            // 節流：5 分鐘內只發一次
-            $throttleKey = "instant_notify:{$room->id}:{$userId}";
-            if (Cache::has($throttleKey)) continue;
-            Cache::put($throttleKey, true, now()->addMinutes(5));
+            // 檢查是否曾進入過「想打」功能（Redis記錄）
+            $hasVisitedKey = "instant_visited:{$user->id}";
+            if (Redis::connection('echo')->exists($hasVisitedKey)) continue;
+
+            // 每日推播限制：每個用戶每天最多1次
+            $dailyThrottleKey = "instant_promo_daily:{$user->id}:" . now()->format('Y-m-d');
+            if (Cache::has($dailyThrottleKey)) continue;
+            Cache::put($dailyThrottleKey, true, now()->endOfDay());
 
             // 發送 LINE 通知
             LineNotifyService::dispatchFlexMessage(
                 $user->id,
                 $user->line_user_id,
-                "🎾 即時聊天室：「{$room->name}」有新訊息！",
+                "🔥 熱！現在有 {$activeCount} 人在「想打」找球友！",
                 LineFlexMessageBuilder::buildInstantChatNotification($room->name)
             );
 
-            // 發送原生推播通知 (Capacitor/FCM)
+            // 發送原生推播通知
             app(PushNotificationService::class)->notifyUser(
                 $user->id,
-                "🎾 即時聊天室有新訊息",
-                "「{$room->name}」正在熱烈討論中，快進來看看吧！",
-                ['room_slug' => $room->slug, 'type' => 'chat']
+                "🔥 現在很熱鬧！",
+                "{$activeCount} 人正在「想打」聊天室找球友，立即加入！",
+                ['room_slug' => $room->slug, 'type' => 'instant_promo']
             );
+
+            $notificationsSent++;
         }
     }
 

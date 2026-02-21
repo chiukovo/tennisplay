@@ -196,6 +196,8 @@ const PlayerCard = {
     template: '#player-card-template',
     setup(props) {
         const cardContainer = ref(null);
+        const nameEl = ref(null);
+        const nameFontSize = ref('50px');
         const isVisible = ref(false);
         let io = null;
         const themes = {
@@ -329,7 +331,7 @@ const PlayerCard = {
             img.src = url;
         }, { immediate: true });
 
-        const nameFontSize = computed(() => {
+        const baseNameFontSize = computed(() => {
             const name = p.value?.name || '';
             if (!name) return '50px';
             
@@ -339,15 +341,43 @@ const PlayerCard = {
                 visualLength += name.charCodeAt(i) > 255 ? 2 : 1;
             }
 
-            // More relaxed thresholds
-            if (visualLength <= 12) return '50px'; // Up to 6 Chinese chars
-            if (visualLength <= 16) return '44px'; // Up to 8 Chinese chars
-            if (visualLength <= 20) return '38px'; // Up to 10 Chinese chars
-            if (visualLength <= 24) return '34px'; // Up to 12 Chinese chars
+            if (visualLength <= 10) return '50px';
+            if (visualLength <= 14) return '44px';
+            if (visualLength <= 18) return '38px';
+            if (visualLength <= 22) return '34px';
             return '30px';
         });
 
-        return { cardContainer, p, themeStyle, displayRegion, getLevelTag, handleMove, handleLeave, holoStyle, cardScale, containerHeight, nameFontSize, isVisible, isPhotoLoaded, photoUrl, isScaleReady };
+        const adjustNameFontSize = () => {
+            nextTick(() => {
+                const el = nameEl.value;
+                if (!el) {
+                    nameFontSize.value = baseNameFontSize.value;
+                    return;
+                }
+
+                let currentSize = parseFloat(baseNameFontSize.value);
+                const minSize = 22;
+                el.style.fontSize = `${currentSize}px`;
+
+                while (el.scrollWidth > el.clientWidth && currentSize > minSize) {
+                    currentSize -= 1;
+                    el.style.fontSize = `${currentSize}px`;
+                }
+
+                nameFontSize.value = `${currentSize}px`;
+            });
+        };
+
+        watch([() => p.value?.name, cardScale], () => {
+            adjustNameFontSize();
+        }, { immediate: true });
+
+        onMounted(() => {
+            adjustNameFontSize();
+        });
+
+        return { cardContainer, nameEl, p, themeStyle, displayRegion, getLevelTag, handleMove, handleLeave, holoStyle, cardScale, containerHeight, nameFontSize, isVisible, isPhotoLoaded, photoUrl, isScaleReady };
     }
 };
 

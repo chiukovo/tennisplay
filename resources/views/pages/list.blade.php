@@ -183,33 +183,84 @@
     </div>
 
     {{-- Skeleton Loading --}}
-    <div v-if="isPlayersLoading" class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
-        <div v-for="i in 12" :key="i" class="relative max-w-60 mx-auto w-full">
-            <div class="aspect-[2.5/3.8] rounded-2xl skeleton-shimmer"></div>
-        </div>
+    <div v-if="isPlayersLoading" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+        <div v-for="i in 12" :key="i" class="aspect-[1.15/1] rounded-[28px] skeleton-shimmer"></div>
     </div>
 
-    {{-- Player Cards Grid (Using PlayerCard Component) --}}
-    <div v-else-if="paginatedPlayers.length > 0" class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+    {{-- Player Profile Grid --}}
+    <div v-else-if="paginatedPlayers.length > 0" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
         <template v-for="(player, index) in paginatedPlayers" :key="player?.id ? `player-${player.id}` : `placeholder-${index}`">
-            <div v-if="player && player.id" class="relative group max-w-60 mx-auto w-full transition-transform duration-300 sm:hover:-translate-y-1">
-                {{-- Player Card Component with proper positioning data --}}
-                <div @click="showDetail(player)" class="cursor-pointer">
-                    <player-card 
-                        :player="player" 
-                        size="sm">
-                    </player-card>
+            <article v-if="player && player.id"
+                @click="showDetail(player)"
+                class="group relative aspect-[1.15/1] cursor-pointer overflow-hidden rounded-[28px] border border-violet-400/50 bg-slate-950 text-white shadow-[0_18px_50px_-24px_rgba(124,58,237,0.9)] transition duration-300 hover:-translate-y-1 hover:border-violet-300 hover:shadow-[0_24px_60px_-22px_rgba(124,58,237,1)]">
+
+                <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-black"></div>
+                <div class="absolute -right-12 -top-12 h-52 w-52 rounded-full bg-violet-500/30 blur-3xl"></div>
+
+                <div class="absolute inset-y-0 right-0 w-[70%] overflow-hidden">
+                    <img v-if="player.photo_url || player.photo"
+                        :src="player.photo_url || `/storage/${player.photo}`"
+                        :alt="player.name"
+                        loading="lazy"
+                        decoding="async"
+                        class="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105">
+                    <div v-else class="flex h-full items-center justify-center text-white/10">
+                        <app-icon name="user" class-name="h-40 w-40"></app-icon>
+                    </div>
                 </div>
-            {{-- Action Buttons Overlay (Hidden on Mobile) --}}
-            <div class="absolute bottom-4 left-4 right-4 hidden sm:flex gap-2 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-200 z-30">
-                <button type="button" @click.stop="showDetail(player)" class="flex-1 py-3 bg-white/95 text-slate-700 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-white transition-colors flex items-center justify-center gap-2 shadow-lg">
-                    <app-icon name="user" class-name="w-4 h-4"></app-icon> 詳細
-                </button>
-                <button type="button" @click.stop="openMatchModal(player)" class="flex-1 py-3 bg-blue-600/95 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 shadow-lg">
-                    <app-icon name="message-circle" class-name="w-4 h-4"></app-icon> 約打
-                </button>
-            </div>
-        </div>
+
+                <div class="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/55 to-transparent"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+
+                <div class="relative z-10 flex h-full w-[78%] flex-col p-5 sm:p-6">
+                    <div>
+                        <h3 class="truncate text-2xl font-black tracking-tight">@{{ player.name }}</h3>
+                        <p class="mt-1 flex items-center gap-2 text-xs font-bold text-slate-300 sm:text-sm">
+                            <app-icon name="map-pin" class-name="h-4 w-4"></app-icon>
+                            @{{ player.region || '全台' }}
+                        </p>
+                    </div>
+
+                    <div class="mt-3 space-y-1.5">
+                        <div class="flex items-baseline gap-3">
+                            <span class="text-xs font-black tracking-widest text-violet-200">NTRP</span>
+                            <span class="text-3xl font-black text-amber-300">@{{ player.level || '-' }}</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm font-bold">
+                            <span class="text-slate-400">打法</span>
+                            <span class="text-rose-300">@{{ player.handed || '未填寫' }}</span>
+                            <span class="text-slate-600">/</span>
+                            <span class="text-cyan-300">@{{ player.backhand || '未填寫' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <p class="mb-1.5 text-[11px] font-black tracking-widest text-slate-300">球友標籤</p>
+                        <div class="flex flex-wrap gap-1.5">
+                            <span v-if="player.gender" class="rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold backdrop-blur">@{{ player.gender }}</span>
+                            <span v-if="player.handed" class="rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold backdrop-blur">@{{ player.handed }}持拍</span>
+                            <span v-if="player.backhand" class="rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold backdrop-blur">@{{ player.backhand }}</span>
+                            <span v-if="player.fee" class="max-w-full truncate rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold backdrop-blur">@{{ player.fee }}</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto pr-2">
+                        <p class="text-[11px] font-black tracking-widest text-slate-300">一句話訊息</p>
+                        <p class="mt-1 line-clamp-2 text-sm font-medium leading-relaxed text-white/90">@{{ player.intro || '一起來打球！' }}</p>
+                    </div>
+                </div>
+
+                <div class="absolute bottom-4 right-4 z-20 flex gap-2 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
+                    <button type="button" @click.stop="showDetail(player)" aria-label="查看詳細資料"
+                        class="flex h-10 w-10 items-center justify-center rounded-xl border border-white/20 bg-slate-950/75 text-white backdrop-blur hover:bg-white hover:text-slate-900">
+                        <app-icon name="user" class-name="h-4 w-4"></app-icon>
+                    </button>
+                    <button type="button" @click.stop="openMatchModal(player)" aria-label="邀請約打"
+                        class="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-600 text-white shadow-lg hover:bg-violet-500">
+                        <app-icon name="message-circle" class-name="h-4 w-4"></app-icon>
+                    </button>
+                </div>
+            </article>
         </template>
     </div>
 

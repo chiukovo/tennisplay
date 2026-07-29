@@ -19,8 +19,8 @@ const useCapture = (showToast) => {
         
         try {
             if (mergedLayer) mergedLayer.style.display = 'none';
-            const targetWidth = 320;
-            const targetHeight = (targetWidth / 2.5) * 3.8;
+            const targetWidth = 540;
+            const targetHeight = 470;
             
             cardEl.style.width = `${targetWidth}px`;
             cardEl.style.height = `${targetHeight}px`;

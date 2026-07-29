@@ -50,7 +50,7 @@
                 <div class="w-full md:w-[350px] lg:w-[420px] shrink-0" :class="{'hidden md:block': !isProfileLoading && !profileData.user?.player}">
                     <!-- Loading Skeleton -->
                     <div v-if="isProfileLoading" class="animate-pulse">
-                        <div class="aspect-[450/684] bg-slate-200 rounded-[28px]"></div>
+                        <div class="aspect-[540/470] bg-slate-200 rounded-[28px]"></div>
                     </div>
                     
                     <!-- Player Card (only show after loading) -->

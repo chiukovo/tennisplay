@@ -51,8 +51,8 @@
             </div>
         </div>
         
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
-            <div v-for="card in myCards" :key="card.id" class="relative group max-w-[280px] mx-auto w-full">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            <div v-for="card in myCards" :key="card.id" class="relative group w-full">
                 <div @click="showDetail(card)" class="cursor-pointer hover:-translate-y-2 transition-transform duration-500">
                     <player-card :player="card" size="sm"></player-card>
                 </div>

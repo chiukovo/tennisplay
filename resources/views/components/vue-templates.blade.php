@@ -200,6 +200,89 @@
     </div>
 </script>
 
+{{-- Horizontal Player Card Template --}}
+<script type="text/x-template" id="horizontal-player-card-template">
+    <div v-if="p || isPlaceholder" ref="cardContainer"
+        class="holo-container relative overflow-visible transition-opacity duration-150"
+        :class="isScaleReady ? 'opacity-100' : 'opacity-0'"
+        :style="{ height: containerHeight + 'px' }">
+        <div class="absolute left-0 top-0 h-[470px] w-[540px] origin-top-left"
+            :style="{ transform: `scale(${cardScale}) translateZ(0)` }">
+            <div :class="['group capture-target relative h-full w-full overflow-hidden rounded-[28px] border border-violet-400/50 bg-slate-950 text-white shadow-[0_18px_50px_-24px_rgba(124,58,237,0.9)]', isPlaceholder ? 'opacity-50 grayscale' : '', isCapturing ? 'is-capturing' : '']">
+                <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-black"></div>
+                <div class="absolute -right-12 -top-12 h-52 w-52 rounded-full bg-violet-500/30 blur-3xl"></div>
+
+                <div class="absolute inset-0 overflow-hidden">
+                    <img v-if="isVisible" :src="photoUrl"
+                        loading="lazy"
+                        decoding="async"
+                        crossorigin="anonymous"
+                        :class="['absolute inset-0 h-full w-full object-cover transition-opacity duration-300', isPhotoLoaded ? 'opacity-100' : 'opacity-0']"
+                        :style="{ objectPosition: '70% top', transform: `translate(${p?.photoX || 0}%, ${p?.photoY || 0}%) scale(${p?.photoScale || 1})` }"
+                        @load="isPhotoLoaded = true"
+                        v-on:error="isPhotoLoaded = true">
+                    <div v-if="!isPhotoLoaded" class="absolute inset-0 bg-slate-900"></div>
+                </div>
+
+                <div class="absolute inset-0" style="background: linear-gradient(90deg, rgba(2,6,23,.92) 0%, rgba(2,6,23,.78) 25%, rgba(2,6,23,.45) 50%, rgba(2,6,23,.12) 72%, transparent 100%);"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+
+                <div class="relative z-10 flex h-full w-[78%] flex-col p-9">
+                    <div>
+                        <div class="flex items-center gap-3">
+                            <h3 class="truncate text-[36px] font-black leading-none tracking-tight">@{{ p?.name || '請更新卡片' }}</h3>
+                            <span v-if="p?.is_coach" class="shrink-0 rounded-full bg-amber-500 px-3 py-1 text-xs font-black">教練</span>
+                        </div>
+                        <p class="mt-2 flex items-center gap-2 text-lg font-bold text-slate-300">
+                            <app-icon name="map-pin" class-name="h-5 w-5"></app-icon>
+                            @{{ displayRegion }}
+                        </p>
+                    </div>
+
+                    <div class="mt-5 space-y-2">
+                        <div class="flex items-baseline gap-4">
+                            <span class="text-sm font-black tracking-widest text-violet-200">NTRP</span>
+                            <span class="text-[44px] font-black leading-none text-amber-300">@{{ p?.level || '-' }}</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-lg font-bold">
+                            <span class="text-slate-400">打法</span>
+                            <span class="text-rose-300">@{{ p?.handed || '未填寫' }}</span>
+                            <span class="text-slate-600">/</span>
+                            <span class="text-cyan-300">@{{ p?.backhand || '未填寫' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-5">
+                        <p class="mb-2 text-sm font-black tracking-widest text-slate-300">球友標籤</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span v-if="p?.gender" class="rounded-full bg-white/10 px-4 py-1.5 text-sm font-bold backdrop-blur">@{{ p.gender }}</span>
+                            <span v-if="p?.handed" class="rounded-full bg-white/10 px-4 py-1.5 text-sm font-bold backdrop-blur">@{{ p.handed }}持拍</span>
+                            <span v-if="p?.backhand" class="rounded-full bg-white/10 px-4 py-1.5 text-sm font-bold backdrop-blur">@{{ p.backhand }}</span>
+                            <span v-if="p?.fee" class="max-w-[180px] truncate rounded-full bg-white/10 px-4 py-1.5 text-sm font-bold backdrop-blur">@{{ p.fee }}</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto pr-4">
+                        <p class="text-sm font-black tracking-widest text-slate-300">一句話訊息</p>
+                        <p class="mt-1 line-clamp-2 text-lg font-medium leading-relaxed text-white/90">@{{ p?.intro || '一起來打球！' }}</p>
+                    </div>
+                </div>
+
+                <signature-pad :active="isSigning" @save="sig => $emit('update-signature', sig)" @close="$emit('close-signing')"></signature-pad>
+                <div v-if="p?.signature" :class="['absolute inset-0 z-[100] signature-layer', isAdjustingSig ? 'pointer-events-auto' : 'pointer-events-none']">
+                    <img :src="p.signature"
+                        id="target-signature"
+                        crossorigin="anonymous"
+                        draggable="false"
+                        :class="['absolute origin-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]', isAdjustingSig ? 'pointer-events-auto cursor-move' : 'pointer-events-none']"
+                        :style="{ width: `${p.sigWidth || 100}%`, height: 'auto', left: `${p.sigX ?? 50}%`, top: `${p.sigY ?? 50}%`, transform: `translate(-50%, -50%) scale(${p.sigScale || 1}) rotate(${p.sigRotate || 0}deg)` }"
+                        @load="$emit('sig-ready', $event.target)">
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
 {{-- Privacy Policy Modal Template --}}
 <script type="text/x-template" id="privacy-modal-template">
     <transition name="modal">
@@ -310,7 +393,7 @@
 
                     {{-- Large Preview & Download --}}
                     <div class="flex flex-col items-center gap-5">
-                        <div class="w-44 aspect-[2.5/3.8] relative group">
+                        <div class="w-full max-w-[360px] aspect-[540/470] relative group">
                             <player-card :player="player" size="sm" :is-capturing="isCapturing" class="pointer-events-none"></player-card>
                         </div>
                         

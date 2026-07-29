@@ -225,4 +225,20 @@ class FullApiTest extends TestCase
             ->assertStatus(200)
             ->assertJson(['success' => true]);
     }
+
+    public function test_card_render_uses_horizontal_layout()
+    {
+        [, $player] = $this->createUser(true, [], [
+            'photo_x' => 12,
+            'photo_y' => -8,
+            'photo_scale' => 1.25,
+        ]);
+
+        $this->get('/internal/card-render/'.$player->id)
+            ->assertOk()
+            ->assertSee('width: 540px', false)
+            ->assertSee('height: 470px', false)
+            ->assertSee('translate(12%, -8%) scale(1.25)', false)
+            ->assertSee('球友標籤');
+    }
 }

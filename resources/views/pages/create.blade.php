@@ -87,11 +87,12 @@
                                             </div>
 
                                             {{-- Larger, interactive preview --}}
-                                            <div class="relative w-full max-w-[340px] aspect-[2.5/3.5] rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20 cursor-move bg-slate-900 touch-none"
+                                            <div class="relative w-full max-w-[440px] aspect-[540/470] rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20 cursor-move bg-slate-900 touch-none"
                                                 @mousedown="startDrag($event, 'photo')" @touchstart.prevent="startDrag($event, 'photo')">
                                                 <img :src="getUrl(form.photo)" 
-                                                    class="absolute inset-0 w-full h-full object-contain pointer-events-none"
-                                                    :style="{ transform: `translate(${form.photoX}%, ${form.photoY}%) scale(${form.photoScale})` }">
+                                                    class="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                                                    :style="{ objectPosition: '70% top', transform: `translate(${form.photoX}%, ${form.photoY}%) scale(${form.photoScale})` }">
+                                                <div class="absolute inset-0 pointer-events-none" style="background: linear-gradient(90deg, rgba(2,6,23,.92) 0%, rgba(2,6,23,.78) 25%, rgba(2,6,23,.45) 50%, rgba(2,6,23,.12) 72%, transparent 100%);"></div>
                                                 
                                                 {{-- Grid Guide --}}
                                                 <div class="absolute inset-0 border border-white/10 pointer-events-none">
@@ -229,7 +230,7 @@
                             </div>
                         </div>
 
-                        <div class="w-full max-w-[300px] transform transition-all duration-500 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] rounded-2xl relative pointer-events-none">
+                        <div class="w-full max-w-[440px] transform transition-all duration-500 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] rounded-2xl relative pointer-events-none">
                             {{-- Signature Adjustment Overlay (Teleported) --}}
                             <teleport to="body">
                                 <transition name="fade">
@@ -251,7 +252,7 @@
                                         </div>
 
                                         {{-- Interactive Card Area --}}
-                                        <div class="relative w-full max-w-[340px] aspect-[2.5/3.5] rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20 bg-slate-900 touch-none">
+                                        <div class="relative w-full max-w-[440px] aspect-[540/470] rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20 bg-slate-900 touch-none">
                                             <player-card :player="form" :is-signing="false" :is-adjusting-sig="true"
                                                 @update-signature="handleSignatureUpdate" 
                                                 @sig-ready="initMoveable"></player-card>
@@ -343,7 +344,7 @@
 {{-- Full Screen Preview Card (Refactored) --}}
 {{-- <transition name="modal"> --}}
     <div v-if="showPreview" class="fixed inset-0 z-[600] bg-slate-950/95 backdrop-blur-2xl flex items-center justify-center p-6" @click.stop="">
-        <div class="w-full max-w-[340px] animate__animated animate__zoomIn animate__faster">
+        <div class="w-full max-w-[540px] animate__animated animate__zoomIn animate__faster">
             <div class="flex justify-center mb-8">
                 <span class="bg-blue-600 text-white text-[10px] font-black px-6 py-2 rounded-full uppercase tracking-widest italic shadow-xl shadow-blue-600/40">Premium Card Preview</span>
             </div>

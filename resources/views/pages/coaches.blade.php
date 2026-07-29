@@ -120,16 +120,16 @@
     </div>
 
     {{-- Skeleton Loading --}}
-    <div v-if="isPlayersLoading" class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
-        <div v-for="i in 12" :key="i" class="relative max-w-60 mx-auto w-full">
-            <div class="aspect-[2.5/3.8] rounded-2xl skeleton-shimmer"></div>
+    <div v-if="isPlayersLoading" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+        <div v-for="i in 12" :key="i" class="w-full">
+            <div class="aspect-[540/470] rounded-[28px] skeleton-shimmer"></div>
         </div>
     </div>
 
     {{-- Coach Cards Grid --}}
-    <div v-else-if="coachPaginatedPlayers.length > 0" class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+    <div v-else-if="coachPaginatedPlayers.length > 0" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
         <template v-for="(player, index) in coachPaginatedPlayers" :key="player?.id ? `coach-${player.id}` : `coach-placeholder-${index}`">
-            <div v-if="player && player.id" class="relative group max-w-60 mx-auto w-full transition-transform duration-300 sm:hover:-translate-y-1">
+            <div v-if="player && player.id" class="relative group w-full transition-transform duration-300 sm:hover:-translate-y-1">
                 <div @click="showDetail(player)" class="cursor-pointer">
                     <player-card :player="player" size="sm"></player-card>
                 </div>

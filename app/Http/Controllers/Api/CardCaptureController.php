@@ -26,7 +26,7 @@ class CardCaptureController extends Controller
             
             // 1. Prepare Cache Path
             $cacheDir = 'public/player-cards';
-            $updateHash = md5($player->updated_at);
+            $updateHash = md5('horizontal-v2'.$player->updated_at);
             $filename = "card_{$id}_{$updateHash}.png";
             $cachePath = "{$cacheDir}/{$filename}";
 
@@ -46,8 +46,8 @@ class CardCaptureController extends Controller
             
             // 4. Configure Browsershot
             $browsershot = Browsershot::url($renderUrl)
-                ->windowSize(450, 684)
-                ->deviceScaleFactor(2) // Retina quality (900x1368 output)
+                ->windowSize(540, 470)
+                ->deviceScaleFactor(2) // Retina quality (1080x940 output)
                 ->hideBackground()
                 ->waitUntilNetworkIdle()
                 ->waitForFunction('document.fonts.ready')
@@ -279,4 +279,3 @@ class CardCaptureController extends Controller
         return null;
     }
 }
-

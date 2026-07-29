@@ -39,7 +39,7 @@
                 
                 {{-- Mobile Swiper Cards (Above Buttons) --}}
                 <div class="lg:hidden flex flex-col items-center mb-4">
-                    <div class="swiper home-cards-swiper" style="width: 140px; height: 210px;">
+                    <div class="swiper home-cards-swiper" style="width: 180px; height: 157px;">
                         <div class="swiper-wrapper">
                             <div v-if="randomPlayers.length > 0" v-for="p in randomPlayers.slice(0, 5)" :key="'swiper-' + p.id" class="swiper-slide">
                                 <player-card :player="p" size="sm" class="w-full h-full"></player-card>
@@ -96,7 +96,7 @@
 
             {{-- Right: Swiper Cards (Desktop Only) --}}
             <div class="relative hidden lg:flex justify-center py-8 lg:py-0">
-                <div class="swiper home-cards-swiper-desktop" style="width: 240px; height: 360px;">
+                <div class="swiper home-cards-swiper-desktop" style="width: 360px; height: 313px;">
                     <div class="swiper-wrapper">
                         <div v-if="randomPlayers.length > 0" v-for="p in randomPlayers" :key="'swiper-desktop-' + p.id" class="swiper-slide">
                             <player-card :player="p" size="sm" class="w-full h-full"></player-card>

@@ -193,7 +193,7 @@ const SignaturePad = {
 const PlayerCard = {
     props: ['player', 'size', 'isSigning', 'isAdjustingSig', 'isPlaceholder', 'isCapturing'],
     components: { AppIcon, SignaturePad },
-    template: '#player-card-template',
+    template: '#horizontal-player-card-template',
     setup(props) {
         const cardContainer = ref(null);
         const nameEl = ref(null);
@@ -257,9 +257,9 @@ const PlayerCard = {
         const handleLeave = () => {};
         const holoStyle = computed(() => ({}));
 
-        const cardScale = ref(props.size === 'sm' ? 0 : 1);
-        const containerHeight = ref(props.size === 'sm' ? 0 : 684);
-        const isScaleReady = ref(props.size !== 'sm');
+        const cardScale = ref(0);
+        const containerHeight = ref(0);
+        const isScaleReady = ref(false);
         let resizeObserver = null;
         let rafId = null;
         
@@ -269,8 +269,8 @@ const PlayerCard = {
                 if (cardContainer.value) {
                     const containerWidth = cardContainer.value.offsetWidth;
                     if (containerWidth > 0) {
-                        cardScale.value = containerWidth / 450;
-                        containerHeight.value = 684 * cardScale.value;
+                        cardScale.value = containerWidth / 540;
+                        containerHeight.value = 470 * cardScale.value;
                         isScaleReady.value = true;
                     }
                 }

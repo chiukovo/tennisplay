@@ -11,7 +11,7 @@
         .base { position: absolute; inset: 0; background: linear-gradient(135deg, #0f172a, #020617 65%, #000); }
         .glow { position: absolute; top: -48px; right: -48px; width: 208px; height: 208px; border-radius: 50%; background: rgba(139, 92, 246, .3); filter: blur(48px); }
         .photo { position: absolute; inset: 0; overflow: hidden; }
-        .photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 70% top; }
+        .photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
         .shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(2, 6, 23, .92) 0%, rgba(2, 6, 23, .78) 25%, rgba(2, 6, 23, .45) 50%, rgba(2, 6, 23, .12) 72%, transparent 100%); }
         .shade-bottom { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(2, 6, 23, .8), transparent 55%); }
         .content { position: relative; z-index: 10; display: flex; flex-direction: column; width: 78%; height: 100%; padding: 36px; }
@@ -43,8 +43,7 @@
         <div class="base"></div>
         <div class="glow"></div>
         <div class="photo">
-            <img src="{{ $photoUrl }}" crossorigin="anonymous" alt=""
-                style="transform: translate({{ $player->photo_x ?? 0 }}%, {{ $player->photo_y ?? 0 }}%) scale({{ $player->photo_scale ?? 1 }});">
+            <img src="{{ $photoUrl }}" crossorigin="anonymous" alt="">
         </div>
         <div class="shade"></div>
         <div class="shade-bottom"></div>

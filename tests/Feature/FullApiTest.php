@@ -238,7 +238,8 @@ class FullApiTest extends TestCase
             ->assertOk()
             ->assertSee('width: 540px', false)
             ->assertSee('height: 470px', false)
-            ->assertSee('translate(12%, -8%) scale(1.25)', false)
+            ->assertDontSee('object-position:', false)
+            ->assertDontSee('translate(12%, -8%) scale(1.25)', false)
             ->assertSee('球友標籤');
     }
 }

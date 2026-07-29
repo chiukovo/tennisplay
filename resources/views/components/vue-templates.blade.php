@@ -218,7 +218,6 @@
                         decoding="async"
                         crossorigin="anonymous"
                         :class="['absolute inset-0 h-full w-full object-cover transition-opacity duration-300', isPhotoLoaded ? 'opacity-100' : 'opacity-0']"
-                        :style="{ objectPosition: '70% top', transform: `translate(${p?.photoX || 0}%, ${p?.photoY || 0}%) scale(${p?.photoScale || 1})` }"
                         @load="isPhotoLoaded = true"
                         v-on:error="isPhotoLoaded = true">
                     <div v-if="!isPhotoLoaded" class="absolute inset-0 bg-slate-900"></div>
